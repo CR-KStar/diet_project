@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>diet_project 도메인 모델 지도</title>
+<style>
+:root{--bg:#fbfaf7;--card:#ffffff;--text:#1f1e1c;--muted:#6b6a65;--line:#dedcd3;--accent:#0F6E56;
+--teal-f:#E1F5EE;--teal-s:#0F6E56;--teal-t:#085041;--teal-u:#0F6E56;
+--gray-f:#F1EFE8;--gray-s:#5F5E5A;--gray-t:#444441;--gray-u:#5F5E5A;
+--purple-f:#EEEDFE;--purple-s:#534AB7;--purple-t:#3C3489;--purple-u:#534AB7}
+@media (prefers-color-scheme:dark){:root{--bg:#1a1917;--card:#252421;--text:#ecebe6;--muted:#a3a29b;--line:#3a3935;--accent:#5DCAA5;
+--teal-f:#085041;--teal-s:#5DCAA5;--teal-t:#9FE1CB;--teal-u:#5DCAA5;
+--gray-f:#444441;--gray-s:#B4B2A9;--gray-t:#D3D1C7;--gray-u:#B4B2A9;
+--purple-f:#3C3489;--purple-s:#AFA9EC;--purple-t:#CECBF6;--purple-u:#AFA9EC}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 -apple-system,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif}
+main{max-width:820px;margin:0 auto;padding:0 20px 80px}
+header.top{padding:40px 0 8px}
+h1{font-size:28px;line-height:1.3;margin:0 0 6px;font-weight:600}
+h2{font-size:21px;margin:56px 0 6px;font-weight:600;scroll-margin-top:64px}
+h3{font-size:16px;margin:28px 0 10px;font-weight:600;color:var(--muted)}
+p{margin:6px 0}
+.sub{color:var(--muted);margin:0}
+code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--gray-f);padding:1px 6px;border-radius:4px}
+nav{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--line);z-index:5;padding:0 20px}
+nav div{max-width:820px;margin:0 auto;display:flex;gap:4px;overflow-x:auto;padding:8px 0}
+nav a{white-space:nowrap;color:var(--muted);text-decoration:none;font-size:14px;padding:4px 10px;border-radius:999px}
+nav a:hover{background:var(--gray-f);color:var(--text)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:22px 0 4px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.stat b{display:block;font-size:26px;font-weight:600;line-height:1.2}
+.stat span{color:var(--muted);font-size:13px}
+.how{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-top:14px;font-size:14px;color:var(--muted)}
+.how b{color:var(--text)}
+.fig{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin:14px 0}
+.fig svg{display:block;width:100%;height:auto}
+.fig figcaption{color:var(--muted);font-size:13px;margin:6px 4px 0}
+svg text{font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif}
+svg .th{font-size:14px;font-weight:500;fill:var(--text)}
+svg .ts{font-size:12px;fill:var(--muted)}
+svg .grp{fill:none;stroke:var(--line);stroke-width:1;stroke-dasharray:4 3}
+svg .arr{stroke:var(--muted);stroke-width:1.5;fill:none}
+svg [class^="c-"]>rect{stroke-width:.6}
+.c-teal>rect{fill:var(--teal-f);stroke:var(--teal-s)} .c-teal .th{fill:var(--teal-t)} .c-teal .ts{fill:var(--teal-u)}
+.c-gray>rect{fill:var(--gray-f);stroke:var(--gray-s)} .c-gray .th{fill:var(--gray-t)} .c-gray .ts{fill:var(--gray-u)}
+.c-purple>rect{fill:var(--purple-f);stroke:var(--purple-s)} .c-purple .th{fill:var(--purple-t)} .c-purple .ts{fill:var(--purple-u)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column}
+.card header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card .cn{font-size:15px;font-weight:600;background:none;padding:0}
+.card p{font-size:14px;margin:8px 0}
+.card dl{margin:4px 0 0;font-size:13px;display:grid;grid-template-columns:38px 1fr;gap:2px 8px}
+.card dt{color:var(--muted)}
+.card dd{margin:0;word-break:break-word}
+.card footer{margin-top:auto;padding-top:10px;color:var(--muted);font-size:12px;font-family:ui-monospace,Menlo,monospace}
+.badge{font-size:12px;padding:1px 9px;border-radius:999px;border:1px solid;white-space:nowrap}
+.b-teal{background:var(--teal-f);color:var(--teal-t);border-color:var(--teal-s)}
+.b-gray{background:var(--gray-f);color:var(--gray-t);border-color:var(--gray-s)}
+.b-purple{background:var(--purple-f);color:var(--purple-t);border-color:var(--purple-s)}
+.tw{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:9px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{color:var(--muted);font-weight:500;font-size:13px}
+td:first-child{white-space:nowrap;font-family:ui-monospace,Menlo,monospace;font-size:13px}
+ul.plain{padding-left:20px;margin:8px 0}
+ul.plain li{margin:6px 0;font-size:15px}
+.chg td:first-child{white-space:normal;font-family:inherit;font-size:14px;width:38%;color:var(--muted)}
+@media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}.cards{grid-template-columns:1fr}h1{font-size:23px}}
+@media print{nav{display:none}.card,.fig{break-inside:avoid}}
+</style></head>
+<body>
+<nav><div>
+<a href="#map">전체 지도</a><a href="#flow">변환 흐름</a><a href="#refs">참조 관계</a>
+<a href="#dict">클래스 사전</a><a href="#enums">enum</a><a href="#files">파일 구성</a><a href="#changes">바뀐 점</a>
+</div></nav>
+<main>
+<header class="top">
+<h1>diet_project 도메인 모델 지도</h1>
+<p class="sub">lib/domain/models 와 lib/data/repositories 를 한 장으로 정리했습니다. 2026-09-19 기준, 모델 정리 작업까지 반영된 상태입니다.</p>
+<div class="stats">
+<div class="stat"><b>21</b><span>모델 클래스</span></div>
+<div class="stat"><b>14</b><span>enum</span></div>
+<div class="stat"><b>2</b><span>저장소</span></div>
+<div class="stat"><b>12</b><span>userId 보유 클래스</span></div>
+</div>
+<div class="how"><b>읽는 법.</b> 색은 "누구의 데이터인가"를 뜻합니다.
+보라색은 사용자(User)와 enum, 초록색(teal)은 <code>userId</code>로 사용자에 묶이는 유저 데이터, 회색은 유저와 무관한 공용 카탈로그 · 화면용 · 임시 입력값입니다.
+화살표는 "데이터가 넘어가거나 id로 가리키는 방향"입니다.</div>
+</header>
+
+<h2 id="map">1. 전체 지도</h2>
+<p class="sub">어떤 클래스가 어느 그룹에 속하고, 누구의 데이터인지 한눈에 봅니다.</p>
+<figure class="fig"><svg viewBox="0 0 680 790" role="img" aria-labelledby="t1 d1">
+<title id="t1">도메인 모델 전체 지도</title>
+<desc id="d1">User를 중심으로 프로필·설정, 기록, 템플릿, 식물 성장, 챌린지·추천, 임시 입력값 여섯 그룹으로 나눈 클래스 지도</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" style="stroke:var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<g class="c-purple"><rect x="20" y="20" width="640" height="52" rx="4"/><text class="th" x="340" y="43" text-anchor="middle">User</text><text class="ts" x="340" y="61" text-anchor="middle">모든 userId가 가리키는 주인 (id, 닉네임)</text></g>
+<rect class="grp" x="20" y="96" width="310" height="186" rx="8"/>
+<text class="ts" x="32" y="113">프로필 · 설정  (user_profile.dart)</text>
+<g class="c-teal"><rect x="32" y="122" width="286" height="44" rx="4"/><text class="th" x="44" y="141">UserProfile</text><text class="ts" x="44" y="157">신체정보 · 목표 · BMR 계산</text></g>
+<g class="c-teal"><rect x="32" y="174" width="286" height="44" rx="4"/><text class="th" x="44" y="193">NotificationSettings</text><text class="ts" x="44" y="209">알림 4종 켜고 끄기</text></g>
+<g class="c-teal"><rect x="32" y="226" width="286" height="44" rx="4"/><text class="th" x="44" y="245">PrivacySettings</text><text class="ts" x="44" y="261">친구 공개 범위 설정</text></g>
+<rect class="grp" x="20" y="296" width="310" height="290" rx="8"/>
+<text class="ts" x="32" y="313">기록 · 매일 쌓이는 것  (activity_records.dart)</text>
+<g class="c-teal"><rect x="32" y="322" width="286" height="44" rx="4"/><text class="th" x="44" y="341">MealLog</text><text class="ts" x="44" y="357">식단 기록 (끼니 · kcal)</text></g>
+<g class="c-teal"><rect x="32" y="374" width="286" height="44" rx="4"/><text class="th" x="44" y="393">WaterEntry</text><text class="ts" x="44" y="409">물 마신 양 (ml)</text></g>
+<g class="c-teal"><rect x="32" y="426" width="286" height="44" rx="4"/><text class="th" x="44" y="445">WeightEntry</text><text class="ts" x="44" y="461">체중 기록 (kg)</text></g>
+<g class="c-teal"><rect x="32" y="478" width="286" height="44" rx="4"/><text class="th" x="44" y="497">ExerciseLog</text><text class="ts" x="44" y="513">운동 기록 (분 · kcal)</text></g>
+<g class="c-teal"><rect x="32" y="530" width="286" height="44" rx="4"/><text class="th" x="44" y="549">DailyRegistry</text><text class="ts" x="44" y="565">하루치 기록 묶음 · 합계 계산</text></g>
+<rect class="grp" x="20" y="600" width="310" height="134" rx="8"/>
+<text class="ts" x="32" y="617">기록 템플릿  (activity_records.dart)</text>
+<g class="c-teal"><rect x="32" y="626" width="286" height="44" rx="4"/><text class="th" x="44" y="645">Bowl</text><text class="ts" x="44" y="661">자주 쓰는 그릇 (용량 · 재질)</text></g>
+<g class="c-teal"><rect x="32" y="678" width="286" height="44" rx="4"/><text class="th" x="44" y="697">Routine</text><text class="ts" x="44" y="713">자주 하는 운동 (종류 · 시간)</text></g>
+<rect class="grp" x="350" y="96" width="310" height="290" rx="8"/>
+<text class="ts" x="362" y="113">식물 성장  (growth_system.dart)</text>
+<g class="c-teal"><rect x="362" y="122" width="286" height="44" rx="4"/><text class="th" x="374" y="141">Plant</text><text class="ts" x="374" y="157">내 식물 · 종(speciesId) · EXP</text></g>
+<g class="c-teal"><rect x="362" y="174" width="286" height="44" rx="4"/><text class="th" x="374" y="193">DexEntry</text><text class="ts" x="374" y="209">유저별 종 획득 · 진행도</text></g>
+<g class="c-gray"><rect x="362" y="226" width="286" height="44" rx="4"/><text class="th" x="374" y="245">PlantSpecies</text><text class="ts" x="374" y="261">식물 종 카탈로그 (18종)</text></g>
+<g class="c-gray"><rect x="362" y="278" width="286" height="44" rx="4"/><text class="th" x="374" y="297">DexCard</text><text class="ts" x="374" y="313">종 + 획득 상태 (화면용)</text></g>
+<g class="c-gray"><rect x="362" y="330" width="286" height="44" rx="4"/><text class="th" x="374" y="349">Mission</text><text class="ts" x="374" y="365">오늘의 미션 · 진행률</text></g>
+<rect class="grp" x="350" y="400" width="310" height="134" rx="8"/>
+<text class="ts" x="362" y="417">챌린지 · 추천</text>
+<g class="c-gray"><rect x="362" y="426" width="286" height="44" rx="4"/><text class="th" x="374" y="445">Challenge</text><text class="ts" x="374" y="461">챌린지 (만든이 · 참여자)</text></g>
+<g class="c-gray"><rect x="362" y="478" width="286" height="44" rx="4"/><text class="th" x="374" y="497">MealSuggestion</text><text class="ts" x="374" y="513">식단 추천 메뉴 카드</text></g>
+<rect class="grp" x="350" y="548" width="310" height="186" rx="8"/>
+<text class="ts" x="362" y="565">저장 전 임시 입력값  (drafts.dart)</text>
+<g class="c-gray"><rect x="362" y="574" width="286" height="44" rx="4"/><text class="th" x="374" y="593">MealDraft</text><text class="ts" x="374" y="609">식단 기록 화면 입력값</text></g>
+<g class="c-gray"><rect x="362" y="626" width="286" height="44" rx="4"/><text class="th" x="374" y="645">ExerciseDraft</text><text class="ts" x="374" y="661">운동 기록 화면 입력값</text></g>
+<g class="c-gray"><rect x="362" y="678" width="286" height="44" rx="4"/><text class="th" x="374" y="697">ChallengeDraft</text><text class="ts" x="374" y="713">챌린지 만들기 입력값</text></g>
+<g class="c-purple"><rect x="20" y="758" width="14" height="14" rx="3"/></g><text class="ts" x="42" y="769">User · enum</text><g class="c-teal"><rect x="170" y="758" width="14" height="14" rx="3"/></g><text class="ts" x="192" y="769">userId 보유 = 유저 데이터</text><g class="c-gray"><rect x="410" y="758" width="14" height="14" rx="3"/></g><text class="ts" x="432" y="769">userId 없음 = 공용 · 임시</text>
+</svg><figcaption>점선 상자는 같은 파일 · 같은 역할끼리의 그룹입니다.</figcaption></figure>
+
+<h2 id="flow">2. 변환 흐름</h2>
+<p class="sub">임시 입력값이 기록이 되는 길, 여러 모델이 하나로 조립되는 방식입니다.</p>
+<figure class="fig"><svg viewBox="0 0 680 646" role="img" aria-labelledby="t2 d2">
+<title id="t2">모델 사이의 변환 흐름</title>
+<desc id="d2">임시 입력값이 기록으로 저장되는 길, 도감 카드와 하루 요약이 조립되는 방식, 미션이 식물에 반영되는 방식</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" style="stroke:var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<text class="ts" x="20" y="28">식단 기록이 만들어지는 길</text>
+<g class="c-teal"><rect x="20" y="40" width="176" height="62" rx="4"/><text class="th" x="32" y="59">Bowl</text><text class="ts" x="32" y="75">자주 쓰는 그릇</text></g>
+<g class="c-gray"><rect x="252" y="40" width="176" height="62" rx="4"/><text class="th" x="264" y="59">MealDraft</text><text class="ts" x="264" y="75">식단 입력 임시값</text></g>
+<g class="c-teal"><rect x="484" y="40" width="176" height="62" rx="4"/><text class="th" x="496" y="59">MealLog</text><text class="ts" x="496" y="75">확정된 식단 기록</text><text class="ts" x="496" y="91">bowlId로 그릇 기억</text></g>
+<line class="arr" x1="198" y1="71" x2="250" y2="71" marker-end="url(#arrow)"/><text class="ts" x="224" y="64" text-anchor="middle">선택</text>
+<line class="arr" x1="430" y1="71" x2="482" y2="71" marker-end="url(#arrow)"/><text class="ts" x="456" y="64" text-anchor="middle">저장</text>
+<text class="ts" x="20" y="124">운동 기록이 만들어지는 길</text>
+<g class="c-teal"><rect x="20" y="136" width="176" height="62" rx="4"/><text class="th" x="32" y="155">Routine</text><text class="ts" x="32" y="171">자주 하는 운동</text></g>
+<g class="c-gray"><rect x="252" y="136" width="176" height="62" rx="4"/><text class="th" x="264" y="155">ExerciseDraft</text><text class="ts" x="264" y="171">운동 입력 임시값</text></g>
+<g class="c-teal"><rect x="484" y="136" width="176" height="62" rx="4"/><text class="th" x="496" y="155">ExerciseLog</text><text class="ts" x="496" y="171">확정된 운동 기록</text></g>
+<line class="arr" x1="198" y1="167" x2="250" y2="167" marker-end="url(#arrow)"/><text class="ts" x="224" y="160" text-anchor="middle">불러오기</text>
+<line class="arr" x1="430" y1="167" x2="482" y2="167" marker-end="url(#arrow)"/><text class="ts" x="456" y="160" text-anchor="middle">저장</text>
+<text class="ts" x="20" y="220">챌린지</text>
+<g class="c-gray"><rect x="20" y="232" width="176" height="62" rx="4"/><text class="th" x="32" y="251">ChallengeDraft</text><text class="ts" x="32" y="267">챌린지 입력 임시값</text></g>
+<g class="c-gray"><rect x="252" y="232" width="176" height="62" rx="4"/><text class="th" x="264" y="251">Challenge</text><text class="ts" x="264" y="267">챌린지 본체</text><text class="ts" x="264" y="283">만든이 · 참여자 id</text></g>
+<g class="c-gray"><rect x="484" y="232" width="176" height="62" rx="4"/><text class="th" x="496" y="251">ChallengeRepository</text><text class="ts" x="496" y="267">챌린지 목록 보관</text><text class="ts" x="496" y="283">검색 · 참여 · 생성</text></g>
+<line class="arr" x1="198" y1="263" x2="250" y2="263" marker-end="url(#arrow)"/><text class="ts" x="224" y="256" text-anchor="middle">생성</text>
+<line class="arr" x1="430" y1="263" x2="482" y2="263" marker-end="url(#arrow)"/><text class="ts" x="456" y="256" text-anchor="middle">보관</text>
+<text class="ts" x="20" y="316">도감</text>
+<g class="c-gray"><rect x="20" y="328" width="176" height="62" rx="4"/><text class="th" x="32" y="347">PlantSpecies</text><text class="ts" x="32" y="363">종 정보 (18종)</text></g>
+<g class="c-gray"><rect x="252" y="328" width="176" height="62" rx="4"/><text class="th" x="264" y="347">DexCard</text><text class="ts" x="264" y="363">도감 화면용 결합</text><text class="ts" x="264" y="379">DexRepository가 조립</text></g>
+<g class="c-teal"><rect x="484" y="328" width="176" height="62" rx="4"/><text class="th" x="496" y="347">DexEntry</text><text class="ts" x="496" y="363">유저별 획득 상태</text></g>
+<line class="arr" x1="198" y1="359" x2="250" y2="359" marker-end="url(#arrow)"/>
+<line class="arr" x1="482" y1="359" x2="430" y2="359" marker-end="url(#arrow)"/>
+<text class="ts" x="20" y="412">하루 요약</text>
+<g class="c-teal"><rect x="20" y="424" width="176" height="62" rx="4"/><text class="th" x="32" y="443">식단 · 물 기록</text><text class="ts" x="32" y="459">MealLog</text><text class="ts" x="32" y="475">WaterEntry</text></g>
+<g class="c-teal"><rect x="252" y="424" width="176" height="62" rx="4"/><text class="th" x="264" y="443">DailyRegistry</text><text class="ts" x="264" y="459">하루치 묶음 · 합계</text><text class="ts" x="264" y="475">네 기록 모두 연결</text></g>
+<g class="c-teal"><rect x="484" y="424" width="176" height="62" rx="4"/><text class="th" x="496" y="443">운동 · 체중 기록</text><text class="ts" x="496" y="459">ExerciseLog</text><text class="ts" x="496" y="475">WeightEntry</text></g>
+<line class="arr" x1="198" y1="455" x2="250" y2="455" marker-end="url(#arrow)"/>
+<line class="arr" x1="482" y1="455" x2="430" y2="455" marker-end="url(#arrow)"/>
+<text class="ts" x="20" y="508">성장</text>
+<g class="c-gray"><rect x="20" y="520" width="176" height="62" rx="4"/><text class="th" x="32" y="539">Mission</text><text class="ts" x="32" y="555">오늘의 미션</text></g>
+<g class="c-teal"><rect x="252" y="520" width="176" height="62" rx="4"/><text class="th" x="264" y="539">Plant</text><text class="ts" x="264" y="555">내 식물 · 레벨 · EXP</text><text class="ts" x="264" y="571">완료하면 EXP 증가</text></g>
+<g class="c-gray"><rect x="484" y="520" width="176" height="62" rx="4"/><text class="th" x="496" y="539">DietRules</text><text class="ts" x="496" y="555">규칙 상수</text><text class="ts" x="496" y="571">theme_tokens.dart</text></g>
+<line class="arr" x1="198" y1="551" x2="250" y2="551" marker-end="url(#arrow)"/><text class="ts" x="224" y="544" text-anchor="middle">EXP</text>
+<line class="arr" x1="482" y1="551" x2="430" y2="551" marker-end="url(#arrow)"/><text class="ts" x="456" y="544" text-anchor="middle">기준값</text>
+<g class="c-teal"><rect x="20" y="610" width="14" height="14" rx="3"/></g><text class="ts" x="42" y="621">userId 보유 = 유저 데이터</text><g class="c-gray"><rect x="250" y="610" width="14" height="14" rx="3"/></g><text class="ts" x="272" y="621">userId 없음 = 공용 · 임시</text>
+</svg><figcaption>Draft는 저장하면 기록(MealLog · ExerciseLog · Challenge)이 됩니다. DexCard와 DailyRegistry는 저장되지 않고 필요할 때 조립됩니다.</figcaption></figure>
+
+<h2 id="refs">3. 참조 관계 (id로 가리키는 것)</h2>
+<p class="sub">클래스끼리 객체를 들고 있지 않고 id 문자열로만 가리킵니다. 그 연결만 모았습니다.</p>
+<figure class="fig"><svg viewBox="0 0 680 450" role="img" aria-labelledby="t3 d3">
+<title id="t3">모델 사이의 id 참조 관계</title>
+<desc id="d3">그릇, 식물 종, 성장 축, 사용자를 가리키는 id 참조만 모아 그린 지도</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" style="stroke:var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<text class="ts" x="20" y="28">식단 → 그릇</text>
+<g class="c-teal"><rect x="20" y="40" width="176" height="62" rx="4"/><text class="th" x="32" y="59">MealLog</text><text class="ts" x="32" y="75">저장된 식단</text><text class="ts" x="32" y="91">bowlId</text></g>
+<g class="c-teal"><rect x="252" y="40" width="176" height="62" rx="4"/><text class="th" x="264" y="59">Bowl</text><text class="ts" x="264" y="75">그릇 템플릿</text><text class="ts" x="264" y="91">id</text></g>
+<g class="c-gray"><rect x="484" y="40" width="176" height="62" rx="4"/><text class="th" x="496" y="59">MealDraft</text><text class="ts" x="496" y="75">입력 중인 식단</text><text class="ts" x="496" y="91">bowlId</text></g>
+<line class="arr" x1="198" y1="71" x2="250" y2="71" marker-end="url(#arrow)"/><text class="ts" x="224" y="64" text-anchor="middle">bowlId</text>
+<line class="arr" x1="482" y1="71" x2="430" y2="71" marker-end="url(#arrow)"/><text class="ts" x="456" y="64" text-anchor="middle">bowlId</text>
+<text class="ts" x="20" y="124">식물 종</text>
+<g class="c-teal"><rect x="20" y="136" width="176" height="62" rx="4"/><text class="th" x="32" y="155">DexEntry</text><text class="ts" x="32" y="171">유저별 획득 상태</text><text class="ts" x="32" y="187">speciesId</text></g>
+<g class="c-gray"><rect x="252" y="136" width="176" height="62" rx="4"/><text class="th" x="264" y="155">PlantSpecies</text><text class="ts" x="264" y="171">식물 종 카탈로그</text><text class="ts" x="264" y="187">id</text></g>
+<g class="c-teal"><rect x="484" y="136" width="176" height="62" rx="4"/><text class="th" x="496" y="155">Plant</text><text class="ts" x="496" y="171">내 식물</text><text class="ts" x="496" y="187">speciesId</text></g>
+<line class="arr" x1="198" y1="167" x2="250" y2="167" marker-end="url(#arrow)"/><text class="ts" x="224" y="160" text-anchor="middle">speciesId</text>
+<line class="arr" x1="482" y1="167" x2="430" y2="167" marker-end="url(#arrow)"/><text class="ts" x="456" y="160" text-anchor="middle">speciesId</text>
+<text class="ts" x="20" y="220">성장 축</text>
+<g class="c-gray"><rect x="20" y="232" width="176" height="62" rx="4"/><text class="th" x="32" y="251">Mission</text><text class="ts" x="32" y="267">오늘의 미션</text><text class="ts" x="32" y="283">axis</text></g>
+<g class="c-purple"><rect x="252" y="232" width="176" height="62" rx="4"/><text class="th" x="264" y="251">PlantAxis</text><text class="ts" x="264" y="267">enum · 물 / 햇빛 / 영양</text></g>
+<line class="arr" x1="198" y1="263" x2="250" y2="263" marker-end="url(#arrow)"/><text class="ts" x="224" y="256" text-anchor="middle">axis</text>
+<path class="arr" d="M572 200 V263 H430" marker-end="url(#arrow)"/>
+<text class="ts" x="500" y="256" text-anchor="middle">axisScore 키</text>
+<text class="ts" x="20" y="316">사용자</text>
+<g class="c-teal"><rect x="20" y="328" width="176" height="62" rx="4"/><text class="th" x="32" y="347">userId 보유 12개</text><text class="ts" x="32" y="363">프로필 · 설정 · 기록</text><text class="ts" x="32" y="379">템플릿 · 식물 · 도감</text></g>
+<g class="c-purple"><rect x="252" y="328" width="176" height="62" rx="4"/><text class="th" x="264" y="347">User</text><text class="ts" x="264" y="363">모든 id의 주인</text></g>
+<g class="c-gray"><rect x="484" y="328" width="176" height="62" rx="4"/><text class="th" x="496" y="347">Challenge</text><text class="ts" x="496" y="363">creatorId</text><text class="ts" x="496" y="379">participantIds</text></g>
+<line class="arr" x1="198" y1="359" x2="250" y2="359" marker-end="url(#arrow)"/><text class="ts" x="224" y="352" text-anchor="middle">userId</text>
+<line class="arr" x1="482" y1="359" x2="430" y2="359" marker-end="url(#arrow)"/><text class="ts" x="456" y="352" text-anchor="middle">id 목록</text>
+<g class="c-purple"><rect x="20" y="416" width="14" height="14" rx="3"/></g><text class="ts" x="42" y="427">User · enum</text><g class="c-teal"><rect x="170" y="416" width="14" height="14" rx="3"/></g><text class="ts" x="192" y="427">userId 보유</text><g class="c-gray"><rect x="300" y="416" width="14" height="14" rx="3"/></g><text class="ts" x="322" y="427">카탈로그 · 임시 · id 목록</text>
+</svg><figcaption>화살표가 시작되는 쪽이 id를 들고 있고, 끝나는 쪽이 가리켜지는 대상입니다.</figcaption></figure>
+<div class="tw"><table><thead><tr><th>필드</th><th>가리키는 대상</th><th>들고 있는 클래스</th></tr></thead><tbody><tr><td>userId</td><td>User.id</td><td>UserProfile · NotificationSettings · PrivacySettings · MealLog · WaterEntry · WeightEntry · ExerciseLog · DailyRegistry · Bowl · Routine · Plant · DexEntry</td></tr><tr><td>creatorId · participantIds</td><td>User.id</td><td>Challenge</td></tr><tr><td>wateredFriendIds</td><td>User.id 목록</td><td>Plant (오늘 물 준 친구)</td></tr><tr><td>invitedUserIds</td><td>User.id 목록</td><td>ChallengeDraft</td></tr><tr><td>bowlId</td><td>Bowl.id</td><td>MealLog · MealDraft</td></tr><tr><td>speciesId</td><td>PlantSpecies.id</td><td>DexEntry · Plant</td></tr><tr><td>axis · axisScore 키</td><td>PlantAxis</td><td>Mission · Plant</td></tr></tbody></table></div>
+
+<h2 id="dict">4. 클래스 사전</h2>
+<p class="sub">이름만 봐서는 헷갈리는 클래스들의 역할입니다. 초록 배지는 userId를 가진 유저 데이터입니다.</p>
+<h3>프로필 · 설정</h3><div class="cards">
+<article class="card"><header><code class="cn">User</code><span class="badge b-purple">사용자</span></header><p>앱 사용자 기본 정보. 다른 모든 모델의 userId가 가리키는 주인입니다. <code>User.meId = 'u_me'</code>가 내 계정입니다.</p><dl><dt>필드</dt><dd>id · nickname · emoji · tint</dd><dt>연결</dt><dd>—</dd></dl><footer>user_profile.dart</footer></article>
+<article class="card"><header><code class="cn">UserProfile</code><span class="badge b-teal">userId 보유</span></header><p>신체 정보와 다이어트 목표. 목표·활동량·성별은 내부적으로 enum이고, 화면은 한글 문자열 getter/setter로 읽고 씁니다. BMI · 기초대사량 · 하루 권장 kcal · 목표까지 남은 기간을 계산합니다.</p><dl><dt>필드</dt><dd>userId · goal · activity · gender · heightCm · weightKg · age · goalWeight</dd><dt>연결</dt><dd>DietGoal · ActivityLevel · Gender</dd></dl><footer>user_profile.dart</footer></article>
+<article class="card"><header><code class="cn">NotificationSettings</code><span class="badge b-teal">userId 보유</span></header><p>알림 4종(식단 · 물 · 운동 · 친구 활동)을 켜고 끄는 설정.</p><dl><dt>필드</dt><dd>userId · mealReminder · waterReminder · exerciseReminder · friendActivity</dd><dt>연결</dt><dd>—</dd></dl><footer>user_profile.dart</footer></article>
+<article class="card"><header><code class="cn">PrivacySettings</code><span class="badge b-teal">userId 보유</span></header><p>친구에게 무엇을 보여줄지 정하는 공개 범위 설정.</p><dl><dt>필드</dt><dd>userId · scope · shareGarden · shareStreak · shareWeightTrend · shareMealPhotos · shareChallengeRank</dd><dt>연결</dt><dd>ShareScope</dd></dl><footer>user_profile.dart</footer></article>
+</div>
+<h3>기록 · 매일 쌓이는 것</h3><div class="cards">
+<article class="card"><header><code class="cn">MealLog</code><span class="badge b-teal">userId 보유</span></header><p>저장이 끝난 식단 기록 한 건. 끼니는 enum으로 보관하고 화면은 <code>type</code> getter로 한글 문구를 읽습니다.</p><dl><dt>필드</dt><dd>id · userId · mealType · name · meta · kcal · dateKey · bowlId? · needsReview</dd><dt>연결</dt><dd>Bowl.id (bowlId) · MealType</dd></dl><footer>activity_records.dart</footer></article>
+<article class="card"><header><code class="cn">WaterEntry</code><span class="badge b-teal">userId 보유</span></header><p>물을 마신 기록 한 건. 날짜 필드가 없어서 앱은 항상 "오늘" 목록 하나로 다룹니다.</p><dl><dt>필드</dt><dd>id · userId · ml · time</dd><dt>연결</dt><dd>—</dd></dl><footer>activity_records.dart</footer></article>
+<article class="card"><header><code class="cn">WeightEntry</code><span class="badge b-teal">userId 보유</span></header><p>체중 기록 한 건. <b>이번에 dateKey를 추가</b>해서 "오늘 체중"을 구분할 수 있습니다.</p><dl><dt>필드</dt><dd>id · userId · kg · dateKey · time</dd><dt>연결</dt><dd>—</dd></dl><footer>activity_records.dart</footer></article>
+<article class="card"><header><code class="cn">ExerciseLog</code><span class="badge b-teal">userId 보유</span></header><p>저장이 끝난 운동 기록 한 건.</p><dl><dt>필드</dt><dd>id · userId · type · minutes · intensity · kcal · dateKey · time</dd><dt>연결</dt><dd>ExerciseIntensity</dd></dl><footer>activity_records.dart</footer></article>
+<article class="card"><header><code class="cn">DailyRegistry</code><span class="badge b-teal">userId 보유</span></header><p>한 사용자의 하루치 기록을 묶어 합계를 계산하는 객체. 저장되는 데이터가 아니라 <code>AppState.todayRegistry</code>가 그때그때 조립합니다. 식단 · 물 · 운동 · 체중이 모두 연결되어 있습니다.</p><dl><dt>필드</dt><dd>userId · dateKey · meals · waterEntries · exerciseLogs · weightEntry</dd><dt>연결</dt><dd>MealLog · WaterEntry · ExerciseLog · WeightEntry</dd></dl><footer>activity_records.dart</footer></article>
+</div>
+<h3>기록 템플릿</h3><div class="cards">
+<article class="card"><header><code class="cn">Bowl</code><span class="badge b-teal">userId 보유</span></header><p>자주 쓰는 그릇을 등록해 두는 템플릿. 용량에 따라 칼로리 보정 계수(capacityFactor)가 달라집니다.</p><dl><dt>필드</dt><dd>id · userId · name · capacityMl · portion · material · shape · memo · isDefault · icon</dd><dt>연결</dt><dd>← MealLog.bowlId · MealDraft.bowlId</dd></dl><footer>activity_records.dart</footer></article>
+<article class="card"><header><code class="cn">Routine</code><span class="badge b-teal">userId 보유</span></header><p>자주 하는 운동을 저장해 두는 템플릿. 불러오면 ExerciseDraft 입력값으로 채워집니다.</p><dl><dt>필드</dt><dd>id · userId · name · type · minutes · intensity · icon · used · weeklyUsed</dd><dt>연결</dt><dd>ExerciseIntensity</dd></dl><footer>activity_records.dart</footer></article>
+</div>
+<h3>식물 성장</h3><div class="cards">
+<article class="card"><header><code class="cn">Plant</code><span class="badge b-teal">userId 보유</span></header><p>내 식물의 현재 상태. 레벨 · 시듦 여부 · 균형 · 가장 약한 축 · 성장 단계는 저장하지 않고 값에서 계산합니다. <b>이번에 speciesId를 추가</b>해 카탈로그의 종과 연결했습니다.</p><dl><dt>필드</dt><dd>userId · speciesId · exp · axisScore · cares · missedDays · revived · wateredFriendIds · inventory · giftTickets</dd><dt>연결</dt><dd>PlantSpecies.id (speciesId) · PlantAxis (axisScore 키)</dd></dl><footer>growth_system.dart</footer></article>
+<article class="card"><header><code class="cn">PlantSpecies</code><span class="badge b-gray">공용</span></header><p>식물 종 카탈로그(const 18종). 모두가 같은 값을 보며 유저 정보가 없습니다.</p><dl><dt>필드</dt><dd>id · name · tier(일반/희귀/전설) · description · condition · emoji</dd><dt>연결</dt><dd>← DexEntry.speciesId · Plant.speciesId</dd></dl><footer>growth_system.dart</footer></article>
+<article class="card"><header><code class="cn">DexEntry</code><span class="badge b-teal">userId 보유</span></header><p>"이 유저가 이 종을 얻었는가, 진행도가 몇 %인가". 유저 × 종의 연결 테이블입니다.</p><dl><dt>필드</dt><dd>userId · speciesId · owned · progress</dd><dt>연결</dt><dd>PlantSpecies.id (speciesId)</dd></dl><footer>growth_system.dart</footer></article>
+<article class="card"><header><code class="cn">DexCard</code><span class="badge b-gray">화면용</span></header><p>도감 화면용 결합 모델. PlantSpecies와 DexEntry를 한 객체처럼 읽게 해 줍니다. <code>DexRepository</code>가 조립합니다.</p><dl><dt>필드</dt><dd>species · entry (+ name · tier · owned · progress …)</dd><dt>연결</dt><dd>PlantSpecies · DexEntry</dd></dl><footer>growth_system.dart</footer></article>
+<article class="card"><header><code class="cn">Mission</code><span class="badge b-gray">공용</span></header><p>오늘의 미션. <code>AppState.missions</code>가 현재 기록값으로 매번 생성하고, current/target으로 진행률을 계산합니다. <b>이번에 axis를 PlantAxis enum으로</b> 바꿨습니다.</p><dl><dt>필드</dt><dd>id · category · title · current · target · unit · exp · axis · route · special</dd><dt>연결</dt><dd>PlantAxis (axis)</dd></dl><footer>growth_system.dart</footer></article>
+</div>
+<h3>챌린지 · 추천</h3><div class="cards">
+<article class="card"><header><code class="cn">Challenge</code><span class="badge b-gray">공용</span></header><p>챌린지 한 건. 사용자를 userId가 아니라 만든이(creatorId)와 참여자 목록(participantIds)의 id로 참조합니다.</p><dl><dt>필드</dt><dd>id · title · description · icon · category · period · creatorId · participantIds · isPublic · rewardDescription · bonusDescription</dd><dt>연결</dt><dd>User.id (creatorId · participantIds)</dd></dl><footer>social_challenge.dart</footer></article>
+<article class="card"><header><code class="cn">MealSuggestion</code><span class="badge b-gray">공용</span></header><p>식단 추천 화면에 나오는 추천 메뉴 카드. 어떤 영양소를 채워 주는지(covers)와 어울리는 끼니(meals)를 문자열로 갖습니다.</p><dl><dt>필드</dt><dd>name · emoji · kcal · meta · covers · prefs · meals · tag · why</dd><dt>연결</dt><dd>—</dd></dl><footer>meal_suggestion.dart</footer></article>
+</div>
+<h3>저장 전 임시 입력값</h3><div class="cards">
+<article class="card"><header><code class="cn">MealDraft</code><span class="badge b-gray">임시</span></header><p>식단을 저장하기 전 기록 화면에서만 유지하는 입력값. 저장하면 MealLog가 됩니다.</p><dl><dt>필드</dt><dd>name · mealType · context · portion · fillLevel · portionPercent · proteinType · sauce · cookingMethod · carbohydrateType · bowlId · tags · memo</dd><dt>연결</dt><dd>MealType · MealContext · PortionSize · BowlFillLevel · Bowl.id</dd></dl><footer>drafts.dart</footer></article>
+<article class="card"><header><code class="cn">ExerciseDraft</code><span class="badge b-gray">임시</span></header><p>운동을 저장하기 전 입력값. 저장하면 ExerciseLog가 됩니다.</p><dl><dt>필드</dt><dd>type · minutes · intensity</dd><dt>연결</dt><dd>ExerciseIntensity</dd></dl><footer>drafts.dart</footer></article>
+<article class="card"><header><code class="cn">ChallengeDraft</code><span class="badge b-gray">임시</span></header><p>챌린지를 만들기 전 입력값. 생성하면 Challenge가 됩니다.</p><dl><dt>필드</dt><dd>type · dailyTarget · durationDays · visibility · reward · invitedUserIds</dd><dt>연결</dt><dd>ChallengeType · ChallengeVisibility · ChallengeReward · User.id</dd></dl><footer>drafts.dart</footer></article>
+</div>
+<h3>보관소 · 규칙 (모델 아님)</h3><div class="cards">
+<article class="card"><header><code class="cn">ChallengeRepository</code><span class="badge b-gray">저장소</span></header><p>지금 존재하는 챌린지 목록을 메모리에 들고 있으면서 전체 · 참여 가능 · 내 챌린지 조회, 생성, 참여를 맡습니다. 나중에 서버나 DB로 옮겨도 사용법이 같도록 분리해 두었습니다.</p><dl><dt>필드</dt><dd>all() · joinable(userId) · mine(userId) · create() · join()</dd><dt>연결</dt><dd>Challenge</dd></dl><footer>repositories.dart</footer></article>
+<article class="card"><header><code class="cn">DexRepository</code><span class="badge b-gray">저장소</span></header><p>카탈로그(PlantSpecies)와 유저별 획득 상태(DexEntry)를 이어 주는 저장소. cardsFor(userId)가 화면용 DexCard 목록을 만듭니다.</p><dl><dt>필드</dt><dd>cardsFor(userId)</dd><dt>연결</dt><dd>PlantSpecies · DexEntry · DexCard</dd></dl><footer>repositories.dart</footer></article>
+<article class="card"><header><code class="cn">DietRules</code><span class="badge b-gray">상수</span></header><p>앱의 고정 규칙 상수 모음(칼로리 보정 계수 · 활동 계수 · 식물 성장 규칙 등). 모델은 아니지만 UserProfile과 Plant가 참조합니다.</p><dl><dt>필드</dt><dd>careExp · plantStages · balanceSpreadThreshold · wiltAfterDays · graceDays …</dd><dt>연결</dt><dd>← UserProfile · Plant</dd></dl><footer>theme_tokens.dart</footer></article>
+</div>
+
+<h2 id="enums">5. enum 모음</h2>
+<p class="sub">화면 문구와 분리해 고정된 선택지를 안전하게 표현하는 타입입니다. 대부분 <code>.label</code>로 한글 문구를 얻습니다.</p>
+<div class="tw"><table><thead><tr><th>enum</th><th>값 (label)</th><th>쓰이는 곳</th></tr></thead><tbody><tr><td>DietGoal</td><td>체중 감량 · 체중 유지 · 근육 증가</td><td>UserProfile</td></tr><tr><td>ActivityLevel</td><td>적음 · 보통 · 많음</td><td>UserProfile</td></tr><tr><td>Gender</td><td>여성 · 남성 · 공개 안 함</td><td>UserProfile</td></tr><tr><td>MealType</td><td>아침 · 점심 · 저녁 · 간식</td><td>MealLog · MealDraft</td></tr><tr><td>MealContext</td><td>집밥 · 도시락 · 외식 · 배달 · 기타</td><td>MealDraft</td></tr><tr><td>PortionSize</td><td>전체 · 반절 · 1/3 · 직접</td><td>MealDraft</td></tr><tr><td>BowlFillLevel</td><td>가득 · 반 · 1/3</td><td>MealDraft</td></tr><tr><td>ExerciseIntensity</td><td>낮음 · 보통 · 높음</td><td>ExerciseLog · Routine · ExerciseDraft</td></tr><tr><td>ChallengeType</td><td>물 마시기 · 운동 시간 · 식단 기록 · 단백질</td><td>ChallengeDraft</td></tr><tr><td>ChallengeReward</td><td>식물 EXP · 배지 · 없음</td><td>ChallengeDraft</td></tr><tr><td>ChallengeVisibility</td><td>private · public (label 없음)</td><td>ChallengeDraft</td></tr><tr><td>ShareScope</td><td>비공개 · 친구만</td><td>PrivacySettings</td></tr><tr><td>PlantAxis</td><td>물 · 햇빛 · 영양</td><td>Plant.axisScore · Mission.axis</td></tr><tr><td>LoginProvider</td><td>Google · Apple</td><td>AppState.signIn · AuthAccount</td></tr></tbody></table></div>
+
+<h2 id="files">6. 파일 구성</h2>
+<div class="tw"><table><thead><tr><th>파일</th><th>들어 있는 것</th><th>한 줄 설명</th></tr></thead><tbody><tr><td>models.dart</td><td>(export만)</td><td>아래 파일들을 한 번에 import하기 위한 통합 문. 화면에서는 이 파일 하나만 import합니다.</td></tr><tr><td>enums.dart</td><td>14개 enum</td><td>고정 선택지 모음. 대부분 한글 label 확장을 갖고 있어 화면 문구와 값이 분리됩니다.</td></tr><tr><td>user_profile.dart</td><td>User, UserProfile, NotificationSettings, PrivacySettings</td><td>사용자와 프로필·설정.</td></tr><tr><td>activity_records.dart</td><td>MealLog, WaterEntry, WeightEntry, ExerciseLog, DailyRegistry, Bowl, Routine</td><td>매일 쌓이는 기록과 기록용 템플릿.</td></tr><tr><td>growth_system.dart</td><td>Plant, PlantSpecies, DexEntry, DexCard, Mission</td><td>식물 키우기, 도감, 미션.</td></tr><tr><td>social_challenge.dart</td><td>Challenge</td><td>챌린지 한 건의 모양.</td></tr><tr><td>meal_suggestion.dart</td><td>MealSuggestion</td><td>식단 추천 화면의 추천 메뉴 카드.</td></tr><tr><td>drafts.dart</td><td>MealDraft, ExerciseDraft, ChallengeDraft</td><td>저장 전 화면에서만 유지하는 임시 입력값.</td></tr><tr><td>data/auth/auth_service.dart · firebase_auth_service.dart</td><td>AuthService, AuthAccount, AuthFailure, MockAuthService, FirebaseAuthService</td><td>로그인 · 로그아웃 · 계정 삭제. Firebase 설정 전에는 Mock으로 동작합니다.</td></tr><tr><td>data/repositories/repositories.dart</td><td>ChallengeRepository, DexRepository</td><td>모델이 아니라 "담아두고 · 찾고 · 조립하는" 저장소.</td></tr></tbody></table></div>
+
+<h2 id="changes">7. 이번에 바뀐 점과 남은 과제</h2>
+<h3>바뀐 점</h3>
+<div class="tw chg"><table><thead><tr><th>이전 문제</th><th>지금</th></tr></thead><tbody>
+<tr><td>DailyRegistry에 운동 · 체중이 비어 있었음</td><td>운동 · 체중을 날짜(dateKey)로 걸러 연결. WeightEntry에 dateKey, DailyRegistry에 userId 추가. 홈의 "오늘 수치"가 기록 탭에서 넘겨 보는 날짜를 따라가던 버그도 고정 오늘 기준으로 수정.</td></tr><tr><td>Mission.axis('영양')와 Plant.axisScore('nutri') 표기 불일치</td><td>PlantAxis enum으로 통일. 그 결과 가장 약한 축 강조와 선인장 · 이끼 고사리 분화 표시가 처음으로 실제 값에 반응하고, 안내 문구도 한글("부족한 햇빛 기록…")로 나옴.</td></tr><tr><td>NotificationSettings · PrivacySettings에 userId 없음</td><td>userId 추가.</td></tr><tr><td>MealLog.type · ExerciseLog.intensity · Routine.intensity가 문자열</td><td>MealType · ExerciseIntensity enum으로 보관. 화면은 기존처럼 label 문구를 읽음.</td></tr><tr><td>Plant와 PlantSpecies가 연결되지 않음</td><td>Plant.speciesId 추가(기본 sp_sprout)와 plant.speciesInfo getter.</td></tr><tr><td>식물 헤더(Lv3 · 새싹)와 다른 화면(씨앗 단계)의 기준이 다름</td><td>레벨 기준이 다르던 Plant.species getter를 없애고 stage.name으로 통일.</td></tr>
+</tbody></table></div>
+<h3>남은 과제</h3>
+<ul class="plain"><li>미션을 완료해도 plant.exp만 오르고 축 점수(axisScore)는 오르지 않습니다. README의 축 설명(물=식단, 영양=수면·물)과 미션의 축 배정이 달라 기획 결정이 필요합니다.</li><li>기록 탭의 <code>logged['체중']</code>은 어제 시드 기록만 있어도 "오늘 기록됨"으로 나옵니다. 이제 dateKey가 있어서 실제 날짜로 판단하도록 바꿀 수 있습니다.</li><li>WaterEntry에는 아직 날짜가 없습니다(항상 "오늘" 목록 하나).</li><li>Plant.stage의 레벨 기준(5·10·15·20)이 DietRules.plantStages와 따로 하드코딩되어 있습니다.</li></ul>
+</main>
+</body></html>

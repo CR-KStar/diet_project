@@ -1,4 +1,4 @@
-package com.example.diet_project
+package kr.chaerin.dietapp
 
 import io.flutter.embedding.android.FlutterActivity
 
