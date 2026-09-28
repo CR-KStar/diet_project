@@ -63,13 +63,16 @@ class DefaultFirebaseOptions {
     projectId: 'diet-project-81ce1',
     storageBucket: 'diet-project-81ce1.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBhWQrfGIwl8bKsEw2HS9JJe8o4JkwnbNo',
     appId: '1:119913712586:ios:3938e1acadb896f01b5d33',
     messagingSenderId: '119913712586',
     projectId: 'diet-project-81ce1',
     storageBucket: 'diet-project-81ce1.firebasestorage.app',
+    androidClientId:
+        '119913712586-ng8tq17mcp6sdbmoevj1b30n5nil5dlr.apps.googleusercontent.com',
+    iosClientId:
+        '119913712586-j1pi9aslj08bumgjiq7hn23q6ihb89ki.apps.googleusercontent.com',
     iosBundleId: 'kr.chaerin.dietapp',
   );
 }

@@ -1,0 +1,13 @@
+# Compiled JavaScript files
+lib/**/*.js
+lib/**/*.js.map
+
+# TypeScript v1 declaration files
+typings/
+
+# Node.js dependency directory
+node_modules/
+*.local
+
+# 아이폰 시뮬레이터 빌드 중 여기로 잘못 생긴 적 있는 Xcode SourcePackages 캐시
+build/

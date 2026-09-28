@@ -1,1 +1,52 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"diet-project-81ce1","appId":"1:119913712586:android:7a576d790fedf1d81b5d33","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"diet-project-81ce1","appId":"1:119913712586:ios:3938e1acadb896f01b5d33","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"diet-project-81ce1","configurations":{"android":"1:119913712586:android:7a576d790fedf1d81b5d33","ios":"1:119913712586:ios:3938e1acadb896f01b5d33","web":"1:119913712586:web:59307f67ff389d101b5d33"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "diet-project-81ce1",
+          "appId": "1:119913712586:android:7a576d790fedf1d81b5d33",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "diet-project-81ce1",
+          "appId": "1:119913712586:ios:3938e1acadb896f01b5d33",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "diet-project-81ce1",
+          "configurations": {
+            "android": "1:119913712586:android:7a576d790fedf1d81b5d33",
+            "ios": "1:119913712586:ios:3938e1acadb896f01b5d33",
+            "web": "1:119913712586:web:59307f67ff389d101b5d33"
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "disallowLegacyRuntimeConfig": true,
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint",
+        "npm --prefix \"$RESOURCE_DIR\" run build"
+      ]
+    }
+  ]
+}

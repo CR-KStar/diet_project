@@ -13,6 +13,8 @@ analyzer:
   exclude:
     # 빌드 산출물 — iOS 빌드 때 받아 오는 Swift 패키지 원본까지 분석되지 않게 합니다.
     - build/**
+    # functions/는 별도의 Node.js 프로젝트라 Dart 분석 대상이 아닙니다.
+    - functions/**
 
 linter:
   # The lint rules applied to this project can be customized in the

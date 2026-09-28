@@ -25,16 +25,12 @@ class OnboardingPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColor.bg,
-      body: SafeArea(
-        child: body,
-      ),
+      body: SafeArea(child: body),
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────
 // 온보딩 1단계 — 계정 연결 · 닉네임 · 약관 (s.step == 1)
-// ─────────────────────────────────────────────────────────
 
 class _AccountLinkStep extends StatelessWidget {
   const _AccountLinkStep();
@@ -45,108 +41,153 @@ class _AccountLinkStep extends StatelessWidget {
     final apple = s.provider == 'Apple';
     final ok = s.requiredTermsOk && s.nickname.trim().isNotEmpty;
 
-    return ScreenScroll(horizontal: 20, top: 8, children: [
-      SubHeader(emoji: '🔗', title: '계정 연결', onBack: () => s.go('login')),
-      Text('${s.provider} 계정으로 처음 로그인했어요. 아래 정보만 확인하면 바로 시작할 수 있어요.',
-          style: t(13, c: AppColor.textFaint, h: 1.6)),
+    return ScreenScroll(
+      horizontal: 20,
+      top: 8,
+      children: [
+        SubHeader(emoji: '🔗', title: '계정 연결', onBack: () => s.go('login')),
+        Text(
+          '${s.provider} 계정으로 처음 로그인했어요. 아래 정보만 확인하면 바로 시작할 수 있어요.',
+          style: t(13, c: AppColor.textFaint, h: 1.6),
+        ),
 
-      AppCard(
-        child: Row(children: [
-          IconTile(apple ? '\uF8FF' : 'G',
-              size: 44,
-              radius: 14,
-              fontSize: 18,
-              bg: apple ? const Color(0xFF111111) : const Color(0xFFF1F3F4)),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(
-                apple ? 'chaerin@privaterelay.appleid.com' : 'chaerin@gmail.com',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: t(14, w: FontWeight.w700),
+        AppCard(
+          child: Row(
+            children: [
+              IconTile(
+                apple ? '\uF8FF' : 'G',
+                size: 44,
+                radius: 14,
+                fontSize: 18,
+                bg: apple ? const Color(0xFF111111) : const Color(0xFFF1F3F4),
               ),
-              const SizedBox(height: 4),
-              Text('${s.provider} 계정으로 연결됨', style: t(11, c: AppColor.textFaint)),
-            ]),
-          ),
-          const SizedBox(width: 10),
-          GestureDetector(
-            onTap: () => s.go('login'),
-            child: Text('변경', style: t(11, c: AppColor.textFaint)),
-          ),
-        ]),
-      ),
-
-      AppCard(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('앱에서 쓸 닉네임', style: t(12, w: FontWeight.w500, c: AppColor.textFaint)),
-          const SizedBox(height: 9),
-          AppTextField(
-            value: s.nickname,
-            hint: '닉네임',
-            fontSize: 15,
-            onChanged: (v) => s.setSub(() => s.nickname = v),
-          ),
-          const SizedBox(height: 9),
-          Text('친구 검색과 챌린지 순위에 표시돼요. 나중에 바꿀 수 있어요.',
-              style: t(11, c: AppColor.textGhost)),
-        ]),
-      ),
-
-      AppCard(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          GestureDetector(
-            onTap: s.toggleAllTerms,
-            behavior: HitTestBehavior.opaque,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 13),
-              child: Row(children: [
-                CheckDot(on: s.terms.values.every((v) => v), size: 22, radius: 7),
-                const SizedBox(width: 10),
-                Text('전체 동의', style: t(14, w: FontWeight.w700)),
-              ]),
-            ),
-          ),
-          const Divider(height: 1),
-          const SizedBox(height: 13),
-          for (final k in s.terms.keys)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(children: [
-                GestureDetector(
-                  onTap: () => s.toggleTerm(k),
-                  child: CheckDot(on: s.terms[k]!),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      apple
+                          ? 'chaerin@privaterelay.appleid.com'
+                          : 'chaerin@gmail.com',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: t(14, w: FontWeight.w700),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${s.provider} 계정으로 연결됨',
+                      style: t(11, c: AppColor.textFaint),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 10),
-                Expanded(child: Text(k, style: t(12, c: AppColor.textMuted))),
-                GestureDetector(
-                  onTap: () => toast(context, '약관 전문을 웹뷰로 엽니다'),
-                  child: Text('보기 ›', style: t(11, c: AppColor.textGhost)),
-                ),
-              ]),
-            ),
-        ]),
-      ),
+              ),
+              const SizedBox(width: 10),
+              GestureDetector(
+                onTap: () => s.go('login'),
+                child: Text('변경', style: t(11, c: AppColor.textFaint)),
+              ),
+            ],
+          ),
+        ),
 
-      PrimaryButton(
-        label: '동의하고 시작하기',
-        enabled: ok,
-        onTap: () {
-          if (!s.requiredTermsOk) return toast(context, '필수 약관에 동의해 주세요');
-          if (s.nickname.trim().isEmpty) return toast(context, '닉네임을 입력해 주세요');
-          s.setSub(() => s.step = 2);
-        },
-      ),
-      Text('비밀번호는 저장하지 않아요 · 건강 기록은 암호화되어 본인만 조회할 수 있어요.',
-          textAlign: TextAlign.center, style: t(10, c: const Color(0xFFB2B9BE), h: 1.7)),
-    ]);
+        AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '앱에서 쓸 닉네임',
+                style: t(12, w: FontWeight.w500, c: AppColor.textFaint),
+              ),
+              const SizedBox(height: 9),
+              AppTextField(
+                value: s.nickname,
+                hint: '닉네임',
+                fontSize: 15,
+                onChanged: (v) => s.setSub(() => s.nickname = v),
+              ),
+              const SizedBox(height: 9),
+              Text(
+                '친구 검색과 챌린지 순위에 표시돼요. 나중에 바꿀 수 있어요.',
+                style: t(11, c: AppColor.textGhost),
+              ),
+            ],
+          ),
+        ),
+
+        AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GestureDetector(
+                onTap: s.toggleAllTerms,
+                behavior: HitTestBehavior.opaque,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 13),
+                  child: Row(
+                    children: [
+                      CheckDot(
+                        on: s.terms.values.every((v) => v),
+                        size: 22,
+                        radius: 7,
+                      ),
+                      const SizedBox(width: 10),
+                      Text('전체 동의', style: t(14, w: FontWeight.w700)),
+                    ],
+                  ),
+                ),
+              ),
+              const Divider(height: 1),
+              const SizedBox(height: 13),
+              for (final k in s.terms.keys)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => s.toggleTerm(k),
+                        child: CheckDot(on: s.terms[k]!),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(k, style: t(12, c: AppColor.textMuted)),
+                      ),
+                      GestureDetector(
+                        onTap: () => toast(context, '약관 전문을 웹뷰로 엽니다'),
+                        child: Text(
+                          '보기 ›',
+                          style: t(11, c: AppColor.textGhost),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+
+        PrimaryButton(
+          label: '동의하고 시작하기',
+          enabled: ok,
+          onTap: () {
+            if (!s.requiredTermsOk) return toast(context, '필수 약관에 동의해 주세요');
+            if (s.nickname.trim().isEmpty) {
+              return toast(context, '닉네임을 입력해 주세요');
+            }
+            s.goToStep(2);
+          },
+        ),
+        Text(
+          '비밀번호는 저장하지 않아요 · 건강 기록은 암호화되어 본인만 조회할 수 있어요.',
+          textAlign: TextAlign.center,
+          style: t(10, c: const Color(0xFFB2B9BE), h: 1.7),
+        ),
+      ],
+    );
   }
 }
 
-// ─────────────────────────────────────────────────────────
 // 온보딩 3단계 공용 헤더
-// ─────────────────────────────────────────────────────────
 
 class _StepHeader extends StatelessWidget {
   const _StepHeader({
@@ -165,44 +206,54 @@ class _StepHeader extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Row(children: [
-        if (onBack != null)
-          GestureDetector(
-            onTap: onBack,
-            behavior: HitTestBehavior.opaque,
-            child: SizedBox(width: 22, child: Text('‹', style: t(20, c: AppColor.text))),
-          )
-        else
-          const SizedBox(width: 22),
-        const SizedBox(width: 10),
-        Text('STEP $stepNo / 3', style: t(13, w: FontWeight.w700, c: AppColor.primary)),
-      ]),
+      Row(
+        children: [
+          if (onBack != null)
+            GestureDetector(
+              onTap: onBack,
+              behavior: HitTestBehavior.opaque,
+              child: SizedBox(
+                width: 22,
+                child: Text('‹', style: t(20, c: AppColor.text)),
+              ),
+            )
+          else
+            const SizedBox(width: 22),
+          const SizedBox(width: 10),
+          Text(
+            'STEP $stepNo / 3',
+            style: t(13, w: FontWeight.w700, c: AppColor.primary),
+          ),
+        ],
+      ),
       const SizedBox(height: 16),
       Text(title, style: t(24, w: FontWeight.w900, h: 1.35)),
       const SizedBox(height: 8),
       Text(desc, style: t(13, c: AppColor.textFaint, h: 1.6)),
       const SizedBox(height: 16),
-      Row(children: [
-        for (var i = 1; i <= 3; i++) ...[
-          if (i > 1) const SizedBox(width: 6),
-          Expanded(
-            child: Container(
-              height: 4,
-              decoration: BoxDecoration(
-                color: i <= stepNo ? AppColor.primary : const Color(0xFFE3E7E9),
-                borderRadius: BorderRadius.circular(2),
+      Row(
+        children: [
+          for (var i = 1; i <= 3; i++) ...[
+            if (i > 1) const SizedBox(width: 6),
+            Expanded(
+              child: Container(
+                height: 4,
+                decoration: BoxDecoration(
+                  color: i <= stepNo
+                      ? AppColor.primary
+                      : const Color(0xFFE3E7E9),
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
             ),
-          ),
+          ],
         ],
-      ]),
+      ),
     ],
   );
 }
 
-// ─────────────────────────────────────────────────────────
 // STEP 1/3 — 목표 · 활동량 (s.step == 2)
-// ─────────────────────────────────────────────────────────
 
 class _GoalStep extends StatelessWidget {
   const _GoalStep();
@@ -223,66 +274,81 @@ class _GoalStep extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = context.watch<AppState>();
 
-    return ScreenScroll(horizontal: 20, top: 8, children: [
-      _StepHeader(
-        stepNo: 1,
-        title: '어떤 목표로 시작할까요?',
-        desc: '목표와 평소 활동량에 맞춰 하루 권장 칼로리를 계산해요.',
-        onBack: () => s.setSub(() => s.step = 1),
-      ),
+    return ScreenScroll(
+      horizontal: 20,
+      top: 8,
+      children: [
+        _StepHeader(
+          stepNo: 1,
+          title: '어떤 목표로 시작할까요?',
+          desc: '목표와 평소 활동량에 맞춰 하루 권장 칼로리를 계산해요.',
+          onBack: () => s.setSub(() => s.step = 1),
+        ),
 
-      AppCard(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('목표', style: t(13, w: FontWeight.w700)),
-          const SizedBox(height: 12),
-          for (final g in _goals) ...[
-            GestureDetector(
-              onTap: () => s.setSub(() => s.goal = g.$1),
-              child: Container(
-                padding: const EdgeInsets.all(14),
-                decoration: AppDeco.selectableCard(selected: s.goal == g.$1),
-                child: Row(children: [
-                  Expanded(
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text(g.$1, style: t(14, w: FontWeight.w700)),
-                      const SizedBox(height: 3),
-                      Text(g.$2, style: t(11, c: AppColor.textFaint)),
-                    ]),
+        AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('목표', style: t(13, w: FontWeight.w700)),
+              const SizedBox(height: 12),
+              for (final g in _goals) ...[
+                GestureDetector(
+                  onTap: () => s.setSub(() => s.goal = g.$1),
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: AppDeco.selectableCard(
+                      selected: s.goal == g.$1,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(g.$1, style: t(14, w: FontWeight.w700)),
+                              const SizedBox(height: 3),
+                              Text(g.$2, style: t(11, c: AppColor.textFaint)),
+                            ],
+                          ),
+                        ),
+                        CheckDot(on: s.goal == g.$1, size: 20),
+                      ],
+                    ),
                   ),
-                  CheckDot(on: s.goal == g.$1, size: 20),
-                ]),
-              ),
-            ),
-            if (g != _goals.last) const SizedBox(height: 9),
-          ],
-        ]),
-      ),
-
-      AppCard(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('활동량', style: t(13, w: FontWeight.w700)),
-          const SizedBox(height: 12),
-          SegmentedRow(
-            options: DietRules.activityFactor.keys.toList(),
-            value: s.activity,
-            onChanged: (v) => s.setSub(() => s.activity = v),
+                ),
+                if (g != _goals.last) const SizedBox(height: 9),
+              ],
+            ],
           ),
-          const SizedBox(height: 12),
-          Text(_activityDesc[s.activity] ?? '', style: t(11, c: AppColor.textGhost, h: 1.6)),
-        ]),
-      ),
+        ),
 
-      PrimaryButton(
-        label: '다음',
-        onTap: () => s.setSub(() => s.step = 3),
-      ),
-    ]);
+        AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('활동량', style: t(13, w: FontWeight.w700)),
+              const SizedBox(height: 12),
+              SegmentedRow(
+                options: DietRules.activityFactor.keys.toList(),
+                value: s.activity,
+                onChanged: (v) => s.setSub(() => s.activity = v),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                _activityDesc[s.activity] ?? '',
+                style: t(11, c: AppColor.textGhost, h: 1.6),
+              ),
+            ],
+          ),
+        ),
+
+        PrimaryButton(label: '다음', onTap: () => s.goToStep(3)),
+      ],
+    );
   }
 }
 
-// ─────────────────────────────────────────────────────────
 // STEP 2/3 — 신체 정보 (s.step == 3)
-// ─────────────────────────────────────────────────────────
 
 class _BodyStep extends StatelessWidget {
   const _BodyStep();
@@ -299,122 +365,159 @@ class _BodyStep extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = context.watch<AppState>();
 
-    return ScreenScroll(horizontal: 20, top: 8, children: [
-      _StepHeader(
-        stepNo: 2,
-        title: '신체 정보를 알려주세요',
-        desc: '기초대사량과 권장 칼로리를 정확히 계산하는 데 쓰여요.',
-        onBack: () => s.setSub(() => s.step = 2),
-      ),
+    return ScreenScroll(
+      horizontal: 20,
+      top: 8,
+      children: [
+        _StepHeader(
+          stepNo: 2,
+          title: '신체 정보를 알려주세요',
+          desc: '기초대사량과 권장 칼로리를 정확히 계산하는 데 쓰여요.',
+          onBack: () => s.setSub(() => s.step = 2),
+        ),
 
-      AppCard(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
-            Expanded(
-              child: _UnderlineField(
-                label: '키',
-                value: s.heightCm,
-                unit: 'cm',
-                decimal: true,
-                onChanged: (v) => s.setSub(() => s.heightCm = v.toDouble()),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _UnderlineField(
-                label: '현재 몸무게',
-                value: s.weightKg,
-                unit: 'kg',
-                decimal: true,
-                onChanged: (v) => s.setSub(() => s.weightKg = v.toDouble()),
-              ),
-            ),
-          ]),
-          const SizedBox(height: 14),
-          Row(children: [
-            Expanded(
-              child: _UnderlineField(
-                label: '나이',
-                value: s.age,
-                unit: '세',
-                onChanged: (v) => s.setSub(() => s.age = v.toInt()),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('성별', style: t(12, w: FontWeight.w500, c: AppColor.textFaint)),
-                const SizedBox(height: 6),
-                Row(children: [
+        AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
                   Expanded(
-                    child: _GenderButton(
-                      label: '여성',
-                      selected: s.gender == '여성',
-                      onTap: () => s.setSub(() => s.gender = '여성'),
+                    child: _UnderlineField(
+                      label: '키',
+                      value: s.heightCm,
+                      unit: 'cm',
+                      decimal: true,
+                      onChanged: (v) =>
+                          s.setSub(() => s.heightCm = v.toDouble()),
                     ),
                   ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 12),
                   Expanded(
-                    child: _GenderButton(
-                      label: '남성',
-                      selected: s.gender == '남성',
-                      onTap: () => s.setSub(() => s.gender = '남성'),
+                    child: _UnderlineField(
+                      label: '현재 몸무게',
+                      value: s.weightKg,
+                      unit: 'kg',
+                      decimal: true,
+                      onChanged: (v) =>
+                          s.setSub(() => s.weightKg = v.toDouble()),
                     ),
                   ),
-                ]),
-              ]),
-            ),
-          ]),
-        ]),
-      ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: _UnderlineField(
+                      label: '나이',
+                      value: s.age,
+                      unit: '세',
+                      onChanged: (v) => s.setSub(() => s.age = v.toInt()),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '성별',
+                          style: t(
+                            12,
+                            w: FontWeight.w500,
+                            c: AppColor.textFaint,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _GenderButton(
+                                label: '여성',
+                                selected: s.gender == '여성',
+                                onTap: () => s.setSub(() => s.gender = '여성'),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: _GenderButton(
+                                label: '남성',
+                                selected: s.gender == '남성',
+                                onTap: () => s.setSub(() => s.gender = '남성'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
 
-      AppCard(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('자동 계산 결과', style: t(14, w: FontWeight.w700)),
-          const SizedBox(height: 14),
-          Row(children: [
-            Expanded(
-              child: _CalcTile(
-                label: 'BMI',
-                value: (s.bmi.isInfinite || s.bmi.isNaN) ? '-' : s.bmi.toStringAsFixed(1),
-                sub: _bmiLabel(s.bmi),
-                highlight: true,
+        AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('자동 계산 결과', style: t(14, w: FontWeight.w700)),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: _CalcTile(
+                      label: 'BMI',
+                      value: (s.bmi.isInfinite || s.bmi.isNaN)
+                          ? '-'
+                          : s.bmi.toStringAsFixed(1),
+                      sub: _bmiLabel(s.bmi),
+                      highlight: true,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _CalcTile(
+                      label: '기초대사량',
+                      value: (s.bmr.isInfinite || s.bmr.isNaN)
+                          ? '-'
+                          : AppState.comma(s.bmr.round()),
+                      sub: 'kcal',
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _CalcTile(
+                      label: '일일 권장',
+                      value: AppState.comma(s.dailyTarget),
+                      sub: 'kcal',
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _CalcTile(
-                label: '기초대사량',
-                value: (s.bmr.isInfinite || s.bmr.isNaN) ? '-' : AppState.comma(s.bmr.round()),
-                sub: 'kcal',
+              const SizedBox(height: 12),
+              Text(
+                '모든 영양 정보는 참고용이며 의료 진단이 아닙니다.',
+                style: t(11, c: AppColor.textGhost, h: 1.5),
               ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _CalcTile(
-                label: '일일 권장',
-                value: AppState.comma(s.dailyTarget),
-                sub: 'kcal',
-              ),
-            ),
-          ]),
-          const SizedBox(height: 12),
-          Text('모든 영양 정보는 참고용이며 의료 진단이 아닙니다.',
-              style: t(11, c: AppColor.textGhost, h: 1.5)),
-        ]),
-      ),
+            ],
+          ),
+        ),
 
-      PrimaryButton(
-        label: '다음',
-        onTap: () => s.setSub(() => s.step = 4),
-      ),
-    ]);
+        PrimaryButton(label: '다음', onTap: () => s.goToStep(4)),
+      ],
+    );
   }
 }
 
 /// 성별 선택 버튼 — 선택 시 primaryTint 배경 + primary 테두리
 class _GenderButton extends StatelessWidget {
-  const _GenderButton({required this.label, required this.selected, required this.onTap});
+  const _GenderButton({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
 
   final String label;
   final bool selected;
@@ -429,12 +532,19 @@ class _GenderButton extends StatelessWidget {
       decoration: BoxDecoration(
         color: selected ? AppColor.primaryTint : AppColor.bg,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: selected ? AppColor.primary : Colors.transparent, width: 1.5),
+        border: Border.all(
+          color: selected ? AppColor.primary : Colors.transparent,
+          width: 1.5,
+        ),
       ),
-      child: Text(label,
-          style: t(14,
-              w: selected ? FontWeight.w700 : FontWeight.w500,
-              c: selected ? AppColor.primaryDark : AppColor.textFaint)),
+      child: Text(
+        label,
+        style: t(
+          14,
+          w: selected ? FontWeight.w700 : FontWeight.w500,
+          c: selected ? AppColor.primaryDark : AppColor.textFaint,
+        ),
+      ),
     ),
   );
 }
@@ -460,7 +570,9 @@ class _UnderlineField extends StatefulWidget {
 
 class _UnderlineFieldState extends State<_UnderlineField> {
   late final FocusNode _focus = FocusNode()..addListener(() => setState(() {}));
-  late final TextEditingController _c = TextEditingController(text: _fmt(widget.value));
+  late final TextEditingController _c = TextEditingController(
+    text: _fmt(widget.value),
+  );
 
   String _fmt(num v) => widget.decimal ? v.toStringAsFixed(1) : v.toString();
 
@@ -481,48 +593,60 @@ class _UnderlineFieldState extends State<_UnderlineField> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(widget.label, style: t(12, w: FontWeight.w500, c: AppColor.textFaint)),
-      const SizedBox(height: 6),
-      Container(
-        padding: const EdgeInsets.only(bottom: 8),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: _focus.hasFocus ? AppColor.primary : const Color(0xFFE3E7E9),
-              width: 1.5,
-            ),
-          ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          widget.label,
+          style: t(12, w: FontWeight.w500, c: AppColor.textFaint),
         ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _c,
-                focusNode: _focus,
-                keyboardType: TextInputType.numberWithOptions(decimal: widget.decimal),
-                style: t(22, w: FontWeight.w700),
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  isDense: true,
-                  contentPadding: EdgeInsets.zero,
-                ),
-                onChanged: (v) {
-                  final n = widget.decimal ? double.tryParse(v) : int.tryParse(v);
-                  if (n != null) widget.onChanged(n);
-                },
+        const SizedBox(height: 6),
+        Container(
+          padding: const EdgeInsets.only(bottom: 8),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: _focus.hasFocus
+                    ? AppColor.primary
+                    : const Color(0xFFE3E7E9),
+                width: 1.5,
               ),
             ),
-            const SizedBox(width: 4),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Text(widget.unit, style: t(13, c: AppColor.textFaint)),
-            ),
-          ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _c,
+                  focusNode: _focus,
+                  keyboardType: TextInputType.numberWithOptions(
+                    decimal: widget.decimal,
+                  ),
+                  style: t(22, w: FontWeight.w700),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                  onChanged: (v) {
+                    final n = widget.decimal
+                        ? double.tryParse(v)
+                        : int.tryParse(v);
+                    if (n != null) widget.onChanged(n);
+                  },
+                ),
+              ),
+              const SizedBox(width: 4),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(widget.unit, style: t(13, c: AppColor.textFaint)),
+              ),
+            ],
+          ),
         ),
-      ),
-    ]);
+      ],
+    );
   }
 }
 
@@ -546,18 +670,29 @@ class _CalcTile extends StatelessWidget {
       color: const Color(0xFFF7FAF7),
       borderRadius: BorderRadius.circular(18),
     ),
-    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(label, style: t(11, w: FontWeight.w500, c: AppColor.textFaint)),
-      const SizedBox(height: 4),
-      Text(value, style: t(20, w: FontWeight.w900, c: highlight ? AppColor.primary : AppColor.text)),
-      Text(sub, style: t(11, c: AppColor.textFaint)),
-    ]),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: t(11, w: FontWeight.w500, c: AppColor.textFaint),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: t(
+            20,
+            w: FontWeight.w900,
+            c: highlight ? AppColor.primary : AppColor.text,
+          ),
+        ),
+        Text(sub, style: t(11, c: AppColor.textFaint)),
+      ],
+    ),
   );
 }
 
-// ─────────────────────────────────────────────────────────
 // STEP 3/3 — 알림 (s.step == 4)
-// ─────────────────────────────────────────────────────────
 
 class _AlertStep extends StatelessWidget {
   const _AlertStep();
@@ -566,78 +701,110 @@ class _AlertStep extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = context.watch<AppState>();
 
-    return ScreenScroll(horizontal: 20, top: 8, children: [
-      _StepHeader(
-        stepNo: 3,
-        title: '목표 체중과 알림을 정해요',
-        desc: '목표 체중을 입력하고, 필요한 알림만 켜세요.',
-        onBack: () => s.setSub(() => s.step = 3),
-      ),
+    return ScreenScroll(
+      horizontal: 20,
+      top: 8,
+      children: [
+        _StepHeader(
+          stepNo: 3,
+          title: '목표 체중과 알림을 정해요',
+          desc: '목표 체중을 입력하고, 필요한 알림만 켜세요.',
+          onBack: () => s.setSub(() => s.step = 3),
+        ),
 
-      AppCard(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('목표 체중', style: t(13, w: FontWeight.w700)),
-          const SizedBox(height: 12),
-          NumberField(
-            value: s.goalWeight,
-            unit: 'kg',
-            fontSize: 28,
-            decimal: true,
-            center: true,
-            min: 45,
-            max: 70,
-            onChanged: (v) => s.setSub(() => s.goalWeight = v.toDouble()),
-          ),
-          const SizedBox(height: 10),
-          Center(
-            child: Text('현재 ${s.weightKg.toStringAsFixed(1)}kg · 45~70kg 사이로 입력하세요',
-                style: t(11, c: AppColor.textGhost)),
-          ),
-          const SizedBox(height: 14),
-          const Divider(height: 1),
-          const SizedBox(height: 14),
-          RowBetween('감량 목표', s.goalDelta),
-        ]),
-      ),
-
-      AppCard(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('알림 받기', style: t(13, w: FontWeight.w700)),
-          const SizedBox(height: 5),
-          Text('필요한 알림만 켜세요. 나중에 변경할 수 있어요.', style: t(11, c: AppColor.textGhost)),
-          const SizedBox(height: 12),
-          for (final a in s.onboardAlerts.keys)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 11),
-              child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Text(a, style: t(13, w: FontWeight.w500)),
-                AppToggle(
-                  value: s.onboardAlerts[a]!,
-                  onChanged: () => s.toggleOnboardAlert(a),
+        AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('목표 체중', style: t(13, w: FontWeight.w700)),
+              const SizedBox(height: 12),
+              NumberField(
+                value: s.goalWeight,
+                unit: 'kg',
+                fontSize: 28,
+                decimal: true,
+                center: true,
+                min: 45,
+                max: 70,
+                onChanged: (v) => s.setSub(() => s.goalWeight = v.toDouble()),
+              ),
+              const SizedBox(height: 10),
+              Center(
+                child: Text(
+                  '현재 ${s.weightKg.toStringAsFixed(1)}kg · 45~70kg 사이로 입력하세요',
+                  style: t(11, c: AppColor.textGhost),
                 ),
-              ]),
-            ),
-        ]),
-      ),
+              ),
+              const SizedBox(height: 14),
+              const Divider(height: 1),
+              const SizedBox(height: 14),
+              RowBetween('감량 목표', s.goalDelta),
+            ],
+          ),
+        ),
 
-      AppCard(
-        color: AppColor.primaryTint,
-        radius: 24,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('🌱 식물이 함께 자라요', style: t(13, w: FontWeight.w700, c: AppColor.primaryDark)),
-          const SizedBox(height: 7),
-          Text('하루 목표를 달성하면 EXP가 쌓이고 식물이 다음 단계로 성장해요.',
-              style: t(12, c: const Color(0xFF4A7A4E), h: 1.6)),
-        ]),
-      ),
+        AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('알림 받기', style: t(13, w: FontWeight.w700)),
+              const SizedBox(height: 5),
+              Text(
+                '필요한 알림만 켜세요. 나중에 변경할 수 있어요.',
+                style: t(11, c: AppColor.textGhost),
+              ),
+              const SizedBox(height: 12),
+              for (final a in s.onboardAlerts.keys)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 11),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(a, style: t(13, w: FontWeight.w500)),
+                      AppToggle(
+                        value: s.onboardAlerts[a]!,
+                        onChanged: () => s.setSub(
+                          () => s.onboardAlerts[a] = !s.onboardAlerts[a]!,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
 
-      PrimaryButton(
-        label: '시작하기',
-        onTap: () {
-          s.go('home');
-          toast(context, '환영해요! 오늘 첫 기록을 시작해볼까요?');
-        },
-      ),
-    ]);
+        AppCard(
+          color: AppColor.primaryTint,
+          radius: 24,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '🌱 식물이 함께 자라요',
+                style: t(13, w: FontWeight.w700, c: AppColor.primaryDark),
+              ),
+              const SizedBox(height: 7),
+              Text(
+                '하루 목표를 달성하면 EXP가 쌓이고 식물이 다음 단계로 성장해요.',
+                style: t(12, c: const Color(0xFF4A7A4E), h: 1.6),
+              ),
+            ],
+          ),
+        ),
+
+        PrimaryButton(
+          label: '시작하기',
+          onTap: () async {
+            final saved = await s.completeOnboarding();
+            if (!context.mounted) return;
+            toast(
+              context,
+              saved ? '환영해요! 오늘 첫 기록을 시작해볼까요?' : (s.authError ?? '저장하지 못했어요'),
+            );
+          },
+        ),
+      ],
+    );
   }
 }

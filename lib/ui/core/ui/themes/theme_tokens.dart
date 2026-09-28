@@ -1,28 +1,22 @@
-// 다이어트 관리 앱 v3.0 — Design Tokens
+// 디자인 토큰 — HTML 프로토타입에서 확정된 색상 · 간격 · 폰트 값을 Dart 상수로 옮겨뒀다.
+// 화면을 만들 때 값을 직접 하드코딩하지 말고 여기 있는 걸 가져다 쓴다.
 //
-// HTML 프로토타입에서 확정된 디자인 값을 Dart 상수로 정리한 파일입니다.
-// 화면 구현 시 하드코딩 대신 여기 값을 참조하세요.
-//
-// 의존: google_fonts (Noto Sans KR)
-//
-// test
+// 폰트는 google_fonts 패키지로 Noto Sans KR을 쓴다.
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// ─────────────────────────────────────────────────────────
-// Colors
-// ─────────────────────────────────────────────────────────
+// 색상
 
 abstract final class AppColor {
-  // Brand
+  // 브랜드 컬러
   static const primary = Color(0xFF4CAF50);
   static const primaryDark = Color(0xFF3B8F3F);
   static const primaryTint = Color(0xFFEDF7EE);
   static const primarySoft = Color(0xFFF7FCF7);
   static const secondary = Color(0xFFA8E0A2);
 
-  // Semantic accents
+  // 의미별 강조색 — 쓰이는 곳을 옆에 적어둔다
   static const warn = Color(0xFFFFD566); // 탄수화물, 진행 중
   static const warnDeep = Color(0xFFFFB74D); // 지방, 식단
   static const alert = Color(0xFFFF8A65); // 나트륨, 배지, 삭제
@@ -31,7 +25,7 @@ abstract final class AppColor {
   static const teal = Color(0xFF4DB6AC); // 식이섬유, 체중
   static const purple = Color(0xFF9C7BE0); // 온보딩, 시즌 한정
 
-  // Surfaces
+  // 배경 · 표면
   static const bg = Color(0xFFF5F8F5);
   static const surface = Color(0xFFFFFFFF);
   static const surfaceSunken = Color(0xFFF7F9FA);
@@ -39,7 +33,7 @@ abstract final class AppColor {
   static const disabled = Color(0xFFE3E7E9);
   static const toggleOff = Color(0xFFDDE2E5);
 
-  // Text
+  // 텍스트
   static const text = Color(0xFF333333);
   static const textStrong = Color(0xFF22271F);
   static const textMuted = Color(0xFF6B7278);
@@ -47,7 +41,7 @@ abstract final class AppColor {
   static const textGhost = Color(0xFFA6ADB4);
   static const iconGhost = Color(0xFFC7CDD2);
 
-  // Home hero gradient (상단 오버레이)
+  // 홈 화면 상단 오버레이에 쓰는 그라데이션
   static const heroGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
@@ -55,7 +49,7 @@ abstract final class AppColor {
     stops: [0.0, 0.62, 1.0],
   );
 
-  // Plant card gradient
+  // 식물 카드에 쓰는 그라데이션
   static const plantGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
@@ -63,16 +57,14 @@ abstract final class AppColor {
     stops: [0.0, 0.55, 1.0],
   );
 
-  // Today-card tints (홈 오늘의 기록)
+  // 홈 "오늘의 기록" 카드들의 배경색
   static const tintWater = Color(0xFFEFF4FE);
   static const tintExercise = Color(0xFFEFF7EF);
   static const tintWeight = Color(0xFFECF6F5);
   static const tintMeal = Color(0xFFFFF7EC);
 }
 
-// ─────────────────────────────────────────────────────────
-// Spacing / Radius / Shadow
-// ─────────────────────────────────────────────────────────
+// 간격 · 모서리 · 그림자
 
 abstract final class AppSpace {
   static const screenH = 16.0; // 화면 좌우 패딩 (폼 화면은 20)
@@ -122,20 +114,22 @@ abstract final class AppShadow {
   ];
 }
 
-// ─────────────────────────────────────────────────────────
-// Typography
-// ─────────────────────────────────────────────────────────
+// 타이포그래피
 
 abstract final class AppText {
-  static TextStyle _base(double size, FontWeight weight,
-          {Color? color, double? spacing, double? height}) =>
-      GoogleFonts.notoSansKr(
-        fontSize: size,
-        fontWeight: weight,
-        color: color ?? AppColor.text,
-        letterSpacing: spacing,
-        height: height,
-      );
+  static TextStyle _base(
+    double size,
+    FontWeight weight, {
+    Color? color,
+    double? spacing,
+    double? height,
+  }) => GoogleFonts.notoSansKr(
+    fontSize: size,
+    fontWeight: weight,
+    color: color ?? AppColor.text,
+    letterSpacing: spacing,
+    height: height,
+  );
 
   /// 탭 루트 화면 대제목
   static TextStyle get tabTitle =>
@@ -174,39 +168,37 @@ abstract final class AppText {
 
   /// 숫자 전용 (그릇 용량, 인증 코드)
   static TextStyle get mono => GoogleFonts.ibmPlexMono(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        color: AppColor.text,
-      );
+    fontSize: 14,
+    fontWeight: FontWeight.w600,
+    color: AppColor.text,
+  );
 }
 
-// ─────────────────────────────────────────────────────────
-// Reusable decorations
-// ─────────────────────────────────────────────────────────
+// 화면 곳곳에서 재사용하는 데코레이션
 
 abstract final class AppDeco {
   /// 기본 카드
   static BoxDecoration get card => BoxDecoration(
-        color: AppColor.surface,
-        borderRadius: AppRadius.cardR,
-        boxShadow: AppShadow.card,
-      );
+    color: AppColor.surface,
+    borderRadius: AppRadius.cardR,
+    boxShadow: AppShadow.card,
+  );
 
   /// 카드 안 서브 블록
   static BoxDecoration get sunken => BoxDecoration(
-        color: AppColor.surfaceSunken,
-        borderRadius: AppRadius.cardInnerR,
-      );
+    color: AppColor.surfaceSunken,
+    borderRadius: AppRadius.cardInnerR,
+  );
 
   /// 칩 (선택 여부에 따라)
   static BoxDecoration chip({required bool selected}) => BoxDecoration(
-        color: selected ? AppColor.primaryTint : AppColor.surfaceSunken,
-        borderRadius: AppRadius.chipR,
-        border: Border.all(
-          color: selected ? AppColor.primary : Colors.transparent,
-          width: 1.5,
-        ),
-      );
+    color: selected ? AppColor.primaryTint : AppColor.surfaceSunken,
+    borderRadius: AppRadius.chipR,
+    border: Border.all(
+      color: selected ? AppColor.primary : Colors.transparent,
+      width: 1.5,
+    ),
+  );
 
   /// 선택 가능한 카드 (라디오 카드, 그릇 항목)
   static BoxDecoration selectableCard({required bool selected}) =>
@@ -221,21 +213,19 @@ abstract final class AppDeco {
 
   /// 주 버튼 (활성 / 비활성)
   static BoxDecoration primaryButton({bool enabled = true}) => BoxDecoration(
-        color: enabled ? AppColor.primary : AppColor.disabled,
-        borderRadius: AppRadius.buttonR,
-        boxShadow: enabled ? AppShadow.primaryButton : null,
-      );
+    color: enabled ? AppColor.primary : AppColor.disabled,
+    borderRadius: AppRadius.buttonR,
+    boxShadow: enabled ? AppShadow.primaryButton : null,
+  );
 
   /// 화면 제목 옆 아이콘 타일 (28×28)
   static BoxDecoration get iconTile => BoxDecoration(
-        color: AppColor.primaryTint,
-        borderRadius: BorderRadius.circular(AppRadius.iconTile),
-      );
+    color: AppColor.primaryTint,
+    borderRadius: BorderRadius.circular(AppRadius.iconTile),
+  );
 }
 
-// ─────────────────────────────────────────────────────────
-// Chip / progress-bar sizing
-// ─────────────────────────────────────────────────────────
+// 칩 · 진행 바 크기
 
 abstract final class AppSize {
   static const chipPad = EdgeInsets.symmetric(horizontal: 14, vertical: 10);
@@ -251,9 +241,7 @@ abstract final class AppSize {
   static const textLinkHeight = 46.0; // 보조 액션 텍스트 링크
 }
 
-// ─────────────────────────────────────────────────────────
-// Theme
-// ─────────────────────────────────────────────────────────
+// 테마
 
 ThemeData buildAppTheme() {
   final base = ThemeData(
@@ -267,10 +255,9 @@ ThemeData buildAppTheme() {
   );
 
   return base.copyWith(
-    textTheme: GoogleFonts.notoSansKrTextTheme(base.textTheme).apply(
-      bodyColor: AppColor.text,
-      displayColor: AppColor.textStrong,
-    ),
+    textTheme: GoogleFonts.notoSansKrTextTheme(
+      base.textTheme,
+    ).apply(bodyColor: AppColor.text, displayColor: AppColor.textStrong),
     dividerColor: AppColor.divider,
     snackBarTheme: SnackBarThemeData(
       backgroundColor: AppColor.textStrong,
@@ -300,50 +287,82 @@ ThemeData buildAppTheme() {
   );
 }
 
-// ─────────────────────────────────────────────────────────
-// Domain constants (기획서 확정 값)
-// ─────────────────────────────────────────────────────────
+// 도메인 상수 (기획서에서 확정된 값)
 
 abstract final class DietRules {
   /// 부가 정보 보정 계수 — 조리법
   static const cookFactor = <String, double>{
-    '구이': 1.0, '볶음': 1.0, '찜': 0.9, '튀김': 1.25, '생식': 0.9, '찌개': 1.0,
+    '구이': 1.0,
+    '볶음': 1.0,
+    '찜': 0.9,
+    '튀김': 1.25,
+    '생식': 0.9,
+    '찌개': 1.0,
   };
 
   /// 부가 정보 보정 계수 — 소스
   static const sauceFactor = <String, double>{
-    '저당 소스': 0.94, '일반 소스': 1.0, '올리브오일': 1.0, '버터': 1.0, '무가당': 0.94,
+    '저당 소스': 0.94,
+    '일반 소스': 1.0,
+    '올리브오일': 1.0,
+    '버터': 1.0,
+    '무가당': 0.94,
   };
 
   /// 부가 정보 보정 계수 — 단백질
   static const proteinFactor = <String, double>{
-    '돼지고기': 1.0, '소고기': 1.0, '닭가슴살': 0.88, '생선': 1.0, '두부': 0.88,
+    '돼지고기': 1.0,
+    '소고기': 1.0,
+    '닭가슴살': 0.88,
+    '생선': 1.0,
+    '두부': 0.88,
   };
 
   /// 섭취 분량 비율
-  static const portionRatio = <String, double>{'전체': 1.0, '반절': 0.5, '1/3': 0.33};
+  static const portionRatio = <String, double>{
+    '전체': 1.0,
+    '반절': 0.5,
+    '1/3': 0.33,
+  };
 
   /// 그릇 채움 정도
   static const fillRatio = <String, double>{'가득': 1.0, '반': 0.5, '1/3': 0.33};
 
   /// 운동 종류 계수 (미등록 종류는 1.0)
   static const exerciseTypeFactor = <String, double>{
-    '달리기': 1.2, '걷기': 0.7, '자전거': 1.0, '근력': 0.9,
-    '요가': 0.6, '수영': 1.3, '등산': 1.1,
+    '달리기': 1.2,
+    '걷기': 0.7,
+    '자전거': 1.0,
+    '근력': 0.9,
+    '요가': 0.6,
+    '수영': 1.3,
+    '등산': 1.1,
   };
 
   /// 운동 강도 계수 (분당 kcal 기준값)
-  static const exerciseIntensityFactor = <String, int>{'낮음': 5, '보통': 8, '높음': 11};
+  static const exerciseIntensityFactor = <String, int>{
+    '낮음': 5,
+    '보통': 8,
+    '높음': 11,
+  };
 
   /// 활동량 계수 (권장 칼로리 산출)
-  static const activityFactor = <String, double>{'적음': 1.2, '보통': 1.375, '많음': 1.55};
+  static const activityFactor = <String, double>{
+    '적음': 1.2,
+    '보통': 1.375,
+    '많음': 1.55,
+  };
 
   /// 식물 성장 축 — 돌보기 1회당 EXP
   static const careExp = <String, int>{'물 주기': 10, '햇빛 받기': 15, '영양 주기': 20};
 
   /// 식물 단계 (레벨 하한)
   static const plantStages = <String, int>{
-    '씨앗': 1, '새싹': 5, '어린잎': 10, '무성한잎': 15, '꽃': 20,
+    '씨앗': 1,
+    '새싹': 5,
+    '어린잎': 10,
+    '무성한잎': 15,
+    '꽃': 20,
   };
 
   /// 균형 판정: 3축 최대-최소 차이가 이 값 이하면 '균형'

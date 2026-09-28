@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>로그인 유지와 프로필 저장 학습 노트</title>
+<style>
+:root{--bg:#fbfaf7;--card:#ffffff;--text:#1f1e1c;--muted:#6b6a65;--line:#dedcd3;--accent:#0F6E56;
+--teal-f:#E1F5EE;--teal-s:#0F6E56;--teal-t:#085041;--teal-u:#0F6E56;
+--gray-f:#F1EFE8;--gray-s:#5F5E5A;--gray-t:#444441;--gray-u:#5F5E5A;
+--purple-f:#EEEDFE;--purple-s:#534AB7;--purple-t:#3C3489;--purple-u:#534AB7}
+@media (prefers-color-scheme:dark){:root{--bg:#1a1917;--card:#252421;--text:#ecebe6;--muted:#a3a29b;--line:#3a3935;--accent:#5DCAA5;
+--teal-f:#085041;--teal-s:#5DCAA5;--teal-t:#9FE1CB;--teal-u:#5DCAA5;
+--gray-f:#444441;--gray-s:#B4B2A9;--gray-t:#D3D1C7;--gray-u:#B4B2A9;
+--purple-f:#3C3489;--purple-s:#AFA9EC;--purple-t:#CECBF6;--purple-u:#AFA9EC}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 -apple-system,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif}
+main{max-width:820px;margin:0 auto;padding:0 20px 80px}
+header.top{padding:40px 0 8px}
+h1{font-size:28px;line-height:1.3;margin:0 0 6px;font-weight:600}
+h2{font-size:21px;margin:56px 0 6px;font-weight:600;scroll-margin-top:64px}
+h3{font-size:16px;margin:28px 0 10px;font-weight:600;color:var(--muted)}
+p{margin:6px 0}
+.sub{color:var(--muted);margin:0}
+code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--gray-f);padding:1px 6px;border-radius:4px}
+nav{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--line);z-index:5;padding:0 20px}
+nav div{max-width:820px;margin:0 auto;display:flex;gap:4px;overflow-x:auto;padding:8px 0}
+nav a{white-space:nowrap;color:var(--muted);text-decoration:none;font-size:14px;padding:4px 10px;border-radius:999px}
+nav a:hover{background:var(--gray-f);color:var(--text)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:22px 0 4px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.stat b{display:block;font-size:26px;font-weight:600;line-height:1.2}
+.stat span{color:var(--muted);font-size:13px}
+.how{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-top:14px;font-size:14px;color:var(--muted)}
+.how b{color:var(--text)}
+.fig{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin:14px 0}
+.fig svg{display:block;width:100%;height:auto}
+.fig figcaption{color:var(--muted);font-size:13px;margin:6px 4px 0}
+svg text{font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif}
+svg .th{font-size:14px;font-weight:500;fill:var(--text)}
+svg .ts{font-size:12px;fill:var(--muted)}
+svg .grp{fill:none;stroke:var(--line);stroke-width:1;stroke-dasharray:4 3}
+svg .arr{stroke:var(--muted);stroke-width:1.5;fill:none}
+svg [class^="c-"]>rect{stroke-width:.6}
+.c-teal>rect{fill:var(--teal-f);stroke:var(--teal-s)} .c-teal .th{fill:var(--teal-t)} .c-teal .ts{fill:var(--teal-u)}
+.c-gray>rect{fill:var(--gray-f);stroke:var(--gray-s)} .c-gray .th{fill:var(--gray-t)} .c-gray .ts{fill:var(--gray-u)}
+.c-purple>rect{fill:var(--purple-f);stroke:var(--purple-s)} .c-purple .th{fill:var(--purple-t)} .c-purple .ts{fill:var(--purple-u)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column}
+.card header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card .cn{font-size:15px;font-weight:600;background:none;padding:0}
+.card p{font-size:14px;margin:8px 0}
+.card dl{margin:4px 0 0;font-size:13px;display:grid;grid-template-columns:38px 1fr;gap:2px 8px}
+.card dt{color:var(--muted)}
+.card dd{margin:0;word-break:break-word}
+.card footer{margin-top:auto;padding-top:10px;color:var(--muted);font-size:12px;font-family:ui-monospace,Menlo,monospace}
+.badge{font-size:12px;padding:1px 9px;border-radius:999px;border:1px solid;white-space:nowrap}
+.b-teal{background:var(--teal-f);color:var(--teal-t);border-color:var(--teal-s)}
+.b-gray{background:var(--gray-f);color:var(--gray-t);border-color:var(--gray-s)}
+.b-purple{background:var(--purple-f);color:var(--purple-t);border-color:var(--purple-s)}
+.tw{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:9px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{color:var(--muted);font-weight:500;font-size:13px}
+td:first-child{white-space:nowrap;font-family:ui-monospace,Menlo,monospace;font-size:13px}
+ul.plain{padding-left:20px;margin:8px 0}
+ul.plain li{margin:6px 0;font-size:15px}
+.chg td:first-child{white-space:normal;font-family:inherit;font-size:14px;width:38%;color:var(--muted)}
+@media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}.cards{grid-template-columns:1fr}h1{font-size:23px}}
+@media print{nav{display:none}.card,.fig{break-inside:avoid}}
+
+pre{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow-x:auto;font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;margin:10px 0}
+pre code{background:none;padding:0;font-size:13px}
+.lbl{display:inline-block;font-size:12px;padding:1px 9px;border-radius:999px;border:1px solid;margin:8px 0 0}
+.lbl.bad{background:#FCEBEB;color:#791F1F;border-color:#A32D2D}
+.lbl.good{background:var(--teal-f);color:var(--teal-t);border-color:var(--teal-s)}
+@media (prefers-color-scheme:dark){.lbl.bad{background:#501313;color:#F7C1C1;border-color:#E24B4A}}
+.note{background:var(--card);border-left:3px solid var(--accent);border-radius:0;padding:10px 14px;margin:12px 0;font-size:14px}
+.tl td:first-child{width:34%}
+.ref{font:12px ui-monospace,Menlo,monospace;color:var(--muted)}
+ol.steps{padding-left:22px}ol.steps li{margin:6px 0;font-size:15px}
+.ref{word-break:break-all}
+.cg td:first-child{white-space:normal;width:120px;font-family:inherit;font-size:14px}
+.cg td:nth-child(2){min-width:230px;max-width:300px}
+.cp td:first-child{white-space:normal;width:120px;font-family:inherit;font-size:14px}
+.cp td:nth-child(3){word-break:break-word}
+</style></head>
+<body>
+<nav><div>
+<a href="#problem">문제</a><a href="#cause">원인</a><a href="#flow">동작 흐름</a><a href="#changes">고친 곳</a>
+<a href="#code">핵심 코드</a><a href="#concepts">공부할 개념</a><a href="#lessons">배운 점</a><a href="#practice">실습</a>
+</div></nav>
+<main>
+<header class="top">
+<h1>로그인 유지와 프로필 저장 학습 노트</h1>
+<p class="sub">앱을 껐다 켜도 로그인과 온보딩이 유지되도록 고친 과정을 정리했어요. 2026-09-21 기준이고, 코드 위치는 문서를 만들 때 실제 파일에서 읽어 왔어요.</p>
+<div class="note"><b>한 줄 요약.</b> 로그인 상태 확인, 입력값 저장, 마지막 버튼의 저장 호출 — 이 세 고리가 모두 이어져야 "껐다 켜도 그대로"가 돼요. 하나가 빠져 있었어요.</div>
+</header>
+
+<h2 id="problem">1. 처음 문제</h2>
+<p>앱을 종료했다가 다시 켜면 <b>로그인 화면부터 다시</b> 나오고, 온보딩도 <b>처음부터</b> 해야 했어요. Firebase 콘솔에도 저장된 값이 하나도 없었어요.</p>
+
+<h2 id="cause">2. 원인은 세 겹이었어요</h2>
+<div class="tw "><table><thead><tr><th>#</th><th>원인</th><th>설명</th></tr></thead><tbody><tr><td>①</td><td><b>앱이 시작할 때 "이미 로그인했나?"를 확인하지 않았어요.</b></td><td>Firebase는 로그인 상태를 기기에 기억해 두는데, 앱이 그걸 물어보지 않고 항상 로그인 화면부터 보여 줬어요.</td></tr><tr><td>②</td><td><b>입력한 값이 메모리에만 있었어요.</b></td><td>닉네임 · 키 · 몸무게 같은 값은 앱을 끄면 사라졌고, "온보딩을 끝냈다"는 표시도 어디에도 없었어요.</td></tr><tr><td>③</td><td><b>마지막 "시작하기" 버튼이 저장 없이 이동만 했어요.</b></td><td>저장 코드를 넣었는데 이 파일에서만 예전 코드로 돌아가 있었어요. 그래서 <code>onboardingDone</code>이 계속 <code>false</code>였어요.</td></tr></tbody></table></div>
+
+<h2 id="flow">3. 동작 흐름</h2>
+<h3>앱을 켰을 때</h3>
+<figure class="fig"><svg viewBox="0 0 680 470" role="img" aria-labelledby="f1t f1d">
+<title id="f1t">앱을 켰을 때의 흐름</title>
+<desc id="f1d">앱 시작 후 로그인 여부와 저장된 프로필에 따라 로그인 화면, 온보딩, 홈 중 어디로 가는지 보여주는 순서도</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" style="stroke:var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<g class="c-gray"><rect x="240" y="20" width="200" height="44" rx="4"/><text class="th" x="340" y="39" text-anchor="middle">앱 시작 (main)</text><text class="ts" x="340" y="55" text-anchor="middle">restoreSession() 호출</text></g>
+<line class="arr" x1="340" y1="66" x2="340" y2="98" marker-end="url(#arrow)"/>
+<g class="c-purple"><rect x="240" y="100" width="200" height="52" rx="4"/><text class="th" x="340" y="119" text-anchor="middle">로그인된 계정이 있나?</text><text class="ts" x="340" y="135" text-anchor="middle">Firebase가 기억한 로그인</text></g>
+<line class="arr" x1="238" y1="126" x2="172" y2="126" marker-end="url(#arrow)"/>
+<text class="ts" x="205" y="118" text-anchor="middle">없음</text>
+<g class="c-gray"><rect x="20" y="104" width="150" height="44" rx="4"/><text class="th" x="95" y="123" text-anchor="middle">로그인 화면</text><text class="ts" x="95" y="139" text-anchor="middle">Google · Apple 버튼</text></g>
+<line class="arr" x1="340" y1="154" x2="340" y2="186" marker-end="url(#arrow)"/><text class="ts" x="348" y="174">있음</text>
+<g class="c-purple"><rect x="240" y="188" width="200" height="52" rx="4"/><text class="th" x="340" y="207" text-anchor="middle">Firestore에서 불러오기</text><text class="ts" x="340" y="223" text-anchor="middle">users/{계정 id} 문서</text></g>
+<path class="arr" d="M340 242 V264" fill="none"/>
+<path class="arr" d="M95 264 H585" fill="none"/>
+<path class="arr" d="M85 264 V296" fill="none" marker-end="url(#arrow)"/>
+<g class="c-gray"><rect x="20" y="298" width="130" height="52" rx="4"/><text class="th" x="85" y="317" text-anchor="middle">불러오기 실패</text><text class="ts" x="85" y="333" text-anchor="middle">네트워크 · 규칙 문제</text></g>
+<line class="arr" x1="85" y1="352" x2="85" y2="384" marker-end="url(#arrow)"/>
+<g class="c-gray"><rect x="20" y="386" width="130" height="52" rx="4"/><text class="th" x="85" y="405" text-anchor="middle">로그인 화면</text><text class="ts" x="85" y="421" text-anchor="middle">+ 안내 문구</text></g>
+<path class="arr" d="M255 264 V296" fill="none" marker-end="url(#arrow)"/>
+<g class="c-gray"><rect x="190" y="298" width="130" height="52" rx="4"/><text class="th" x="255" y="317" text-anchor="middle">문서 없음</text><text class="ts" x="255" y="333" text-anchor="middle">처음 가입한 계정</text></g>
+<line class="arr" x1="255" y1="352" x2="255" y2="384" marker-end="url(#arrow)"/>
+<g class="c-gray"><rect x="190" y="386" width="130" height="52" rx="4"/><text class="th" x="255" y="405" text-anchor="middle">온보딩 1단계</text><text class="ts" x="255" y="421" text-anchor="middle">계정 연결부터</text></g>
+<path class="arr" d="M425 264 V296" fill="none" marker-end="url(#arrow)"/>
+<g class="c-gray"><rect x="360" y="298" width="130" height="52" rx="4"/><text class="th" x="425" y="317" text-anchor="middle">완료 = true</text><text class="ts" x="425" y="333" text-anchor="middle">온보딩을 마친 계정</text></g>
+<line class="arr" x1="425" y1="352" x2="425" y2="384" marker-end="url(#arrow)"/>
+<g class="c-teal"><rect x="360" y="386" width="130" height="52" rx="4"/><text class="th" x="425" y="405" text-anchor="middle">홈 대시보드</text><text class="ts" x="425" y="421" text-anchor="middle">바로 이동</text></g>
+<path class="arr" d="M595 264 V296" fill="none" marker-end="url(#arrow)"/>
+<g class="c-gray"><rect x="530" y="298" width="130" height="52" rx="4"/><text class="th" x="595" y="317" text-anchor="middle">완료 = false</text><text class="ts" x="595" y="333" text-anchor="middle">온보딩 도중에 나감</text></g>
+<line class="arr" x1="595" y1="352" x2="595" y2="384" marker-end="url(#arrow)"/>
+<g class="c-gray"><rect x="530" y="386" width="130" height="52" rx="4"/><text class="th" x="595" y="405" text-anchor="middle">저장된 단계에서</text><text class="ts" x="595" y="421" text-anchor="middle">이어서 시작</text></g>
+<g class="c-purple"><rect x="20" y="452" width="14" height="14" rx="3"/></g><text class="ts" x="42" y="463">판단</text>
+<g class="c-teal"><rect x="110" y="452" width="14" height="14" rx="3"/></g><text class="ts" x="132" y="463">목표 화면</text>
+</svg><figcaption>고친 뒤의 시작 흐름입니다. 저장된 값에 따라 도착하는 화면이 달라져요.</figcaption></figure>
+<h3>온보딩을 진행할 때</h3>
+<figure class="fig"><svg viewBox="0 0 680 222" role="img" aria-labelledby="f2t f2d">
+<title id="f2t">온보딩 단계별 저장</title>
+<desc id="f2d">온보딩 각 단계를 넘길 때마다 Firestore에 어떤 값이 저장되는지 보여주는 그림</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" style="stroke:var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<text class="ts" x="20" y="18">앱에서 보는 온보딩 단계</text>
+<g class="c-gray"><rect x="20" y="26" width="120" height="52" rx="4"/><text class="th" x="80" y="45" text-anchor="middle">1 계정 연결</text><text class="ts" x="80" y="61" text-anchor="middle">약관 · 닉네임</text></g>
+<g class="c-gray"><rect x="150" y="26" width="120" height="52" rx="4"/><text class="th" x="210" y="45" text-anchor="middle">2 목표</text><text class="ts" x="210" y="61" text-anchor="middle">목표 · 활동량</text></g>
+<g class="c-gray"><rect x="280" y="26" width="120" height="52" rx="4"/><text class="th" x="340" y="45" text-anchor="middle">3 신체 정보</text><text class="ts" x="340" y="61" text-anchor="middle">키 · 몸무게</text></g>
+<g class="c-gray"><rect x="410" y="26" width="120" height="52" rx="4"/><text class="th" x="470" y="45" text-anchor="middle">4 알림</text><text class="ts" x="470" y="61" text-anchor="middle">알림 4종</text></g>
+<g class="c-gray"><rect x="540" y="26" width="120" height="52" rx="4"/><text class="th" x="600" y="45" text-anchor="middle">시작하기</text><text class="ts" x="600" y="61" text-anchor="middle">홈으로 이동</text></g>
+<line class="arr" x1="80" y1="80" x2="80" y2="122" marker-end="url(#arrow)"/>
+<g class="c-teal"><rect x="20" y="128" width="120" height="52" rx="4"/><text class="th" x="80" y="147" text-anchor="middle">(저장 없음)</text><text class="ts" x="80" y="163" text-anchor="middle">문서가 아직 없어요</text></g>
+<line class="arr" x1="210" y1="80" x2="210" y2="122" marker-end="url(#arrow)"/>
+<g class="c-teal"><rect x="150" y="128" width="120" height="52" rx="4"/><text class="th" x="210" y="147" text-anchor="middle">step = 2</text><text class="ts" x="210" y="163" text-anchor="middle">1단계 다음 누를 때</text></g>
+<line class="arr" x1="340" y1="80" x2="340" y2="122" marker-end="url(#arrow)"/>
+<g class="c-teal"><rect x="280" y="128" width="120" height="52" rx="4"/><text class="th" x="340" y="147" text-anchor="middle">step = 3</text><text class="ts" x="340" y="163" text-anchor="middle">2단계 다음 누를 때</text></g>
+<line class="arr" x1="470" y1="80" x2="470" y2="122" marker-end="url(#arrow)"/>
+<g class="c-teal"><rect x="410" y="128" width="120" height="52" rx="4"/><text class="th" x="470" y="147" text-anchor="middle">step = 4</text><text class="ts" x="470" y="163" text-anchor="middle">3단계 다음 누를 때</text></g>
+<line class="arr" x1="600" y1="80" x2="600" y2="122" marker-end="url(#arrow)"/>
+<g class="c-teal"><rect x="540" y="128" width="120" height="52" rx="4"/><text class="th" x="600" y="147" text-anchor="middle">done = true</text><text class="ts" x="600" y="163" text-anchor="middle">시작하기 누를 때</text></g>
+<text class="ts" x="20" y="204">위 화살표가 가리키는 값이 그 단계에서 Firestore에 저장돼요</text>
+</svg><figcaption>단계를 넘길 때마다 저장되기 때문에, 중간에 앱을 꺼도 그 단계에서 이어서 할 수 있어요.</figcaption></figure>
+
+<h2 id="changes">4. 고친 곳</h2>
+<p class="sub">파일:줄 번호는 지금 코드 기준이에요. 코드가 바뀌면 줄 번호도 달라질 수 있어요.</p>
+<div class="tw cg"><table><thead><tr><th>묶음</th><th>위치</th><th>무엇을 했나</th></tr></thead><tbody><tr><td><b>저장소 만들기</b></td><td><span class="ref">lib/data/repositories/profile_repository.dart:4</span></td><td><code>SavedProfile</code> — 저장할 묶음(닉네임, 완료 여부, 진행 단계, 프로필, 알림). 저장 형식은 <code>toMap</code>, 복원은 <code>fromMap</code>이에요.</td></tr><tr><td></td><td><span class="ref">lib/data/repositories/profile_repository.dart:91</span></td><td><code>ProfileRepository</code> — "저장하고 불러오는 약속". 메모리 버전과 Firestore 버전을 갈아 끼울 수 있어요.</td></tr><tr><td></td><td><span class="ref">lib/data/repositories/firestore_profile_repository.dart:13</span></td><td>실제로 Firestore의 <code>users/{계정 id}</code> 문서에 저장해요.</td></tr><tr><td></td><td><span class="ref">firestore.rules</span></td><td>"본인 문서만 읽고 쓸 수 있다"는 보안 규칙이에요.</td></tr><tr><td><b>시작할 때 복원 (원인 ①)</b></td><td><span class="ref">lib/main.dart:34</span></td><td>앱을 켜자마자 <code>restoreSession()</code>으로 로그인 상태와 저장된 프로필을 확인해요.</td></tr><tr><td></td><td><span class="ref">lib/data/auth/firebase_auth_service.dart:49</span></td><td>Firebase가 저장된 로그인을 되살릴 때까지 잠깐 기다려요.</td></tr><tr><td></td><td><span class="ref">lib/app_state.dart:164</span></td><td><code>goAfterLogin</code> — 완료했으면 홈, 아니면 저장된 단계로 보내요.</td></tr><tr><td><b>저장하기 (원인 ②, ③)</b></td><td><span class="ref">lib/app_state.dart:188</span></td><td><code>goToStep</code> — 단계를 넘길 때마다 진행 상황을 저장해요. <span class="ref">lib/ui/onboarding/widgets/onboarding_page.dart:138 · 277 · 409</span>에서 호출해요.</td></tr><tr><td></td><td><span class="ref">lib/app_state.dart:234</span></td><td><code>completeOnboarding</code> — 완료를 저장하고 <b>성공하면</b> 홈으로 가요.</td></tr><tr><td></td><td><span class="ref">lib/ui/onboarding/widgets/onboarding_page.dart:637</span></td><td><b>"시작하기" 버튼이 <code>completeOnboarding</code>을 부르도록 고친 곳</b> — 결정적인 수정이었어요.</td></tr><tr><td></td><td><span class="ref">lib/app_state.dart:249</span></td><td><code>_persist</code> — 실제 저장 담당. 10초 안에 안 끝나면 실패로 처리해요.</td></tr><tr><td><b>오류를 숨기지 않기</b></td><td><span class="ref">lib/main.dart:37</span></td><td>백그라운드 저장이 실패하면 화면 아래에 안내를 띄워요.</td></tr><tr><td></td><td><span class="ref">lib/main.dart:17</span></td><td>옵션 없이 실행해도 Firebase가 켜지도록 기본값을 뒤집었어요 (<code>USE_FIREBASE</code>).</td></tr></tbody></table></div>
+
+<h2 id="code">5. 핵심 코드 읽기</h2>
+<p class="sub">아래 세 함수가 이번 작업의 뼈대예요. 위에서 아래로 읽어 보세요.</p>
+<h3>① 앱을 켤 때 — <code>restoreSession</code> <span class="ref">app_state.dart:154</span></h3>
+<pre><code>  Future&lt;bool&gt; restoreSession() async {
+    final current = await _auth.restoreAccount();
+    if (current == null) return false;
+    if (!await _enter(current)) return false;
+    goAfterLogin();
+    return true;
+  }</code></pre>
+<p>로그인된 계정이 있으면 프로필을 불러오고(<code>_enter</code>), 성공하면 알맞은 화면으로 보내요.</p>
+<h3>② 단계를 넘길 때 — <code>goToStep</code> <span class="ref">app_state.dart:188</span></h3>
+<pre><code>  Future&lt;void&gt; goToStep(int next) async {
+    step = next;
+    notifyListeners();
+    if (!await _persist()) {
+      _backgroundError = authError;
+      authError = null;
+      notifyListeners();
+    }
+  }</code></pre>
+<p>화면을 먼저 넘기고, 저장은 뒤에서 해요. 저장이 실패해도 화면은 막지 않고 안내만 남겨요.</p>
+<h3>③ 끝낼 때 — <code>completeOnboarding</code> <span class="ref">app_state.dart:234</span></h3>
+<pre><code>  Future&lt;bool&gt; completeOnboarding() async {
+    final before = onboardingDone;
+    onboardingDone = true;
+    if (!await _persist()) {
+      onboardingDone = before;
+      notifyListeners();
+      return false;
+    }
+    go('home');
+    return true;
+  }</code></pre>
+<p>저장이 <b>성공했을 때만</b> 홈으로 가요. 실패하면 완료 표시를 되돌리고 화면에 머물러요.</p>
+<h3>가장 결정적이었던 수정 — "시작하기" 버튼 <span class="ref">onboarding_page.dart:637</span></h3>
+<span class="lbl bad">예전</span>
+<pre><code>onTap: () {
+  s.go('home');
+  toast(context, '환영해요! 오늘 첫 기록을 시작해볼까요?');
+},</code></pre>
+<span class="lbl good">지금</span>
+<pre><code>onTap: () async {
+  final saved = await s.completeOnboarding();
+  if (!context.mounted) return;
+  toast(context, saved ? '환영해요! 오늘 첫 기록을 시작해볼까요?' : (s.authError ?? '저장하지 못했어요'));
+},</code></pre>
+<p><code>s.go('home')</code>은 화면만 바꿀 뿐 아무것도 저장하지 않아요. <code>await s.completeOnboarding()</code>은 저장을 <b>기다렸다가</b> 결과에 따라 움직여요. 이 한 줄의 차이가 <code>onboardingDone</code>이 <code>false</code>로 남은 이유였어요.</p>
+
+<h2 id="concepts">6. 공부할 개념</h2>
+<div class="tw cp"><table><thead><tr><th>개념</th><th>쉬운 설명</th><th>검색 키워드</th><th>이 프로젝트에서</th></tr></thead><tbody><tr><td><b>세션 복원</b></td><td>로그인 정보를 기기에 저장해 두었다가 앱을 켤 때 되살리는 것</td><td><code>Firebase Auth persistence, authStateChanges</code></td><td>restoreSession · restoreAccount</td></tr><tr><td><b>서버에 상태 저장</b></td><td>앱을 꺼도 사라지지 않게 데이터를 클라우드에 두는 것</td><td><code>Cloud Firestore document, collection</code></td><td>users/{uid} 문서</td></tr><tr><td><b>저장소 패턴</b></td><td>"어디에 저장하나"를 숨겨서 메모리 · Firestore를 갈아 끼우게 하는 설계</td><td><code>Repository pattern Flutter</code></td><td>ProfileRepository</td></tr><tr><td><b>비동기 async/await</b></td><td>저장처럼 시간이 걸리는 일을 기다린 뒤 다음으로 가는 방식</td><td><code>Dart async await Future</code></td><td>completeOnboarding · _persist</td></tr><tr><td><b>보안 규칙</b></td><td>누가 어떤 데이터를 읽고 쓸 수 있는지 서버에서 막는 규칙</td><td><code>Firestore Security Rules request.auth.uid</code></td><td>firestore.rules</td></tr><tr><td><b>컴파일 시점 설정</b></td><td>빌드할 때 값을 넣는 방식. 옵션을 빼먹기 쉬워서 기본값이 중요해요</td><td><code>dart-define String.fromEnvironment</code></td><td>USE_FIREBASE</td></tr><tr><td><b>회귀 테스트</b></td><td>한 번 고친 문제가 다시 생기면 바로 알려 주는 안전장치</td><td><code>Flutter widget test, regression test</code></td><td>test/onboarding_flow_test.dart</td></tr></tbody></table></div>
+
+<h2 id="lessons">7. 이번에 배운 점</h2>
+<div class="tw chg"><table><thead><tr><th>배운 점</th><th>왜 그런가</th></tr></thead><tbody><tr><td><b>저장했다고 생각한 코드가 실제로 실행되는지 직접 확인하세요.</b></td><td>로그에 저장 실패가 하나도 없는데 값이 안 바뀐 게 단서였어요. "실패가 없다"는 건 "저장을 시도했다"가 아니라 "시도 자체가 없었다"일 수 있어요.</td></tr><tr><td><b>기능은 한 곳만 고쳐서는 끝나지 않아요.</b></td><td>로그인 상태 확인 → 프로필 불러오기 → 화면 이동 → 저장까지 모두 이어져야 동작해요. 한 고리가 빠지면 겉보기엔 "안 되는" 것처럼 보여요.</td></tr><tr><td><b>테스트는 실제 화면의 버튼까지 눌러 봐야 이런 누락을 잡아요.</b></td><td>함수 자체를 검사한 테스트는 통과했는데, 그 함수를 부르는 버튼이 빠진 건 못 잡았어요. 그래서 화면 테스트를 추가했어요.</td></tr><tr><td><b>환경이 결과를 바꿀 수 있어요.</b></td><td>에뮬레이터는 앱을 새로 설치하면 로그인 정보가 사라져요. 옵션을 빼고 실행하면 가짜 로그인(Mock)으로 돌 수도 있었어요. 어떤 환경에서 실행했는지 로그로 남겨 두면 좋아요.</td></tr><tr><td><b>편집기가 예전 내용으로 파일을 덮어쓸 수 있어요.</b></td><td>"디스크에서 다시 불러오기"를 습관으로 만드세요. 같은 파일을 도구와 IDE가 함께 만질 때 특히 조심하세요.</td></tr></tbody></table></div>
+
+<h2 id="practice">8. 직접 해 보기</h2>
+<ol class="steps"><li><b>읽기.</b> <code>app_state.dart</code>의 <code>goToStep</code> → <code>_persist</code> → <code>_enter</code> 순서로 읽고, 서로 어떻게 부르는지 종이에 그려 보세요.</li><li><b>관찰.</b> Firebase 콘솔의 <code>users</code> 문서를 열어 둔 채로 앱에서 온보딩 단계를 넘겨 보세요. 어떤 필드가 언제 바뀌는지 눈으로 확인돼요.</li><li><b>테스트 읽기.</b> <code>test/profile_persistence_test.dart</code>의 테스트 이름을 위에서 아래로 읽어 보세요. 이 기능이 무엇을 보장하는지 한눈에 보여요.</li><li><b>실험.</b> 일부러 <code>completeOnboarding</code> 호출을 주석 처리하고 <code>flutter test test/onboarding_flow_test.dart</code>를 돌려 보세요. 테스트가 실패하는 걸 보면 회귀 테스트가 왜 필요한지 이해돼요. (끝나면 꼭 되돌리세요)</li></ol>
+
+<h2>부록. 함께 만든 테스트</h2>
+<div class="tw "><table><thead><tr><th>파일</th><th>무엇을 확인하나</th></tr></thead><tbody><tr><td><code>test/profile_persistence_test.dart</code></td><td>저장한 값의 복원, 껐다 켰을 때 이어서 시작, 저장 실패 시 덮어쓰지 않기, 로그아웃 시 초기화</td></tr><tr><td><code>test/onboarding_flow_test.dart</code></td><td>실제 "시작하기" 버튼을 눌러 저장과 홈 이동까지 이어지는지</td></tr><tr><td><code>test/auth_test.dart</code></td><td>로그인 성공 · 취소 · 실패 · 예상 못 한 오류, 로그아웃, 계정 삭제 실패</td></tr><tr><td><code>test/domain_models_test.dart</code></td><td>모델 정리(가장 약한 축, 하루 요약에 운동 · 체중 반영 등)</td></tr><tr><td><code>test/app_text_field_test.dart</code></td><td>닉네임 입력칸이 한글을 그대로 받는지</td></tr></tbody></table></div>
+</main>
+</body></html>

@@ -1,13 +1,17 @@
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/data/auth/auth_service.dart';
+import 'package:diet_project/data/auth/mock_auth_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// 정해 둔 결과만 돌려주는 가짜 인증 서비스.
 class _FakeAuth implements AuthService {
-  _FakeAuth({this.result, this.failure});
+  _FakeAuth({this.result, this.failure, this.crash});
 
   final AuthAccount? result;
   final AuthFailure? failure;
+
+  /// AuthFailure가 아닌, 예상하지 못한 오류
+  final Object? crash;
   bool signedOut = false;
   bool deleted = false;
 
@@ -15,7 +19,11 @@ class _FakeAuth implements AuthService {
   AuthAccount? get currentAccount => result;
 
   @override
+  Future<AuthAccount?> restoreAccount() async => result;
+
+  @override
   Future<AuthAccount?> signIn(LoginProvider provider) async {
+    if (crash != null) throw crash!;
     if (failure != null) throw failure!;
     return result;
   }
@@ -24,8 +32,9 @@ class _FakeAuth implements AuthService {
   Future<void> signOut() async => signedOut = true;
 
   @override
-  Future<void> deleteAccount() async {
+  Future<void> deleteAccount({Future<void> Function()? beforeDelete}) async {
     if (failure != null) throw failure!;
+    await beforeDelete?.call();
     deleted = true;
   }
 }
@@ -77,6 +86,15 @@ void main() {
       expect(s.authError, '로그인에 실패했어요.');
       expect(s.signingIn, isFalse);
     });
+  });
+
+  test('예상하지 못한 오류도 사용자 문구로 바뀌고 로그인 중 표시가 풀린다', () async {
+    final s = AppState(auth: _FakeAuth(crash: StateError('boom')));
+
+    expect(await s.signIn(LoginProvider.apple), isFalse);
+    expect(s.authError, isNotNull);
+    expect(s.authError, isNot(contains('boom')));
+    expect(s.signingIn, isFalse);
   });
 
   group('AppState.signOut · deleteAccount', () {

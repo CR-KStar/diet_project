@@ -6,14 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A Flutter port of a completed single-file HTML prototype ("다이어트 관리 앱 v3.0" — a
 diet-tracking app with a photo-first meal log and a plant-growth reward loop; see
-`README.md` for the product spec and the list of 27 screens). All data is mock; there is
-no backend, no persistence, and no network layer. The HTML prototype is treated as the
-source of truth — comments refer to it as "프로토타입", and `AppState` deliberately mirrors
-its `Component.state`.
+`README.md` for the product spec and the list of 27 screens). The HTML prototype is
+treated as the source of truth — comments refer to it as "프로토타입", and `AppState`
+deliberately mirrors its `Component.state`.
 
-The port is **mid-migration**: `lib/app_state.dart` and the shared layers are fully built,
-and ~29 screen files exist under `lib/ui/`, but only Login and Onboarding are currently
-reachable. Wiring the remaining screens into the shell is the main outstanding work.
+All screens are wired into the shell and reachable. Login (Google/Apple via Firebase
+Auth) and persistence (Firestore) are real for the account itself and for water, weight,
+exercise, meal, bowl, routine, and plant records — see `lib/data/auth/` and
+`lib/data/repositories/`. Everything else (friends, challenges, the plant dex catalog,
+meal recommendations) is still mock data held directly on `AppState`.
 
 ## Commands
 
@@ -36,9 +37,9 @@ Environment: Flutter 3.44 (stable), Dart SDK `^3.12.2`.
 ### State and navigation — one global `ChangeNotifier`
 
 `main.dart` wraps the app in a single `ChangeNotifierProvider<AppState>`. `lib/app_state.dart`
-is a deliberately large god-object that holds **all** state for every screen, every domain
-model (`Bowl`, `Routine`, `Challenge`, `MealLog`, `PlantSpecies`, `Mission`, …), and all mock
-data.
+is a deliberately large god-object that holds **all** state for every screen and every domain
+model (`Bowl`, `Routine`, `Challenge`, `MealLog`, `PlantSpecies`, `Mission`, …). Several models
+persist to Firestore (see `lib/data/repositories/`); the rest are still in-memory mock data.
 
 Navigation is **string-based, not `Navigator`**:
 
@@ -48,9 +49,8 @@ Navigation is **string-based, not `Navigator`**:
   the `_alias` map (e.g. `'dex'` → `screen: 'plant', plantTab: '도감'`) or sets `screen = id`.
 - `setSub(() => ...)` runs an arbitrary mutation and calls `notifyListeners()` — used for
   one-off field edits from widgets.
-- `showShell`, `tabGroups` support a bottom-tab shell that is **not built yet**. Until it is,
-  `LoginPage` → `OnboardingPage` transitions use a real `Navigator.push`; everything past
-  onboarding is expected to route through `go()` inside the future shell.
+- `showShell`, `tabGroups` support the bottom-tab shell (`_TabBar` in `app_shell.dart`),
+  hidden on `login`/`onboard` and shown everywhere else. All screens route through `go()`.
 
 Screens read state with `context.watch<AppState>()` and mutate through the named methods on
 `AppState` (`toggleTerm`, `addWater`, `care`, `createChallenge`, …). Computed values
@@ -79,8 +79,7 @@ Screens read state with `context.watch<AppState>()` and mutate through the named
 
 `lib/ui/<feature>/widgets/<screen>_page.dart`, grouped by feature: `onboarding`, `home`,
 `growth`, `record`, `report_settings`, `social`. Each `*_page.dart` is a `StatelessWidget`
-that reads `AppState` and composes `common.dart` widgets. (One filename is misspelled:
-`nutrient_detail_pgae.dart`.)
+that reads `AppState` and composes `common.dart` widgets.
 
 ### Korean string literals are significant
 

@@ -28,6 +28,7 @@ extension GenderText on Gender {
     Gender.undisclosed => '공개 안 함',
   };
 }
+
 enum MealType { breakfast, lunch, dinner, snack }
 
 extension MealTypeText on MealType {
@@ -71,6 +72,7 @@ extension BowlFillLevelText on BowlFillLevel {
     BowlFillLevel.third => '1/3',
   };
 }
+
 enum ExerciseIntensity { low, moderate, high }
 
 extension ExerciseIntensityText on ExerciseIntensity {
@@ -80,6 +82,7 @@ extension ExerciseIntensityText on ExerciseIntensity {
     ExerciseIntensity.high => '높음',
   };
 }
+
 enum ChallengeType { water, exercise, mealRecord, protein }
 
 extension ChallengeTypeText on ChallengeType {
@@ -102,6 +105,7 @@ extension ChallengeRewardText on ChallengeReward {
 }
 
 enum ChallengeVisibility { private, public }
+
 enum ShareScope { private, friends }
 
 extension ShareScopeText on ShareScope {
@@ -133,3 +137,6 @@ extension LoginProviderText on LoginProvider {
     LoginProvider.apple => 'Apple',
   };
 }
+
+/// 친구 요청의 진행 상태.
+enum FriendRequestStatus { pending, accepted, declined }

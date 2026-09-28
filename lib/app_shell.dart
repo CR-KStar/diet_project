@@ -7,7 +7,7 @@ import 'ui/onboarding/widgets/login_page.dart';
 import 'ui/onboarding/widgets/onboarding_page.dart';
 import 'ui/home/widgets/home_page.dart';
 import 'ui/home/widgets/notification_page.dart';
-import 'ui/home/widgets/nutrient_detail_pgae.dart';
+import 'ui/home/widgets/nutrient_detail_page.dart';
 import 'ui/home/widgets/meal_recommend_page.dart';
 import 'ui/growth/widgets/my_plant_page.dart';
 import 'ui/record/widgets/record_tab_page.dart';
@@ -17,6 +17,7 @@ import 'ui/report_settings/widgets/report_page.dart';
 import 'ui/social/widgets/social_page.dart';
 import 'ui/report_settings/widgets/my_page.dart';
 import 'ui/report_settings/widgets/settings_page.dart';
+
 /// FAB을 눌렀을 때 뜨는 빠른 기록 시트 — 식단/운동/체중/물 4가지 바로가기
 class QuickSheet extends StatelessWidget {
   const QuickSheet({super.key});
@@ -25,47 +26,57 @@ class QuickSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = context.read<AppState>();
 
-    Widget tile(String emoji, String title, String desc, VoidCallback onTap) => Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColor.primaryTint,
-            borderRadius: BorderRadius.circular(18),
+    Widget tile(String emoji, String title, String desc, VoidCallback onTap) =>
+        Expanded(
+          child: GestureDetector(
+            onTap: onTap,
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColor.primaryTint,
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(emoji, style: const TextStyle(fontSize: 22)),
+                  const SizedBox(height: 10),
+                  Text(title, style: t(14, w: FontWeight.w700)),
+                  const SizedBox(height: 3),
+                  Text(desc, style: t(11, c: AppColor.textFaint)),
+                ],
+              ),
+            ),
           ),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(emoji, style: const TextStyle(fontSize: 22)),
-            const SizedBox(height: 10),
-            Text(title, style: t(14, w: FontWeight.w700)),
-            const SizedBox(height: 3),
-            Text(desc, style: t(11, c: AppColor.textFaint)),
-          ]),
-        ),
-      ),
-    );
+        );
 
     return SheetScaffold(
       title: '빠른 기록',
       onClose: s.closeFab,
-      child: Column(children: [
-        Row(children: [
-          tile('🍽️', '식단 기록', '사진 + 부가 정보', () => s.go('capture')),
-          const SizedBox(width: 12),
-          tile('🏃', '운동 기록', '루틴 불러오기', () => s.go('exercise')),
-        ]),
-        const SizedBox(height: 12),
-        Row(children: [
-          tile('⚖️', '체중 기록', '눈바디 사진', () => s.go('weight')),
-          const SizedBox(width: 12),
-          tile('💧', '물 기록', '컵 단위로 빠르게', () {
-            s.setSub(() {
-              s.fabOpen = false;
-              s.waterSheet = true;
-            });
-          }),
-        ]),
-      ]),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              tile('🍽️', '식단 기록', '사진 + 부가 정보', () => s.go('capture')),
+              const SizedBox(width: 12),
+              tile('🏃', '운동 기록', '루틴 불러오기', () => s.go('exercise')),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              tile('⚖️', '체중 기록', '눈바디 사진', () => s.go('weight')),
+              const SizedBox(width: 12),
+              tile('💧', '물 기록', '컵 단위로 빠르게', () {
+                s.setSub(() {
+                  s.fabOpen = false;
+                  s.waterSheet = true;
+                });
+              }),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -81,40 +92,62 @@ class BowllPickSheet extends StatelessWidget {
     return SheetScaffold(
       title: '그릇 선택',
       onClose: () => s.setSub(() => s.bowlSheet = false),
-      child: Column(children: [
-        for (final entry in s.bowls.asMap().entries)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: GestureDetector(
-              onTap: () {
-                s.selectBowl(entry.key);
-                s.setSub(() => s.bowlSheet = false);
-              },
-              child: Container(
-                padding: const EdgeInsets.all(14),
-                decoration: AppDeco.selectableCard(selected: entry.key == s.bowlIndex),
-                child: Row(children: [
-                  IconTile(entry.value.icon, size: 44, radius: 22, bg: AppColor.surfaceSunken, fontSize: 20),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Row(children: [
-                        Text(entry.value.name, style: t(15, w: FontWeight.w700)),
-                        if (entry.value.isDefault) ...[
-                          const SizedBox(width: 6),
-                          Pill('기본 그릇', fontSize: 10),
-                        ],
-                      ]),
-                      const SizedBox(height: 4),
-                      Text('${entry.value.capacityMl}ml · ${entry.value.material}',
-                          style: t(12, c: AppColor.textFaint)),
-                    ]),
+      child: Column(
+        children: [
+          for (final entry in s.bowls.asMap().entries)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: GestureDetector(
+                onTap: () {
+                  s.selectBowl(entry.key);
+                  s.setSub(() => s.bowlSheet = false);
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: AppDeco.selectableCard(
+                    selected: entry.key == s.bowlIndex,
                   ),
-                ]),
+                  child: Row(
+                    children: [
+                      IconTile(
+                        entry.value.icon,
+                        size: 44,
+                        radius: 22,
+                        bg: AppColor.surfaceSunken,
+                        fontSize: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  entry.value.name,
+                                  style: t(15, w: FontWeight.w700),
+                                ),
+                                if (entry.value.isDefault) ...[
+                                  const SizedBox(width: 6),
+                                  Pill('기본 그릇', fontSize: 10),
+                                ],
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${entry.value.capacityMl}ml · ${entry.value.material}',
+                              style: t(12, c: AppColor.textFaint),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
-      ]),
+        ],
+      ),
     );
   }
 }
@@ -130,20 +163,17 @@ class AppShell extends StatelessWidget {
         bottom: false,
         child: Stack(
           children: [
-            //화면 본문
+            // 화면 본문
             Positioned.fill(
               bottom: s.showShell ? AppSize.tabBarHeight : 0,
               child: _ScreenBody(screen: s.screen),
             ),
-            //하단 탭바
+            // 하단 탭바
             if (s.showShell)
               const Align(alignment: Alignment.bottomCenter, child: _TabBar()),
             if (s.showShell) const _DraggableFab(),
             if (s.fabOpen)
-              _SheetOverlay(
-                onClose: s.closeFab,
-                child: const QuickSheet(),
-              ),
+              _SheetOverlay(onClose: s.closeFab, child: const QuickSheet()),
             if (s.waterSheet)
               _SheetOverlay(
                 onClose: () => s.setSub(() => s.waterSheet = false),
@@ -160,6 +190,7 @@ class AppShell extends StatelessWidget {
     );
   }
 }
+
 /// 바텀 시트 배경(딤) + 하단 고정 + 슬라이드 인 애니메이션
 class _SheetOverlay extends StatelessWidget {
   const _SheetOverlay({required this.onClose, required this.child});
@@ -182,13 +213,15 @@ class _SheetOverlay extends StatelessWidget {
           tween: Tween(begin: const Offset(0, 1), end: Offset.zero),
           duration: const Duration(milliseconds: 230),
           curve: Curves.easeOut,
-          builder: (context, offset, c) => FractionalTranslation(translation: offset, child: c),
+          builder: (context, offset, c) =>
+              FractionalTranslation(translation: offset, child: c),
           child: child,
         ),
       ),
     ],
   );
 }
+
 /// screen 문자열 -> 화면 위젯
 class _ScreenBody extends StatelessWidget {
   const _ScreenBody({required this.screen});
@@ -220,6 +253,7 @@ class _ScreenBody extends StatelessWidget {
     return body;
   }
 }
+
 // 하단 탭바
 class _TabBar extends StatelessWidget {
   const _TabBar();
@@ -290,12 +324,14 @@ class _TabBar extends StatelessWidget {
     );
   }
 }
+
 // 드래그 가능한 빠른 기록 버튼
 class _DraggableFab extends StatefulWidget {
   const _DraggableFab();
   @override
   State<_DraggableFab> createState() => _DraggableFabState();
 }
+
 class _DraggableFabState extends State<_DraggableFab> {
   Offset? _pos;
   bool _dragging = false;
@@ -316,10 +352,10 @@ class _DraggableFabState extends State<_DraggableFab> {
         final myTabCenterX = 6 + 4.5 * tabWidth + 12;
         final pos =
             _pos ??
-                Offset(
-                  myTabCenterX - AppSize.fabSize / 2,
-                  height - AppSize.tabBarHeight - AppSize.fabSize - 16,
-                );
+            Offset(
+              myTabCenterX - AppSize.fabSize / 2,
+              height - AppSize.tabBarHeight - AppSize.fabSize - 16,
+            );
         return Stack(
           children: [
             Positioned(

@@ -9,27 +9,37 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-
-// ─────────────────────────────────────────────────────────
 // 텍스트 헬퍼
-// ─────────────────────────────────────────────────────────
 
-TextStyle t(double size,
-    {FontWeight w = FontWeight.w400,
-      Color c = AppColor.text,
-      double? sp,
-      double? h}) =>
-    GoogleFonts.notoSansKr(
-        fontSize: size, fontWeight: w, color: c, letterSpacing: sp, height: h);
+TextStyle t(
+  double size, {
+  FontWeight w = FontWeight.w400,
+  Color c = AppColor.text,
+  double? sp,
+  double? h,
+}) => GoogleFonts.notoSansKr(
+  fontSize: size,
+  fontWeight: w,
+  color: c,
+  letterSpacing: sp,
+  height: h,
+);
 
 void toast(BuildContext context, String msg) {
   ScaffoldMessenger.of(context)
     ..clearSnackBars()
-    ..showSnackBar(SnackBar(content: Text(msg), duration: const Duration(seconds: 2)));
+    ..showSnackBar(
+      SnackBar(content: Text(msg), duration: const Duration(seconds: 2)),
+    );
 }
 
 class ScreenScroll extends StatelessWidget {
-  const ScreenScroll({super.key, required this.children, this.horizontal = 16, this.top = 6});
+  const ScreenScroll({
+    super.key,
+    required this.children,
+    this.horizontal = 16,
+    this.top = 6,
+  });
 
   final List<Widget> children;
   final double horizontal;
@@ -39,14 +49,15 @@ class ScreenScroll extends StatelessWidget {
   Widget build(BuildContext context) => ListView(
     padding: EdgeInsets.fromLTRB(horizontal, top, horizontal, 28),
     children: [
-      for (final c in children) ...[c, const SizedBox(height: AppSpace.cardGap)],
+      for (final c in children) ...[
+        c,
+        const SizedBox(height: AppSpace.cardGap),
+      ],
     ],
   );
 }
 
-// ─────────────────────────────────────────────────────────
 // 컨테이너
-// ─────────────────────────────────────────────────────────
 
 class AppCard extends StatelessWidget {
   const AppCard({
@@ -89,7 +100,13 @@ class AppCard extends StatelessWidget {
 
 /// 카드 안 옅은 서브 블록
 class SunkenBox extends StatelessWidget {
-  const SunkenBox({super.key, required this.child, this.padding = 13, this.radius = 18, this.color = AppColor.surfaceSunken});
+  const SunkenBox({
+    super.key,
+    required this.child,
+    this.padding = 13,
+    this.radius = 18,
+    this.color = AppColor.surfaceSunken,
+  });
 
   final Widget child;
   final double padding;
@@ -100,14 +117,24 @@ class SunkenBox extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     width: double.infinity,
     padding: EdgeInsets.all(padding),
-    decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(radius)),
+    decoration: BoxDecoration(
+      color: color,
+      borderRadius: BorderRadius.circular(radius),
+    ),
     child: child,
   );
 }
 
 class IconTile extends StatelessWidget {
-  const IconTile(this.emoji,
-      {super.key, this.size = 28, this.radius = 10, this.bg = AppColor.primaryTint, this.fontSize = 14, this.shadow = false});
+  const IconTile(
+    this.emoji, {
+    super.key,
+    this.size = 28,
+    this.radius = 10,
+    this.bg = AppColor.primaryTint,
+    this.fontSize = 14,
+    this.shadow = false,
+  });
 
   final String emoji;
   final double size;
@@ -130,13 +157,16 @@ class IconTile extends StatelessWidget {
   );
 }
 
-// ─────────────────────────────────────────────────────────
 // 헤더
-// ─────────────────────────────────────────────────────────
 
 /// 하단 탭 루트 화면의 제목 행
 class TabHeader extends StatelessWidget {
-  const TabHeader({super.key, required this.emoji, required this.title, this.trailing});
+  const TabHeader({
+    super.key,
+    required this.emoji,
+    required this.title,
+    this.trailing,
+  });
 
   final String emoji;
   final String title;
@@ -145,19 +175,30 @@ class TabHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(left: 4, right: 4, bottom: 2),
-    child: Row(children: [
-      IconTile(emoji, size: 30, radius: 11, fontSize: 15),
-      const SizedBox(width: 9),
-      Text(title, style: t(20, w: FontWeight.w900, c: AppColor.textStrong, sp: -0.3)),
-      const Spacer(),
-      if (trailing != null) trailing!,
-    ]),
+    child: Row(
+      children: [
+        IconTile(emoji, size: 30, radius: 11, fontSize: 15),
+        const SizedBox(width: 9),
+        Text(
+          title,
+          style: t(20, w: FontWeight.w900, c: AppColor.textStrong, sp: -0.3),
+        ),
+        const Spacer(),
+        ?trailing,
+      ],
+    ),
   );
 }
 
 /// 서브 화면의 뒤로 + 제목 행
 class SubHeader extends StatelessWidget {
-  const SubHeader({super.key, required this.emoji, required this.title, this.onBack, this.trailing});
+  const SubHeader({
+    super.key,
+    required this.emoji,
+    required this.title,
+    this.onBack,
+    this.trailing,
+  });
 
   final String emoji;
   final String title;
@@ -167,34 +208,45 @@ class SubHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(left: 4, right: 4, bottom: 2),
-    child: Row(children: [
-      if (onBack != null)
-        GestureDetector(
-          onTap: onBack,
-          behavior: HitTestBehavior.opaque,
-          child: Container(
-            width: 26,
-            height: AppSize.minTapTarget,
-            alignment: Alignment.centerLeft,
-            child: Text('‹', style: t(20, c: AppColor.text)),
+    child: Row(
+      children: [
+        if (onBack != null)
+          GestureDetector(
+            onTap: onBack,
+            behavior: HitTestBehavior.opaque,
+            child: Container(
+              width: 26,
+              height: AppSize.minTapTarget,
+              alignment: Alignment.centerLeft,
+              child: Text('‹', style: t(20, c: AppColor.text)),
+            ),
           ),
-        ),
-      IconTile(emoji),
-      const SizedBox(width: 8),
-      Flexible(
-        child: Text(title,
+        IconTile(emoji),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(
+            title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: t(17, w: FontWeight.w900, c: AppColor.textStrong)),
-      ),
-      const Spacer(),
-      if (trailing != null) trailing!,
-    ]),
+            style: t(17, w: FontWeight.w900, c: AppColor.textStrong),
+          ),
+        ),
+        const Spacer(),
+        ?trailing,
+      ],
+    ),
   );
 }
 
 class CardHeader extends StatelessWidget {
-  const CardHeader({super.key, required this.emoji, required this.title, this.action, this.onAction, this.subtitle});
+  const CardHeader({
+    super.key,
+    required this.emoji,
+    required this.title,
+    this.action,
+    this.onAction,
+    this.subtitle,
+  });
 
   final String emoji;
   final String title;
@@ -206,16 +258,20 @@ class CardHeader extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Row(children: [
-        IconTile(emoji, size: 26, fontSize: 13),
-        const SizedBox(width: 8),
-        Expanded(child: Text(title, style: t(15, w: FontWeight.w900))),
-        if (action != null)
-          GestureDetector(
-            onTap: onAction,
-            child: Text(action!, style: t(12, c: AppColor.textFaint)),
+      Row(
+        children: [
+          IconTile(emoji, size: 26, fontSize: 13),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(title, style: t(15, w: FontWeight.w900)),
           ),
-      ]),
+          if (action != null)
+            GestureDetector(
+              onTap: onAction,
+              child: Text(action!, style: t(12, c: AppColor.textFaint)),
+            ),
+        ],
+      ),
       if (subtitle != null) ...[
         const SizedBox(height: 5),
         Text(subtitle!, style: t(11, c: AppColor.textGhost)),
@@ -224,12 +280,15 @@ class CardHeader extends StatelessWidget {
   );
 }
 
-// ─────────────────────────────────────────────────────────
 // 선택 컴포넌트
-// ─────────────────────────────────────────────────────────
 
 class SelectChip extends StatelessWidget {
-  const SelectChip({super.key, required this.label, required this.selected, this.onTap});
+  const SelectChip({
+    super.key,
+    required this.label,
+    required this.selected,
+    this.onTap,
+  });
 
   final String label;
   final bool selected;
@@ -241,16 +300,25 @@ class SelectChip extends StatelessWidget {
     child: Container(
       padding: AppSize.chipPad,
       decoration: AppDeco.chip(selected: selected),
-      child: Text(label,
-          style: t(12,
-              w: selected ? FontWeight.w700 : FontWeight.w500,
-              c: selected ? AppColor.primaryDark : AppColor.textMuted)),
+      child: Text(
+        label,
+        style: t(
+          12,
+          w: selected ? FontWeight.w700 : FontWeight.w500,
+          c: selected ? AppColor.primaryDark : AppColor.textMuted,
+        ),
+      ),
     ),
   );
 }
 
 class ChipWrap extends StatelessWidget {
-  const ChipWrap({super.key, required this.options, required this.isSelected, required this.onPick});
+  const ChipWrap({
+    super.key,
+    required this.options,
+    required this.isSelected,
+    required this.onPick,
+  });
 
   final List<String> options;
   final bool Function(String) isSelected;
@@ -261,14 +329,25 @@ class ChipWrap extends StatelessWidget {
     spacing: 8,
     runSpacing: 8,
     children: options
-        .map((o) => SelectChip(label: o, selected: isSelected(o), onTap: () => onPick(o)))
+        .map(
+          (o) => SelectChip(
+            label: o,
+            selected: isSelected(o),
+            onTap: () => onPick(o),
+          ),
+        )
         .toList(),
   );
 }
 
 /// 균등 분할 세그먼트 (전체/반절/1/3 등)
 class SegmentedRow extends StatelessWidget {
-  const SegmentedRow({super.key, required this.options, required this.value, required this.onChanged});
+  const SegmentedRow({
+    super.key,
+    required this.options,
+    required this.value,
+    required this.onChanged,
+  });
 
   final List<String> options;
   final String value;
@@ -289,12 +368,19 @@ class SegmentedRow extends StatelessWidget {
               decoration: BoxDecoration(
                 color: on ? AppColor.primaryTint : AppColor.surfaceSunken,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: on ? AppColor.primary : Colors.transparent, width: 1.5),
+                border: Border.all(
+                  color: on ? AppColor.primary : Colors.transparent,
+                  width: 1.5,
+                ),
               ),
-              child: Text(o,
-                  style: t(13,
-                      w: on ? FontWeight.w700 : FontWeight.w500,
-                      c: on ? AppColor.primaryDark : AppColor.textFaint)),
+              child: Text(
+                o,
+                style: t(
+                  13,
+                  w: on ? FontWeight.w700 : FontWeight.w500,
+                  c: on ? AppColor.primaryDark : AppColor.textFaint,
+                ),
+              ),
             ),
           ),
         ),
@@ -307,7 +393,12 @@ class SegmentedRow extends StatelessWidget {
 /// 카테고리 필터 — 글자 크기만큼만 차지하는 알약 버튼(전체 너비를 채우지 않음).
 /// 알림/오늘의 미션처럼 항목 수가 가변적인 필터에 씁니다. 가로로 넘치면 스크롤돼요.
 class FilterTabs extends StatelessWidget {
-  const FilterTabs({super.key, required this.options, required this.value, required this.onChanged});
+  const FilterTabs({
+    super.key,
+    required this.options,
+    required this.value,
+    required this.onChanged,
+  });
 
   final List<String> options;
   final String value;
@@ -328,10 +419,14 @@ class FilterTabs extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
                 boxShadow: o == value ? null : AppShadow.card,
               ),
-              child: Text(o,
-                  style: t(12,
-                      w: o == value ? FontWeight.w700 : FontWeight.w500,
-                      c: o == value ? Colors.white : AppColor.textFaint)),
+              child: Text(
+                o,
+                style: t(
+                  12,
+                  w: o == value ? FontWeight.w700 : FontWeight.w500,
+                  c: o == value ? Colors.white : AppColor.textFaint,
+                ),
+              ),
             ),
           ),
           if (o != options.last) const SizedBox(width: 8),
@@ -342,7 +437,12 @@ class FilterTabs extends StatelessWidget {
 }
 
 class PillTabs extends StatelessWidget {
-  const PillTabs({super.key, required this.options, required this.value, required this.onChanged});
+  const PillTabs({
+    super.key,
+    required this.options,
+    required this.value,
+    required this.onChanged,
+  });
 
   final List<String> options;
   final String value;
@@ -367,12 +467,16 @@ class PillTabs extends StatelessWidget {
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: on ? null : AppShadow.card,
                 ),
-                child: Text(o,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: t(13,
-                        w: on ? FontWeight.w700 : FontWeight.w500,
-                        c: on ? Colors.white : AppColor.textFaint)),
+                child: Text(
+                  o,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: t(
+                    13,
+                    w: on ? FontWeight.w700 : FontWeight.w500,
+                    c: on ? Colors.white : AppColor.textFaint,
+                  ),
+                ),
               ),
             ),
           ),
@@ -384,7 +488,12 @@ class PillTabs extends StatelessWidget {
 
 /// 가로 스크롤 칩 (알림 시간 선택 등)
 class ScrollChips extends StatelessWidget {
-  const ScrollChips({super.key, required this.options, required this.value, required this.onChanged});
+  const ScrollChips({
+    super.key,
+    required this.options,
+    required this.value,
+    required this.onChanged,
+  });
 
   final List<String> options;
   final String value;
@@ -396,7 +505,7 @@ class ScrollChips extends StatelessWidget {
     child: ListView.separated(
       scrollDirection: Axis.horizontal,
       itemCount: options.length,
-      separatorBuilder: (_, __) => const SizedBox(width: 7),
+      separatorBuilder: (_, _) => const SizedBox(width: 7),
       itemBuilder: (_, i) {
         final o = options[i];
         final on = o == value;
@@ -409,10 +518,14 @@ class ScrollChips extends StatelessWidget {
               color: on ? AppColor.primary : AppColor.surfaceSunken,
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Text(o,
-                style: t(13,
-                    w: on ? FontWeight.w900 : FontWeight.w500,
-                    c: on ? Colors.white : AppColor.textMuted)),
+            child: Text(
+              o,
+              style: t(
+                13,
+                w: on ? FontWeight.w900 : FontWeight.w500,
+                c: on ? Colors.white : AppColor.textMuted,
+              ),
+            ),
           ),
         );
       },
@@ -421,7 +534,12 @@ class ScrollChips extends StatelessWidget {
 }
 
 class AppToggle extends StatelessWidget {
-  const AppToggle({super.key, required this.value, required this.onChanged, this.width = 44});
+  const AppToggle({
+    super.key,
+    required this.value,
+    required this.onChanged,
+    this.width = 44,
+  });
 
   final bool value;
   final VoidCallback onChanged;
@@ -452,7 +570,13 @@ class AppToggle extends StatelessWidget {
               decoration: const BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
-                boxShadow: [BoxShadow(color: Color(0x33000000), blurRadius: 2, offset: Offset(0, 1))],
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0x33000000),
+                    blurRadius: 2,
+                    offset: Offset(0, 1),
+                  ),
+                ],
               ),
             ),
           ),
@@ -478,19 +602,25 @@ class CheckDot extends StatelessWidget {
       color: on ? AppColor.primary : const Color(0xFFEDEFF1),
       borderRadius: BorderRadius.circular(radius ?? size / 2),
     ),
-    child: Text('✓',
-        style: TextStyle(
-            fontSize: size * 0.55,
-            color: on ? Colors.white : AppColor.iconGhost)),
+    child: Text(
+      '✓',
+      style: TextStyle(
+        fontSize: size * 0.55,
+        color: on ? Colors.white : AppColor.iconGhost,
+      ),
+    ),
   );
 }
 
-// ─────────────────────────────────────────────────────────
 // 버튼
-// ─────────────────────────────────────────────────────────
 
 class PrimaryButton extends StatelessWidget {
-  const PrimaryButton({super.key, required this.label, this.onTap, this.enabled = true});
+  const PrimaryButton({
+    super.key,
+    required this.label,
+    this.onTap,
+    this.enabled = true,
+  });
 
   final String label;
   final VoidCallback? onTap;
@@ -504,17 +634,26 @@ class PrimaryButton extends StatelessWidget {
       alignment: Alignment.center,
       padding: AppSize.buttonPad,
       decoration: AppDeco.primaryButton(enabled: enabled),
-      child: Text(label,
-          style: t(15,
-              w: FontWeight.w700,
-              c: enabled ? Colors.white : AppColor.textGhost)),
+      child: Text(
+        label,
+        style: t(
+          15,
+          w: FontWeight.w700,
+          c: enabled ? Colors.white : AppColor.textGhost,
+        ),
+      ),
     ),
   );
 }
 
 /// 보조 액션 — 버튼 대신 조용한 텍스트 링크 (높이 46)
 class TextLink extends StatelessWidget {
-  const TextLink({super.key, required this.label, this.onTap, this.color = AppColor.textFaint});
+  const TextLink({
+    super.key,
+    required this.label,
+    this.onTap,
+    this.color = AppColor.textFaint,
+  });
 
   final String label;
   final VoidCallback? onTap;
@@ -526,13 +665,57 @@ class TextLink extends StatelessWidget {
     behavior: HitTestBehavior.opaque,
     child: SizedBox(
       height: AppSize.textLinkHeight,
-      child: Center(child: Text(label, style: t(12, c: color))),
+      child: Center(
+        child: Text(label, style: t(12, c: color)),
+      ),
     ),
   );
 }
 
+/// 확인 · 취소를 묻는 대화상자. 확인을 누르면 true, 그 밖(취소 · 바깥 터치)은 false.
+/// [destructive]가 true면 확인 버튼을 경고 색으로 보여줍니다 (삭제처럼 되돌릴 수 없는 동작).
+Future<bool> confirmDialog(
+  BuildContext context, {
+  required String title,
+  required String message,
+  required String confirmLabel,
+  bool destructive = false,
+}) async {
+  final result = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(title, style: t(16, w: FontWeight.w800)),
+      content: Text(message, style: t(13, c: AppColor.textMuted, h: 1.6)),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: Text('취소', style: t(14, c: AppColor.textFaint)),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, true),
+          child: Text(
+            confirmLabel,
+            style: t(
+              14,
+              w: FontWeight.w700,
+              c: destructive ? AppColor.alertText : AppColor.primaryDark,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+  return result ?? false;
+}
+
 class SmallButton extends StatelessWidget {
-  const SmallButton({super.key, required this.label, this.onTap, this.bg = AppColor.primaryTint, this.fg = AppColor.primaryDark});
+  const SmallButton({
+    super.key,
+    required this.label,
+    this.onTap,
+    this.bg = AppColor.primaryTint,
+    this.fg = AppColor.primaryDark,
+  });
 
   final String label;
   final VoidCallback? onTap;
@@ -544,14 +727,27 @@ class SmallButton extends StatelessWidget {
     onTap: onTap,
     child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
-      child: Text(label, maxLines: 1, style: t(11, w: FontWeight.w700, c: fg)),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        label,
+        maxLines: 1,
+        style: t(11, w: FontWeight.w700, c: fg),
+      ),
     ),
   );
 }
 
 class Pill extends StatelessWidget {
-  const Pill(this.text, {super.key, this.bg = AppColor.primaryTint, this.fg = AppColor.primaryDark, this.fontSize = 10});
+  const Pill(
+    this.text, {
+    super.key,
+    this.bg = AppColor.primaryTint,
+    this.fg = AppColor.primaryDark,
+    this.fontSize = 10,
+  });
 
   final String text;
   final Color bg;
@@ -561,8 +757,14 @@ class Pill extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-    decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(10)),
-    child: Text(text, style: t(fontSize, w: FontWeight.w700, c: fg)),
+    decoration: BoxDecoration(
+      color: bg,
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: Text(
+      text,
+      style: t(fontSize, w: FontWeight.w700, c: fg),
+    ),
   );
 }
 
@@ -597,7 +799,12 @@ class SheetScaffold extends StatelessWidget {
       color: AppColor.surface,
       borderRadius: AppRadius.sheetR,
     ),
-    padding: EdgeInsets.fromLTRB(padding, 14, padding, padding + MediaQuery.of(context).viewInsets.bottom),
+    padding: EdgeInsets.fromLTRB(
+      padding,
+      14,
+      padding,
+      padding + MediaQuery.of(context).viewInsets.bottom,
+    ),
     child: Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -613,31 +820,43 @@ class SheetScaffold extends StatelessWidget {
             ),
           ),
         ),
-        Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-          if (leading != null) ...[leading!, const SizedBox(width: 12)],
-          Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(title, style: t(18, w: FontWeight.w900)),
-              if (subtitle != null) ...[
-                const SizedBox(height: 4),
-                Text(subtitle!, style: t(12, c: AppColor.textFaint)),
-              ],
-            ]),
-          ),
-          if (trailing != null)
-            trailing!
-          else if (onClose != null)
-            GestureDetector(
-              onTap: onClose,
-              child: Container(
-                width: 32,
-                height: 32,
-                alignment: Alignment.center,
-                decoration: const BoxDecoration(color: AppColor.surfaceSunken, shape: BoxShape.circle),
-                child: const Text('✕', style: TextStyle(fontSize: 16, color: AppColor.textGhost)),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (leading != null) ...[leading!, const SizedBox(width: 12)],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: t(18, w: FontWeight.w900)),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 4),
+                    Text(subtitle!, style: t(12, c: AppColor.textFaint)),
+                  ],
+                ],
               ),
             ),
-        ]),
+            if (trailing != null)
+              trailing!
+            else if (onClose != null)
+              GestureDetector(
+                onTap: onClose,
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  alignment: Alignment.center,
+                  decoration: const BoxDecoration(
+                    color: AppColor.surfaceSunken,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Text(
+                    '✕',
+                    style: TextStyle(fontSize: 16, color: AppColor.textGhost),
+                  ),
+                ),
+              ),
+          ],
+        ),
         const SizedBox(height: 24),
         child,
       ],
@@ -645,9 +864,7 @@ class SheetScaffold extends StatelessWidget {
   );
 }
 
-// ─────────────────────────────────────────────────────────
 // 진행 표시
-// ─────────────────────────────────────────────────────────
 
 class ProgressBar extends StatelessWidget {
   const ProgressBar({
@@ -698,6 +915,7 @@ class Ring extends StatelessWidget {
   });
 
   final double size;
+
   /// (비율 0..1, 색) 목록 — 순서대로 이어 그립니다.
   final List<({double value, Color color})> segments;
   final double thickness;
@@ -709,14 +927,22 @@ class Ring extends StatelessWidget {
     width: size,
     height: size,
     child: CustomPaint(
-      painter: _RingPainter(segments: segments, thickness: thickness, track: track),
+      painter: _RingPainter(
+        segments: segments,
+        thickness: thickness,
+        track: track,
+      ),
       child: center == null ? null : Center(child: center),
     ),
   );
 }
 
 class _RingPainter extends CustomPainter {
-  _RingPainter({required this.segments, required this.thickness, required this.track});
+  _RingPainter({
+    required this.segments,
+    required this.thickness,
+    required this.track,
+  });
 
   final List<({double value, Color color})> segments;
   final double thickness;
@@ -724,8 +950,12 @@ class _RingPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final rect = Rect.fromLTWH(thickness / 2, thickness / 2,
-        size.width - thickness, size.height - thickness);
+    final rect = Rect.fromLTWH(
+      thickness / 2,
+      thickness / 2,
+      size.width - thickness,
+      size.height - thickness,
+    );
     final base = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = thickness
@@ -751,7 +981,12 @@ class _RingPainter extends CustomPainter {
 
 /// 막대그래프
 class BarChart extends StatelessWidget {
-  const BarChart({super.key, required this.bars, this.height = 132, this.showValue = true});
+  const BarChart({
+    super.key,
+    required this.bars,
+    this.height = 132,
+    this.showValue = true,
+  });
 
   final List<({String label, int value, int pct})> bars;
   final double height;
@@ -776,7 +1011,10 @@ class BarChart extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 if (showValue)
-                  Text(AppStateFormat.comma(b.value), style: t(9, c: AppColor.textGhost)),
+                  Text(
+                    AppStateFormat.comma(b.value),
+                    style: t(9, c: AppColor.textGhost),
+                  ),
                 const SizedBox(height: 6),
                 Expanded(
                   child: FractionallySizedBox(
@@ -786,7 +1024,9 @@ class BarChart extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: _color(b.pct),
                         borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(7), bottom: Radius.circular(3)),
+                          top: Radius.circular(7),
+                          bottom: Radius.circular(3),
+                        ),
                       ),
                     ),
                   ),
@@ -804,7 +1044,12 @@ class BarChart extends StatelessWidget {
 
 /// 체중 라인 그래프 (목표선 점선 + 영역 채우기)
 class WeightLineChart extends StatelessWidget {
-  const WeightLineChart({super.key, required this.series, required this.goal, this.height = 128});
+  const WeightLineChart({
+    super.key,
+    required this.series,
+    required this.goal,
+    this.height = 128,
+  });
 
   final List<({String label, double kg})> series;
   final double goal;
@@ -816,7 +1061,9 @@ class WeightLineChart extends StatelessWidget {
       SizedBox(
         height: height,
         width: double.infinity,
-        child: CustomPaint(painter: _LinePainter(series: series, goal: goal)),
+        child: CustomPaint(
+          painter: _LinePainter(series: series, goal: goal),
+        ),
       ),
       const SizedBox(height: 10),
       Row(
@@ -846,13 +1093,17 @@ class _LinePainter extends CustomPainter {
     double x(int i) => 6 + i * ((size.width - 12) / (series.length - 1));
 
     // 가이드 라인
-    final guide = Paint()..color = AppColor.divider..strokeWidth = 1;
+    final guide = Paint()
+      ..color = AppColor.divider
+      ..strokeWidth = 1;
     for (final gy in [12.0, size.height / 2, size.height - 12]) {
       canvas.drawLine(Offset(0, gy), Offset(size.width, gy), guide);
     }
 
     // 목표선 (점선)
-    final gp = Paint()..color = AppColor.secondary..strokeWidth = 1.5;
+    final gp = Paint()
+      ..color = AppColor.secondary
+      ..strokeWidth = 1.5;
     final gyGoal = y(goal);
     for (double dx = 0; dx < size.width; dx += 10) {
       canvas.drawLine(Offset(dx, gyGoal), Offset(dx + 5, gyGoal), gp);
@@ -867,35 +1118,38 @@ class _LinePainter extends CustomPainter {
       ..lineTo(x(values.length - 1), size.height)
       ..lineTo(x(0), size.height)
       ..close();
-    canvas.drawPath(area, Paint()..color = AppColor.primary.withValues(alpha: 0.10));
     canvas.drawPath(
-        path,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2.5
-          ..strokeCap = StrokeCap.round
-          ..strokeJoin = StrokeJoin.round
-          ..color = AppColor.primary);
+      area,
+      Paint()..color = AppColor.primary.withValues(alpha: 0.10),
+    );
+    canvas.drawPath(
+      path,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.5
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round
+        ..color = AppColor.primary,
+    );
 
     // 마지막 점
     final last = Offset(x(values.length - 1), y(values.last));
     canvas.drawCircle(last, 4.5, Paint()..color = Colors.white);
     canvas.drawCircle(
-        last,
-        4.5,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2.5
-          ..color = AppColor.primary);
+      last,
+      4.5,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.5
+        ..color = AppColor.primary,
+    );
   }
 
   @override
   bool shouldRepaint(_LinePainter old) => true;
 }
 
-// ─────────────────────────────────────────────────────────
 // 입력
-// ─────────────────────────────────────────────────────────
 
 /// 숫자 직접 입력 — 스피너 없음, 범위 clamp
 class NumberField extends StatefulWidget {
@@ -927,8 +1181,9 @@ class NumberField extends StatefulWidget {
 }
 
 class _NumberFieldState extends State<NumberField> {
-  late final TextEditingController _c =
-  TextEditingController(text: _fmt(widget.value));
+  late final TextEditingController _c = TextEditingController(
+    text: _fmt(widget.value),
+  );
 
   /// 이 필드에 포커스가 있는(직접 타이핑 중인) 동안은 외부 값으로 텍스트를 덮어쓰지 않습니다.
   /// (덮어쓰면 커서가 맨 앞으로 튀어서 다음 입력이 엉뚱한 자리에 끼어듭니다.)
@@ -945,7 +1200,9 @@ class _NumberFieldState extends State<NumberField> {
   @override
   void didUpdateWidget(NumberField old) {
     super.didUpdateWidget(old);
-    if (!_focus.hasFocus && widget.value != old.value && _fmt(widget.value) != _c.text) {
+    if (!_focus.hasFocus &&
+        widget.value != old.value &&
+        _fmt(widget.value) != _c.text) {
       _c.text = _fmt(widget.value);
     }
   }
@@ -987,7 +1244,10 @@ class _NumberFieldState extends State<NumberField> {
     );
     final unit = widget.unit == null
         ? null
-        : Text(widget.unit!, style: t(13, w: FontWeight.w500, c: AppColor.textFaint));
+        : Text(
+            widget.unit!,
+            style: t(13, w: FontWeight.w500, c: AppColor.textFaint),
+          );
 
     return SunkenBox(
       padding: 0,
@@ -998,22 +1258,22 @@ class _NumberFieldState extends State<NumberField> {
         // center: false — 숫자 입력창이 남는 폭을 다 차지하고 단위는 오른쪽에 붙음
         child: widget.center
             ? Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              IntrinsicWidth(child: field),
-              if (unit != null) ...[const SizedBox(width: 6), unit],
-            ],
-          ),
-        )
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    IntrinsicWidth(child: field),
+                    if (unit != null) ...[const SizedBox(width: 6), unit],
+                  ],
+                ),
+              )
             : Row(
-          children: [
-            Expanded(child: field),
-            if (unit != null) ...[const SizedBox(width: 6), unit],
-          ],
-        ),
+                children: [
+                  Expanded(child: field),
+                  if (unit != null) ...[const SizedBox(width: 6), unit],
+                ],
+              ),
       ),
     );
   }
@@ -1043,7 +1303,9 @@ class AppTextField extends StatefulWidget {
 }
 
 class _AppTextFieldState extends State<AppTextField> {
-  late final TextEditingController _c = TextEditingController(text: widget.value);
+  late final TextEditingController _c = TextEditingController(
+    text: widget.value,
+  );
   final FocusNode _focus = FocusNode();
 
   @override
@@ -1069,7 +1331,11 @@ class _AppTextFieldState extends State<AppTextField> {
       maxLines: widget.maxLines,
       minLines: widget.maxLines > 1 ? 3 : 1,
       onChanged: widget.onChanged,
-      style: t(widget.fontSize, w: FontWeight.w500, h: widget.maxLines > 1 ? 1.6 : null),
+      style: t(
+        widget.fontSize,
+        w: FontWeight.w500,
+        h: widget.maxLines > 1 ? 1.6 : null,
+      ),
       decoration: InputDecoration(hintText: widget.hint),
     ),
   );
@@ -1096,66 +1362,76 @@ class DragSlider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ratio = ((value - min) / (max - min)).clamp(0.0, 1.0);
-    return LayoutBuilder(builder: (context, box) {
-      void update(double dx) {
-        final cb = onChanged;
-        if (cb == null) return;
-        final r = (dx / box.maxWidth).clamp(0.0, 1.0);
-        final raw = min + r * (max - min);
-        cb((raw / step).round() * step);
-      }
+    return LayoutBuilder(
+      builder: (context, box) {
+        void update(double dx) {
+          final cb = onChanged;
+          if (cb == null) return;
+          final r = (dx / box.maxWidth).clamp(0.0, 1.0);
+          final raw = min + r * (max - min);
+          cb((raw / step).round() * step);
+        }
 
-      final track = SizedBox(
-        width: double.infinity,
-        height: AppSize.minTapTarget,
-        child: Center(
-          child: SizedBox(
-            width: box.maxWidth,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                ProgressBar(value: ratio, height: 6),
-                Positioned(
-                  left: ratio * box.maxWidth - 10,
-                  top: -7,
-                  child: Container(
-                    width: 20,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColor.primary, width: 2.5),
-                      boxShadow: const [
-                        BoxShadow(color: Color(0x4D4CAF50), blurRadius: 6, offset: Offset(0, 2))
-                      ],
+        final track = SizedBox(
+          width: double.infinity,
+          height: AppSize.minTapTarget,
+          child: Center(
+            child: SizedBox(
+              width: box.maxWidth,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  ProgressBar(value: ratio, height: 6),
+                  Positioned(
+                    left: ratio * box.maxWidth - 10,
+                    top: -7,
+                    child: Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColor.primary, width: 2.5),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x4D4CAF50),
+                            blurRadius: 6,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      if (onChanged == null) return track;
+        if (onChanged == null) return track;
 
-      return GestureDetector(
-        onHorizontalDragStart: (d) => update(d.localPosition.dx),
-        onHorizontalDragUpdate: (d) => update(d.localPosition.dx),
-        behavior: HitTestBehavior.opaque,
-        child: track,
-      );
-    });
+        return GestureDetector(
+          onHorizontalDragStart: (d) => update(d.localPosition.dx),
+          onHorizontalDragUpdate: (d) => update(d.localPosition.dx),
+          behavior: HitTestBehavior.opaque,
+          child: track,
+        );
+      },
+    );
   }
 }
 
-// ─────────────────────────────────────────────────────────
 // 기타
-// ─────────────────────────────────────────────────────────
 
 /// 사진 플레이스홀더 — 대각선 스트라이프
 class PhotoPlaceholder extends StatelessWidget {
-  const PhotoPlaceholder({super.key, required this.height, this.label, this.radius = 20, this.child});
+  const PhotoPlaceholder({
+    super.key,
+    required this.height,
+    this.label,
+    this.radius = 20,
+    this.child,
+  });
 
   final double height;
   final String? label;
@@ -1174,12 +1450,18 @@ class PhotoPlaceholder extends StatelessWidget {
     child: CustomPaint(
       painter: _StripePainter(),
       child: Center(
-        child: child ??
+        child:
+            child ??
             (label == null
                 ? null
-                : Text(label!,
-                style: GoogleFonts.ibmPlexMono(
-                    fontSize: 10, color: AppColor.textFaint, letterSpacing: 0.5))),
+                : Text(
+                    label!,
+                    style: GoogleFonts.ibmPlexMono(
+                      fontSize: 10,
+                      color: AppColor.textFaint,
+                      letterSpacing: 0.5,
+                    ),
+                  )),
       ),
     ),
   );
@@ -1188,7 +1470,9 @@ class PhotoPlaceholder extends StatelessWidget {
 class _StripePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final p = Paint()..color = const Color(0xFFE9EDEF)..strokeWidth = 10;
+    final p = Paint()
+      ..color = const Color(0xFFE9EDEF)
+      ..strokeWidth = 10;
     for (double x = -size.height; x < size.width + size.height; x += 20) {
       canvas.drawLine(Offset(x, 0), Offset(x + size.height, size.height), p);
     }
@@ -1199,7 +1483,12 @@ class _StripePainter extends CustomPainter {
 }
 
 class RowBetween extends StatelessWidget {
-  const RowBetween(this.label, this.value, {super.key, this.valueColor = AppColor.text});
+  const RowBetween(
+    this.label,
+    this.value, {
+    super.key,
+    this.valueColor = AppColor.text,
+  });
 
   final String label;
   final String value;
@@ -1208,15 +1497,23 @@ class RowBetween extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 5),
-    child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-      Text(label, style: t(12, c: AppColor.textFaint)),
-      Text(value, style: t(12, w: FontWeight.w700, c: valueColor)),
-    ]),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: t(12, c: AppColor.textFaint)),
+        Text(
+          value,
+          style: t(12, w: FontWeight.w700, c: valueColor),
+        ),
+      ],
+    ),
   );
 }
 
-/// 숫자 콤마 포맷 (BarChart 등에서 사용)
+/// 숫자 콤마 포맷 — `AppState.comma`가 이 구현을 그대로 감싸 화면에 노출한다.
 abstract final class AppStateFormat {
   static String comma(int n) => n.toString().replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+$)'), (m) => '${m[1]},');
+    RegExp(r'(\d)(?=(\d{3})+$)'),
+    (m) => '${m[1]},',
+  );
 }

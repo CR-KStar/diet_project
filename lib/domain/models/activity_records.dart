@@ -11,7 +11,16 @@ class MealLog {
     required this.kcal,
     required this.dateKey,
     this.bowlId,
+    this.sauce = '',
     this.needsReview = false,
+    this.proteinG = 0,
+    this.carbG = 0,
+    this.fatG = 0,
+    this.fiberG = 0,
+    this.sodiumMg = 0,
+    this.sugarG = 0,
+    this.calciumMg = 0,
+    this.ironMg = 0,
   });
 
   final String id;
@@ -25,7 +34,21 @@ class MealLog {
   final int kcal;
   final String dateKey;
   final String? bowlId;
+
+  /// 부가 정보 입력에서 고른 소스/양념 — 리포트의 "자주 쓴 소스" 통계에 쓴다.
+  final String sauce;
   final bool needsReview;
+
+  /// AI 사진 분석이 추정한 영양소. 분석 없이 기록했으면(예: 대체값 450kcal로
+  /// 그냥 저장) 전부 0이다 — 영양소 합계 화면에서는 그만큼 실제보다 적게 잡힌다.
+  final double proteinG;
+  final double carbG;
+  final double fatG;
+  final double fiberG;
+  final double sodiumMg;
+  final double sugarG;
+  final double calciumMg;
+  final double ironMg;
 }
 
 /// 물 섭취 기록
@@ -34,12 +57,18 @@ class WaterEntry {
     required this.id,
     required this.userId,
     required this.ml,
+    required this.dateKey,
     required this.time,
   });
 
   final String id;
   final String userId;
   int ml;
+
+  /// 마신 날짜 — 'yyyy-MM-dd'
+  final String dateKey;
+
+  /// 마신 시각 — 'HH:mm'
   final String time;
 }
 
@@ -104,7 +133,8 @@ class DailyRegistry {
   int get totalIntakeKcal => meals.fold(0, (sum, m) => sum + m.kcal);
   int get totalWaterMl => waterEntries.fold(0, (sum, w) => sum + w.ml);
   int get totalBurnedKcal => exerciseLogs.fold(0, (sum, e) => sum + e.kcal);
-  int get totalExerciseMinutes => exerciseLogs.fold(0, (sum, e) => sum + e.minutes);
+  int get totalExerciseMinutes =>
+      exerciseLogs.fold(0, (sum, e) => sum + e.minutes);
 }
 
 /// 기록용 템플릿: 그릇
@@ -133,7 +163,8 @@ class Bowl {
   bool isDefault;
   String icon;
 
-  double get capacityFactor => capacityMl >= 800 ? 1.2 : (capacityMl >= 450 ? 1.0 : 0.6);
+  double get capacityFactor =>
+      capacityMl >= 800 ? 1.2 : (capacityMl >= 450 ? 1.0 : 0.6);
   String get meta => '$capacityMl ml · $portion · $material';
 }
 

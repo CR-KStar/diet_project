@@ -12,7 +12,20 @@
           "package_name": "kr.chaerin.dietapp"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "119913712586-ng8tq17mcp6sdbmoevj1b30n5nil5dlr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "kr.chaerin.dietapp",
+            "certificate_hash": "bf5247c59c1778a2f1e5503e90b239c195c8e5de"
+          }
+        },
+        {
+          "client_id": "119913712586-epl9cif5kq1civbksslj144hrthcbjqr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDE69zHkPtSMBszUzSRaoXgsfMu4GcWVks"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "119913712586-epl9cif5kq1civbksslj144hrthcbjqr.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "119913712586-j1pi9aslj08bumgjiq7hn23q6ihb89ki.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "kr.chaerin.dietapp"
+              }
+            }
+          ]
         }
       }
     }

@@ -75,11 +75,11 @@ void main() {
     });
 
     test('기록 탭에서 다른 날짜를 넘겨봐도 오늘 요약은 그대로다', () {
-      final s = AppState();
+      final s = AppState(now: () => DateTime(2026, 9, 21));
       final before = s.todayRegistry;
 
-      s.month = 8;
-      s.day = 18;
+      s.month = 9;
+      s.day = 20;
       final after = s.todayRegistry;
 
       expect(after.dateKey, before.dateKey);
