@@ -16,6 +16,7 @@ import 'package:diet_project/data/repositories/profile_repository.dart';
 import 'package:diet_project/data/repositories/record_codecs.dart';
 import 'package:diet_project/data/repositories/record_repository.dart';
 import 'package:diet_project/data/repositories/water_repository.dart';
+import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
 import 'package:diet_project/data/repositories/challenge_repository.dart';
 import 'package:diet_project/data/repositories/activity_feed_repository.dart';
 import 'package:diet_project/domain/models/models.dart';
@@ -90,7 +91,7 @@ class AppState extends ChangeNotifier {
   AppState({
     AuthService? auth,
     ProfileRepository? profiles,
-    WaterRepository? waterRepo,
+    WaterViewModel? waterViewModel,
     RecordRepository<WeightEntry>? weightRepo,
     RecordRepository<ExerciseLog>? exerciseRepo,
     RecordRepository<MealLog>? mealRepo,
@@ -104,7 +105,8 @@ class AppState extends ChangeNotifier {
     DateTime Function()? now,
   }) : _auth = auth ?? MockAuthService(),
        _profiles = profiles ?? MemoryProfileRepository(),
-       _water = waterRepo ?? MemoryWaterRepository(),
+       _waterViewModel =
+           waterViewModel ?? WaterViewModel(waterRepo: MemoryWaterRepository()),
        _weightRepo = weightRepo ?? MemoryRecordRepository(weightCodec),
        _exerciseRepo = exerciseRepo ?? MemoryRecordRepository(exerciseCodec),
        _mealRepo = mealRepo ?? MemoryRecordRepository(mealCodec),
@@ -119,7 +121,11 @@ class AppState extends ChangeNotifier {
 
   final AuthService _auth;
   final ProfileRepository _profiles;
-  final WaterRepository _water;
+
+  /// 물 기록은 이제 이 화면 전용 ViewModel이 갖고 있다 — AppState는 연속
+  /// 기록 계산 · 오늘의 기록 요약 · 미션 진행도 계산에 필요할 때만 이걸
+  /// 통해서 읽는다(물 데이터를 따로 복사해서 들고 있지 않는다).
+  final WaterViewModel _waterViewModel;
   final RecordRepository<WeightEntry> _weightRepo;
   final RecordRepository<ExerciseLog> _exerciseRepo;
   final RecordRepository<MealLog> _mealRepo;
@@ -423,14 +429,8 @@ class AppState extends ChangeNotifier {
   void _clearSampleRecords() {
     _mealLogs.clear();
     _exerciseLogs.clear();
-    for (final t in _waterEditTimers.values) {
-      t.cancel();
-    }
-    _waterEditTimers.clear();
     _plantSaveTimer?.cancel();
     _plantSaveTimer = null;
-    waterEntries = [];
-    _waterDayKey = _todayKey;
     weightEntries = [];
     bowls = [];
     routines = [];
@@ -598,7 +598,7 @@ class AppState extends ChangeNotifier {
     userId: _uid,
     dateKey: _todayKey,
     meals: todayMeals,
-    waterEntries: waterEntries,
+    waterEntries: _waterViewModel.waterEntries,
     exerciseLogs: _exerciseLogs
         .where((e) => e.userId == _uid && e.dateKey == _todayKey)
         .toList(),
@@ -1170,7 +1170,7 @@ class AppState extends ChangeNotifier {
       (e) => e.userId == _uid && e.dateKey == _selectedKey,
     ),
     '체중': _viewingToday && weightEntries.isNotEmpty,
-    '물': _viewingToday && waterEntries.isNotEmpty,
+    '물': _viewingToday && _waterViewModel.waterEntries.isNotEmpty,
   };
 
   /// 이전 달로 — 과거는 제한 없이 넘겨볼 수 있다.
@@ -1213,7 +1213,7 @@ class AppState extends ChangeNotifier {
     return _mealLogs.any((m) => m.dateKey == key) ||
         _exerciseLogs.any((e) => e.dateKey == key) ||
         weightEntries.any((w) => w.dateKey == key) ||
-        waterEntries.any((w) => w.dateKey == key);
+        _waterViewModel.waterEntries.any((w) => w.dateKey == key);
   }
 
   /// 연속 기록 일수 — 오늘부터 거꾸로 기록이 이어진 날 수.
@@ -1535,40 +1535,6 @@ class AppState extends ChangeNotifier {
 
   // 물
   bool waterSheet = false;
-  int waterInput = 250;
-
-  late List<WaterEntry> waterEntries = [
-    WaterEntry(
-      id: 'water_seed_1',
-      userId: User.meId,
-      ml: 250,
-      dateKey: _todayKey,
-      time: '08:10',
-    ),
-    WaterEntry(
-      id: 'water_seed_2',
-      userId: User.meId,
-      ml: 350,
-      dateKey: _todayKey,
-      time: '10:30',
-    ),
-    WaterEntry(
-      id: 'water_seed_3',
-      userId: User.meId,
-      ml: 500,
-      dateKey: _todayKey,
-      time: '12:45',
-    ),
-    WaterEntry(
-      id: 'water_seed_4',
-      userId: User.meId,
-      ml: 350,
-      dateKey: _todayKey,
-      time: '15:20',
-    ),
-  ];
-
-  late String _waterDayKey = _todayKey;
 
   String get _uid => account?.uid ?? User.meId;
 
@@ -1577,80 +1543,16 @@ class AppState extends ChangeNotifier {
     return '${n.hour.toString().padLeft(2, '0')}:${n.minute.toString().padLeft(2, '0')}';
   }
 
-  int _waterSeq = 0;
+  int get waterTotal => _waterViewModel.waterTotal;
+  int get waterLeft => _waterViewModel.waterLeft;
+  int get waterPct => _waterViewModel.waterPct;
 
-  final Map<String, Timer> _waterEditTimers = {};
-  static const _waterEditDelay = Duration(milliseconds: 500);
-
-  void _rollWaterDay() {
-    if (_waterDayKey == _todayKey) return;
-    waterEntries = [];
-    _waterDayKey = _todayKey;
-  }
-
-  int get waterTotal => waterEntries.fold(0, (a, e) => a + e.ml);
-  int get waterLeft => (2000 - waterTotal).clamp(0, 2000);
-  int get waterPct => ((waterTotal / 2000) * 100).round().clamp(0, 100);
-
-  void addWater([int? ml]) {
-    final v = ml ?? waterInput;
-    if (v <= 0) return;
-    _rollWaterDay();
-    final entry = WaterEntry(
-      id: 'water_${DateTime.now().microsecondsSinceEpoch}_${_waterSeq++}',
-      userId: _uid,
-      ml: v,
-      dateKey: _todayKey,
-      time: _clockTime,
-    );
-    waterEntries.add(entry);
-    notifyListeners();
-    _saveWater(entry);
-    _postActivity('물 ${AppStateFormat.comma(v)}ml을 기록했어요');
-    _reportChallengeProgress(ChallengeType.water, waterTotal);
-  }
-
-  void editWater(int i, int ml) {
-    final entry = waterEntries[i];
-    entry.ml = ml.clamp(0, 3000);
-    notifyListeners();
-    _waterEditTimers[entry.id]?.cancel();
-    _waterEditTimers[entry.id] = Timer(_waterEditDelay, () {
-      _waterEditTimers.remove(entry.id);
-      _saveWater(entry);
-    });
-  }
-
-  void removeWater(int i) => _removeWaterEntry(waterEntries.removeAt(i));
-
-  void undoWater() {
-    if (waterEntries.isNotEmpty) _removeWaterEntry(waterEntries.removeLast());
-  }
-
-  void _removeWaterEntry(WaterEntry entry) {
-    _waterEditTimers.remove(entry.id)?.cancel();
-    notifyListeners();
-    final a = account;
-    if (a == null) return;
-    unawaited(
-      _water.delete(a.uid, entry.id).catchError((Object e, StackTrace stack) {
-        debugPrint('물 기록을 지우지 못했어요: $e\n$stack');
-        _notice = '물 기록을 지우지 못했어요. 네트워크를 확인해 주세요.';
-        notifyListeners();
-      }),
-    );
-  }
-
-  void _saveWater(WaterEntry entry) {
-    final a = account;
-    if (a == null) return;
-    unawaited(
-      _water.save(a.uid, entry).catchError((Object e, StackTrace stack) {
-        debugPrint('물 기록을 저장하지 못했어요: $e\n$stack');
-        _notice = '물 기록을 저장하지 못했어요. 네트워크를 확인해 주세요.';
-        notifyListeners();
-      }),
-    );
+  /// WaterViewModel.addWater()는 화면 전용이라 다른 기능(활동 피드 ·
+  /// 챌린지 진행도)을 모른다 — 물을 기록한 뒤 이 메서드도 함께 불러서
+  /// 그 연결을 이어준다.
+  void onWaterAdded(int ml) {
+    _postActivity('물 ${AppStateFormat.comma(ml)}ml을 기록했어요');
+    _reportChallengeProgress(ChallengeType.water, _waterViewModel.waterTotal);
   }
 
   // 계정에 저장되는 기록들 (체중 · 운동 · 식단 · 그릇 · 루틴 · 식물)
@@ -1699,7 +1601,7 @@ class AppState extends ChangeNotifier {
   Future<void> _loadAccountData(String uid) async {
     final prev = DateTime(today.year, today.month - 1, 1);
     await Future.wait([
-      _loadWaterToday(uid),
+      _waterViewModel.loadForUid(uid),
       _loadWeight(uid),
       _loadTemplates(uid),
       _loadPlant(uid),
@@ -1806,7 +1708,7 @@ class AppState extends ChangeNotifier {
   Future<void> _deleteAllUserData(String uid) async {
     const limit = Duration(seconds: 30);
     await Future.wait<void>([
-      _water.deleteAll(uid),
+      _waterViewModel.deleteAll(uid),
       _weightRepo.deleteAll(uid),
       _exerciseRepo.deleteAll(uid),
       _mealRepo.deleteAll(uid),
@@ -1816,17 +1718,6 @@ class AppState extends ChangeNotifier {
       _dexRepo.deleteAll(uid),
     ]).timeout(limit);
     await _profiles.delete(uid).timeout(limit);
-  }
-
-  Future<void> _loadWaterToday(String uid) async {
-    _waterDayKey = _todayKey;
-    try {
-      waterEntries = await _water.loadDay(uid, _todayKey);
-    } catch (e, stack) {
-      debugPrint('물 기록을 불러오지 못했어요: $e\n$stack');
-      waterEntries = [];
-      _notice = '오늘의 물 기록을 불러오지 못했어요.';
-    }
   }
 
   // 그릇

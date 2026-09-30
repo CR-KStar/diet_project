@@ -14,8 +14,10 @@ import 'package:diet_project/data/repositories/water_repository.dart';
 import 'package:diet_project/data/repositories/profile_repository.dart';
 import 'package:diet_project/firebase_options.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
+import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show SystemNavigator;
 import 'package:provider/provider.dart';
 import 'app_state.dart';
 import 'data/auth/auth_service.dart';
@@ -61,10 +63,12 @@ Future<void> main() async {
     '[앱 시작] 로그인 방식: ${_useFirebase ? 'Firebase (저장됨)' : 'Mock (저장 안 됨)'}',
   );
 
+  final waterViewModel = WaterViewModel(waterRepo: water);
+
   final state = AppState(
     auth: auth,
     profiles: profiles,
-    waterRepo: water,
+    waterViewModel: waterViewModel,
     weightRepo: weight,
     exerciseRepo: exercise,
     mealRepo: meals,
@@ -75,6 +79,7 @@ Future<void> main() async {
     friendRepo: friends,
     challengeRepo: challenges,
   );
+
   await state.restoreSession();
 
   state.addListener(() {
@@ -85,7 +90,15 @@ Future<void> main() async {
       ..showSnackBar(SnackBar(content: Text(message)));
   });
 
-  runApp(ChangeNotifierProvider.value(value: state, child: const MyApp()));
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: state),
+        ChangeNotifierProvider.value(value: waterViewModel),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 /// 화면 밖에서 스낵바를 띄우기 위한 키.
@@ -101,7 +114,20 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       scaffoldMessengerKey: messengerKey,
       theme: buildAppTheme(),
-      home: const AppShell(),
+      // 이 앱은 Navigator 라우트 대신 AppState.screen 문자열로 화면을
+      // 바꾸는 구조라서, 기본 뒤로가기(Navigator pop)가 걸 게 없어 안드로이드
+      // 시스템 뒤로가기를 누르면 곧장 앱이 꺼져버린다. 그래서 시스템
+      // 뒤로가기를 직접 가로채 AppState.handleSystemBack()에 맡기고, 정말
+      // 더 갈 곳이 없을 때만 SystemNavigator.pop()으로 앱을 종료한다.
+      home: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) return;
+          final handled = context.read<AppState>().handleSystemBack();
+          if (!handled) SystemNavigator.pop();
+        },
+        child: const AppShell(),
+      ),
     );
   }
 }

@@ -6,12 +6,17 @@ import 'package:diet_project/data/repositories/profile_repository.dart';
 import 'package:diet_project/data/repositories/record_codecs.dart';
 import 'package:diet_project/data/repositories/record_repository.dart';
 import 'package:diet_project/data/repositories/water_repository.dart';
+import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-const _account = AuthAccount(uid: 'uid_1', provider: LoginProvider.google, displayName: '지민');
+const _account = AuthAccount(
+  uid: 'uid_1',
+  provider: LoginProvider.google,
+  displayName: '지민',
+);
 const _today = '2026-09-21';
 
 class _FakeAuth implements AuthService {
@@ -74,18 +79,24 @@ class _Server {
   final routines = _Flaky(routineCodec);
   final plant = _Flaky(plantCodec);
 
-  AppState app({DateTime Function()? now}) => AppState(
-        auth: _FakeAuth(),
-        profiles: profiles,
-        waterRepo: water,
-        weightRepo: weight,
-        exerciseRepo: exercise,
-        mealRepo: meals,
-        bowlRepo: bowls,
-        routineRepo: routines,
-        plantRepo: plant,
-        now: now ?? () => DateTime(2026, 9, 21, 14, 5),
-      );
+  late WaterViewModel waterViewModel;
+
+  AppState app({DateTime Function()? now}) {
+    final clock = now ?? () => DateTime(2026, 9, 21, 14, 5);
+    waterViewModel = WaterViewModel(waterRepo: water, now: clock);
+    return AppState(
+      auth: _FakeAuth(),
+      profiles: profiles,
+      waterViewModel: waterViewModel,
+      weightRepo: weight,
+      exerciseRepo: exercise,
+      mealRepo: meals,
+      bowlRepo: bowls,
+      routineRepo: routines,
+      plantRepo: plant,
+      now: clock,
+    );
+  }
 }
 
 Future<AppState> _start(_Server server, {DateTime Function()? now}) async {
@@ -94,9 +105,14 @@ Future<AppState> _start(_Server server, {DateTime Function()? now}) async {
   return s;
 }
 
-Future<void> _settle() => Future<void>.delayed(const Duration(milliseconds: 700));
+Future<void> _settle() =>
+    Future<void>.delayed(const Duration(milliseconds: 700));
 
-Future<void> _pumpScreen(WidgetTester tester, AppState state, String screen) async {
+Future<void> _pumpScreen(
+  WidgetTester tester,
+  AppState state,
+  String screen,
+) async {
   GoogleFonts.config.allowRuntimeFetching = false;
   tester.view.physicalSize = const Size(1200, 4000);
   tester.view.devicePixelRatio = 2.0;
@@ -114,28 +130,100 @@ Future<void> _pumpScreen(WidgetTester tester, AppState state, String screen) asy
 void main() {
   group('저장 형식 (codec)', () {
     test('체중 · 운동 · 식단 · 그릇 · 루틴 · 식물이 저장했다가 그대로 복원된다', () {
-      final weight = weightCodec.fromMap('w', weightCodec.toMap(WeightEntry(id: 'w', userId: 'u', kg: 56.4, dateKey: _today, time: '14:05')), 'u');
+      final weight = weightCodec.fromMap(
+        'w',
+        weightCodec.toMap(
+          WeightEntry(
+            id: 'w',
+            userId: 'u',
+            kg: 56.4,
+            dateKey: _today,
+            time: '14:05',
+          ),
+        ),
+        'u',
+      );
       expect([weight.kg, weight.dateKey, weight.time], [56.4, _today, '14:05']);
 
       final ex = exerciseCodec.fromMap(
         'e',
-        exerciseCodec.toMap(ExerciseLog(id: 'e', userId: 'u', type: '달리기', minutes: 30, intensity: ExerciseIntensity.high, kcal: 300, dateKey: _today, time: '09:00')),
+        exerciseCodec.toMap(
+          ExerciseLog(
+            id: 'e',
+            userId: 'u',
+            type: '달리기',
+            minutes: 30,
+            intensity: ExerciseIntensity.high,
+            kcal: 300,
+            dateKey: _today,
+            time: '09:00',
+          ),
+        ),
         'u',
       );
-      expect([ex.type, ex.minutes, ex.intensity, ex.kcal], ['달리기', 30, ExerciseIntensity.high, 300]);
+      expect(
+        [ex.type, ex.minutes, ex.intensity, ex.kcal],
+        ['달리기', 30, ExerciseIntensity.high, 300],
+      );
 
       final meal = mealCodec.fromMap(
         'm',
-        mealCodec.toMap(const MealLog(id: 'm', userId: 'u', mealType: MealType.dinner, name: '샐러드', meta: '메모', kcal: 480, dateKey: _today, bowlId: 'b1', needsReview: true)),
+        mealCodec.toMap(
+          const MealLog(
+            id: 'm',
+            userId: 'u',
+            mealType: MealType.dinner,
+            name: '샐러드',
+            meta: '메모',
+            kcal: 480,
+            dateKey: _today,
+            bowlId: 'b1',
+            needsReview: true,
+          ),
+        ),
         'u',
       );
-      expect([meal.mealType, meal.name, meal.kcal, meal.bowlId, meal.needsReview], [MealType.dinner, '샐러드', 480, 'b1', true]);
+      expect(
+        [meal.mealType, meal.name, meal.kcal, meal.bowlId, meal.needsReview],
+        [MealType.dinner, '샐러드', 480, 'b1', true],
+      );
 
-      final bowl = bowlCodec.fromMap('b', bowlCodec.toMap(Bowl(id: 'b', userId: 'u', name: '도시락', capacityMl: 500, portion: '1인분', material: '유리', shape: '사각', isDefault: true)), 'u');
+      final bowl = bowlCodec.fromMap(
+        'b',
+        bowlCodec.toMap(
+          Bowl(
+            id: 'b',
+            userId: 'u',
+            name: '도시락',
+            capacityMl: 500,
+            portion: '1인분',
+            material: '유리',
+            shape: '사각',
+            isDefault: true,
+          ),
+        ),
+        'u',
+      );
       expect([bowl.name, bowl.capacityMl, bowl.isDefault], ['도시락', 500, true]);
 
-      final routine = routineCodec.fromMap('r', routineCodec.toMap(Routine(id: 'r', userId: 'u', name: '아침', type: '걷기', minutes: 25, intensity: ExerciseIntensity.low)), 'u');
-      expect([routine.type, routine.minutes, routine.intensity], ['걷기', 25, ExerciseIntensity.low]);
+      final routine = routineCodec.fromMap(
+        'r',
+        routineCodec.toMap(
+          Routine(
+            id: 'r',
+            userId: 'u',
+            name: '아침',
+            type: '걷기',
+            minutes: 25,
+            intensity: ExerciseIntensity.low,
+          ),
+        ),
+        'u',
+      );
+      expect(
+        [routine.type, routine.minutes, routine.intensity],
+        ['걷기', 25, ExerciseIntensity.low],
+      );
 
       final plant = Plant.starter('u')
         ..exp = 240
@@ -143,20 +231,40 @@ void main() {
         ..cares['물 주기'] = 1
         ..wateredFriendIds = ['f1'];
       final back = plantCodec.fromMap(plantDocId, plantCodec.toMap(plant), 'u');
-      expect([back.exp, back.axisScore[PlantAxis.sun], back.cares['물 주기'], back.wateredFriendIds], [240, 45, 1, ['f1']]);
+      expect(
+        [
+          back.exp,
+          back.axisScore[PlantAxis.sun],
+          back.cares['물 주기'],
+          back.wateredFriendIds,
+        ],
+        [
+          240,
+          45,
+          1,
+          ['f1'],
+        ],
+      );
     });
 
     test('저장된 값의 타입이 이상해도 기본값으로 복원한다', () {
       final weight = weightCodec.fromMap('w', {'kg': '많이', 'dateKey': 3}, 'u');
       expect([weight.kg, weight.dateKey], [0, '']);
 
-      final ex = exerciseCodec.fromMap('e', {'intensity': '없는강도', 'minutes': 'x'}, 'u');
+      final ex = exerciseCodec.fromMap('e', {
+        'intensity': '없는강도',
+        'minutes': 'x',
+      }, 'u');
       expect([ex.intensity, ex.minutes], [ExerciseIntensity.moderate, 0]);
 
       final meal = mealCodec.fromMap('m', {'mealType': 7, 'bowlId': 3}, 'u');
       expect([meal.mealType, meal.bowlId], [MealType.lunch, null]);
 
-      final plant = plantCodec.fromMap(plantDocId, {'axisScore': '깨짐', 'cares': 5, 'wateredFriendIds': 'x'}, 'u');
+      final plant = plantCodec.fromMap(plantDocId, {
+        'axisScore': '깨짐',
+        'cares': 5,
+        'wateredFriendIds': 'x',
+      }, 'u');
       expect(plant.axisScore.values, everyElement(0));
       expect(plant.cares['물 주기'], 3); // 시작값
       expect(plant.wateredFriendIds, isEmpty);
@@ -173,7 +281,10 @@ void main() {
       await Future<void>.delayed(Duration.zero);
 
       final saved = (await server.weight.loadAll('uid_1')).single;
-      expect([saved.kg, saved.dateKey, saved.time, saved.userId], [55.8, _today, '14:05', 'uid_1']);
+      expect(
+        [saved.kg, saved.dateKey, saved.time, saved.userId],
+        [55.8, _today, '14:05', 'uid_1'],
+      );
       expect((await server.profiles.load('uid_1'))?.profile.weightKg, 55.8);
     });
 
@@ -203,7 +314,10 @@ void main() {
       final second = await _start(server);
 
       final log = second.todayRegistry.exerciseLogs.single;
-      expect([log.type, log.minutes, log.dateKey, log.userId, log.time], ['달리기', 30, _today, 'uid_1', '14:05']);
+      expect(
+        [log.type, log.minutes, log.dateKey, log.userId, log.time],
+        ['달리기', 30, _today, 'uid_1', '14:05'],
+      );
       expect(second.todayExerciseMinutes, 30);
     });
 
@@ -211,7 +325,16 @@ void main() {
       final server = _Server();
       await server.exercise.save(
         'uid_1',
-        ExerciseLog(id: 'ex_old', userId: 'uid_1', type: '요가', minutes: 40, intensity: ExerciseIntensity.low, kcal: 100, dateKey: '2026-07-05', time: '08:00'),
+        ExerciseLog(
+          id: 'ex_old',
+          userId: 'uid_1',
+          type: '요가',
+          minutes: 40,
+          intensity: ExerciseIntensity.low,
+          kcal: 100,
+          dateKey: '2026-07-05',
+          time: '08:00',
+        ),
       );
       final s = await _start(server);
       expect(s.hasRecordOn(DateTime(2026, 7, 5)), isFalse); // 아직 안 불러온 달
@@ -255,7 +378,10 @@ void main() {
 
       expect(s.todayMeals, hasLength(1)); // 실제 계정 id로 걸러져도 보인다
       final saved = (await server.meals.loadAll('uid_1')).single;
-      expect([saved.dateKey, saved.userId, saved.mealType], [_today, 'uid_1', MealType.lunch]);
+      expect(
+        [saved.dateKey, saved.userId, saved.mealType],
+        [_today, 'uid_1', MealType.lunch],
+      );
     });
 
     test('다시 켜면 오늘 먹은 식단이 불러와지고 칼로리에 반영된다', () async {
@@ -314,7 +440,10 @@ void main() {
       s.saveBowl();
       await Future<void>.delayed(Duration.zero);
 
-      final stored = {for (final b in await server.bowls.loadAll('uid_1')) b.name: b.isDefault};
+      final stored = {
+        for (final b in await server.bowls.loadAll('uid_1'))
+          b.name: b.isDefault,
+      };
       expect(stored, {'집 밥그릇': false, '샐러드 볼': true});
 
       s.startEditBowl(1);
@@ -418,7 +547,7 @@ void main() {
   test('계정을 삭제하면 모든 종류의 기록이 함께 지워진다', () async {
     final server = _Server();
     final s = await _start(server);
-    s.addWater(250);
+    server.waterViewModel.addWater(250);
     s.weightInput = 55.0;
     s.logWeight();
     s.logExercise();

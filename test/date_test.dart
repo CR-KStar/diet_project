@@ -9,7 +9,8 @@ import 'package:provider/provider.dart';
 /// 로그인된 실제 계정처럼 동작하는 가짜 인증 (Mock이 아니라서 예시 기록이 비워진다).
 class _RealAuth implements AuthService {
   @override
-  AuthAccount? get currentAccount => const AuthAccount(uid: 'uid_1', provider: LoginProvider.google);
+  AuthAccount? get currentAccount =>
+      const AuthAccount(uid: 'uid_1', provider: LoginProvider.google);
 
   @override
   Future<AuthAccount?> restoreAccount() async => currentAccount;
@@ -24,7 +25,8 @@ class _RealAuth implements AuthService {
   Future<void> deleteAccount({Future<void> Function()? beforeDelete}) async {}
 }
 
-AppState _at(DateTime now, {AuthService? auth}) => AppState(now: () => now, auth: auth);
+AppState _at(DateTime now, {AuthService? auth}) =>
+    AppState(now: () => now, auth: auth);
 
 void main() {
   group('날짜 키와 오늘', () {
@@ -34,7 +36,11 @@ void main() {
     });
 
     test('문자열 순서가 곧 날짜 순서다', () {
-      final keys = [DateTime(2027, 1, 2), DateTime(2026, 12, 31), DateTime(2026, 9, 21)].map(AppState.dateKeyOf).toList();
+      final keys = [
+        DateTime(2027, 1, 2),
+        DateTime(2026, 12, 31),
+        DateTime(2026, 9, 21),
+      ].map(AppState.dateKeyOf).toList();
       final sorted = [...keys]..sort();
       expect(sorted, ['2026-09-21', '2026-12-31', '2027-01-02']);
     });
@@ -108,7 +114,7 @@ void main() {
       await s.restoreSession();
 
       expect(s.todayRegistry.meals, isEmpty);
-      expect(s.waterEntries, isEmpty);
+      expect(s.waterTotal, 0);
       expect(s.weightEntries, isEmpty);
       expect(s.hasRecordOn(DateTime(2026, 9, 21)), isFalse);
       expect(s.streakDays, 0);

@@ -1,6 +1,8 @@
 import 'package:diet_project/app_shell.dart';
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/data/auth/auth_service.dart';
+import 'package:diet_project/data/repositories/water_repository.dart';
+import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,7 +11,8 @@ import 'package:provider/provider.dart';
 /// 로그인된 실제 계정 — 프로토타입 예시 기록이 비워져서 "기록이 하나도 없는" 상태가 된다.
 class _RealAuth implements AuthService {
   @override
-  AuthAccount? get currentAccount => const AuthAccount(uid: 'uid_1', provider: LoginProvider.google);
+  AuthAccount? get currentAccount =>
+      const AuthAccount(uid: 'uid_1', provider: LoginProvider.google);
 
   @override
   Future<AuthAccount?> restoreAccount() async => currentAccount;
@@ -30,8 +33,21 @@ void main() {
   setUpAll(() => GoogleFonts.config.allowRuntimeFetching = false);
 
   const screens = [
-    'home', 'notif', 'nutrition', 'recommend', 'plant', 'records', 'capture',
-    'exercise', 'weight', 'bowls', 'report', 'friends', 'chNew', 'my', 'settings',
+    'home',
+    'notif',
+    'nutrition',
+    'recommend',
+    'plant',
+    'records',
+    'capture',
+    'exercise',
+    'weight',
+    'bowls',
+    'report',
+    'friends',
+    'chNew',
+    'my',
+    'settings',
   ];
 
   for (final screen in screens) {
@@ -40,7 +56,10 @@ void main() {
       tester.view.devicePixelRatio = 2.0;
       addTearDown(tester.view.reset);
 
-      final state = AppState(auth: _RealAuth(), now: () => DateTime(2026, 9, 21));
+      final state = AppState(
+        auth: _RealAuth(),
+        now: () => DateTime(2026, 9, 21),
+      );
       await state.restoreSession();
       state.go(screen);
 
@@ -52,7 +71,11 @@ void main() {
       );
       await tester.pump();
 
-      expect(tester.takeException(), isNull, reason: '"$screen" 화면을 그리다 예외가 났어요');
+      expect(
+        tester.takeException(),
+        isNull,
+        reason: '"$screen" 화면을 그리다 예외가 났어요',
+      );
       expect(state.todayRegistry.meals, isEmpty);
     });
   }
@@ -65,10 +88,14 @@ void main() {
     final state = AppState(auth: _RealAuth(), now: () => DateTime(2026, 9, 21));
     await state.restoreSession();
     state.waterSheet = true;
+    final water = WaterViewModel(waterRepo: MemoryWaterRepository());
 
     await tester.pumpWidget(
-      ChangeNotifierProvider<AppState>.value(
-        value: state,
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<AppState>.value(value: state),
+          ChangeNotifierProvider<WaterViewModel>.value(value: water),
+        ],
         child: const MaterialApp(home: AppShell()),
       ),
     );

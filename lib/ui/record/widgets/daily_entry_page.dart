@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/common.dart';
+import '../viewmodel/water_view_model.dart';
 
 // 운동 기록 (루틴 통합)
 
@@ -61,6 +62,7 @@ class _ExerciseTypeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = context.watch<AppState>();
+
     return AppCard(
       padding: 16,
       child: Column(
@@ -573,11 +575,12 @@ class WaterSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = context.watch<AppState>();
+    final water = context.watch<WaterViewModel>();
 
     return SheetScaffold(
       title: '물 기록',
       subtitle:
-          '오늘 ${AppState.comma(s.waterTotal)} / 2,000ml · ${AppState.comma(s.waterLeft)}ml 남음',
+          '오늘 ${AppState.comma(water.waterTotal)} / 2,000ml · ${AppState.comma(water.waterLeft)}ml 남음',
       leading: const IconTile(
         '💧',
         size: 40,
@@ -586,7 +589,7 @@ class WaterSheet extends StatelessWidget {
         fontSize: 18,
       ),
       trailing: Text(
-        '${s.waterPct}%',
+        '${water.waterPct}%',
         style: t(24, w: FontWeight.w900, c: AppColor.info, sp: -0.5),
       ),
       child: Column(
@@ -594,7 +597,7 @@ class WaterSheet extends StatelessWidget {
         children: [
           // 가로 진행바
           ProgressBar(
-            value: s.waterPct / 100,
+            value: water.waterPct / 100,
             height: 8,
             color: AppColor.info,
             track: AppColor.divider,
@@ -621,26 +624,29 @@ class _WaterInputRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = context.watch<AppState>();
+    final water = context.watch<WaterViewModel>();
     return Row(
       children: [
         Expanded(
           child: NumberField(
-            value: s.waterInput,
+            value: water.waterInput,
             unit: 'ml',
             fontSize: 32,
             color: const Color(0xFF3C63C0),
             max: 3000,
-            onChanged: (v) => s.setSub(() => s.waterInput = v.toInt()),
+            onChanged: (v) => water.setWaterInput(v.toInt()),
           ),
         ),
         const SizedBox(width: 10),
         GestureDetector(
           onTap: () {
-            if (s.waterInput <= 0) {
+            if (water.waterInput <= 0) {
               return toast(context, '추가할 용량을 입력해 주세요');
             }
-            s.addWater();
-            toast(context, '물 ${s.waterInput}ml를 기록했어요');
+            final ml = water.waterInput;
+            water.addWater();
+            s.onWaterAdded(ml);
+            toast(context, '물 ${ml}ml를 기록했어요');
           },
           child: Container(
             height: 58,
@@ -667,19 +673,19 @@ class _WaterEntryList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final water = context.watch<WaterViewModel>();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
             Text(
-              '오늘 기록 ${s.waterEntries.length}건',
+              '오늘 기록 ${water.waterEntries.length}건',
               style: t(13, w: FontWeight.w700),
             ),
             const Spacer(),
             GestureDetector(
-              onTap: s.undoWater,
+              onTap: water.undoWater,
               child: Text('마지막 기록 취소', style: t(11, c: AppColor.textFaint)),
             ),
           ],
@@ -691,9 +697,9 @@ class _WaterEntryList extends StatelessWidget {
           constraints: const BoxConstraints(maxHeight: 260),
           child: ListView.separated(
             shrinkWrap: true,
-            itemCount: s.waterEntries.length,
+            itemCount: water.waterEntries.length,
             separatorBuilder: (_, _) => const SizedBox(height: 10),
-            itemBuilder: (_, i) => _WaterEntryRow(index: i, s: s),
+            itemBuilder: (_, i) => _WaterEntryRow(index: i, water: water),
           ),
         ),
       ],
@@ -702,14 +708,14 @@ class _WaterEntryList extends StatelessWidget {
 }
 
 class _WaterEntryRow extends StatelessWidget {
-  const _WaterEntryRow({required this.index, required this.s});
+  const _WaterEntryRow({required this.index, required this.water});
 
   final int index;
-  final AppState s;
+  final WaterViewModel water;
 
   @override
   Widget build(BuildContext context) {
-    final e = s.waterEntries[index];
+    final e = water.waterEntries[index];
     return SunkenBox(
       padding: 10,
       radius: 14,
@@ -727,12 +733,12 @@ class _WaterEntryRow extends StatelessWidget {
               fontSize: 18,
               color: const Color(0xFF3C63C0),
               max: 3000,
-              onChanged: (v) => s.editWater(index, v.toInt()),
+              onChanged: (v) => water.editWater(index, v.toInt()),
             ),
           ),
           const SizedBox(width: 8),
           GestureDetector(
-            onTap: () => s.removeWater(index),
+            onTap: () => water.removeWater(index),
             child: Container(
               width: 24,
               height: 24,

@@ -3,12 +3,17 @@ import 'package:diet_project/app_state.dart';
 import 'package:diet_project/data/auth/auth_service.dart';
 import 'package:diet_project/data/repositories/profile_repository.dart';
 import 'package:diet_project/data/repositories/water_repository.dart';
+import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-const _account = AuthAccount(uid: 'uid_1', provider: LoginProvider.google, displayName: '지민');
+const _account = AuthAccount(
+  uid: 'uid_1',
+  provider: LoginProvider.google,
+  displayName: '지민',
+);
 
 class _FakeAuth implements AuthService {
   @override
@@ -31,30 +36,50 @@ class _FakeAuth implements AuthService {
 
 class _LoadFailsRepo extends MemoryWaterRepository {
   @override
-  Future<List<WaterEntry>> loadDay(String uid, String dateKey) async => throw Exception('network down');
+  Future<List<WaterEntry>> loadDay(String uid, String dateKey) async =>
+      throw Exception('network down');
 }
 
 class _SaveFailsRepo extends MemoryWaterRepository {
   @override
-  Future<void> save(String uid, WaterEntry entry) async => throw Exception('network down');
+  Future<void> save(String uid, WaterEntry entry) async =>
+      throw Exception('network down');
 }
 
 WaterEntry _entry(String id, int ml, String dateKey, {String time = '10:00'}) =>
     WaterEntry(id: id, userId: 'uid_1', ml: ml, dateKey: dateKey, time: time);
 
+/// 로그인한 실제 계정('uid_1')으로 [now] 시각에 시작한 물 ViewModel.
+Future<WaterViewModel> _startWater(
+  WaterRepository water, {
+  DateTime Function()? now,
+}) async {
+  final w = WaterViewModel(
+    waterRepo: water,
+    now: now ?? () => DateTime(2026, 9, 21, 14, 5),
+  );
+  await w.loadForUid('uid_1');
+  return w;
+}
+
 /// 로그인한 실제 계정으로 [now] 시각에 시작한 앱 상태
-Future<AppState> _start(WaterRepository water, {DateTime Function()? now}) async {
+Future<AppState> _start(
+  WaterRepository water, {
+  DateTime Function()? now,
+}) async {
+  final clock = now ?? () => DateTime(2026, 9, 21, 14, 5);
   final s = AppState(
     auth: _FakeAuth(),
     profiles: MemoryProfileRepository(),
-    waterRepo: water,
-    now: now ?? () => DateTime(2026, 9, 21, 14, 5),
+    waterViewModel: WaterViewModel(waterRepo: water, now: clock),
+    now: clock,
   );
   await s.restoreSession();
   return s;
 }
 
-Future<void> _settleEdits() => Future<void>.delayed(const Duration(milliseconds: 700));
+Future<void> _settleEdits() =>
+    Future<void>.delayed(const Duration(milliseconds: 700));
 
 void main() {
   group('MemoryWaterRepository', () {
@@ -95,33 +120,44 @@ void main() {
       final back = waterFromMap('water_1', waterToMap(entry), userId: 'uid_1');
       expect([back.ml, back.dateKey, back.time], [350, '2026-09-21', '14:05']);
 
-      final odd = waterFromMap('x', {'ml': '많이', 'dateKey': 7, 'time': null}, userId: 'uid_1');
+      final odd = waterFromMap('x', {
+        'ml': '많이',
+        'dateKey': 7,
+        'time': null,
+      }, userId: 'uid_1');
       expect([odd.ml, odd.dateKey, odd.time], [0, '', '']);
     });
   });
 
-  group('물 기록하기', () {
+  group('WaterViewModel: 물 기록하기', () {
     test('기록하면 화면에 바로 반영되고, 계정 · 오늘 날짜 · 실제 시각으로 저장된다', () async {
       final repo = MemoryWaterRepository();
-      final s = await _start(repo);
+      final w = await _startWater(repo);
 
-      s.waterInput = 300;
-      s.addWater();
+      w.setWaterInput(300);
+      w.addWater();
 
-      expect(s.waterTotal, 300);
+      expect(w.waterTotal, 300);
       final saved = await repo.loadDay('uid_1', '2026-09-21');
       expect(saved, hasLength(1));
-      expect([saved.single.ml, saved.single.dateKey, saved.single.time, saved.single.userId],
-          [300, '2026-09-21', '14:05', 'uid_1']);
+      expect(
+        [
+          saved.single.ml,
+          saved.single.dateKey,
+          saved.single.time,
+          saved.single.userId,
+        ],
+        [300, '2026-09-21', '14:05', 'uid_1'],
+      );
     });
 
     test('앱을 다시 켜면 오늘 마신 물이 그대로 불러와진다', () async {
       final repo = MemoryWaterRepository();
-      final first = await _start(repo);
+      final first = await _startWater(repo);
       first.addWater(250);
       first.addWater(500);
 
-      final second = await _start(repo);
+      final second = await _startWater(repo);
 
       expect(second.waterTotal, 750);
       expect(second.waterEntries.map((e) => e.ml), [250, 500]);
@@ -129,12 +165,12 @@ void main() {
 
     test('용량을 고치면 잠깐 뒤에 한 번만 저장된다', () async {
       final repo = MemoryWaterRepository();
-      final s = await _start(repo);
-      s.addWater(250);
+      final w = await _startWater(repo);
+      w.addWater(250);
 
-      s.editWater(0, 2);
-      s.editWater(0, 25);
-      s.editWater(0, 400); // 타이핑하듯 여러 번 바뀜
+      w.editWater(0, 2);
+      w.editWater(0, 25);
+      w.editWater(0, 400); // 타이핑하듯 여러 번 바뀜
       await _settleEdits();
 
       expect((await repo.loadDay('uid_1', '2026-09-21')).single.ml, 400);
@@ -142,25 +178,27 @@ void main() {
 
     test('삭제와 마지막 기록 취소가 저장소에도 반영된다', () async {
       final repo = MemoryWaterRepository();
-      final s = await _start(repo);
-      s.addWater(250);
-      s.addWater(350);
-      s.addWater(500);
+      final w = await _startWater(repo);
+      w.addWater(250);
+      w.addWater(350);
+      w.addWater(500);
 
-      s.removeWater(0);
-      s.undoWater();
+      w.removeWater(0);
+      w.undoWater();
 
-      expect(s.waterEntries.map((e) => e.ml), [350]);
-      expect((await repo.loadDay('uid_1', '2026-09-21')).map((e) => e.ml), [350]);
+      expect(w.waterEntries.map((e) => e.ml), [350]);
+      expect((await repo.loadDay('uid_1', '2026-09-21')).map((e) => e.ml), [
+        350,
+      ]);
     });
 
     test('고치는 도중에 삭제하면 지운 기록이 되살아나지 않는다', () async {
       final repo = MemoryWaterRepository();
-      final s = await _start(repo);
-      s.addWater(250);
+      final w = await _startWater(repo);
+      w.addWater(250);
 
-      s.editWater(0, 999);
-      s.removeWater(0);
+      w.editWater(0, 999);
+      w.removeWater(0);
       await _settleEdits();
 
       expect(await repo.loadDay('uid_1', '2026-09-21'), isEmpty);
@@ -169,13 +207,13 @@ void main() {
     test('자정이 지나면 어제 기록은 내려가고 새 기록은 새 날짜로 저장된다', () async {
       var now = DateTime(2026, 9, 21, 23, 59);
       final repo = MemoryWaterRepository();
-      final s = await _start(repo, now: () => now);
-      s.addWater(250);
+      final w = await _startWater(repo, now: () => now);
+      w.addWater(250);
 
       now = DateTime(2026, 9, 22, 0, 1);
-      s.addWater(400);
+      w.addWater(400);
 
-      expect(s.waterEntries.map((e) => e.ml), [400]);
+      expect(w.waterEntries.map((e) => e.ml), [400]);
       expect((await repo.loadDay('uid_1', '2026-09-21')).single.ml, 250);
       final second = (await repo.loadDay('uid_1', '2026-09-22')).single;
       expect([second.ml, second.time], [400, '00:01']);
@@ -185,43 +223,46 @@ void main() {
       final repo = MemoryWaterRepository();
       await repo.save('uid_1', _entry('water_1', 999, '2026-09-20'));
 
-      final s = await _start(repo);
+      final w = await _startWater(repo);
 
-      expect(s.waterTotal, 0);
+      expect(w.waterTotal, 0);
     });
   });
 
-  group('실패했을 때', () {
-    test('불러오기에 실패해도 로그인은 막지 않고 안내만 남긴다', () async {
-      final s = AppState(
-        auth: _FakeAuth(),
+  group('WaterViewModel: 실패했을 때', () {
+    test('불러오기에 실패해도 빈 채로 시작한다', () async {
+      final w = WaterViewModel(
         waterRepo: _LoadFailsRepo(),
         now: () => DateTime(2026, 9, 21),
       );
+      await w.loadForUid('uid_1');
 
-      expect(await s.restoreSession(), isTrue);
-
-      expect(s.account, isNotNull);
-      expect(s.waterEntries, isEmpty);
-      expect(s.takeNotice(), contains('물'));
+      expect(w.waterEntries, isEmpty);
     });
 
-    test('저장에 실패하면 화면 기록은 두고 안내를 남긴다', () async {
-      final s = await _start(_SaveFailsRepo());
+    test('저장에 실패하면 화면 기록은 그대로 남는다', () async {
+      final w = await _startWater(_SaveFailsRepo());
 
-      s.addWater(250);
+      w.addWater(250);
       await Future<void>.delayed(Duration.zero);
 
-      expect(s.waterTotal, 250);
-      expect(s.takeNotice(), contains('저장하지 못했어요'));
+      expect(w.waterTotal, 250);
     });
   });
 
   group('계정과 예시 기록', () {
     test('계정을 삭제하면 물 기록도 함께 지워진다', () async {
       final repo = MemoryWaterRepository();
-      final s = await _start(repo);
-      s.addWater(250);
+      DateTime now() => DateTime(2026, 9, 21, 14, 5);
+      final water = WaterViewModel(waterRepo: repo, now: now);
+      final s = AppState(
+        auth: _FakeAuth(),
+        profiles: MemoryProfileRepository(),
+        waterViewModel: water,
+        now: now,
+      );
+      await s.restoreSession();
+      water.addWater(250);
 
       expect(await s.deleteAccount(), isTrue);
 
@@ -232,7 +273,16 @@ void main() {
       final s = AppState(now: () => DateTime(2026, 9, 21));
 
       expect(s.waterTotal, 1450);
-      expect(s.waterEntries.every((e) => e.dateKey == '2026-09-21'), isTrue);
+    });
+
+    test('WaterViewModel의 예시 기록은 오늘 날짜로 채워진다', () {
+      final w = WaterViewModel(
+        waterRepo: MemoryWaterRepository(),
+        now: () => DateTime(2026, 9, 21),
+      );
+
+      expect(w.waterTotal, 1450);
+      expect(w.waterEntries.every((e) => e.dateKey == '2026-09-21'), isTrue);
     });
   });
 
@@ -245,10 +295,18 @@ void main() {
     final repo = MemoryWaterRepository();
     final state = await _start(repo);
     state.waterSheet = true;
+    final water = WaterViewModel(
+      waterRepo: repo,
+      now: () => DateTime(2026, 9, 21, 14, 5),
+    );
+    await water.loadForUid('uid_1');
 
     await tester.pumpWidget(
-      ChangeNotifierProvider<AppState>.value(
-        value: state,
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<AppState>.value(value: state),
+          ChangeNotifierProvider<WaterViewModel>.value(value: water),
+        ],
         child: const MaterialApp(home: AppShell()),
       ),
     );
@@ -257,7 +315,7 @@ void main() {
     await tester.tap(find.text('추가'));
     await tester.pump();
 
-    expect(state.waterTotal, 250); // 기본 입력값
+    expect(water.waterTotal, 250); // 기본 입력값
     expect(await repo.loadDay('uid_1', '2026-09-21'), hasLength(1));
   });
 }
