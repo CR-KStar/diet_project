@@ -164,7 +164,16 @@ class AppState extends ChangeNotifier {
     'privacy': {'screen': 'settings', 'setTab': '데이터 · 개인정보'},
   };
 
+  /// 화면 이동 기록 — 안드로이드 시스템 뒤로가기 버튼으로 이전 화면에
+  /// 돌아가는 데 쓴다. (handleSystemBack 참고)
+  final List<String> _history = [];
+
   void go(String id) {
+    final resolvedScreen = (_alias[id]?['screen'] as String?) ?? id;
+    if (showShell && screen != resolvedScreen) {
+      _history.add(screen);
+    }
+
     // 서브 모드 초기화
     missionOpen = false;
     extraOpen = false;
@@ -201,6 +210,57 @@ class AppState extends ChangeNotifier {
   void setSub(void Function() mutate) {
     mutate();
     notifyListeners();
+  }
+
+  /// 더 뒤로 갈 곳이 없을 때, 뒤로가기를 한 번 더 눌러야 진짜 종료되게
+  /// 하는 유예 시각. 이 안에 다시 누르면 종료, 아니면 다시 "한 번 더"
+  /// 안내로 되돌아간다.
+  DateTime? _backExitArmedAt;
+
+  /// 안드로이드 시스템 뒤로가기(제스처/버튼)를 눌렀을 때 호출한다.
+  /// 열려 있는 시트 → 서브 화면(부가 정보 입력 등) → 이전 화면 순서로 하나씩
+  /// 닫고, true를 반환한다. 더 닫을 게 없으면(최상위 화면) 안내를 한 번
+  /// 보여주고 true를 반환하며, 2초 안에 한 번 더 누르면 그때 false를
+  /// 반환해서 시스템이 앱을 종료하게 둔다.
+  ///
+  /// false를 절대 안 주는 버전이 없으면 앱 안 어디서 뒤로가기를 눌러도
+  /// 화면 이동 없이 앱이 통째로 꺼져버린다 — Flutter가 자체 화면 전환
+  /// 기록(Navigator)을 안 쓰고 `screen` 문자열 하나로 화면을 바꾸는
+  /// 구조라서, 시스템 입장에선 "뒤로 갈 곳이 없는 화면 1개"로만 보인다.
+  bool handleSystemBack() {
+    if (fabOpen || waterSheet || bowlSheet) {
+      fabOpen = false;
+      waterSheet = false;
+      bowlSheet = false;
+      notifyListeners();
+      return true;
+    }
+    if (missionOpen || extraOpen || editing || profileEdit) {
+      missionOpen = false;
+      extraOpen = false;
+      editing = false;
+      profileEdit = false;
+      notifyListeners();
+      return true;
+    }
+    if (_history.isNotEmpty) {
+      screen = _history.removeLast();
+      notifyListeners();
+      return true;
+    }
+
+    final now = _now();
+    final armed =
+        _backExitArmedAt != null &&
+        now.difference(_backExitArmedAt!) < const Duration(seconds: 2);
+    if (armed) {
+      _backExitArmedAt = null;
+      return false;
+    }
+    _backExitArmedAt = now;
+    _notice = '뒤로가기를 한 번 더 누르면 앱이 종료돼요.';
+    notifyListeners();
+    return true;
   }
 
   /// 하단 탭 활성 판정용 그룹
@@ -1012,6 +1072,9 @@ class AppState extends ChangeNotifier {
 
   bool analyzingPhoto = false;
   String? photoAnalysisError;
+
+  /// 방금 찍거나 고른 사진 원본 — 화면에 실제로 보여주는 용도.
+  Uint8List? pickedPhotoBytes;
   String? aiMealName;
   int? _aiKcal;
   double? aiProteinG;
@@ -1036,6 +1099,7 @@ class AppState extends ChangeNotifier {
 
     try {
       final bytes = await photo.readAsBytes();
+      pickedPhotoBytes = bytes;
       final result = await _mealAnalysisService.analyze(
         imageBase64: base64Encode(bytes),
         mediaType: photo.mimeType ?? 'image/jpeg',
@@ -1315,6 +1379,7 @@ class AppState extends ChangeNotifier {
     _mealLogs.add(log);
     // 이번 분석 결과는 이 기록에 다 썼다 — 다음 끼니를 새 사진 없이 저장하면
     // 방금 분석값을 재사용하지 않고 0(분석 안 함)으로 시작하게 비워준다.
+    pickedPhotoBytes = null;
     aiMealName = null;
     _aiKcal = null;
     aiProteinG = null;

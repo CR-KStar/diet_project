@@ -160,7 +160,6 @@ class AppShell extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColor.bg,
       body: SafeArea(
-        bottom: false,
         child: Stack(
           children: [
             // 화면 본문
@@ -191,17 +190,76 @@ class AppShell extends StatelessWidget {
   }
 }
 
-/// 바텀 시트 배경(딤) + 하단 고정 + 슬라이드 인 애니메이션
-class _SheetOverlay extends StatelessWidget {
+/// 바텀 시트 배경(딤) + 하단 고정 + 슬라이드 인 애니메이션.
+/// 배경을 탭하거나, 시트 자체를 아래로 끌어내려도(스와이프 다운) 닫힌다.
+class _SheetOverlay extends StatefulWidget {
   const _SheetOverlay({required this.onClose, required this.child});
   final VoidCallback onClose;
   final Widget child;
+
+  @override
+  State<_SheetOverlay> createState() => _SheetOverlayState();
+}
+
+class _SheetOverlayState extends State<_SheetOverlay>
+    with SingleTickerProviderStateMixin {
+  // 아래로 끌어내린 만큼(px). 0이면 원래 자리 — 드래그 중엔 손가락을 그대로
+  // 따라가야 해서(애니메이션 없이) Transform으로 즉시 반영한다.
+  double _dragDy = 0;
+
+  // 손을 놓았는데 닫을 만큼 안 끌었을 때, 원래 자리로 부드럽게 돌아가는 용도.
+  // initState에서 바로 만들어야 한다 — late final의 지연 생성 방식으로 두면,
+  // 한 번도 안 쓰고 바로 dispose될 때 dispose()가 그제서야 생성을 트리거해서
+  // 이미 비활성화된 위젯의 조상을 찾으려다 죽는다.
+  late final AnimationController _snapBackCtrl;
+
+  static const _dismissDragPx = 120.0;
+  static const _dismissFlingVelocity = 700.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _snapBackCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+  }
+
+  @override
+  void dispose() {
+    _snapBackCtrl.dispose();
+    super.dispose();
+  }
+
+  void _onDragUpdate(DragUpdateDetails details) {
+    if (details.delta.dy == 0) return;
+    setState(() => _dragDy = (_dragDy + details.delta.dy).clamp(0.0, 800.0));
+  }
+
+  void _onDragEnd(DragEndDetails details) {
+    final farEnough = _dragDy > _dismissDragPx;
+    final flungDown = (details.primaryVelocity ?? 0) > _dismissFlingVelocity;
+    if (farEnough || flungDown) {
+      widget.onClose();
+      return;
+    }
+    final anim = Tween<double>(
+      begin: _dragDy,
+      end: 0,
+    ).animate(CurvedAnimation(parent: _snapBackCtrl, curve: Curves.easeOut));
+    void listener() => setState(() => _dragDy = anim.value);
+    anim.addListener(listener);
+    _snapBackCtrl
+        .forward(from: 0)
+        .whenComplete(() => anim.removeListener(listener));
+  }
+
   @override
   Widget build(BuildContext context) => Stack(
     children: [
       Positioned.fill(
         child: GestureDetector(
-          onTap: onClose,
+          onTap: widget.onClose,
           child: Container(color: const Color(0x59141916)),
         ),
       ),
@@ -215,7 +273,15 @@ class _SheetOverlay extends StatelessWidget {
           curve: Curves.easeOut,
           builder: (context, offset, c) =>
               FractionalTranslation(translation: offset, child: c),
-          child: child,
+          child: Transform.translate(
+            offset: Offset(0, _dragDy),
+            child: GestureDetector(
+              onVerticalDragUpdate: _onDragUpdate,
+              onVerticalDragEnd: _onDragEnd,
+              behavior: HitTestBehavior.deferToChild,
+              child: widget.child,
+            ),
+          ),
         ),
       ),
     ],

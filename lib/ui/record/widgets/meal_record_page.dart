@@ -71,27 +71,136 @@ class _PhotoCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
-    onTap: () => _pickPhoto(context),
-    child: PhotoPlaceholder(
-      height: 212,
+  Widget build(BuildContext context) {
+    final photo = s.pickedPhotoBytes;
+
+    return GestureDetector(
+      onTap: s.analyzingPhoto ? null : () => _pickPhoto(context),
+      child: Container(
+        height: 260,
+        width: double.infinity,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          borderRadius: AppRadius.cardR,
+          boxShadow: AppShadow.card,
+        ),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (photo != null)
+              Image.memory(photo, fit: BoxFit.cover)
+            else
+              const _EmptyPhotoState(),
+            if (s.analyzingPhoto) const _AnalyzingOverlay(),
+            if (photo != null && !s.analyzingPhoto)
+              Positioned(
+                right: 12,
+                bottom: 12,
+                child: _RetakeChip(onTap: () => _pickPhoto(context)),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 아직 사진을 안 골랐을 때 — 그냥 회색 칸 대신 뭘 하면 되는지 보여준다.
+class _EmptyPhotoState extends StatelessWidget {
+  const _EmptyPhotoState();
+
+  @override
+  Widget build(BuildContext context) => Container(
+    decoration: const BoxDecoration(gradient: AppColor.plantGradient),
+    child: Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('MEAL PHOTO — 도시락 사진', style: t(11, c: AppColor.textFaint)),
-          const SizedBox(height: 10),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+            width: 64,
+            height: 64,
+            alignment: Alignment.center,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: AppShadow.tile,
+            ),
+            child: const Text('📷', style: TextStyle(fontSize: 28)),
+          ),
+          const SizedBox(height: 14),
+          Text('오늘 뭐 드셨나요?', style: AppText.cardTitle),
+          const SizedBox(height: 6),
+          Text(
+            '사진 한 장이면 AI가 칼로리와 영양소를 대신 계산해요',
+            style: t(12, c: AppColor.textMuted),
+          ),
+          const SizedBox(height: 18),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFF111111),
-              borderRadius: BorderRadius.circular(20),
+              color: AppColor.primary,
+              borderRadius: AppRadius.buttonR,
+              boxShadow: AppShadow.primaryButton,
             ),
             child: Text(
-              '📷 다시 촬영',
-              style: t(12, w: FontWeight.w700, c: Colors.white),
+              '📸 사진 추가하기',
+              style: t(13, w: FontWeight.w800, c: Colors.white),
             ),
           ),
         ],
+      ),
+    ),
+  );
+}
+
+/// 분석 중일 때 사진 위에 덮는 반투명 오버레이.
+class _AnalyzingOverlay extends StatelessWidget {
+  const _AnalyzingOverlay();
+
+  @override
+  Widget build(BuildContext context) => Container(
+    color: Colors.black.withValues(alpha: 0.45),
+    child: const Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircularProgressIndicator(color: Colors.white),
+          SizedBox(height: 14),
+          Text(
+            'AI가 사진을 분석하고 있어요...',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+              fontSize: 13,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+class _RetakeChip extends StatelessWidget {
+  const _RetakeChip({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+    onTap: onTap,
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: const Text(
+        '📷 다시 촬영',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w700,
+          fontSize: 12,
+        ),
       ),
     ),
   );
@@ -104,31 +213,26 @@ class _AiAnalysisCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (s.analyzingPhoto) {
-      return const AppCard(
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 24),
-          child: Center(
-            child: Column(
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 12),
-                Text('AI가 사진을 분석하고 있어요...'),
-              ],
+    if (s.analyzingPhoto) return const SizedBox.shrink();
+
+    if (s.photoAnalysisError != null) {
+      return AppCard(
+        child: Row(
+          children: [
+            const Text('⚠️', style: TextStyle(fontSize: 18)),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                s.photoAnalysisError!,
+                style: t(12, c: AppColor.alertText),
+              ),
             ),
-          ),
+          ],
         ),
       );
     }
 
-    if (s.aiMealName == null) {
-      return AppCard(
-        child: Text(
-          '사진을 찍으면 AI가 자동으로 분석해요.',
-          style: t(12, c: AppColor.textFaint),
-        ),
-      );
-    }
+    if (s.aiMealName == null) return const SizedBox.shrink();
 
     final nutrients = [
       ('단백질', '${s.aiProteinG?.round() ?? 0} g'),
@@ -144,9 +248,14 @@ class _AiAnalysisCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Pill('AI 분석 완료', fontSize: 10),
+              const Text('✨', style: TextStyle(fontSize: 13)),
+              const SizedBox(width: 6),
+              Text(
+                'AI 분석 결과',
+                style: t(12, w: FontWeight.w700, c: AppColor.textMuted),
+              ),
               if (s.needsPhotoReview) ...[
-                const SizedBox(width: 8),
+                const Spacer(),
                 Pill(
                   '확인 필요',
                   bg: const Color(0xFFFFF3EF),
@@ -156,22 +265,27 @@ class _AiAnalysisCard extends StatelessWidget {
               ],
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
+          Text(
+            s.aiMealName!,
+            style: t(17, w: FontWeight.w800),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 8),
           Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
             children: [
-              Expanded(
-                child: Text(s.aiMealName!, style: t(19, w: FontWeight.w900)),
-              ),
               Text(
                 '${s.adjustedKcal}',
-                style: t(26, w: FontWeight.w900, c: AppColor.primary, sp: -0.6),
+                style: t(28, w: FontWeight.w900, c: AppColor.primary, sp: -0.6),
               ),
-              const SizedBox(width: 3),
-              Text('kcal', style: t(12, c: AppColor.textFaint)),
+              const SizedBox(width: 4),
+              Text('kcal', style: t(13, c: AppColor.textFaint)),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
           Row(children: [for (final n in nutrients) _NutrientTile(n: n)]),
         ],
       ),
