@@ -34,8 +34,8 @@ List<Widget> nutrientDetailCards(BuildContext context) {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('3대 영양소 비율', style: t(14, w: FontWeight.w700)),
-          const SizedBox(height: 14),
+          Text('3대 영양소 비율', style: t(AppFontSize.f14, w: FontWeight.w700)),
+          const SizedBox(height: AppSpace.s14),
           Row(
             children: [
               Ring(
@@ -47,8 +47,8 @@ List<Widget> nutrientDetailCards(BuildContext context) {
                   (value: macro.fatPct / 100, color: AppColor.warnDeep),
                 ],
                 center: Container(
-                  width: 74,
-                  height: 74,
+                  width: AppSpace.s74,
+                  height: AppSpace.s74,
                   alignment: Alignment.center,
                   decoration: const BoxDecoration(
                     color: AppColor.surface,
@@ -59,14 +59,17 @@ List<Widget> nutrientDetailCards(BuildContext context) {
                     children: [
                       Text(
                         AppState.comma(s.intakeKcal),
-                        style: t(18, w: FontWeight.w900),
+                        style: t(AppFontSize.f18, w: FontWeight.w900),
                       ),
-                      Text('kcal', style: t(9, c: AppColor.textFaint)),
+                      Text(
+                        'kcal',
+                        style: t(AppFontSize.f9, c: AppColor.textFaint),
+                      ),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(width: 18),
+              const SizedBox(width: AppSpace.s18),
               Expanded(
                 child: Column(
                   children: [
@@ -76,20 +79,25 @@ List<Widget> nutrientDetailCards(BuildContext context) {
                       ('지방', '${macro.fatPct}%', AppColor.warnDeep),
                     ])
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.only(bottom: AppSpace.s10),
                         child: Row(
                           children: [
                             Container(
-                              width: 10,
-                              height: 10,
+                              width: AppSpace.s10,
+                              height: AppSpace.s10,
                               decoration: BoxDecoration(
                                 color: r.$3,
                                 borderRadius: BorderRadius.circular(3),
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            Expanded(child: Text(r.$1, style: t(12))),
-                            Text(r.$2, style: t(12, w: FontWeight.w700)),
+                            const SizedBox(width: AppSpace.s8),
+                            Expanded(
+                              child: Text(r.$1, style: t(AppFontSize.f12)),
+                            ),
+                            Text(
+                              r.$2,
+                              style: t(AppFontSize.f12, w: FontWeight.w700),
+                            ),
                           ],
                         ),
                       ),
@@ -97,7 +105,11 @@ List<Widget> nutrientDetailCards(BuildContext context) {
                       alignment: Alignment.centerLeft,
                       child: Text(
                         '권장 비율 25 : 50 : 25 에 근접해요',
-                        style: t(10, c: AppColor.textGhost, h: 1.5),
+                        style: t(
+                          AppFontSize.f10,
+                          c: AppColor.textGhost,
+                          h: 1.5,
+                        ),
                       ),
                     ),
                   ],
@@ -121,7 +133,10 @@ List<Widget> nutrientDetailCards(BuildContext context) {
               textBaseline: TextBaseline.alphabetic,
               children: [
                 Expanded(
-                  child: Text(n.name, style: t(14, w: FontWeight.w700)),
+                  child: Text(
+                    n.name,
+                    style: t(AppFontSize.f14, w: FontWeight.w700),
+                  ),
                 ),
                 Text(
                   AppState.comma(n.value.round()),
@@ -131,26 +146,26 @@ List<Widget> nutrientDetailCards(BuildContext context) {
                     c: n.isLow ? AppColor.alertText : AppColor.text,
                   ),
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: AppSpace.s4),
                 Text(
                   '/ ${AppState.comma(n.target.round())} ${n.unit}',
-                  style: t(11, c: AppColor.textFaint),
+                  style: t(AppFontSize.f11, c: AppColor.textFaint),
                 ),
               ],
             ),
-            const SizedBox(height: 11),
+            const SizedBox(height: AppSpace.s11),
             ProgressBar(
               value: n.target > 0 ? n.value / n.target : 0,
               color: n.color,
-              height: 8,
+              height: AppSpace.s8,
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: AppSpace.s10),
             Row(
               children: [
                 Expanded(
                   child: Text(
                     _nutrientNote(n),
-                    style: t(11, c: AppColor.textMuted),
+                    style: t(AppFontSize.f11, c: AppColor.textMuted),
                   ),
                 ),
                 Pill(
@@ -160,9 +175,9 @@ List<Widget> nutrientDetailCards(BuildContext context) {
                 ),
               ],
             ),
-            const SizedBox(height: 11),
-            const Divider(height: 1),
-            const SizedBox(height: 11),
+            const SizedBox(height: AppSpace.s11),
+            const Divider(height: AppSpace.s1),
+            const SizedBox(height: AppSpace.s11),
             Row(
               children: [
                 for (final m in [
@@ -175,11 +190,14 @@ List<Widget> nutrientDetailCards(BuildContext context) {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(m.$1, style: t(9, c: AppColor.textGhost)),
-                        const SizedBox(height: 3),
+                        Text(
+                          m.$1,
+                          style: t(AppFontSize.f9, c: AppColor.textGhost),
+                        ),
+                        const SizedBox(height: AppSpace.s3),
                         Text(
                           '${AppState.comma(m.$2.round())}${n.unit}',
-                          style: t(11, w: FontWeight.w700),
+                          style: t(AppFontSize.f11, w: FontWeight.w700),
                         ),
                       ],
                     ),
@@ -193,7 +211,7 @@ List<Widget> nutrientDetailCards(BuildContext context) {
     GestureDetector(
       onTap: () => s.go('recommend'),
       child: Container(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(AppSpace.s18),
         decoration: BoxDecoration(
           color: AppColor.primary,
           borderRadius: BorderRadius.circular(AppRadius.card),
@@ -207,12 +225,19 @@ List<Widget> nutrientDetailCards(BuildContext context) {
                 children: [
                   Text(
                     '부족한 영양소로 식단 추천받기',
-                    style: t(14, w: FontWeight.w900, c: Colors.white),
+                    style: t(
+                      AppFontSize.f14,
+                      w: FontWeight.w900,
+                      c: Colors.white,
+                    ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: AppSpace.s4),
                   Text(
                     _lowNutrientSummary(s.todayNutrientStats),
-                    style: t(11, c: Colors.white.withValues(alpha: 0.85)),
+                    style: t(
+                      AppFontSize.f11,
+                      c: Colors.white.withValues(alpha: 0.85),
+                    ),
                   ),
                 ],
               ),
@@ -241,7 +266,10 @@ class NutritionScreen extends StatelessWidget {
           emoji: '🥗',
           title: '영양소 상세',
           onBack: () => s.go('home'),
-          trailing: Text(s.todayDateLabel, style: t(12, c: AppColor.textFaint)),
+          trailing: Text(
+            s.todayDateLabel,
+            style: t(AppFontSize.f12, c: AppColor.textFaint),
+          ),
         ),
         ...nutrientDetailCards(context),
       ],

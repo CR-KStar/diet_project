@@ -15,6 +15,7 @@ import 'package:diet_project/data/repositories/profile_repository.dart';
 import 'package:diet_project/firebase_options.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
+import 'package:diet_project/ui/record/viewmodel/weight_view_model.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemNavigator;
@@ -32,7 +33,7 @@ Future<void> main() async {
   AuthService auth = MockAuthService();
   ProfileRepository profiles = MemoryProfileRepository();
   WaterRepository water = MemoryWaterRepository();
-  RecordRepository<WeightEntry>? weight;
+  RecordRepository<WeightEntry> weight = MemoryRecordRepository(weightCodec);
   RecordRepository<ExerciseLog>? exercise;
   RecordRepository<MealLog>? meals;
   RecordRepository<Bowl>? bowls;
@@ -64,12 +65,13 @@ Future<void> main() async {
   );
 
   final waterViewModel = WaterViewModel(waterRepo: water);
+  final weightViewModel = WeightViewModel(weightRepo: weight);
 
   final state = AppState(
     auth: auth,
     profiles: profiles,
     waterViewModel: waterViewModel,
-    weightRepo: weight,
+    weightViewModel: weightViewModel,
     exerciseRepo: exercise,
     mealRepo: meals,
     bowlRepo: bowls,
@@ -95,6 +97,7 @@ Future<void> main() async {
       providers: [
         ChangeNotifierProvider.value(value: state),
         ChangeNotifierProvider.value(value: waterViewModel),
+        ChangeNotifierProvider.value(value: weightViewModel),
       ],
       child: const MyApp(),
     ),
@@ -114,6 +117,22 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       scaffoldMessengerKey: messengerKey,
       theme: buildAppTheme(),
+      // 기기 설정에서 글자 크기를 아주 크게(또는 작게) 키워도 화면이
+      // 깨지지 않도록, 실제 적용되는 배율을 0.9~1.3배 사이로 눌러준다 —
+      // 접근성 설정 자체를 무시하진 않되, 레이아웃이 버틸 수 있는 범위로
+      // 완충한다.
+      builder: (context, child) {
+        final mq = MediaQuery.of(context);
+        return MediaQuery(
+          data: mq.copyWith(
+            textScaler: mq.textScaler.clamp(
+              minScaleFactor: 0.9,
+              maxScaleFactor: 1.3,
+            ),
+          ),
+          child: child!,
+        );
+      },
       // 이 앱은 Navigator 라우트 대신 AppState.screen 문자열로 화면을
       // 바꾸는 구조라서, 기본 뒤로가기(Navigator pop)가 걸 게 없어 안드로이드
       // 시스템 뒤로가기를 누르면 곧장 앱이 꺼져버린다. 그래서 시스템

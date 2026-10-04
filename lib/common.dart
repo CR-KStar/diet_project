@@ -174,14 +174,23 @@ class TabHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(left: 4, right: 4, bottom: 2),
+    padding: const EdgeInsets.only(
+      left: AppSpace.s4,
+      right: AppSpace.s4,
+      bottom: AppSpace.s2,
+    ),
     child: Row(
       children: [
         IconTile(emoji, size: 30, radius: 11, fontSize: 15),
-        const SizedBox(width: 9),
+        const SizedBox(width: AppSpace.s9),
         Text(
           title,
-          style: t(20, w: FontWeight.w900, c: AppColor.textStrong, sp: -0.3),
+          style: t(
+            AppFontSize.f20,
+            w: FontWeight.w900,
+            c: AppColor.textStrong,
+            sp: -0.3,
+          ),
         ),
         const Spacer(),
         ?trailing,
@@ -207,7 +216,11 @@ class SubHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(left: 4, right: 4, bottom: 2),
+    padding: const EdgeInsets.only(
+      left: AppSpace.s4,
+      right: AppSpace.s4,
+      bottom: AppSpace.s2,
+    ),
     child: Row(
       children: [
         if (onBack != null)
@@ -215,20 +228,24 @@ class SubHeader extends StatelessWidget {
             onTap: onBack,
             behavior: HitTestBehavior.opaque,
             child: Container(
-              width: 26,
+              width: AppSpace.s26,
               height: AppSize.minTapTarget,
               alignment: Alignment.centerLeft,
-              child: Text('‹', style: t(20, c: AppColor.text)),
+              child: Text('‹', style: t(AppFontSize.f20, c: AppColor.text)),
             ),
           ),
         IconTile(emoji),
-        const SizedBox(width: 8),
+        const SizedBox(width: AppSpace.s8),
         Flexible(
           child: Text(
             title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: t(17, w: FontWeight.w900, c: AppColor.textStrong),
+            style: t(
+              AppFontSize.f17,
+              w: FontWeight.w900,
+              c: AppColor.textStrong,
+            ),
           ),
         ),
         const Spacer(),
@@ -261,20 +278,23 @@ class CardHeader extends StatelessWidget {
       Row(
         children: [
           IconTile(emoji, size: 26, fontSize: 13),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpace.s8),
           Expanded(
-            child: Text(title, style: t(15, w: FontWeight.w900)),
+            child: Text(title, style: t(AppFontSize.f15, w: FontWeight.w900)),
           ),
           if (action != null)
             GestureDetector(
               onTap: onAction,
-              child: Text(action!, style: t(12, c: AppColor.textFaint)),
+              child: Text(
+                action!,
+                style: t(AppFontSize.f12, c: AppColor.textFaint),
+              ),
             ),
         ],
       ),
       if (subtitle != null) ...[
-        const SizedBox(height: 5),
-        Text(subtitle!, style: t(11, c: AppColor.textGhost)),
+        const SizedBox(height: AppSpace.s5),
+        Text(subtitle!, style: t(AppFontSize.f11, c: AppColor.textGhost)),
       ],
     ],
   );
@@ -364,7 +384,7 @@ class SegmentedRow extends StatelessWidget {
             onTap: () => onChanged(o),
             child: Container(
               alignment: Alignment.center,
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              padding: const EdgeInsets.symmetric(vertical: AppSpace.s12),
               decoration: BoxDecoration(
                 color: on ? AppColor.primaryTint : AppColor.surfaceSunken,
                 borderRadius: BorderRadius.circular(14),
@@ -413,7 +433,10 @@ class FilterTabs extends StatelessWidget {
           GestureDetector(
             onTap: () => onChanged(o),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpace.s16,
+                vertical: AppSpace.s9,
+              ),
               decoration: BoxDecoration(
                 color: o == value ? AppColor.primary : AppColor.surface,
                 borderRadius: BorderRadius.circular(14),
@@ -429,7 +452,7 @@ class FilterTabs extends StatelessWidget {
               ),
             ),
           ),
-          if (o != options.last) const SizedBox(width: 8),
+          if (o != options.last) const SizedBox(width: AppSpace.s8),
         ],
       ],
     ),
@@ -450,7 +473,7 @@ class PillTabs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 4),
+    padding: const EdgeInsets.symmetric(horizontal: AppSpace.s4),
     child: Row(
       children: options.map((o) {
         final on = o == value;
@@ -461,7 +484,7 @@ class PillTabs extends StatelessWidget {
               onTap: () => onChanged(o),
               child: Container(
                 alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: const EdgeInsets.symmetric(vertical: AppSpace.s12),
                 decoration: BoxDecoration(
                   color: on ? AppColor.primary : AppColor.surface,
                   borderRadius: BorderRadius.circular(14),
@@ -501,11 +524,11 @@ class ScrollChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-    height: 46,
+    height: AppSpace.s46,
     child: ListView.separated(
       scrollDirection: Axis.horizontal,
       itemCount: options.length,
-      separatorBuilder: (_, _) => const SizedBox(width: 7),
+      separatorBuilder: (_, _) => const SizedBox(width: AppSpace.s7),
       itemBuilder: (_, i) {
         final o = options[i];
         final on = o == value;
@@ -513,7 +536,7 @@ class ScrollChips extends StatelessWidget {
           onTap: () => onChanged(o),
           child: Container(
             alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(horizontal: 14),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpace.s14),
             decoration: BoxDecoration(
               color: on ? AppColor.primary : AppColor.surfaceSunken,
               borderRadius: BorderRadius.circular(14),
@@ -558,7 +581,7 @@ class AppToggle extends StatelessWidget {
           child: Container(
             width: width,
             height: h,
-            padding: const EdgeInsets.all(3),
+            padding: const EdgeInsets.all(AppSpace.s3),
             alignment: value ? Alignment.centerRight : Alignment.centerLeft,
             decoration: BoxDecoration(
               color: value ? AppColor.primary : AppColor.toggleOff,
@@ -666,7 +689,7 @@ class TextLink extends StatelessWidget {
     child: SizedBox(
       height: AppSize.textLinkHeight,
       child: Center(
-        child: Text(label, style: t(12, c: color)),
+        child: Text(label, style: t(AppFontSize.f12, c: color)),
       ),
     ),
   );
@@ -684,12 +707,15 @@ Future<bool> confirmDialog(
   final result = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
-      title: Text(title, style: t(16, w: FontWeight.w800)),
-      content: Text(message, style: t(13, c: AppColor.textMuted, h: 1.6)),
+      title: Text(title, style: t(AppFontSize.f16, w: FontWeight.w800)),
+      content: Text(
+        message,
+        style: t(AppFontSize.f13, c: AppColor.textMuted, h: 1.6),
+      ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx, false),
-          child: Text('취소', style: t(14, c: AppColor.textFaint)),
+          child: Text('취소', style: t(AppFontSize.f14, c: AppColor.textFaint)),
         ),
         TextButton(
           onPressed: () => Navigator.pop(ctx, true),
@@ -726,7 +752,10 @@ class SmallButton extends StatelessWidget {
   Widget build(BuildContext context) => GestureDetector(
     onTap: onTap,
     child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpace.s13,
+        vertical: AppSpace.s9,
+      ),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(12),
@@ -734,7 +763,7 @@ class SmallButton extends StatelessWidget {
       child: Text(
         label,
         maxLines: 1,
-        style: t(11, w: FontWeight.w700, c: fg),
+        style: t(AppFontSize.f11, w: FontWeight.w700, c: fg),
       ),
     ),
   );
@@ -756,7 +785,10 @@ class Pill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+    padding: const EdgeInsets.symmetric(
+      horizontal: AppSpace.s9,
+      vertical: AppSpace.s4,
+    ),
     decoration: BoxDecoration(
       color: bg,
       borderRadius: BorderRadius.circular(10),
@@ -811,9 +843,9 @@ class SheetScaffold extends StatelessWidget {
       children: [
         Center(
           child: Container(
-            width: 38,
-            height: 4,
-            margin: const EdgeInsets.only(bottom: 16),
+            width: AppSpace.s38,
+            height: AppSpace.s4,
+            margin: const EdgeInsets.only(bottom: AppSpace.s16),
             decoration: BoxDecoration(
               color: AppColor.disabled,
               borderRadius: BorderRadius.circular(2),
@@ -823,15 +855,21 @@ class SheetScaffold extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            if (leading != null) ...[leading!, const SizedBox(width: 12)],
+            if (leading != null) ...[
+              leading!,
+              const SizedBox(width: AppSpace.s12),
+            ],
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: t(18, w: FontWeight.w900)),
+                  Text(title, style: t(AppFontSize.f18, w: FontWeight.w900)),
                   if (subtitle != null) ...[
-                    const SizedBox(height: 4),
-                    Text(subtitle!, style: t(12, c: AppColor.textFaint)),
+                    const SizedBox(height: AppSpace.s4),
+                    Text(
+                      subtitle!,
+                      style: t(AppFontSize.f12, c: AppColor.textFaint),
+                    ),
                   ],
                 ],
               ),
@@ -842,8 +880,8 @@ class SheetScaffold extends StatelessWidget {
               GestureDetector(
                 onTap: onClose,
                 child: Container(
-                  width: 32,
-                  height: 32,
+                  width: AppSpace.s32,
+                  height: AppSpace.s32,
                   alignment: Alignment.center,
                   decoration: const BoxDecoration(
                     color: AppColor.surfaceSunken,
@@ -857,7 +895,7 @@ class SheetScaffold extends StatelessWidget {
               ),
           ],
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: AppSpace.s24),
         child,
       ],
     ),
@@ -1006,16 +1044,16 @@ class BarChart extends StatelessWidget {
       children: bars.map((b) {
         return Expanded(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpace.s4),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 if (showValue)
                   Text(
                     AppStateFormat.comma(b.value),
-                    style: t(9, c: AppColor.textGhost),
+                    style: t(AppFontSize.f9, c: AppColor.textGhost),
                   ),
-                const SizedBox(height: 6),
+                const SizedBox(height: AppSpace.s6),
                 Expanded(
                   child: FractionallySizedBox(
                     alignment: Alignment.bottomCenter,
@@ -1031,8 +1069,8 @@ class BarChart extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 7),
-                Text(b.label, style: t(10, c: AppColor.textFaint)),
+                const SizedBox(height: AppSpace.s7),
+                Text(b.label, style: t(AppFontSize.f10, c: AppColor.textFaint)),
               ],
             ),
           ),
@@ -1065,11 +1103,16 @@ class WeightLineChart extends StatelessWidget {
           painter: _LinePainter(series: series, goal: goal),
         ),
       ),
-      const SizedBox(height: 10),
+      const SizedBox(height: AppSpace.s10),
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: series
-            .map((s) => Text(s.label, style: t(10, c: AppColor.textGhost)))
+            .map(
+              (s) => Text(
+                s.label,
+                style: t(AppFontSize.f10, c: AppColor.textGhost),
+              ),
+            )
             .toList(),
       ),
     ],
@@ -1195,7 +1238,13 @@ class _NumberFieldState extends State<NumberField> {
       }
     });
 
-  String _fmt(num v) => widget.decimal ? v.toStringAsFixed(1) : v.toString();
+  /// 사용자가 소수점을 직접 입력했을 때만 보여준다 — 정수면 "52.0"이 아니라
+  /// "52"로, 소수면("52.5") 그 소수를 그대로 보여준다.
+  String _fmt(num v) {
+    if (!widget.decimal) return v.toString();
+    final d = v.toDouble();
+    return d == d.roundToDouble() ? d.toInt().toString() : d.toStringAsFixed(1);
+  }
 
   @override
   void didUpdateWidget(NumberField old) {
@@ -1231,7 +1280,7 @@ class _NumberFieldState extends State<NumberField> {
       decoration: const InputDecoration(
         filled: false,
         border: InputBorder.none,
-        contentPadding: EdgeInsets.symmetric(vertical: 14),
+        contentPadding: EdgeInsets.symmetric(vertical: AppSpace.s14),
         isDense: true,
       ),
       style: t(widget.fontSize, w: FontWeight.w900, c: widget.color, sp: -0.5),
@@ -1246,14 +1295,18 @@ class _NumberFieldState extends State<NumberField> {
         ? null
         : Text(
             widget.unit!,
-            style: t(13, w: FontWeight.w500, c: AppColor.textFaint),
+            style: t(
+              AppFontSize.f13,
+              w: FontWeight.w500,
+              c: AppColor.textFaint,
+            ),
           );
 
     return SunkenBox(
       padding: 0,
       radius: 16,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpace.s16),
         // center: true — 숫자 + 단위를 한 덩어리로 박스 정중앙에 배치
         // center: false — 숫자 입력창이 남는 폭을 다 차지하고 단위는 오른쪽에 붙음
         child: widget.center
@@ -1264,14 +1317,20 @@ class _NumberFieldState extends State<NumberField> {
                   textBaseline: TextBaseline.alphabetic,
                   children: [
                     IntrinsicWidth(child: field),
-                    if (unit != null) ...[const SizedBox(width: 6), unit],
+                    if (unit != null) ...[
+                      const SizedBox(width: AppSpace.s6),
+                      unit,
+                    ],
                   ],
                 ),
               )
             : Row(
                 children: [
                   Expanded(child: field),
-                  if (unit != null) ...[const SizedBox(width: 6), unit],
+                  if (unit != null) ...[
+                    const SizedBox(width: AppSpace.s6),
+                    unit,
+                  ],
                 ],
               ),
       ),
@@ -1381,13 +1440,13 @@ class DragSlider extends StatelessWidget {
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  ProgressBar(value: ratio, height: 6),
+                  ProgressBar(value: ratio, height: AppSpace.s6),
                   Positioned(
                     left: ratio * box.maxWidth - 10,
                     top: -7,
                     child: Container(
-                      width: 20,
-                      height: 20,
+                      width: AppSpace.s20,
+                      height: AppSpace.s20,
                       decoration: BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
@@ -1496,14 +1555,14 @@ class RowBetween extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 5),
+    padding: const EdgeInsets.symmetric(vertical: AppSpace.s5),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: t(12, c: AppColor.textFaint)),
+        Text(label, style: t(AppFontSize.f12, c: AppColor.textFaint)),
         Text(
           value,
-          style: t(12, w: FontWeight.w700, c: valueColor),
+          style: t(AppFontSize.f12, w: FontWeight.w700, c: valueColor),
         ),
       ],
     ),

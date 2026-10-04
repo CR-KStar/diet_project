@@ -21,10 +21,10 @@ class HomeScreen extends StatelessWidget {
       children: [
         // 상단 그라데이션 오버레이
         Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 290,
+          top: AppSpace.s0,
+          left: AppSpace.s0,
+          right: AppSpace.s0,
+          height: AppSpace.s290,
           child: Container(
             decoration: const BoxDecoration(
               gradient: AppColor.heroGradient,
@@ -46,11 +46,15 @@ class HomeScreen extends StatelessWidget {
               child: Row(
                 children: [
                   const Text('🌤️', style: TextStyle(fontSize: 22)),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppSpace.s12),
                   Expanded(
                     child: Text(
                       '저녁까지 350kcal 남았어요. 가볍게 마무리해요!',
-                      style: t(12, c: const Color(0xFF8A6B12), h: 1.5),
+                      style: t(
+                        AppFontSize.f12,
+                        c: const Color(0xFF8A6B12),
+                        h: 1.5,
+                      ),
                     ),
                   ),
                 ],
@@ -71,7 +75,11 @@ class _Greeting extends StatelessWidget {
     final s = context.watch<AppState>();
 
     return Padding(
-      padding: const EdgeInsets.only(left: 4, right: 4, top: 2),
+      padding: const EdgeInsets.only(
+        left: AppSpace.s4,
+        right: AppSpace.s4,
+        top: AppSpace.s2,
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -83,7 +91,7 @@ class _Greeting extends StatelessWidget {
             fontSize: 20,
             shadow: true,
           ),
-          const SizedBox(width: 11),
+          const SizedBox(width: AppSpace.s11),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,12 +105,12 @@ class _Greeting extends StatelessWidget {
                     sp: -0.4,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: AppSpace.s4),
                 Text(
                   s.streakDays > 0
                       ? '${s.todayLabel} · ${s.streakDays}일 연속 기록 🔥'
                       : s.todayLabel,
-                  style: t(12, c: const Color(0xFF7E9080)),
+                  style: t(AppFontSize.f12, c: const Color(0xFF7E9080)),
                 ),
               ],
             ),
@@ -112,7 +120,7 @@ class _Greeting extends StatelessWidget {
             onTap: () => s.go('notif'),
             badge: s.unread,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpace.s8),
           _GreetingIconButton(emoji: '🗓️', onTap: () => s.go('records')),
         ],
       ),
@@ -138,8 +146,8 @@ class _GreetingIconButton extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         Container(
-          width: 34,
-          height: 34,
+          width: AppSpace.s34,
+          height: AppSpace.s34,
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: AppColor.surface,
@@ -153,7 +161,10 @@ class _GreetingIconButton extends StatelessWidget {
             right: -4,
             top: -3,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpace.s4,
+                vertical: AppSpace.s1,
+              ),
               constraints: const BoxConstraints(minWidth: 15),
               alignment: Alignment.center,
               decoration: BoxDecoration(
@@ -162,7 +173,7 @@ class _GreetingIconButton extends StatelessWidget {
               ),
               child: Text(
                 '$badge',
-                style: t(9, w: FontWeight.w700, c: Colors.white),
+                style: t(AppFontSize.f9, w: FontWeight.w700, c: Colors.white),
               ),
             ),
           ),
@@ -190,8 +201,8 @@ class _CalorieRing extends StatelessWidget {
                 thickness: 11,
                 segments: [(value: s.intakeRatio, color: AppColor.primary)],
                 center: Container(
-                  width: 112,
-                  height: 112,
+                  width: AppSpace.s112,
+                  height: AppSpace.s112,
                   alignment: Alignment.center,
                   decoration: const BoxDecoration(
                     color: AppColor.surface,
@@ -201,7 +212,7 @@ class _CalorieRing extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text('🍽️', style: TextStyle(fontSize: 15)),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: AppSpace.s2),
                       Text(
                         AppState.comma(s.intakeKcal),
                         style: t(
@@ -213,19 +224,19 @@ class _CalorieRing extends StatelessWidget {
                       ),
                       Text(
                         '/ ${AppState.comma(s.dailyTarget)} kcal',
-                        style: t(10, c: AppColor.textFaint),
+                        style: t(AppFontSize.f10, c: AppColor.textFaint),
                       ),
                     ],
                   ),
                 ),
               ),
               Positioned(
-                right: 2,
+                right: AppSpace.s2,
                 bottom: -4,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 9,
-                    vertical: 4,
+                    horizontal: AppSpace.s9,
+                    vertical: AppSpace.s4,
                   ),
                   decoration: BoxDecoration(
                     color: AppColor.primary,
@@ -234,19 +245,23 @@ class _CalorieRing extends StatelessWidget {
                   ),
                   child: Text(
                     '${(s.intakeRatio * 100).round()}%',
-                    style: t(11, w: FontWeight.w900, c: Colors.white),
+                    style: t(
+                      AppFontSize.f11,
+                      w: FontWeight.w900,
+                      c: Colors.white,
+                    ),
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: AppSpace.s16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Pill('남은 칼로리', fontSize: 11),
-                const SizedBox(height: 8),
+                const SizedBox(height: AppSpace.s8),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.baseline,
                   textBaseline: TextBaseline.alphabetic,
@@ -260,16 +275,23 @@ class _CalorieRing extends StatelessWidget {
                         sp: -0.6,
                       ),
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: AppSpace.s4),
                     Text(
                       'kcal',
-                      style: t(13, w: FontWeight.w500, c: AppColor.primary),
+                      style: t(
+                        AppFontSize.f13,
+                        w: FontWeight.w500,
+                        c: AppColor.primary,
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 6),
-                Text('사과 두 개 정도 남았어요 🍎', style: t(11, c: AppColor.textFaint)),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpace.s6),
+                Text(
+                  '사과 두 개 정도 남았어요 🍎',
+                  style: t(AppFontSize.f11, c: AppColor.textFaint),
+                ),
+                const SizedBox(height: AppSpace.s12),
                 SunkenBox(
                   padding: 11,
                   radius: 14,
@@ -322,7 +344,7 @@ class _NutritionCard extends StatelessWidget {
             action: '자세히 ›',
             onAction: () => s.go('nutrition'),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: AppSpace.s14),
           for (final r in rows) _NutritionRow(stat: r, emoji: _emoji[r.name]!),
         ],
       ),
@@ -338,16 +360,21 @@ class _NutritionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: 12),
+    padding: const EdgeInsets.only(bottom: AppSpace.s12),
     child: Row(
       children: [
         SizedBox(
-          width: 19,
+          width: AppSpace.s19,
           child: Text(emoji, style: const TextStyle(fontSize: 13)),
         ),
         SizedBox(
-          width: 52,
-          child: Text(stat.name, style: t(12, w: FontWeight.w500)),
+          width: AppSpace.s52,
+          child: Text(
+            stat.name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: t(AppFontSize.f12, w: FontWeight.w500),
+          ),
         ),
         Expanded(
           child: ProgressBar(
@@ -356,22 +383,22 @@ class _NutritionRow extends StatelessWidget {
             height: AppSize.barThick,
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: AppSpace.s8),
         SizedBox(
-          width: 76,
+          width: AppSpace.s76,
           child: Text(
             '${AppState.comma(stat.value.round())} / '
             '${AppState.comma(stat.target.round())}${stat.unit}',
             textAlign: TextAlign.right,
-            style: t(11, c: AppColor.textMuted),
+            style: t(AppFontSize.f11, c: AppColor.textMuted),
           ),
         ),
         SizedBox(
-          width: 34,
+          width: AppSpace.s34,
           child: Text(
             '${stat.pct}%',
             textAlign: TextAlign.right,
-            style: t(11, w: FontWeight.w700, c: stat.color),
+            style: t(AppFontSize.f11, w: FontWeight.w700, c: stat.color),
           ),
         ),
       ],
@@ -417,11 +444,11 @@ class _TodayCards extends StatelessWidget {
       (
         icon: '🏃',
         label: '운동 시간',
-        value: '30',
+        value: '${s.todayExerciseMinutes}',
         unit: '분',
         sub: '/ 60 분',
         subColor: AppColor.textGhost,
-        pct: 0.5,
+        pct: (s.todayExerciseMinutes / 60).clamp(0.0, 1.0),
         tint: AppColor.tintExercise,
         color: AppColor.primary,
         sheet: false,
@@ -430,11 +457,13 @@ class _TodayCards extends StatelessWidget {
       (
         icon: '⚖️',
         label: '체중',
-        value: '56.7',
+        value: s.latestWeightKg.toStringAsFixed(1),
         unit: 'kg',
-        sub: '어제보다 0.2kg ↓',
+        sub: s.profile.goalDelta,
         subColor: AppColor.primary,
-        pct: 0.62,
+        pct: s.profile.goalWeight <= 0
+            ? 0.0
+            : (s.profile.goalWeight / s.latestWeightKg).clamp(0.0, 1.0),
         tint: AppColor.tintWeight,
         color: AppColor.teal,
         sheet: false,
@@ -443,11 +472,11 @@ class _TodayCards extends StatelessWidget {
       (
         icon: '🍽️',
         label: '식단',
-        value: '3',
+        value: '${s.todayMeals.length}',
         unit: '끼',
-        sub: '1,450 kcal 기록',
+        sub: '${AppState.comma(s.intakeKcal)} kcal 기록',
         subColor: AppColor.textGhost,
-        pct: 0.75,
+        pct: s.intakeRatio,
         tint: AppColor.tintMeal,
         color: AppColor.warnDeep,
         sheet: false,
@@ -459,14 +488,21 @@ class _TodayCards extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 6, bottom: 11),
+          padding: const EdgeInsets.only(
+            left: AppSpace.s6,
+            bottom: AppSpace.s11,
+          ),
           child: Row(
             children: [
               Text(
                 '오늘의 기록',
-                style: t(15, w: FontWeight.w900, c: AppColor.textStrong),
+                style: t(
+                  AppFontSize.f15,
+                  w: FontWeight.w900,
+                  c: AppColor.textStrong,
+                ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: AppSpace.s8),
               Pill(
                 '눌러서 기록',
                 bg: AppColor.surface,
@@ -476,7 +512,10 @@ class _TodayCards extends StatelessWidget {
               const Spacer(),
               GestureDetector(
                 onTap: () => s.go('records'),
-                child: Text('전체 ›', style: t(12, c: AppColor.textFaint)),
+                child: Text(
+                  '전체 ›',
+                  style: t(AppFontSize.f12, c: AppColor.textFaint),
+                ),
               ),
             ],
           ),
@@ -487,7 +526,7 @@ class _TodayCards extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
-          childAspectRatio: 1.24,
+          childAspectRatio: 1.08,
           children: cards.map((c) => _TodayCardTile(s: s, c: c)).toList(),
         ),
       ],
@@ -505,7 +544,7 @@ class _TodayCardTile extends StatelessWidget {
   Widget build(BuildContext context) => GestureDetector(
     onTap: () => c.sheet ? s.setSub(() => s.waterSheet = true) : s.go(c.route),
     child: Container(
-      padding: const EdgeInsets.all(15),
+      padding: const EdgeInsets.all(AppSpace.s15),
       decoration: BoxDecoration(
         color: c.tint,
         borderRadius: BorderRadius.circular(22),
@@ -532,9 +571,13 @@ class _TodayCardTile extends StatelessWidget {
           const Spacer(),
           Text(
             c.label,
-            style: t(11, w: FontWeight.w500, c: AppColor.textMuted),
+            style: t(
+              AppFontSize.f11,
+              w: FontWeight.w500,
+              c: AppColor.textMuted,
+            ),
           ),
-          const SizedBox(height: 3),
+          const SizedBox(height: AppSpace.s3),
           Row(
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
@@ -548,12 +591,12 @@ class _TodayCardTile extends StatelessWidget {
                   sp: -0.4,
                 ),
               ),
-              const SizedBox(width: 3),
-              Text(c.unit, style: t(11, c: AppColor.textFaint)),
+              const SizedBox(width: AppSpace.s3),
+              Text(c.unit, style: t(AppFontSize.f11, c: AppColor.textFaint)),
             ],
           ),
-          Text(c.sub, style: t(10, c: c.subColor)),
-          const SizedBox(height: 8),
+          Text(c.sub, style: t(AppFontSize.f10, c: c.subColor)),
+          const SizedBox(height: AppSpace.s8),
           ProgressBar(
             value: c.pct,
             color: c.color,
@@ -591,31 +634,45 @@ class _PlantCard extends StatelessWidget {
             children: [
               Text(
                 '나의 식물',
-                style: t(15, w: FontWeight.w900, c: AppColor.textStrong),
+                style: t(
+                  AppFontSize.f15,
+                  w: FontWeight.w900,
+                  c: AppColor.textStrong,
+                ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: AppSpace.s8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpace.s8,
+                  vertical: AppSpace.s3,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   'Lv.${s.plantLevel}',
-                  style: t(10, w: FontWeight.w700, c: AppColor.primaryDark),
+                  style: t(
+                    AppFontSize.f10,
+                    w: FontWeight.w700,
+                    c: AppColor.primaryDark,
+                  ),
                 ),
               ),
               const Spacer(),
-              Text('자세히 ›', style: t(12, c: const Color(0xFF7E9080))),
+              Text(
+                '자세히 ›',
+                style: t(AppFontSize.f12, c: const Color(0xFF7E9080)),
+              ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: AppSpace.s14),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 92,
-                height: 104,
+                width: AppSpace.s92,
+                height: AppSpace.s104,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -623,16 +680,20 @@ class _PlantCard extends StatelessWidget {
                 ),
                 child: const Text('🪴', style: TextStyle(fontSize: 46)),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: AppSpace.s14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       '${stage.name} 단계',
-                      style: t(17, w: FontWeight.w900, c: AppColor.textStrong),
+                      style: t(
+                        AppFontSize.f17,
+                        w: FontWeight.w900,
+                        c: AppColor.textStrong,
+                      ),
                     ),
-                    const SizedBox(height: 9),
+                    const SizedBox(height: AppSpace.s9),
                     ProgressBar(
                       value: (s.plantExp % 100) / 100,
                       height: AppSize.barThick,
@@ -641,13 +702,13 @@ class _PlantCard extends StatelessWidget {
                         colors: [Color(0xFF7BD37F), AppColor.primary],
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: AppSpace.s6),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           '${s.plantExp} EXP',
-                          style: t(11, c: const Color(0xFF7E9080)),
+                          style: t(AppFontSize.f11, c: const Color(0xFF7E9080)),
                         ),
                         Text(
                           s.plantExpLeft,
@@ -659,12 +720,12 @@ class _PlantCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: AppSpace.s12),
                     Row(
                       children: [
                         for (final c in s.cares.entries) ...[
                           if (c.key != s.cares.keys.first)
-                            const SizedBox(width: 6),
+                            const SizedBox(width: AppSpace.s6),
                           _PlantCareTile(c: c),
                         ],
                       ],
@@ -688,7 +749,7 @@ class _PlantCareTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Expanded(
     child: Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: AppSpace.s8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -696,10 +757,14 @@ class _PlantCareTile extends StatelessWidget {
       child: Column(
         children: [
           Text(_plantCareMeta[c.key]!.$1, style: const TextStyle(fontSize: 13)),
-          const SizedBox(height: 3),
+          const SizedBox(height: AppSpace.s3),
           Text(
             '${c.value}/3',
-            style: t(10, w: FontWeight.w700, c: _plantCareMeta[c.key]!.$2),
+            style: t(
+              AppFontSize.f10,
+              w: FontWeight.w700,
+              c: _plantCareMeta[c.key]!.$2,
+            ),
           ),
         ],
       ),
@@ -720,24 +785,27 @@ class _MissionCard extends StatelessWidget {
           Row(
             children: [
               IconTile('🎯', size: 26, fontSize: 13),
-              const SizedBox(width: 8),
-              Text('오늘의 미션', style: t(15, w: FontWeight.w900)),
-              const SizedBox(width: 8),
+              const SizedBox(width: AppSpace.s8),
+              Text('오늘의 미션', style: t(AppFontSize.f15, w: FontWeight.w900)),
+              const SizedBox(width: AppSpace.s8),
               Pill('${s.missionDone} / ${s.missions.length}', fontSize: 10),
               const Spacer(),
               GestureDetector(
                 onTap: () => s.setSub(() => s.missionOpen = true),
-                child: Text('전체 ›', style: t(12, c: AppColor.textFaint)),
+                child: Text(
+                  '전체 ›',
+                  style: t(AppFontSize.f12, c: AppColor.textFaint),
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: AppSpace.s14),
           SizedBox(
-            height: 92,
+            height: AppSpace.s92,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: s.missions.length,
-              separatorBuilder: (_, _) => const SizedBox(width: 10),
+              separatorBuilder: (_, _) => const SizedBox(width: AppSpace.s10),
               itemBuilder: (_, i) => _MissionMiniCard(s: s, m: s.missions[i]),
             ),
           ),
@@ -757,8 +825,8 @@ class _MissionMiniCard extends StatelessWidget {
   Widget build(BuildContext context) => GestureDetector(
     onTap: () => s.go(m.route),
     child: Container(
-      width: 150,
-      padding: const EdgeInsets.all(13),
+      width: AppSpace.s150,
+      padding: const EdgeInsets.all(AppSpace.s13),
       decoration: BoxDecoration(
         color: AppColor.surfaceSunken,
         borderRadius: BorderRadius.circular(20),
@@ -770,12 +838,14 @@ class _MissionMiniCard extends StatelessWidget {
             m.title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: t(12, w: FontWeight.w700),
+            style: t(AppFontSize.f12, w: FontWeight.w700),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: AppSpace.s6),
           Text(
             '${AppState.comma(m.current.round())} / ${AppState.comma(m.target.round())}${m.unit}',
-            style: t(11, c: AppColor.textFaint),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: t(AppFontSize.f11, c: AppColor.textFaint),
           ),
           const Spacer(),
           Row(
@@ -787,10 +857,14 @@ class _MissionMiniCard extends StatelessWidget {
                   track: Colors.white,
                 ),
               ),
-              const SizedBox(width: 7),
+              const SizedBox(width: AppSpace.s7),
               Text(
                 '${(m.ratio * 100).round()}%',
-                style: t(10, w: FontWeight.w700, c: AppColor.primary),
+                style: t(
+                  AppFontSize.f10,
+                  w: FontWeight.w700,
+                  c: AppColor.primary,
+                ),
               ),
             ],
           ),

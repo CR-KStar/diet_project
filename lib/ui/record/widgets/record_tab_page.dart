@@ -33,17 +33,21 @@ class RecordsScreen extends StatelessWidget {
         _QuickRecordCard(s: s),
         _CalendarCard(s: s),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpace.s4),
           child: Row(
             children: [
               Text(
                 '${s.month}월 ${s.day}일 기록',
-                style: t(15, w: FontWeight.w700),
+                style: t(AppFontSize.f15, w: FontWeight.w700),
               ),
               const Spacer(),
               Text(
                 '${AppState.comma(s.selectedDayKcal)} / ${AppState.comma(s.dailyTarget)} kcal',
-                style: t(12, w: FontWeight.w700, c: AppColor.primary),
+                style: t(
+                  AppFontSize.f12,
+                  w: FontWeight.w700,
+                  c: AppColor.primary,
+                ),
               ),
             ],
           ),
@@ -64,16 +68,16 @@ class _MonthNavRow extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     children: [
       _MonthButton(icon: '‹', onTap: s.prevMonth),
-      const SizedBox(width: 10),
+      const SizedBox(width: AppSpace.s10),
       SizedBox(
-        width: 78,
+        width: AppSpace.s78,
         child: Text(
           '${s.year}. ${s.month.toString().padLeft(2, '0')}',
           textAlign: TextAlign.center,
-          style: t(14, w: FontWeight.w700),
+          style: t(AppFontSize.f14, w: FontWeight.w700),
         ),
       ),
-      const SizedBox(width: 10),
+      const SizedBox(width: AppSpace.s10),
       _MonthButton(
         icon: '›',
         enabled: s.canGoNextMonth,
@@ -97,8 +101,11 @@ class _QuickRecordCard extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('${s.month}월 ${s.day}일에 기록 추가', style: t(13, w: FontWeight.w700)),
-        const SizedBox(height: 12),
+        Text(
+          '${s.month}월 ${s.day}일에 기록 추가',
+          style: t(AppFontSize.f13, w: FontWeight.w700),
+        ),
+        const SizedBox(height: AppSpace.s12),
         Row(
           children: [
             for (final q in _quickActions) _QuickRecordButton(q: q, s: s),
@@ -125,17 +132,23 @@ class _QuickRecordButton extends StatelessWidget {
           onTap: () =>
               q.sheet ? s.setSub(() => s.waterSheet = true) : s.go(q.route),
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 6),
+            padding: const EdgeInsets.symmetric(
+              vertical: AppSpace.s13,
+              horizontal: AppSpace.s6,
+            ),
             decoration: AppDeco.selectableCard(selected: done),
             child: Column(
               children: [
                 Text(q.icon, style: const TextStyle(fontSize: 20)),
-                const SizedBox(height: 6),
-                Text(q.label, style: t(11, w: FontWeight.w700)),
-                const SizedBox(height: 4),
+                const SizedBox(height: AppSpace.s6),
+                Text(q.label, style: t(AppFontSize.f11, w: FontWeight.w700)),
+                const SizedBox(height: AppSpace.s4),
                 Text(
                   done ? '기록됨' : '기록하기',
-                  style: t(9, c: done ? AppColor.primary : AppColor.textGhost),
+                  style: t(
+                    AppFontSize.f9,
+                    c: done ? AppColor.primary : AppColor.textGhost,
+                  ),
                 ),
               ],
             ),
@@ -182,7 +195,7 @@ class _CalendarCard extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpace.s8),
           GridView.count(
             crossAxisCount: 7,
             shrinkWrap: true,
@@ -224,7 +237,7 @@ class _CalendarDayCell extends StatelessWidget {
       onTap: valid && !future ? () => s.selectDay(n) : null,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        margin: const EdgeInsets.all(1),
+        margin: const EdgeInsets.all(AppSpace.s1),
         decoration: BoxDecoration(
           color: sel ? AppColor.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(14),
@@ -242,10 +255,10 @@ class _CalendarDayCell extends StatelessWidget {
                     : (future ? AppColor.textGhost : AppColor.text),
               ),
             ),
-            const SizedBox(height: 3),
+            const SizedBox(height: AppSpace.s3),
             Container(
-              width: 4,
-              height: 4,
+              width: AppSpace.s4,
+              height: AppSpace.s4,
               decoration: BoxDecoration(
                 color: hasLog
                     ? (sel ? Colors.white : AppColor.primary)
@@ -274,11 +287,11 @@ class _MealCard extends StatelessWidget {
     child: Row(
       children: [
         const SizedBox(
-          width: 58,
-          height: 58,
-          child: PhotoPlaceholder(height: 58, radius: 18),
+          width: AppSpace.s58,
+          height: AppSpace.s58,
+          child: PhotoPlaceholder(height: AppSpace.s58, radius: 18),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: AppSpace.s12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -287,10 +300,14 @@ class _MealCard extends StatelessWidget {
                 children: [
                   Text(
                     m.type,
-                    style: t(11, w: FontWeight.w700, c: AppColor.textFaint),
+                    style: t(
+                      AppFontSize.f11,
+                      w: FontWeight.w700,
+                      c: AppColor.textFaint,
+                    ),
                   ),
                   if (m.needsReview) ...[
-                    const SizedBox(width: 7),
+                    const SizedBox(width: AppSpace.s7),
                     Pill(
                       '확인 필요',
                       bg: const Color(0xFFFFF3EF),
@@ -300,18 +317,28 @@ class _MealCard extends StatelessWidget {
                   ],
                 ],
               ),
-              const SizedBox(height: 4),
-              Text(m.name, style: t(14, w: FontWeight.w700)),
-              const SizedBox(height: 3),
-              Text(m.meta, style: t(11, c: AppColor.textGhost)),
+              const SizedBox(height: AppSpace.s4),
+              Text(
+                m.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: t(AppFontSize.f14, w: FontWeight.w700),
+              ),
+              const SizedBox(height: AppSpace.s3),
+              Text(
+                m.meta,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: t(AppFontSize.f11, c: AppColor.textGhost),
+              ),
             ],
           ),
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text('${m.kcal}', style: t(15, w: FontWeight.w900)),
-            Text('kcal', style: t(10, c: AppColor.textGhost)),
+            Text('${m.kcal}', style: t(AppFontSize.f15, w: FontWeight.w900)),
+            Text('kcal', style: t(AppFontSize.f10, c: AppColor.textGhost)),
           ],
         ),
       ],
@@ -337,14 +364,18 @@ class _DaySummaryCard extends StatelessWidget {
           Expanded(
             child: Column(
               children: [
-                Text(r.$1, style: t(11, c: AppColor.textFaint)),
-                const SizedBox(height: 5),
-                Text(r.$2, style: t(14, w: FontWeight.w700)),
+                Text(r.$1, style: t(AppFontSize.f11, c: AppColor.textFaint)),
+                const SizedBox(height: AppSpace.s5),
+                Text(r.$2, style: t(AppFontSize.f14, w: FontWeight.w700)),
               ],
             ),
           ),
           if (r.$1 != '체중')
-            Container(width: 1, height: 30, color: AppColor.divider),
+            Container(
+              width: AppSpace.s1,
+              height: AppSpace.s30,
+              color: AppColor.divider,
+            ),
         ],
       ],
     ),
@@ -362,8 +393,8 @@ class _MonthButton extends StatelessWidget {
   Widget build(BuildContext context) => GestureDetector(
     onTap: onTap,
     child: Container(
-      width: 28,
-      height: 28,
+      width: AppSpace.s28,
+      height: AppSpace.s28,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: AppColor.surface,
@@ -402,10 +433,14 @@ class MealDetailScreen extends StatelessWidget {
                   children: [
                     Text(
                       m.type,
-                      style: t(11, w: FontWeight.w700, c: AppColor.textFaint),
+                      style: t(
+                        AppFontSize.f11,
+                        w: FontWeight.w700,
+                        c: AppColor.textFaint,
+                      ),
                     ),
                     if (m.needsReview) ...[
-                      const SizedBox(width: 7),
+                      const SizedBox(width: AppSpace.s7),
                       Pill(
                         '확인 필요',
                         bg: const Color(0xFFFFF3EF),
@@ -415,21 +450,28 @@ class MealDetailScreen extends StatelessWidget {
                     ],
                   ],
                 ),
-                const SizedBox(height: 6),
-                Text(m.name, style: t(18, w: FontWeight.w900)),
-                const SizedBox(height: 4),
-                Text(m.meta, style: t(12, c: AppColor.textGhost)),
-                const SizedBox(height: 14),
+                const SizedBox(height: AppSpace.s6),
+                Text(m.name, style: t(AppFontSize.f18, w: FontWeight.w900)),
+                const SizedBox(height: AppSpace.s4),
+                Text(m.meta, style: t(AppFontSize.f12, c: AppColor.textGhost)),
+                const SizedBox(height: AppSpace.s14),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.baseline,
                   textBaseline: TextBaseline.alphabetic,
                   children: [
                     Text(
                       '${m.kcal}',
-                      style: t(24, w: FontWeight.w900, c: AppColor.primary),
+                      style: t(
+                        AppFontSize.f24,
+                        w: FontWeight.w900,
+                        c: AppColor.primary,
+                      ),
                     ),
-                    const SizedBox(width: 4),
-                    Text('kcal', style: t(12, c: AppColor.textFaint)),
+                    const SizedBox(width: AppSpace.s4),
+                    Text(
+                      'kcal',
+                      style: t(AppFontSize.f12, c: AppColor.textFaint),
+                    ),
                   ],
                 ),
               ],

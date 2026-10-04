@@ -30,7 +30,7 @@ class MyScreen extends StatelessWidget {
         const TabHeader(emoji: '👤', title: '마이'),
         _ProfileSummaryCard(s: s),
         _PlantSummaryCard(s: s),
-        const SizedBox(height: 10),
+        const SizedBox(height: AppSpace.s10),
         _MenuCard(s: s),
         TextLink(
           label: '온보딩 다시 보기',
@@ -64,24 +64,28 @@ class _ProfileSummaryCard extends StatelessWidget {
     child: Row(
       children: [
         const IconTile('🌱', size: 56, radius: 28, fontSize: 22),
-        const SizedBox(width: 14),
+        const SizedBox(width: AppSpace.s14),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 s.nickname,
-                style: t(16, w: FontWeight.w900, c: AppColor.textStrong),
+                style: t(
+                  AppFontSize.f16,
+                  w: FontWeight.w900,
+                  c: AppColor.textStrong,
+                ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: AppSpace.s4),
               Text(
                 '${s.heightCm.toStringAsFixed(0)}cm · ${s.weightKg.toStringAsFixed(1)}kg · 목표 ${s.goalWeight.toStringAsFixed(1)}kg',
-                style: t(11, c: AppColor.textFaint),
+                style: t(AppFontSize.f11, c: AppColor.textFaint),
               ),
             ],
           ),
         ),
-        Text('수정 ›', style: t(12, c: AppColor.textFaint)),
+        Text('수정 ›', style: t(AppFontSize.f12, c: AppColor.textFaint)),
       ],
     ),
   );
@@ -100,15 +104,15 @@ class _PlantSummaryCard extends StatelessWidget {
       children: [
         Row(
           children: [
-            Text('나의 식물', style: t(14, w: FontWeight.w700)),
+            Text('나의 식물', style: t(AppFontSize.f14, w: FontWeight.w700)),
             const Spacer(),
             Text(
               'Lv.${s.plantLevel} · ${s.plantStage.name} 단계 ›',
-              style: t(11, c: AppColor.textFaint),
+              style: t(AppFontSize.f11, c: AppColor.textFaint),
             ),
           ],
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: AppSpace.s14),
         Row(
           children: [
             for (final st in _plantStages) _PlantStageTile(s: s, st: st),
@@ -130,8 +134,8 @@ class _PlantStageTile extends StatelessWidget {
     final active = s.plantStage.name == st.$2;
     return Expanded(
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 3),
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        margin: const EdgeInsets.symmetric(horizontal: AppSpace.s3),
+        padding: const EdgeInsets.symmetric(vertical: AppSpace.s8),
         decoration: BoxDecoration(
           color: active ? AppColor.primaryTint : Colors.transparent,
           borderRadius: BorderRadius.circular(14),
@@ -139,7 +143,7 @@ class _PlantStageTile extends StatelessWidget {
         child: Column(
           children: [
             Text(st.$1, style: TextStyle(fontSize: active ? 26 : 22)),
-            const SizedBox(height: 5),
+            const SizedBox(height: AppSpace.s5),
             Text(
               '${st.$2} Lv.${st.$3}',
               style: t(
@@ -172,7 +176,7 @@ class _MenuCard extends StatelessWidget {
           desc: '${s.bowls.length}개 등록 · 기본 그릇 1개',
           onTap: () => s.go('bowls'),
         ),
-        const Divider(height: 1, indent: 18, endIndent: 18),
+        const Divider(height: AppSpace.s1, indent: 18, endIndent: 18),
         _MenuRow(
           emoji: '🔔',
           title: '알림 설정',
@@ -182,7 +186,7 @@ class _MenuCard extends StatelessWidget {
             s.setSetTab('알림');
           },
         ),
-        const Divider(height: 1, indent: 18, endIndent: 18),
+        const Divider(height: AppSpace.s1, indent: 18, endIndent: 18),
         _MenuRow(
           emoji: '🔒',
           title: '데이터 및 개인정보',
@@ -215,18 +219,21 @@ class _MenuRow extends StatelessWidget {
     onTap: onTap,
     behavior: HitTestBehavior.opaque,
     child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpace.s18,
+        vertical: AppSpace.s16,
+      ),
       child: Row(
         children: [
           IconTile(emoji, size: 34, radius: 12, fontSize: 16),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppSpace.s12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: t(14, w: FontWeight.w700)),
-                const SizedBox(height: 3),
-                Text(desc, style: t(11, c: AppColor.textFaint)),
+                Text(title, style: t(AppFontSize.f14, w: FontWeight.w700)),
+                const SizedBox(height: AppSpace.s3),
+                Text(desc, style: t(AppFontSize.f11, c: AppColor.textFaint)),
               ],
             ),
           ),
@@ -286,15 +293,15 @@ class _BasicInfoCard extends StatelessWidget {
       children: [
         Text(
           '닉네임',
-          style: t(12, w: FontWeight.w500, c: AppColor.textFaint),
+          style: t(AppFontSize.f12, w: FontWeight.w500, c: AppColor.textFaint),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: AppSpace.s8),
         AppTextField(
           value: s.nickname,
           fontSize: 15,
           onChanged: (v) => s.setSub(() => s.nickname = v),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpace.s16),
         Row(
           children: [
             Expanded(
@@ -303,9 +310,13 @@ class _BasicInfoCard extends StatelessWidget {
                 children: [
                   Text(
                     '키',
-                    style: t(12, w: FontWeight.w500, c: AppColor.textFaint),
+                    style: t(
+                      AppFontSize.f12,
+                      w: FontWeight.w500,
+                      c: AppColor.textFaint,
+                    ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpace.s8),
                   NumberField(
                     value: s.heightCm,
                     unit: 'cm',
@@ -318,16 +329,20 @@ class _BasicInfoCard extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: AppSpace.s10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     '현재 체중',
-                    style: t(12, w: FontWeight.w500, c: AppColor.textFaint),
+                    style: t(
+                      AppFontSize.f12,
+                      w: FontWeight.w500,
+                      c: AppColor.textFaint,
+                    ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpace.s8),
                   NumberField(
                     value: s.weightKg,
                     unit: 'kg',
@@ -342,7 +357,7 @@ class _BasicInfoCard extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpace.s16),
         Row(
           children: [
             Expanded(
@@ -351,9 +366,13 @@ class _BasicInfoCard extends StatelessWidget {
                 children: [
                   Text(
                     '나이',
-                    style: t(12, w: FontWeight.w500, c: AppColor.textFaint),
+                    style: t(
+                      AppFontSize.f12,
+                      w: FontWeight.w500,
+                      c: AppColor.textFaint,
+                    ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpace.s8),
                   NumberField(
                     value: s.age,
                     unit: '세',
@@ -365,16 +384,20 @@ class _BasicInfoCard extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: AppSpace.s10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     '성별',
-                    style: t(12, w: FontWeight.w500, c: AppColor.textFaint),
+                    style: t(
+                      AppFontSize.f12,
+                      w: FontWeight.w500,
+                      c: AppColor.textFaint,
+                    ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpace.s8),
                   SegmentedRow(
                     options: const ['여성', '남성'],
                     value: s.gender,
@@ -403,10 +426,14 @@ class _GoalWeightCard extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('목표 체중', style: t(13, w: FontWeight.w700)),
+            Text('목표 체중', style: t(AppFontSize.f13, w: FontWeight.w700)),
             Text(
               '${s.goalWeight.toStringAsFixed(1)} kg',
-              style: t(20, w: FontWeight.w900, c: AppColor.primary),
+              style: t(
+                AppFontSize.f20,
+                w: FontWeight.w900,
+                c: AppColor.primary,
+              ),
             ),
           ],
         ),
@@ -416,7 +443,7 @@ class _GoalWeightCard extends StatelessWidget {
           max: 70,
           onChanged: (v) => s.setSub(() => s.goalWeight = v),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: AppSpace.s6),
         RowBetween('감량 목표', s.goalDelta),
       ],
     ),
@@ -433,14 +460,14 @@ class _GoalActivityCard extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('목표 · 활동량', style: t(13, w: FontWeight.w700)),
-        const SizedBox(height: 11),
+        Text('목표 · 활동량', style: t(AppFontSize.f13, w: FontWeight.w700)),
+        const SizedBox(height: AppSpace.s11),
         SegmentedRow(
           options: const ['체중 감량', '체중 유지', '근육 증가'],
           value: s.goal,
           onChanged: (v) => s.setSub(() => s.goal = v),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: AppSpace.s10),
         SegmentedRow(
           options: const ['적음', '보통', '많음'],
           value: s.activity,
@@ -465,9 +492,13 @@ class _RecalculatedCard extends StatelessWidget {
       children: [
         Text(
           '다시 계산된 목표',
-          style: t(13, w: FontWeight.w700, c: AppColor.primaryDark),
+          style: t(
+            AppFontSize.f13,
+            w: FontWeight.w700,
+            c: AppColor.primaryDark,
+          ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpace.s12),
         Row(
           children: [
             for (final r in [
@@ -478,10 +509,10 @@ class _RecalculatedCard extends StatelessWidget {
               _RecalcTile(r: r),
           ],
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: AppSpace.s10),
         Text(
           '모든 영양 정보는 참고용이며 의료 진단이 아닙니다.',
-          style: t(11, c: const Color(0xFF4A7A4E), h: 1.5),
+          style: t(AppFontSize.f11, c: const Color(0xFF4A7A4E), h: 1.5),
         ),
       ],
     ),
@@ -498,8 +529,8 @@ class _RecalcTile extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(r.$1, style: t(11, c: const Color(0xFF4A7A4E))),
-        const SizedBox(height: 4),
+        Text(r.$1, style: t(AppFontSize.f11, c: const Color(0xFF4A7A4E))),
+        const SizedBox(height: AppSpace.s4),
         Text(
           r.$2,
           style: t(

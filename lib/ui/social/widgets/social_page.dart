@@ -45,12 +45,15 @@ List<Widget> _activityTab(BuildContext context, AppState s) => [
   if (s.myChallenges.isNotEmpty) _ActiveChallengeCard(s: s),
   _PrivacyCard(context: context, s: s),
   const Padding(
-    padding: EdgeInsets.only(left: 4, bottom: 2),
+    padding: EdgeInsets.only(left: AppSpace.s4, bottom: AppSpace.s2),
     child: Text('친구 활동', style: TextStyle(fontWeight: FontWeight.w800)),
   ),
   if (s.friendActivity.isEmpty)
     AppCard(
-      child: Text('아직 친구 활동이 없어요', style: t(12, c: AppColor.textFaint)),
+      child: Text(
+        '아직 친구 활동이 없어요',
+        style: t(AppFontSize.f12, c: AppColor.textFaint),
+      ),
     )
   else
     for (final f in s.friendActivity)
@@ -87,11 +90,14 @@ class _ActiveChallengeCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(s.activeChallengeName, style: t(15, w: FontWeight.w800)),
-                  const SizedBox(height: 4),
+                  Text(
+                    s.activeChallengeName,
+                    style: t(AppFontSize.f15, w: FontWeight.w800),
+                  ),
+                  const SizedBox(height: AppSpace.s4),
                   Text(
                     '참여 ${s.activeChallengeProgress.length}명 · ${s.activeChallengePeriod}',
-                    style: t(11, c: AppColor.textFaint),
+                    style: t(AppFontSize.f11, c: AppColor.textFaint),
                   ),
                 ],
               ),
@@ -100,8 +106,8 @@ class _ActiveChallengeCard extends StatelessWidget {
               onTap: () => s.setFriendTab('챌린지'),
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 10,
+                  horizontal: AppSpace.s14,
+                  vertical: AppSpace.s10,
                 ),
                 decoration: BoxDecoration(
                   color: AppColor.primary,
@@ -109,20 +115,24 @@ class _ActiveChallengeCard extends StatelessWidget {
                 ),
                 child: Text(
                   '챌린지 보기',
-                  style: t(12, w: FontWeight.w700, c: Colors.white),
+                  style: t(
+                    AppFontSize.f12,
+                    w: FontWeight.w700,
+                    c: Colors.white,
+                  ),
                 ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: AppSpace.s18),
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             for (final f in s.activeChallengeProgress)
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpace.s4),
                   child: Column(
                     children: [
                       Container(
@@ -132,10 +142,10 @@ class _ActiveChallengeCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: AppSpace.s8),
                       Text(
                         f.user.nickname,
-                        style: t(11, c: AppColor.textFaint),
+                        style: t(AppFontSize.f11, c: AppColor.textFaint),
                       ),
                     ],
                   ),
@@ -161,7 +171,7 @@ class _PrivacyCard extends StatelessWidget {
       children: [
         Row(
           children: [
-            Text('공개 설정', style: t(14, w: FontWeight.w700)),
+            Text('공개 설정', style: t(AppFontSize.f14, w: FontWeight.w700)),
             const Spacer(),
             Pill(
               s.shareScope,
@@ -172,29 +182,32 @@ class _PrivacyCard extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 4),
-        Text('친구에게 보여줄 범위를 직접 고를 수 있어요', style: t(11, c: AppColor.textFaint)),
-        const SizedBox(height: 14),
+        const SizedBox(height: AppSpace.s4),
+        Text(
+          '친구에게 보여줄 범위를 직접 고를 수 있어요',
+          style: t(AppFontSize.f11, c: AppColor.textFaint),
+        ),
+        const SizedBox(height: AppSpace.s14),
         SegmentedRow(
           options: const ['비공개', '친구만', '전체 공개'],
           value: s.shareScope,
           onChanged: s.setShareScope,
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: AppSpace.s18),
         for (final k in AppState.friendVisibilityDesc.keys)
           Padding(
-            padding: const EdgeInsets.only(bottom: 14),
+            padding: const EdgeInsets.only(bottom: AppSpace.s14),
             child: Row(
               children: [
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(k, style: t(13, w: FontWeight.w700)),
-                      const SizedBox(height: 3),
+                      Text(k, style: t(AppFontSize.f13, w: FontWeight.w700)),
+                      const SizedBox(height: AppSpace.s3),
                       Text(
                         AppState.friendVisibilityDesc[k]!,
-                        style: t(11, c: AppColor.textFaint),
+                        style: t(AppFontSize.f11, c: AppColor.textFaint),
                       ),
                     ],
                   ),
@@ -209,10 +222,10 @@ class _PrivacyCard extends StatelessWidget {
         SunkenBox(
           child: Text(
             s.friendVisibilitySummary,
-            style: t(11, c: AppColor.textMuted, h: 1.5),
+            style: t(AppFontSize.f11, c: AppColor.textMuted, h: 1.5),
           ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: AppSpace.s14),
         Row(
           children: [
             Expanded(
@@ -231,7 +244,7 @@ class _PrivacyCard extends StatelessWidget {
                 },
                 child: Container(
                   alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  padding: const EdgeInsets.symmetric(vertical: AppSpace.s14),
                   decoration: BoxDecoration(
                     color: AppColor.surface,
                     borderRadius: BorderRadius.circular(14),
@@ -239,12 +252,16 @@ class _PrivacyCard extends StatelessWidget {
                   ),
                   child: Text(
                     '프로필 링크 복사',
-                    style: t(13, w: FontWeight.w700, c: AppColor.text),
+                    style: t(
+                      AppFontSize.f13,
+                      w: FontWeight.w700,
+                      c: AppColor.text,
+                    ),
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpace.s12),
             Expanded(
               child: GestureDetector(
                 onTap: () {
@@ -256,14 +273,18 @@ class _PrivacyCard extends StatelessWidget {
                 },
                 child: Container(
                   alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  padding: const EdgeInsets.symmetric(vertical: AppSpace.s14),
                   decoration: BoxDecoration(
                     color: AppColor.primary,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Text(
                     '정원 공개하기',
-                    style: t(13, w: FontWeight.w700, c: Colors.white),
+                    style: t(
+                      AppFontSize.f13,
+                      w: FontWeight.w700,
+                      c: Colors.white,
+                    ),
                   ),
                 ),
               ),
@@ -287,12 +308,16 @@ List<Widget> _challengeTab(BuildContext context, AppState s) => [
       children: [
         Text(
           '→ 정원 · 식물 성장 시스템으로 수렴',
-          style: t(14, w: FontWeight.w800, c: AppColor.primaryDark),
+          style: t(
+            AppFontSize.f14,
+            w: FontWeight.w800,
+            c: AppColor.primaryDark,
+          ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: AppSpace.s8),
         Text(
           '받은 아이템은 물 · 햇빛 · 영양 축에 그대로 쓰여요. 완주하면 친구에게 꽃 1회 선물이 열립니다.',
-          style: t(12, c: AppColor.primaryDark, h: 1.5),
+          style: t(AppFontSize.f12, c: AppColor.primaryDark, h: 1.5),
         ),
       ],
     ),
@@ -301,27 +326,27 @@ List<Widget> _challengeTab(BuildContext context, AppState s) => [
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('대칭 · 페널티 루프', style: t(14, w: FontWeight.w800)),
-        const SizedBox(height: 8),
+        Text('대칭 · 페널티 루프', style: t(AppFontSize.f14, w: FontWeight.w800)),
+        const SizedBox(height: AppSpace.s8),
         Text(
           '챌린지 실패 시에는 약속한 친구에게 눈바디가 전송돼요. 정원 루프와는 별개 트리거입니다.',
-          style: t(12, c: AppColor.textMuted, h: 1.5),
+          style: t(AppFontSize.f12, c: AppColor.textMuted, h: 1.5),
         ),
       ],
     ),
   ),
   if (s.myChallenges.isNotEmpty) ...[
     Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 2),
+      padding: const EdgeInsets.only(left: AppSpace.s4, bottom: AppSpace.s2),
       child: Text(
         '내 챌린지 ${s.myChallenges.length}',
-        style: t(15, w: FontWeight.w800),
+        style: t(AppFontSize.f15, w: FontWeight.w800),
       ),
     ),
     for (final c in s.myChallenges) _MyChallengeCard(c: c, s: s),
   ],
   const Padding(
-    padding: EdgeInsets.only(left: 4, bottom: 2),
+    padding: EdgeInsets.only(left: AppSpace.s4, bottom: AppSpace.s2),
     child: Text('참여할 수 있는 챌린지', style: TextStyle(fontWeight: FontWeight.w800)),
   ),
   for (final c in s.joinableChallenges)
@@ -346,11 +371,14 @@ class _ChallengeLeaderboardCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(s.activeChallengeName, style: t(15, w: FontWeight.w800)),
-                  const SizedBox(height: 4),
+                  Text(
+                    s.activeChallengeName,
+                    style: t(AppFontSize.f15, w: FontWeight.w800),
+                  ),
+                  const SizedBox(height: AppSpace.s4),
                   Text(
                     '참여 ${s.activeChallengeProgress.length}명 · ${s.activeChallengePeriod} · 내 순위 ${s.myChallengeRank}위',
-                    style: t(11, c: AppColor.textFaint),
+                    style: t(AppFontSize.f11, c: AppColor.textFaint),
                   ),
                 ],
               ),
@@ -358,15 +386,15 @@ class _ChallengeLeaderboardCard extends StatelessWidget {
             Pill('참여 중', bg: AppColor.primaryTint, fg: AppColor.primaryDark),
           ],
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: AppSpace.s18),
         for (final r in s.challengeLeaderboard)
           Padding(
-            padding: const EdgeInsets.only(bottom: 14),
+            padding: const EdgeInsets.only(bottom: AppSpace.s14),
             child: Row(
               children: [
                 Container(
-                  width: 22,
-                  height: 22,
+                  width: AppSpace.s22,
+                  height: AppSpace.s22,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: r.rank == 1
@@ -383,22 +411,22 @@ class _ChallengeLeaderboardCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: AppSpace.s10),
                 SizedBox(
-                  width: 40,
+                  width: AppSpace.s40,
                   child: Text(
                     r.user.nickname,
-                    style: t(13, w: FontWeight.w700),
+                    style: t(AppFontSize.f13, w: FontWeight.w700),
                   ),
                 ),
                 Expanded(child: ProgressBar(value: r.pct / 100)),
-                const SizedBox(width: 10),
+                const SizedBox(width: AppSpace.s10),
                 SizedBox(
-                  width: 36,
+                  width: AppSpace.s36,
                   child: Text(
                     '${r.pct}%',
                     textAlign: TextAlign.right,
-                    style: t(12, c: AppColor.textFaint),
+                    style: t(AppFontSize.f12, c: AppColor.textFaint),
                   ),
                 ),
               ],
@@ -415,17 +443,17 @@ class _RewardTiersCard extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('보상 구조', style: t(15, w: FontWeight.w800)),
-        const SizedBox(height: 6),
+        Text('보상 구조', style: t(AppFontSize.f15, w: FontWeight.w800)),
+        const SizedBox(height: AppSpace.s6),
         Text(
           '모든 보상은 별도 화폐 없이 정원 아이템으로 통합돼요',
-          style: t(11, c: AppColor.textFaint),
+          style: t(AppFontSize.f11, c: AppColor.textFaint),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpace.s16),
         for (final tier in AppState.challengeRewardTiers)
           Container(
-            margin: const EdgeInsets.only(bottom: 10),
-            padding: const EdgeInsets.all(14),
+            margin: const EdgeInsets.only(bottom: AppSpace.s10),
+            padding: const EdgeInsets.all(AppSpace.s14),
             decoration: BoxDecoration(
               border: Border.all(color: AppColor.divider),
               borderRadius: BorderRadius.circular(16),
@@ -439,15 +467,24 @@ class _RewardTiersCard extends StatelessWidget {
                   bg: tier.tint,
                   fontSize: 18,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppSpace.s12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(tier.title, style: t(13, w: FontWeight.w700)),
-                      const SizedBox(height: 4),
-                      Text(tier.confirmed, style: t(11, c: AppColor.textMuted)),
-                      Text(tier.bonus, style: t(11, c: AppColor.textFaint)),
+                      Text(
+                        tier.title,
+                        style: t(AppFontSize.f13, w: FontWeight.w700),
+                      ),
+                      const SizedBox(height: AppSpace.s4),
+                      Text(
+                        tier.confirmed,
+                        style: t(AppFontSize.f11, c: AppColor.textMuted),
+                      ),
+                      Text(
+                        tier.bonus,
+                        style: t(AppFontSize.f11, c: AppColor.textFaint),
+                      ),
                     ],
                   ),
                 ),
@@ -476,9 +513,14 @@ class _MyChallengeCard extends StatelessWidget {
               Row(
                 children: [
                   Flexible(
-                    child: Text(c.title, style: t(14, w: FontWeight.w800)),
+                    child: Text(
+                      c.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: t(AppFontSize.f14, w: FontWeight.w800),
+                    ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppSpace.s8),
                   if (c.isCreatedBy(s.currentUser.id))
                     Pill(
                       '내가 만듦',
@@ -487,12 +529,15 @@ class _MyChallengeCard extends StatelessWidget {
                     ),
                 ],
               ),
-              const SizedBox(height: 4),
-              Text(c.description, style: t(12, c: AppColor.textFaint)),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpace.s4),
+              Text(
+                c.description,
+                style: t(AppFontSize.f12, c: AppColor.textFaint),
+              ),
+              const SizedBox(height: AppSpace.s8),
               Text(
                 '만든 사람 ${AppState.personById(c.creatorId).nickname} · ${c.peopleLabel} · ${c.period}',
-                style: t(11, c: AppColor.textFaint),
+                style: t(AppFontSize.f11, c: AppColor.textFaint),
               ),
             ],
           ),
@@ -533,10 +578,10 @@ class _JoinableChallengeCard extends StatelessWidget {
                         Flexible(
                           child: Text(
                             c.title,
-                            style: t(15, w: FontWeight.w800),
+                            style: t(AppFontSize.f15, w: FontWeight.w800),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: AppSpace.s8),
                         Pill(
                           c.category,
                           bg: AppColor.info.withValues(alpha: 0.15),
@@ -544,15 +589,18 @@ class _JoinableChallengeCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(c.description, style: t(12, c: AppColor.textFaint)),
+                    const SizedBox(height: AppSpace.s4),
+                    Text(
+                      c.description,
+                      style: t(AppFontSize.f12, c: AppColor.textFaint),
+                    ),
                   ],
                 ),
               ),
               Text(c.icon, style: const TextStyle(fontSize: 26)),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpace.s12),
           Row(
             children: [
               Pill(
@@ -560,7 +608,7 @@ class _JoinableChallengeCard extends StatelessWidget {
                 bg: AppColor.surfaceSunken,
                 fg: AppColor.textMuted,
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: AppSpace.s8),
               Pill(
                 c.peopleLabel,
                 bg: AppColor.surfaceSunken,
@@ -568,18 +616,24 @@ class _JoinableChallengeCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpace.s12),
           SunkenBox(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(c.rewardDescription, style: t(12, w: FontWeight.w700)),
-                const SizedBox(height: 3),
-                Text(c.bonusDescription, style: t(11, c: AppColor.textFaint)),
+                Text(
+                  c.rewardDescription,
+                  style: t(AppFontSize.f12, w: FontWeight.w700),
+                ),
+                const SizedBox(height: AppSpace.s3),
+                Text(
+                  c.bonusDescription,
+                  style: t(AppFontSize.f11, c: AppColor.textFaint),
+                ),
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpace.s12),
           GestureDetector(
             onTap: joined
                 ? null
@@ -590,7 +644,7 @@ class _JoinableChallengeCard extends StatelessWidget {
             child: Container(
               width: double.infinity,
               alignment: Alignment.center,
-              padding: const EdgeInsets.symmetric(vertical: 13),
+              padding: const EdgeInsets.symmetric(vertical: AppSpace.s13),
               decoration: BoxDecoration(
                 color: joined ? AppColor.surfaceSunken : AppColor.primarySoft,
                 borderRadius: BorderRadius.circular(14),
@@ -630,7 +684,7 @@ List<Widget> _addFriendTab(BuildContext context, AppState s) => [
     child: Row(
       children: [
         const Icon(Icons.search, color: AppColor.textFaint, size: 20),
-        const SizedBox(width: 10),
+        const SizedBox(width: AppSpace.s10),
         Expanded(
           child: AppTextField(
             value: s.friendSearchQuery,
@@ -647,14 +701,17 @@ List<Widget> _addFriendTab(BuildContext context, AppState s) => [
             s.searchFriendByCode();
           },
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpace.s16,
+              vertical: AppSpace.s10,
+            ),
             decoration: BoxDecoration(
               color: AppColor.primary,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
               '검색',
-              style: t(12, w: FontWeight.w700, c: Colors.white),
+              style: t(AppFontSize.f12, w: FontWeight.w700, c: Colors.white),
             ),
           ),
         ),
@@ -676,15 +733,18 @@ List<Widget> _addFriendTab(BuildContext context, AppState s) => [
     ),
   if (s.friendSearchNotFound)
     AppCard(
-      child: Text('이 코드로 찾은 사람이 없어요', style: t(12, c: AppColor.textFaint)),
+      child: Text(
+        '이 코드로 찾은 사람이 없어요',
+        style: t(AppFontSize.f12, c: AppColor.textFaint),
+      ),
     ),
   _InviteCodeCard(context: context, s: s),
   if (s.incomingFriendRequests.isNotEmpty) ...[
     Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 2),
+      padding: const EdgeInsets.only(left: AppSpace.s4, bottom: AppSpace.s2),
       child: Text(
         '받은 요청 ${s.incomingFriendRequests.length}',
-        style: t(15, w: FontWeight.w800),
+        style: t(AppFontSize.f15, w: FontWeight.w800),
       ),
     ),
     for (final r in s.incomingFriendRequests)
@@ -698,7 +758,7 @@ List<Widget> _addFriendTab(BuildContext context, AppState s) => [
           mainAxisSize: MainAxisSize.min,
           children: [
             _OutlineButton(label: '거절', onTap: () => s.declineFriendRequest(r)),
-            const SizedBox(width: 8),
+            const SizedBox(width: AppSpace.s8),
             _PillButton(
               label: '수락',
               active: true,
@@ -715,10 +775,10 @@ List<Widget> _addFriendTab(BuildContext context, AppState s) => [
   ],
   if (s.realFriends.isNotEmpty) ...[
     Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 2),
+      padding: const EdgeInsets.only(left: AppSpace.s4, bottom: AppSpace.s2),
       child: Text(
         '내 친구 ${s.realFriends.length}',
-        style: t(15, w: FontWeight.w800),
+        style: t(AppFontSize.f15, w: FontWeight.w800),
       ),
     ),
     for (final f in s.realFriends)
@@ -730,7 +790,7 @@ List<Widget> _addFriendTab(BuildContext context, AppState s) => [
   ],
   if (s.suggestedFriends.isNotEmpty) ...[
     const Padding(
-      padding: EdgeInsets.only(left: 4, bottom: 2),
+      padding: EdgeInsets.only(left: AppSpace.s4, bottom: AppSpace.s2),
       child: Text('추천 친구', style: TextStyle(fontWeight: FontWeight.w800)),
     ),
     for (final f in s.suggestedFriends)
@@ -763,8 +823,11 @@ class _InviteCodeCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('내 초대 코드', style: t(12, c: AppColor.primaryDark)),
-              const SizedBox(height: 6),
+              Text(
+                '내 초대 코드',
+                style: t(AppFontSize.f12, c: AppColor.primaryDark),
+              ),
+              const SizedBox(height: AppSpace.s6),
               Text(
                 s.inviteCode,
                 style: t(
@@ -789,14 +852,21 @@ class _InviteCodeCard extends StatelessWidget {
             if (context.mounted) toast(context, '초대 코드를 복사했어요');
           },
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpace.s16,
+              vertical: AppSpace.s10,
+            ),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
               '복사',
-              style: t(12, w: FontWeight.w700, c: AppColor.primaryDark),
+              style: t(
+                AppFontSize.f12,
+                w: FontWeight.w700,
+                c: AppColor.primaryDark,
+              ),
             ),
           ),
         ),
@@ -824,14 +894,17 @@ class _FriendRow extends StatelessWidget {
     child: Row(
       children: [
         IconTile(user.emoji, size: 44, radius: 16, bg: user.tint, fontSize: 20),
-        const SizedBox(width: 12),
+        const SizedBox(width: AppSpace.s12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(user.nickname, style: t(14, w: FontWeight.w700)),
-              const SizedBox(height: 4),
-              Text(subtitle, style: t(12, c: AppColor.textFaint)),
+              Text(
+                user.nickname,
+                style: t(AppFontSize.f14, w: FontWeight.w700),
+              ),
+              const SizedBox(height: AppSpace.s4),
+              Text(subtitle, style: t(AppFontSize.f12, c: AppColor.textFaint)),
             ],
           ),
         ),
@@ -853,7 +926,10 @@ class _PillButton extends StatelessWidget {
   Widget build(BuildContext context) => GestureDetector(
     onTap: onTap,
     child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpace.s14,
+        vertical: AppSpace.s10,
+      ),
       decoration: BoxDecoration(
         color: active ? AppColor.primaryTint : AppColor.surfaceSunken,
         borderRadius: BorderRadius.circular(12),
@@ -881,14 +957,17 @@ class _OutlineButton extends StatelessWidget {
   Widget build(BuildContext context) => GestureDetector(
     onTap: onTap,
     child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpace.s14,
+        vertical: AppSpace.s10,
+      ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColor.primary, width: 1.5),
       ),
       child: Text(
         label,
-        style: t(12, w: FontWeight.w700, c: AppColor.primaryDark),
+        style: t(AppFontSize.f12, w: FontWeight.w700, c: AppColor.primaryDark),
       ),
     ),
   );
@@ -905,7 +984,7 @@ class ChallengeNewScreen extends StatelessWidget {
       children: [
         SubHeader(emoji: '🏆', title: '챌린지 만들기', onBack: () => s.go('friends')),
         const AppCard(child: Text('목표 기간과 내용을 설정하여 새로운 챌린지를 만드세요.')),
-        const SizedBox(height: 20),
+        const SizedBox(height: AppSpace.s20),
         PrimaryButton(
           label: '만들기',
           onTap: () {

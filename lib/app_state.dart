@@ -5,7 +5,9 @@
 
 import 'dart:convert';
 import 'dart:math';
+import 'package:diet_project/ui/record/viewmodel/weight_view_model.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:diet_project/data/services/app_icon_service.dart';
 import 'package:diet_project/data/services/meal_analysis_service.dart';
 import 'package:diet_project/data/services/meal_recommendation_service.dart';
 import 'package:diet_project/data/services/notification_service.dart';
@@ -92,7 +94,7 @@ class AppState extends ChangeNotifier {
     AuthService? auth,
     ProfileRepository? profiles,
     WaterViewModel? waterViewModel,
-    RecordRepository<WeightEntry>? weightRepo,
+    WeightViewModel? weightViewModel,
     RecordRepository<ExerciseLog>? exerciseRepo,
     RecordRepository<MealLog>? mealRepo,
     RecordRepository<Bowl>? bowlRepo,
@@ -106,8 +108,14 @@ class AppState extends ChangeNotifier {
   }) : _auth = auth ?? MockAuthService(),
        _profiles = profiles ?? MemoryProfileRepository(),
        _waterViewModel =
-           waterViewModel ?? WaterViewModel(waterRepo: MemoryWaterRepository()),
-       _weightRepo = weightRepo ?? MemoryRecordRepository(weightCodec),
+           waterViewModel ??
+           WaterViewModel(waterRepo: MemoryWaterRepository(), now: now),
+       _weightViewModel =
+           weightViewModel ??
+           WeightViewModel(
+             weightRepo: MemoryRecordRepository(weightCodec),
+             now: now,
+           ),
        _exerciseRepo = exerciseRepo ?? MemoryRecordRepository(exerciseCodec),
        _mealRepo = mealRepo ?? MemoryRecordRepository(mealCodec),
        _bowlRepo = bowlRepo ?? MemoryRecordRepository(bowlCodec),
@@ -126,7 +134,7 @@ class AppState extends ChangeNotifier {
   /// 기록 계산 · 오늘의 기록 요약 · 미션 진행도 계산에 필요할 때만 이걸
   /// 통해서 읽는다(물 데이터를 따로 복사해서 들고 있지 않는다).
   final WaterViewModel _waterViewModel;
-  final RecordRepository<WeightEntry> _weightRepo;
+  final WeightViewModel _weightViewModel;
   final RecordRepository<ExerciseLog> _exerciseRepo;
   final RecordRepository<MealLog> _mealRepo;
   final RecordRepository<Bowl> _bowlRepo;
@@ -433,6 +441,7 @@ class AppState extends ChangeNotifier {
       }
       if (!_isDemo) await _loadAccountData(a.uid);
       unawaited(_applyNotificationSchedule());
+      unawaited(_appIconService.setFilled(todayMeals.isNotEmpty));
       return true;
     } catch (e, stack) {
       debugPrint('프로필을 불러오지 못했어요: $e\n$stack');
@@ -491,7 +500,6 @@ class AppState extends ChangeNotifier {
     _exerciseLogs.clear();
     _plantSaveTimer?.cancel();
     _plantSaveTimer = null;
-    weightEntries = [];
     bowls = [];
     routines = [];
     bowlIndex = 0;
@@ -667,7 +675,7 @@ class AppState extends ChangeNotifier {
 
   /// 오늘 저장한 가장 최근 체중 기록 (없으면 null)
   WeightEntry? get _todayWeightEntry {
-    for (final w in weightEntries.reversed) {
+    for (final w in _weightViewModel.weightEntries.reversed) {
       if (w.userId == _uid && w.dateKey == _todayKey) return w;
     }
     return null;
@@ -1034,6 +1042,7 @@ class AppState extends ChangeNotifier {
   int get baseKcal => _aiKcal ?? 450;
 
   final MealAnalysisService _mealAnalysisService = MealAnalysisService();
+  final AppIconService _appIconService = AppIconService();
   final MealRecommendationService _mealRecommendationService =
       MealRecommendationService();
   final NotificationService _notificationService = NotificationService();
@@ -1233,7 +1242,7 @@ class AppState extends ChangeNotifier {
     '운동': _exerciseLogs.any(
       (e) => e.userId == _uid && e.dateKey == _selectedKey,
     ),
-    '체중': _viewingToday && weightEntries.isNotEmpty,
+    '체중': _viewingToday && _weightViewModel.weightEntries.isNotEmpty,
     '물': _viewingToday && _waterViewModel.waterEntries.isNotEmpty,
   };
 
@@ -1276,7 +1285,7 @@ class AppState extends ChangeNotifier {
     final key = dateKeyOf(date);
     return _mealLogs.any((m) => m.dateKey == key) ||
         _exerciseLogs.any((e) => e.dateKey == key) ||
-        weightEntries.any((w) => w.dateKey == key) ||
+        _weightViewModel.weightEntries.any((w) => w.dateKey == key) ||
         _waterViewModel.waterEntries.any((w) => w.dateKey == key);
   }
 
@@ -1396,6 +1405,7 @@ class AppState extends ChangeNotifier {
     _postActivity('${log.mealType.label} 식단을 기록했어요');
     _reportChallengeProgress(ChallengeType.mealRecord, todayMeals.length);
     _reportChallengeProgress(ChallengeType.protein, todayProteinG);
+    unawaited(_appIconService.setFilled(true));
   }
 
   /// 상세 화면에서 보여줄 식단 — id로 참조한다.
@@ -1549,7 +1559,6 @@ class AppState extends ChangeNotifier {
   }
 
   // 체중
-  double weightInput = 56.7;
   final Map<String, bool> bodyShots = {'FRONT': true, 'SIDE': false};
 
   bool get bodyShotsOk =>
@@ -1560,41 +1569,12 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 실제로 저장한 체중 기록 저장소 — 최근 값이 "어제보다" 비교 기준이 된다.
-  late List<WeightEntry> weightEntries = [
-    WeightEntry(
-      id: 'weight_seed',
-      userId: User.meId,
-      kg: 56.9,
-      dateKey: dateKeyOf(DateTime(today.year, today.month, today.day - 1)),
-      time: '어제',
-    ),
-  ];
-
   /// 기록 탭 요약 카드에 쓰는, 가장 최근에 저장한 체중.
   double get latestWeightKg =>
-      weightEntries.isEmpty ? profile.weightKg : weightEntries.last.kg;
+      _weightViewModel.latestWeightKg ?? profile.weightKg;
 
-  String get weightDiff {
-    final last = weightEntries.isEmpty
-        ? profile.weightKg
-        : weightEntries.last.kg;
-    return '${(weightInput - last).toStringAsFixed(1)}kg';
-  }
-
-  /// 눈바디 2장을 확인한 뒤 지금 입력값으로 실제 체중 기록을 저장한다.
-  void logWeight() {
-    final entry = WeightEntry(
-      id: 'weight_${DateTime.now().microsecondsSinceEpoch}',
-      userId: _uid,
-      kg: weightInput,
-      dateKey: _todayKey,
-      time: _clockTime,
-    );
-    weightEntries.add(entry);
-    profile.weightKg = weightInput;
-    notifyListeners();
-    _saveRecord(_weightRepo, entry, '체중 기록');
+  void onWeightLogged(double kg) {
+    profile.weightKg = kg;
     unawaited(_persistInBackground());
   }
 
@@ -1667,7 +1647,7 @@ class AppState extends ChangeNotifier {
     final prev = DateTime(today.year, today.month - 1, 1);
     await Future.wait([
       _waterViewModel.loadForUid(uid),
-      _loadWeight(uid),
+      _weightViewModel.loadForUid(uid, fallbackKg: profile.weightKg),
       _loadTemplates(uid),
       _loadPlant(uid),
       _loadDex(uid),
@@ -1703,19 +1683,6 @@ class AppState extends ChangeNotifier {
       ];
       _notice = '도감 정보를 불러오지 못했어요.';
     }
-  }
-
-  Future<void> _loadWeight(String uid) async {
-    try {
-      weightEntries = await _weightRepo.loadAll(uid);
-    } catch (e, stack) {
-      debugPrint('체중 기록을 불러오지 못했어요: $e\n$stack');
-      weightEntries = [];
-      _notice = '체중 기록을 불러오지 못했어요.';
-    }
-    weightInput = weightEntries.isNotEmpty
-        ? weightEntries.last.kg
-        : profile.weightKg;
   }
 
   Future<void> _loadTemplates(String uid) async {
@@ -1774,7 +1741,7 @@ class AppState extends ChangeNotifier {
     const limit = Duration(seconds: 30);
     await Future.wait<void>([
       _waterViewModel.deleteAll(uid),
-      _weightRepo.deleteAll(uid),
+      _weightViewModel.deleteAll(uid),
       _exerciseRepo.deleteAll(uid),
       _mealRepo.deleteAll(uid),
       _bowlRepo.deleteAll(uid),
@@ -2456,13 +2423,13 @@ class AppState extends ChangeNotifier {
   /// 끊기지 않게 이전 값을 이어서 보여준다.
   double _weightAsOf(String key) {
     WeightEntry? best;
-    for (final w in weightEntries) {
+    for (final w in _weightViewModel.weightEntries) {
       if (w.dateKey.compareTo(key) > 0) continue;
       if (best == null || w.dateKey.compareTo(best.dateKey) > 0) best = w;
     }
     if (best != null) return best.kg;
     WeightEntry? earliest;
-    for (final w in weightEntries) {
+    for (final w in _weightViewModel.weightEntries) {
       if (earliest == null || w.dateKey.compareTo(earliest.dateKey) < 0) {
         earliest = w;
       }

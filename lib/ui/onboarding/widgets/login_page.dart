@@ -30,7 +30,7 @@ class LoginPage extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(24, 56, 24, 24),
           children: [
             Center(child: IconTile('🌱', size: 72, radius: 24, fontSize: 34)),
-            const SizedBox(height: 26),
+            const SizedBox(height: AppSpace.s26),
             Text(
               '오늘의 한 끼, 기록부터',
               textAlign: TextAlign.center,
@@ -41,13 +41,13 @@ class LoginPage extends StatelessWidget {
                 sp: -0.5,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpace.s8),
             Text(
               '사진 한 장으로 시작하는\n가벼운 다이어트 관리',
               textAlign: TextAlign.center,
-              style: t(13, c: AppColor.textFaint, h: 1.6),
+              style: t(AppFontSize.f13, c: AppColor.textFaint, h: 1.6),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: AppSpace.s30),
             _ProviderButton(
               label: 'Google로 계속하기',
               bg: AppColor.surface,
@@ -55,12 +55,16 @@ class LoginPage extends StatelessWidget {
               badgeBg: const Color(0xFFF1F3F4),
               badge: Text(
                 'G',
-                style: t(14, w: FontWeight.w900, c: const Color(0xFF4285F4)),
+                style: t(
+                  AppFontSize.f14,
+                  w: FontWeight.w900,
+                  c: const Color(0xFF4285F4),
+                ),
               ),
               shadow: AppShadow.card,
               onTap: () => _signIn(context, LoginProvider.google),
             ),
-            const SizedBox(height: 11),
+            const SizedBox(height: AppSpace.s11),
             _ProviderButton(
               label: 'Apple로 계속하기',
               bg: const Color(0xFF111111),
@@ -74,35 +78,42 @@ class LoginPage extends StatelessWidget {
               chevron: const Color(0xFF5A5A5A),
               onTap: () => _signIn(context, LoginProvider.apple),
             ),
-            const SizedBox(height: 26),
+            const SizedBox(height: AppSpace.s26),
             AppCard(
               padding: 16,
               radius: 20,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('비밀번호 없이 로그인해요', style: t(12, w: FontWeight.w700)),
-                  const SizedBox(height: 9),
+                  Text(
+                    '비밀번호 없이 로그인해요',
+                    style: t(AppFontSize.f12, w: FontWeight.w700),
+                  ),
+                  const SizedBox(height: AppSpace.s9),
                   for (final line in const [
                     '기존 계정이면 바로 홈으로, 처음이면 계정 연결 화면으로 이동해요',
                     '이메일과 비밀번호를 따로 관리하지 않아 분실 걱정이 없어요',
                   ]) ...[
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 7),
+                      padding: const EdgeInsets.only(bottom: AppSpace.s7),
                       child: Text(
                         '· $line',
-                        style: t(11, c: AppColor.textFaint, h: 1.6),
+                        style: t(
+                          AppFontSize.f11,
+                          c: AppColor.textFaint,
+                          h: 1.6,
+                        ),
                       ),
                     ),
                   ],
                 ],
               ),
             ),
-            const SizedBox(height: 56),
+            const SizedBox(height: AppSpace.s56),
             Text(
               'Google · Apple 계정으로만 로그인해요.\n건강 기록은 암호화되어 본인만 조회할 수 있어요.',
               textAlign: TextAlign.center,
-              style: t(10, c: const Color(0xFFB2B9BE), h: 1.7),
+              style: t(AppFontSize.f10, c: const Color(0xFFB2B9BE), h: 1.7),
             ),
           ],
         ),
@@ -147,12 +158,15 @@ class _ProviderButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpace.s18,
+              vertical: AppSpace.s16,
+            ),
             child: Row(
               children: [
                 Container(
-                  width: 26,
-                  height: 26,
+                  width: AppSpace.s26,
+                  height: AppSpace.s26,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: badgeBg,
@@ -160,7 +174,7 @@ class _ProviderButton extends StatelessWidget {
                   ),
                   child: badge,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppSpace.s12),
                 Expanded(
                   child: Text(
                     label,

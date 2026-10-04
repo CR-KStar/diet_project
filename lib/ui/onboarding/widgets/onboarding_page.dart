@@ -42,13 +42,13 @@ class _AccountLinkStep extends StatelessWidget {
     final ok = s.requiredTermsOk && s.nickname.trim().isNotEmpty;
 
     return ScreenScroll(
-      horizontal: 20,
-      top: 8,
+      horizontal: AppSpace.s20,
+      top: AppSpace.s8,
       children: [
         SubHeader(emoji: '🔗', title: '계정 연결', onBack: () => s.go('login')),
         Text(
           '${s.provider} 계정으로 처음 로그인했어요. 아래 정보만 확인하면 바로 시작할 수 있어요.',
-          style: t(13, c: AppColor.textFaint, h: 1.6),
+          style: t(AppFontSize.f13, c: AppColor.textFaint, h: 1.6),
         ),
 
         AppCard(
@@ -61,7 +61,7 @@ class _AccountLinkStep extends StatelessWidget {
                 fontSize: 18,
                 bg: apple ? const Color(0xFF111111) : const Color(0xFFF1F3F4),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: AppSpace.s14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,20 +72,23 @@ class _AccountLinkStep extends StatelessWidget {
                           : 'chaerin@gmail.com',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: t(14, w: FontWeight.w700),
+                      style: t(AppFontSize.f14, w: FontWeight.w700),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: AppSpace.s4),
                     Text(
                       '${s.provider} 계정으로 연결됨',
-                      style: t(11, c: AppColor.textFaint),
+                      style: t(AppFontSize.f11, c: AppColor.textFaint),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: AppSpace.s10),
               GestureDetector(
                 onTap: () => s.go('login'),
-                child: Text('변경', style: t(11, c: AppColor.textFaint)),
+                child: Text(
+                  '변경',
+                  style: t(AppFontSize.f11, c: AppColor.textFaint),
+                ),
               ),
             ],
           ),
@@ -97,19 +100,23 @@ class _AccountLinkStep extends StatelessWidget {
             children: [
               Text(
                 '앱에서 쓸 닉네임',
-                style: t(12, w: FontWeight.w500, c: AppColor.textFaint),
+                style: t(
+                  AppFontSize.f12,
+                  w: FontWeight.w500,
+                  c: AppColor.textFaint,
+                ),
               ),
-              const SizedBox(height: 9),
+              const SizedBox(height: AppSpace.s9),
               AppTextField(
                 value: s.nickname,
                 hint: '닉네임',
                 fontSize: 15,
                 onChanged: (v) => s.setSub(() => s.nickname = v),
               ),
-              const SizedBox(height: 9),
+              const SizedBox(height: AppSpace.s9),
               Text(
                 '친구 검색과 챌린지 순위에 표시돼요. 나중에 바꿀 수 있어요.',
-                style: t(11, c: AppColor.textGhost),
+                style: t(AppFontSize.f11, c: AppColor.textGhost),
               ),
             ],
           ),
@@ -123,7 +130,7 @@ class _AccountLinkStep extends StatelessWidget {
                 onTap: s.toggleAllTerms,
                 behavior: HitTestBehavior.opaque,
                 child: Padding(
-                  padding: const EdgeInsets.only(bottom: 13),
+                  padding: const EdgeInsets.only(bottom: AppSpace.s13),
                   child: Row(
                     children: [
                       CheckDot(
@@ -131,32 +138,38 @@ class _AccountLinkStep extends StatelessWidget {
                         size: 22,
                         radius: 7,
                       ),
-                      const SizedBox(width: 10),
-                      Text('전체 동의', style: t(14, w: FontWeight.w700)),
+                      const SizedBox(width: AppSpace.s10),
+                      Text(
+                        '전체 동의',
+                        style: t(AppFontSize.f14, w: FontWeight.w700),
+                      ),
                     ],
                   ),
                 ),
               ),
-              const Divider(height: 1),
-              const SizedBox(height: 13),
+              const Divider(height: AppSpace.s1),
+              const SizedBox(height: AppSpace.s13),
               for (final k in s.terms.keys)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.only(bottom: AppSpace.s12),
                   child: Row(
                     children: [
                       GestureDetector(
                         onTap: () => s.toggleTerm(k),
                         child: CheckDot(on: s.terms[k]!),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: AppSpace.s10),
                       Expanded(
-                        child: Text(k, style: t(12, c: AppColor.textMuted)),
+                        child: Text(
+                          k,
+                          style: t(AppFontSize.f12, c: AppColor.textMuted),
+                        ),
                       ),
                       GestureDetector(
                         onTap: () => toast(context, '약관 전문을 웹뷰로 엽니다'),
                         child: Text(
                           '보기 ›',
-                          style: t(11, c: AppColor.textGhost),
+                          style: t(AppFontSize.f11, c: AppColor.textGhost),
                         ),
                       ),
                     ],
@@ -180,7 +193,7 @@ class _AccountLinkStep extends StatelessWidget {
         Text(
           '비밀번호는 저장하지 않아요 · 건강 기록은 암호화되어 본인만 조회할 수 있어요.',
           textAlign: TextAlign.center,
-          style: t(10, c: const Color(0xFFB2B9BE), h: 1.7),
+          style: t(AppFontSize.f10, c: const Color(0xFFB2B9BE), h: 1.7),
         ),
       ],
     );
@@ -213,31 +226,31 @@ class _StepHeader extends StatelessWidget {
               onTap: onBack,
               behavior: HitTestBehavior.opaque,
               child: SizedBox(
-                width: 22,
-                child: Text('‹', style: t(20, c: AppColor.text)),
+                width: AppSpace.s22,
+                child: Text('‹', style: t(AppFontSize.f20, c: AppColor.text)),
               ),
             )
           else
-            const SizedBox(width: 22),
-          const SizedBox(width: 10),
+            const SizedBox(width: AppSpace.s22),
+          const SizedBox(width: AppSpace.s10),
           Text(
             'STEP $stepNo / 3',
-            style: t(13, w: FontWeight.w700, c: AppColor.primary),
+            style: t(AppFontSize.f13, w: FontWeight.w700, c: AppColor.primary),
           ),
         ],
       ),
-      const SizedBox(height: 16),
-      Text(title, style: t(24, w: FontWeight.w900, h: 1.35)),
-      const SizedBox(height: 8),
-      Text(desc, style: t(13, c: AppColor.textFaint, h: 1.6)),
-      const SizedBox(height: 16),
+      const SizedBox(height: AppSpace.s16),
+      Text(title, style: t(AppFontSize.f24, w: FontWeight.w900, h: 1.35)),
+      const SizedBox(height: AppSpace.s8),
+      Text(desc, style: t(AppFontSize.f13, c: AppColor.textFaint, h: 1.6)),
+      const SizedBox(height: AppSpace.s16),
       Row(
         children: [
           for (var i = 1; i <= 3; i++) ...[
-            if (i > 1) const SizedBox(width: 6),
+            if (i > 1) const SizedBox(width: AppSpace.s6),
             Expanded(
               child: Container(
-                height: 4,
+                height: AppSpace.s4,
                 decoration: BoxDecoration(
                   color: i <= stepNo
                       ? AppColor.primary
@@ -275,8 +288,8 @@ class _GoalStep extends StatelessWidget {
     final s = context.watch<AppState>();
 
     return ScreenScroll(
-      horizontal: 20,
-      top: 8,
+      horizontal: AppSpace.s20,
+      top: AppSpace.s8,
       children: [
         _StepHeader(
           stepNo: 1,
@@ -289,13 +302,13 @@ class _GoalStep extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('목표', style: t(13, w: FontWeight.w700)),
-              const SizedBox(height: 12),
+              Text('목표', style: t(AppFontSize.f13, w: FontWeight.w700)),
+              const SizedBox(height: AppSpace.s12),
               for (final g in _goals) ...[
                 GestureDetector(
                   onTap: () => s.setSub(() => s.goal = g.$1),
                   child: Container(
-                    padding: const EdgeInsets.all(14),
+                    padding: const EdgeInsets.all(AppSpace.s14),
                     decoration: AppDeco.selectableCard(
                       selected: s.goal == g.$1,
                     ),
@@ -305,9 +318,18 @@ class _GoalStep extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(g.$1, style: t(14, w: FontWeight.w700)),
-                              const SizedBox(height: 3),
-                              Text(g.$2, style: t(11, c: AppColor.textFaint)),
+                              Text(
+                                g.$1,
+                                style: t(AppFontSize.f14, w: FontWeight.w700),
+                              ),
+                              const SizedBox(height: AppSpace.s3),
+                              Text(
+                                g.$2,
+                                style: t(
+                                  AppFontSize.f11,
+                                  c: AppColor.textFaint,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -316,7 +338,7 @@ class _GoalStep extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (g != _goals.last) const SizedBox(height: 9),
+                if (g != _goals.last) const SizedBox(height: AppSpace.s9),
               ],
             ],
           ),
@@ -326,17 +348,17 @@ class _GoalStep extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('활동량', style: t(13, w: FontWeight.w700)),
-              const SizedBox(height: 12),
+              Text('활동량', style: t(AppFontSize.f13, w: FontWeight.w700)),
+              const SizedBox(height: AppSpace.s12),
               SegmentedRow(
                 options: DietRules.activityFactor.keys.toList(),
                 value: s.activity,
                 onChanged: (v) => s.setSub(() => s.activity = v),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpace.s12),
               Text(
                 _activityDesc[s.activity] ?? '',
-                style: t(11, c: AppColor.textGhost, h: 1.6),
+                style: t(AppFontSize.f11, c: AppColor.textGhost, h: 1.6),
               ),
             ],
           ),
@@ -366,8 +388,8 @@ class _BodyStep extends StatelessWidget {
     final s = context.watch<AppState>();
 
     return ScreenScroll(
-      horizontal: 20,
-      top: 8,
+      horizontal: AppSpace.s20,
+      top: AppSpace.s8,
       children: [
         _StepHeader(
           stepNo: 2,
@@ -392,20 +414,22 @@ class _BodyStep extends StatelessWidget {
                           s.setSub(() => s.heightCm = v.toDouble()),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppSpace.s12),
                   Expanded(
                     child: _UnderlineField(
                       label: '현재 몸무게',
                       value: s.weightKg,
                       unit: 'kg',
                       decimal: true,
-                      onChanged: (v) =>
-                          s.setSub(() => s.weightKg = v.toDouble()),
+                      onChanged: (v) => s.setSub(() {
+                        s.weightKg = v.toDouble();
+                        s.goalWeight = v.toDouble();
+                      }),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: AppSpace.s14),
               Row(
                 children: [
                   Expanded(
@@ -416,7 +440,7 @@ class _BodyStep extends StatelessWidget {
                       onChanged: (v) => s.setSub(() => s.age = v.toInt()),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppSpace.s12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -429,7 +453,7 @@ class _BodyStep extends StatelessWidget {
                             c: AppColor.textFaint,
                           ),
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: AppSpace.s6),
                         Row(
                           children: [
                             Expanded(
@@ -439,7 +463,7 @@ class _BodyStep extends StatelessWidget {
                                 onTap: () => s.setSub(() => s.gender = '여성'),
                               ),
                             ),
-                            const SizedBox(width: 6),
+                            const SizedBox(width: AppSpace.s6),
                             Expanded(
                               child: _GenderButton(
                                 label: '남성',
@@ -462,8 +486,8 @@ class _BodyStep extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('자동 계산 결과', style: t(14, w: FontWeight.w700)),
-              const SizedBox(height: 14),
+              Text('자동 계산 결과', style: t(AppFontSize.f14, w: FontWeight.w700)),
+              const SizedBox(height: AppSpace.s14),
               Row(
                 children: [
                   Expanded(
@@ -476,7 +500,7 @@ class _BodyStep extends StatelessWidget {
                       highlight: true,
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: AppSpace.s10),
                   Expanded(
                     child: _CalcTile(
                       label: '기초대사량',
@@ -486,7 +510,7 @@ class _BodyStep extends StatelessWidget {
                       sub: 'kcal',
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: AppSpace.s10),
                   Expanded(
                     child: _CalcTile(
                       label: '일일 권장',
@@ -496,10 +520,10 @@ class _BodyStep extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpace.s12),
               Text(
                 '모든 영양 정보는 참고용이며 의료 진단이 아닙니다.',
-                style: t(11, c: AppColor.textGhost, h: 1.5),
+                style: t(AppFontSize.f11, c: AppColor.textGhost, h: 1.5),
               ),
             ],
           ),
@@ -528,7 +552,7 @@ class _GenderButton extends StatelessWidget {
     onTap: onTap,
     child: Container(
       alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(vertical: 11),
+      padding: const EdgeInsets.symmetric(vertical: AppSpace.s11),
       decoration: BoxDecoration(
         color: selected ? AppColor.primaryTint : AppColor.bg,
         borderRadius: BorderRadius.circular(15),
@@ -570,18 +594,16 @@ class _UnderlineField extends StatefulWidget {
 
 class _UnderlineFieldState extends State<_UnderlineField> {
   late final FocusNode _focus = FocusNode()..addListener(() => setState(() {}));
-  late final TextEditingController _c = TextEditingController(
-    text: _fmt(widget.value),
-  );
 
-  String _fmt(num v) => widget.decimal ? v.toStringAsFixed(1) : v.toString();
+  /// 처음엔 비워두고, 기본값(widget.value)은 연한 placeholder로만 보여준다 —
+  /// 실제로 입력한 값처럼 보이지 않게, 타이핑을 시작하는 순간 자연스럽게
+  /// placeholder가 사라지게 하려는 의도.
+  late final TextEditingController _c = TextEditingController();
 
-  @override
-  void didUpdateWidget(_UnderlineField old) {
-    super.didUpdateWidget(old);
-    if (widget.value != old.value && _fmt(widget.value) != _c.text) {
-      _c.text = _fmt(widget.value);
-    }
+  String _fmt(num v) {
+    if (!widget.decimal) return v.toString();
+    final d = v.toDouble();
+    return d == d.roundToDouble() ? d.toInt().toString() : d.toStringAsFixed(1);
   }
 
   @override
@@ -598,11 +620,11 @@ class _UnderlineFieldState extends State<_UnderlineField> {
       children: [
         Text(
           widget.label,
-          style: t(12, w: FontWeight.w500, c: AppColor.textFaint),
+          style: t(AppFontSize.f12, w: FontWeight.w500, c: AppColor.textFaint),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: AppSpace.s6),
         Container(
-          padding: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.only(bottom: AppSpace.s8),
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
@@ -623,11 +645,17 @@ class _UnderlineFieldState extends State<_UnderlineField> {
                   keyboardType: TextInputType.numberWithOptions(
                     decimal: widget.decimal,
                   ),
-                  style: t(22, w: FontWeight.w700),
-                  decoration: const InputDecoration(
+                  style: t(AppFontSize.f22, w: FontWeight.w700),
+                  decoration: InputDecoration(
                     border: InputBorder.none,
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
+                    hintText: _fmt(widget.value),
+                    hintStyle: t(
+                      AppFontSize.f22,
+                      w: FontWeight.w700,
+                      c: AppColor.textGhost,
+                    ),
                   ),
                   onChanged: (v) {
                     final n = widget.decimal
@@ -637,10 +665,13 @@ class _UnderlineFieldState extends State<_UnderlineField> {
                   },
                 ),
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: AppSpace.s4),
               Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Text(widget.unit, style: t(13, c: AppColor.textFaint)),
+                padding: const EdgeInsets.only(bottom: AppSpace.s4),
+                child: Text(
+                  widget.unit,
+                  style: t(AppFontSize.f13, c: AppColor.textFaint),
+                ),
               ),
             ],
           ),
@@ -665,7 +696,7 @@ class _CalcTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(12),
+    padding: const EdgeInsets.all(AppSpace.s12),
     decoration: BoxDecoration(
       color: const Color(0xFFF7FAF7),
       borderRadius: BorderRadius.circular(18),
@@ -675,9 +706,9 @@ class _CalcTile extends StatelessWidget {
       children: [
         Text(
           label,
-          style: t(11, w: FontWeight.w500, c: AppColor.textFaint),
+          style: t(AppFontSize.f11, w: FontWeight.w500, c: AppColor.textFaint),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: AppSpace.s4),
         Text(
           value,
           style: t(
@@ -686,7 +717,7 @@ class _CalcTile extends StatelessWidget {
             c: highlight ? AppColor.primary : AppColor.text,
           ),
         ),
-        Text(sub, style: t(11, c: AppColor.textFaint)),
+        Text(sub, style: t(AppFontSize.f11, c: AppColor.textFaint)),
       ],
     ),
   );
@@ -702,8 +733,8 @@ class _AlertStep extends StatelessWidget {
     final s = context.watch<AppState>();
 
     return ScreenScroll(
-      horizontal: 20,
-      top: 8,
+      horizontal: AppSpace.s20,
+      top: AppSpace.s8,
       children: [
         _StepHeader(
           stepNo: 3,
@@ -716,8 +747,8 @@ class _AlertStep extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('목표 체중', style: t(13, w: FontWeight.w700)),
-              const SizedBox(height: 12),
+              Text('목표 체중', style: t(AppFontSize.f13, w: FontWeight.w700)),
+              const SizedBox(height: AppSpace.s12),
               NumberField(
                 value: s.goalWeight,
                 unit: 'kg',
@@ -728,16 +759,16 @@ class _AlertStep extends StatelessWidget {
                 max: 70,
                 onChanged: (v) => s.setSub(() => s.goalWeight = v.toDouble()),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: AppSpace.s10),
               Center(
                 child: Text(
                   '현재 ${s.weightKg.toStringAsFixed(1)}kg · 45~70kg 사이로 입력하세요',
-                  style: t(11, c: AppColor.textGhost),
+                  style: t(AppFontSize.f11, c: AppColor.textGhost),
                 ),
               ),
-              const SizedBox(height: 14),
-              const Divider(height: 1),
-              const SizedBox(height: 14),
+              const SizedBox(height: AppSpace.s14),
+              const Divider(height: AppSpace.s1),
+              const SizedBox(height: AppSpace.s14),
               RowBetween('감량 목표', s.goalDelta),
             ],
           ),
@@ -747,25 +778,23 @@ class _AlertStep extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('알림 받기', style: t(13, w: FontWeight.w700)),
-              const SizedBox(height: 5),
+              Text('알림 받기', style: t(AppFontSize.f13, w: FontWeight.w700)),
+              const SizedBox(height: AppSpace.s5),
               Text(
                 '필요한 알림만 켜세요. 나중에 변경할 수 있어요.',
-                style: t(11, c: AppColor.textGhost),
+                style: t(AppFontSize.f11, c: AppColor.textGhost),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpace.s12),
               for (final a in s.onboardAlerts.keys)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 11),
+                  padding: const EdgeInsets.only(bottom: AppSpace.s11),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(a, style: t(13, w: FontWeight.w500)),
+                      Text(a, style: t(AppFontSize.f13, w: FontWeight.w500)),
                       AppToggle(
                         value: s.onboardAlerts[a]!,
-                        onChanged: () => s.setSub(
-                          () => s.onboardAlerts[a] = !s.onboardAlerts[a]!,
-                        ),
+                        onChanged: () => s.toggleOnboardAlert(a),
                       ),
                     ],
                   ),
@@ -782,12 +811,16 @@ class _AlertStep extends StatelessWidget {
             children: [
               Text(
                 '🌱 식물이 함께 자라요',
-                style: t(13, w: FontWeight.w700, c: AppColor.primaryDark),
+                style: t(
+                  AppFontSize.f13,
+                  w: FontWeight.w700,
+                  c: AppColor.primaryDark,
+                ),
               ),
-              const SizedBox(height: 7),
+              const SizedBox(height: AppSpace.s7),
               Text(
                 '하루 목표를 달성하면 EXP가 쌓이고 식물이 다음 단계로 성장해요.',
-                style: t(12, c: const Color(0xFF4A7A4E), h: 1.6),
+                style: t(AppFontSize.f12, c: const Color(0xFF4A7A4E), h: 1.6),
               ),
             ],
           ),

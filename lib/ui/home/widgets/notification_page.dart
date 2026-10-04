@@ -98,10 +98,14 @@ class NotifScreen extends StatelessWidget {
                 toast(context, '모든 알림을 읽음으로 표시했어요');
               },
               child: Padding(
-                padding: const EdgeInsets.only(top: 4),
+                padding: const EdgeInsets.only(top: AppSpace.s4),
                 child: Text(
                   '모두 읽음',
-                  style: t(12, w: FontWeight.w700, c: AppColor.primary),
+                  style: t(
+                    AppFontSize.f12,
+                    w: FontWeight.w700,
+                    c: AppColor.primary,
+                  ),
                 ),
               ),
             ),
@@ -116,7 +120,7 @@ class NotifScreen extends StatelessWidget {
           () {
             final unread = n.unread && !s.readNotifIds.contains(n.title);
             return Container(
-              padding: const EdgeInsets.all(15),
+              padding: const EdgeInsets.all(AppSpace.s15),
               decoration: BoxDecoration(
                 color: unread ? const Color(0xFFFBFDF9) : AppColor.surface,
                 borderRadius: BorderRadius.circular(AppRadius.card),
@@ -124,7 +128,7 @@ class NotifScreen extends StatelessWidget {
                 border: Border(
                   left: BorderSide(
                     color: unread ? AppColor.primary : Colors.transparent,
-                    width: 3,
+                    width: AppSpace.s3,
                   ),
                 ),
               ),
@@ -143,7 +147,7 @@ class NotifScreen extends StatelessWidget {
                       bg: n.tint,
                       fontSize: 18,
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppSpace.s12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -153,14 +157,14 @@ class NotifScreen extends StatelessWidget {
                               Flexible(
                                 child: Text(
                                   n.title,
-                                  style: t(13, w: FontWeight.w700),
+                                  style: t(AppFontSize.f13, w: FontWeight.w700),
                                 ),
                               ),
-                              const SizedBox(width: 6),
+                              const SizedBox(width: AppSpace.s6),
                               if (unread)
                                 Container(
-                                  width: 6,
-                                  height: 6,
+                                  width: AppSpace.s6,
+                                  height: AppSpace.s6,
                                   decoration: const BoxDecoration(
                                     color: AppColor.alert,
                                     shape: BoxShape.circle,
@@ -168,13 +172,20 @@ class NotifScreen extends StatelessWidget {
                                 ),
                             ],
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: AppSpace.s4),
                           Text(
                             n.body,
-                            style: t(12, c: AppColor.textMuted, h: 1.55),
+                            style: t(
+                              AppFontSize.f12,
+                              c: AppColor.textMuted,
+                              h: 1.55,
+                            ),
                           ),
-                          const SizedBox(height: 5),
-                          Text(n.time, style: t(10, c: AppColor.textGhost)),
+                          const SizedBox(height: AppSpace.s5),
+                          Text(
+                            n.time,
+                            style: t(AppFontSize.f10, c: AppColor.textGhost),
+                          ),
                         ],
                       ),
                     ),
@@ -186,7 +197,7 @@ class NotifScreen extends StatelessWidget {
         Center(
           child: Text(
             '30일 이전 알림은 자동으로 삭제돼요',
-            style: t(11, c: const Color(0xFFB2B9BE)),
+            style: t(AppFontSize.f11, c: const Color(0xFFB2B9BE)),
           ),
         ),
       ],

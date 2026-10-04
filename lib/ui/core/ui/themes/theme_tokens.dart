@@ -73,6 +73,78 @@ abstract final class AppSpace {
   static const cardGap = 14.0; // 카드 사이
   static const sectionGap = 12.0; // 카드 안 섹션 사이
   static const chipGap = 8.0;
+
+  // 간격 스케일 — SizedBox/Container/EdgeInsets 등에 숫자를 직접 적는 대신
+  // 여기 값을 가져다 쓴다. 값 하나를 바꾸면 그 크기를 쓰는 화면 전체가 같이
+  // 바뀐다.
+  static const s0 = 0.0;
+  static const s1 = 1.0;
+  static const s2 = 2.0;
+  static const s3 = 3.0;
+  static const s4 = 4.0;
+  static const s5 = 5.0;
+  static const s6 = 6.0;
+  static const s7 = 7.0;
+  static const s8 = 8.0;
+  static const s9 = 9.0;
+  static const s10 = 10.0;
+  static const s11 = 11.0;
+  static const s12 = 12.0;
+  static const s13 = 13.0;
+  static const s14 = 14.0;
+  static const s15 = 15.0;
+  static const s16 = 16.0;
+  static const s18 = 18.0;
+  static const s19 = 19.0;
+  static const s20 = 20.0;
+  static const s22 = 22.0;
+  static const s24 = 24.0;
+  static const s26 = 26.0;
+  static const s28 = 28.0;
+  static const s30 = 30.0;
+  static const s32 = 32.0;
+  static const s34 = 34.0;
+  static const s36 = 36.0;
+  static const s38 = 38.0;
+  static const s40 = 40.0;
+  static const s46 = 46.0;
+  static const s52 = 52.0;
+  static const s56 = 56.0;
+  static const s58 = 58.0;
+  static const s64 = 64.0;
+  static const s74 = 74.0;
+  static const s76 = 76.0;
+  static const s78 = 78.0;
+  static const s80 = 80.0;
+  static const s82 = 82.0;
+  static const s92 = 92.0;
+  static const s96 = 96.0;
+  static const s104 = 104.0;
+  static const s110 = 110.0;
+  static const s112 = 112.0;
+  static const s126 = 126.0;
+  static const s150 = 150.0;
+  static const s260 = 260.0;
+  static const s290 = 290.0;
+}
+
+/// 텍스트(`t()`) 폰트 크기 스케일 — 역시 화면 코드에 숫자를 직접 적지 않고
+/// 여기서 가져다 쓴다.
+abstract final class AppFontSize {
+  static const f9 = 9.0;
+  static const f10 = 10.0;
+  static const f11 = 11.0;
+  static const f12 = 12.0;
+  static const f13 = 13.0;
+  static const f14 = 14.0;
+  static const f15 = 15.0;
+  static const f16 = 16.0;
+  static const f17 = 17.0;
+  static const f18 = 18.0;
+  static const f20 = 20.0;
+  static const f22 = 22.0;
+  static const f24 = 24.0;
+  static const f28 = 28.0;
 }
 
 abstract final class AppRadius {
@@ -228,8 +300,11 @@ abstract final class AppDeco {
 // 칩 · 진행 바 크기
 
 abstract final class AppSize {
-  static const chipPad = EdgeInsets.symmetric(horizontal: 14, vertical: 10);
-  static const buttonPad = EdgeInsets.symmetric(vertical: 16);
+  static const chipPad = EdgeInsets.symmetric(
+    horizontal: AppSpace.s14,
+    vertical: AppSpace.s10,
+  );
+  static const buttonPad = EdgeInsets.symmetric(vertical: AppSpace.s16);
 
   static const barThin = 5.0; // 카드 안 미니 진행 바
   static const barBase = 7.0; // 일반 진행 바
@@ -268,7 +343,10 @@ ThemeData buildAppTheme() {
       ),
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+      insetPadding: const EdgeInsets.symmetric(
+        horizontal: AppSpace.s40,
+        vertical: AppSpace.s24,
+      ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
@@ -277,7 +355,10 @@ ThemeData buildAppTheme() {
         borderRadius: AppRadius.chipR,
         borderSide: BorderSide.none,
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: AppSpace.s15,
+        vertical: AppSpace.s14,
+      ),
       hintStyle: AppText.hint,
     ),
     bottomSheetTheme: BottomSheetThemeData(

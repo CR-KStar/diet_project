@@ -7,6 +7,7 @@ import 'package:diet_project/data/repositories/record_codecs.dart';
 import 'package:diet_project/data/repositories/record_repository.dart';
 import 'package:diet_project/data/repositories/water_repository.dart';
 import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
+import 'package:diet_project/ui/record/viewmodel/weight_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -80,15 +81,17 @@ class _Server {
   final plant = _Flaky(plantCodec);
 
   late WaterViewModel waterViewModel;
+  late WeightViewModel weightViewModel;
 
   AppState app({DateTime Function()? now}) {
     final clock = now ?? () => DateTime(2026, 9, 21, 14, 5);
     waterViewModel = WaterViewModel(waterRepo: water, now: clock);
+    weightViewModel = WeightViewModel(weightRepo: weight, now: clock);
     return AppState(
       auth: _FakeAuth(),
       profiles: profiles,
       waterViewModel: waterViewModel,
-      weightRepo: weight,
+      weightViewModel: weightViewModel,
       exerciseRepo: exercise,
       mealRepo: meals,
       bowlRepo: bowls,
@@ -110,6 +113,7 @@ Future<void> _settle() =>
 
 Future<void> _pumpScreen(
   WidgetTester tester,
+  _Server server,
   AppState state,
   String screen,
 ) async {
@@ -119,8 +123,13 @@ Future<void> _pumpScreen(
   addTearDown(tester.view.reset);
   state.go(screen);
   await tester.pumpWidget(
-    ChangeNotifierProvider<AppState>.value(
-      value: state,
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AppState>.value(value: state),
+        ChangeNotifierProvider<WeightViewModel>.value(
+          value: server.weightViewModel,
+        ),
+      ],
       child: const MaterialApp(home: AppShell()),
     ),
   );
@@ -275,9 +284,10 @@ void main() {
     test('기록하면 계정에 저장되고, 프로필의 현재 체중도 함께 저장된다', () async {
       final server = _Server();
       final s = await _start(server);
-      s.weightInput = 55.8;
+      server.weightViewModel.setWeightInput(55.8);
 
-      s.logWeight();
+      server.weightViewModel.logWeight();
+      s.onWeightLogged(55.8);
       await Future<void>.delayed(Duration.zero);
 
       final saved = (await server.weight.loadAll('uid_1')).single;
@@ -290,15 +300,15 @@ void main() {
 
     test('다시 켜면 체중 기록이 불러와지고 입력 기본값이 마지막 체중이 된다', () async {
       final server = _Server();
-      final first = await _start(server);
-      first.weightInput = 55.8;
-      first.logWeight();
+      await _start(server);
+      server.weightViewModel.setWeightInput(55.8);
+      server.weightViewModel.logWeight();
 
       final second = await _start(server);
 
-      expect(second.weightEntries.map((e) => e.kg), [55.8]);
+      expect(server.weightViewModel.weightEntries.map((e) => e.kg), [55.8]);
       expect(second.latestWeightKg, 55.8);
-      expect(second.weightInput, 55.8);
+      expect(server.weightViewModel.weightInput, 55.8);
       expect(second.todayRegistry.weightEntry?.kg, 55.8);
     });
   });
@@ -514,26 +524,31 @@ void main() {
   });
 
   group('실패했을 때', () {
-    test('저장에 실패하면 화면 기록은 두고 종류를 밝혀 안내한다', () async {
+    test('저장에 실패해도 화면 기록은 그대로 남는다', () async {
+      final weight = WeightViewModel(
+        weightRepo: _Flaky(weightCodec, failSave: true),
+        now: () => DateTime(2026, 9, 21),
+      );
       final s = AppState(
         auth: _FakeAuth(),
-        weightRepo: _Flaky(weightCodec, failSave: true),
+        weightViewModel: weight,
         now: () => DateTime(2026, 9, 21),
       );
       await s.restoreSession();
 
-      s.logWeight();
+      weight.logWeight();
       await Future<void>.delayed(Duration.zero);
 
-      expect(s.weightEntries, hasLength(1));
-      expect(s.takeNotice(), contains('체중 기록'));
+      expect(weight.weightEntries, hasLength(1));
     });
 
     test('기록을 불러오지 못해도 로그인은 막지 않고 안내만 한다', () async {
       final s = AppState(
         auth: _FakeAuth(),
         exerciseRepo: _Flaky(exerciseCodec, failLoad: true),
-        weightRepo: _Flaky(weightCodec, failLoad: true),
+        weightViewModel: WeightViewModel(
+          weightRepo: _Flaky(weightCodec, failLoad: true),
+        ),
         now: () => DateTime(2026, 9, 21),
       );
 
@@ -548,8 +563,8 @@ void main() {
     final server = _Server();
     final s = await _start(server);
     server.waterViewModel.addWater(250);
-    s.weightInput = 55.0;
-    s.logWeight();
+    server.weightViewModel.setWeightInput(55.0);
+    server.weightViewModel.logWeight();
     s.logExercise();
     s.logMeal();
     s.startAddBowl();
@@ -576,7 +591,7 @@ void main() {
     testWidgets('"운동 저장"', (tester) async {
       final server = _Server();
       final state = await _start(server);
-      await _pumpScreen(tester, state, 'exercise');
+      await _pumpScreen(tester, server, state, 'exercise');
 
       await tester.ensureVisible(find.text('운동 저장'));
       await tester.tap(find.text('운동 저장'));
@@ -588,7 +603,7 @@ void main() {
     testWidgets('"지금 입력한 내용을 루틴으로 저장"', (tester) async {
       final server = _Server();
       final state = await _start(server);
-      await _pumpScreen(tester, state, 'exercise');
+      await _pumpScreen(tester, server, state, 'exercise');
 
       await tester.ensureVisible(find.text('지금 입력한 내용을 루틴으로 저장'));
       await tester.tap(find.text('지금 입력한 내용을 루틴으로 저장'));
@@ -601,7 +616,7 @@ void main() {
       final server = _Server();
       final state = await _start(server);
       state.bodyShots['SIDE'] = true; // 눈바디 2장 촬영 완료
-      await _pumpScreen(tester, state, 'weight');
+      await _pumpScreen(tester, server, state, 'weight');
 
       await tester.ensureVisible(find.text('체중 저장'));
       await tester.tap(find.text('체중 저장'));
@@ -613,7 +628,7 @@ void main() {
     testWidgets('식단 "저장하기"', (tester) async {
       final server = _Server();
       final state = await _start(server);
-      await _pumpScreen(tester, state, 'capture');
+      await _pumpScreen(tester, server, state, 'capture');
 
       await tester.ensureVisible(find.text('저장하기'));
       await tester.tap(find.text('저장하기'));
@@ -625,7 +640,7 @@ void main() {
     testWidgets('식물 돌보기 버튼', (tester) async {
       final server = _Server();
       final state = await _start(server);
-      await _pumpScreen(tester, state, 'plant');
+      await _pumpScreen(tester, server, state, 'plant');
 
       // '물 주기'는 친구에게 물 주기 버튼에도 있어서, 내 식물 돌보기 카드의 버튼(첫 번째)을 지정한다.
       final careButton = find.widgetWithText(SmallButton, '물 주기').first;

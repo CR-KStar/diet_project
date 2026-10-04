@@ -115,7 +115,6 @@ void main() {
 
       expect(s.todayRegistry.meals, isEmpty);
       expect(s.waterTotal, 0);
-      expect(s.weightEntries, isEmpty);
       expect(s.hasRecordOn(DateTime(2026, 9, 21)), isFalse);
       expect(s.streakDays, 0);
     });

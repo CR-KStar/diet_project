@@ -1,4 +1,7 @@
 import 'package:diet_project/app_state.dart';
+import 'package:diet_project/data/repositories/record_codecs.dart';
+import 'package:diet_project/data/repositories/record_repository.dart';
+import 'package:diet_project/ui/record/viewmodel/weight_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -60,12 +63,15 @@ void main() {
     });
 
     test('운동과 체중을 저장하면 하루 요약에 합쳐진다', () {
-      final s = AppState()
+      final weight = WeightViewModel(
+        weightRepo: MemoryRecordRepository(weightCodec),
+      );
+      final s = AppState(weightViewModel: weight)
         ..exType = '달리기'
-        ..exMinutes = 30
-        ..weightInput = 56.4;
+        ..exMinutes = 30;
+      weight.setWeightInput(56.4);
       s.logExercise();
-      s.logWeight();
+      weight.logWeight();
 
       final registry = s.todayRegistry;
       expect(registry.userId, User.meId);

@@ -1,8 +1,11 @@
 import 'package:diet_project/app_shell.dart';
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/data/auth/auth_service.dart';
+import 'package:diet_project/data/repositories/record_codecs.dart';
+import 'package:diet_project/data/repositories/record_repository.dart';
 import 'package:diet_project/data/repositories/water_repository.dart';
 import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
+import 'package:diet_project/ui/record/viewmodel/weight_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -56,16 +59,24 @@ void main() {
       tester.view.devicePixelRatio = 2.0;
       addTearDown(tester.view.reset);
 
+      final weight = WeightViewModel(
+        weightRepo: MemoryRecordRepository(weightCodec),
+        now: () => DateTime(2026, 9, 21),
+      );
       final state = AppState(
         auth: _RealAuth(),
+        weightViewModel: weight,
         now: () => DateTime(2026, 9, 21),
       );
       await state.restoreSession();
       state.go(screen);
 
       await tester.pumpWidget(
-        ChangeNotifierProvider<AppState>.value(
-          value: state,
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider<AppState>.value(value: state),
+            ChangeNotifierProvider<WeightViewModel>.value(value: weight),
+          ],
           child: const MaterialApp(home: AppShell()),
         ),
       );

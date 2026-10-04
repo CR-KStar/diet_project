@@ -94,15 +94,15 @@ class _NotifyTogglesCard extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('받을 알림', style: t(14, w: FontWeight.w700)),
-        const SizedBox(height: 5),
-        Text('필요한 알림만 켜세요', style: t(11, c: AppColor.textGhost)),
-        const SizedBox(height: 10),
+        Text('받을 알림', style: t(AppFontSize.f14, w: FontWeight.w700)),
+        const SizedBox(height: AppSpace.s5),
+        Text('필요한 알림만 켜세요', style: t(AppFontSize.f11, c: AppColor.textGhost)),
+        const SizedBox(height: AppSpace.s10),
         for (final k in s.notifyToggles.keys)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(k, style: t(13, w: FontWeight.w500)),
+              Text(k, style: t(AppFontSize.f13, w: FontWeight.w500)),
               AppToggle(
                 value: s.notifyToggles[k]!,
                 onChanged: () => s.toggleNotify(k),
@@ -124,10 +124,13 @@ class _AlertTimeCard extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('알림 시간', style: t(14, w: FontWeight.w700)),
-        const SizedBox(height: 5),
-        Text('시간을 좌우로 넘겨 골라주세요', style: t(11, c: AppColor.textGhost)),
-        const SizedBox(height: 16),
+        Text('알림 시간', style: t(AppFontSize.f14, w: FontWeight.w700)),
+        const SizedBox(height: AppSpace.s5),
+        Text(
+          '시간을 좌우로 넘겨 골라주세요',
+          style: t(AppFontSize.f11, c: AppColor.textGhost),
+        ),
+        const SizedBox(height: AppSpace.s16),
         for (final slot in _slots) _AlertTimeSlot(s: s, slot: slot),
       ],
     ),
@@ -156,7 +159,7 @@ class _AlertTimeSlot extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 18),
+      padding: const EdgeInsets.only(bottom: AppSpace.s18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -165,18 +168,26 @@ class _AlertTimeSlot extends StatelessWidget {
             textBaseline: TextBaseline.alphabetic,
             children: [
               Expanded(
-                child: Text(slot.key, style: t(12, w: FontWeight.w700)),
+                child: Text(
+                  slot.key,
+                  style: t(AppFontSize.f12, w: FontWeight.w700),
+                ),
               ),
               Text(
                 cur,
-                style: t(16, w: FontWeight.w900, c: AppColor.primary, sp: -0.3),
+                style: t(
+                  AppFontSize.f16,
+                  w: FontWeight.w900,
+                  c: AppColor.primary,
+                  sp: -0.3,
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 3),
-          Text(slot.hint, style: t(10, c: AppColor.textGhost)),
+          const SizedBox(height: AppSpace.s3),
+          Text(slot.hint, style: t(AppFontSize.f10, c: AppColor.textGhost)),
           if (slot.weekly) ...[
-            const SizedBox(height: 11),
+            const SizedBox(height: AppSpace.s11),
             Row(
               children: [
                 for (final d in _weekdayLabels)
@@ -188,7 +199,7 @@ class _AlertTimeSlot extends StatelessWidget {
               ],
             ),
           ],
-          const SizedBox(height: 11),
+          const SizedBox(height: AppSpace.s11),
           ScrollChips(
             options: hours
                 .map((h) => '${h.toString().padLeft(2, '0')}:00')
@@ -212,12 +223,12 @@ class _WeekdayChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Expanded(
     child: Padding(
-      padding: const EdgeInsets.only(right: 5),
+      padding: const EdgeInsets.only(right: AppSpace.s5),
       child: GestureDetector(
         onTap: onTap,
         child: Container(
           alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          padding: const EdgeInsets.symmetric(vertical: AppSpace.s10),
           decoration: BoxDecoration(
             color: selected ? AppColor.primary : AppColor.surfaceSunken,
             borderRadius: BorderRadius.circular(12),
@@ -244,18 +255,24 @@ class _DoNotDisturbCard extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('방해 금지 시간', style: t(14, w: FontWeight.w700)),
-        const SizedBox(height: 5),
-        Text('이 시간에는 알림을 보내지 않아요', style: t(11, c: AppColor.textGhost)),
-        const SizedBox(height: 12),
+        Text('방해 금지 시간', style: t(AppFontSize.f14, w: FontWeight.w700)),
+        const SizedBox(height: AppSpace.s5),
+        Text(
+          '이 시간에는 알림을 보내지 않아요',
+          style: t(AppFontSize.f11, c: AppColor.textGhost),
+        ),
+        const SizedBox(height: AppSpace.s12),
         SunkenBox(
           padding: 14,
           radius: 16,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('23:00 ~ 07:00', style: t(14, w: FontWeight.w700)),
-              Text('변경 ›', style: t(12, c: AppColor.textFaint)),
+              Text(
+                '23:00 ~ 07:00',
+                style: t(AppFontSize.f14, w: FontWeight.w700),
+              ),
+              Text('변경 ›', style: t(AppFontSize.f12, c: AppColor.textFaint)),
             ],
           ),
         ),
@@ -278,13 +295,13 @@ class _PrivacyTab extends StatelessWidget {
         _ConsentCard(s: s),
         const SizedBox(height: AppSpace.cardGap),
         const _DangerActionsCard(),
-        const SizedBox(height: 8),
+        const SizedBox(height: AppSpace.s8),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpace.s10),
           child: Text(
             '건강 기록은 암호화되어 저장되며, 본인 외에는 조회할 수 없습니다.',
             textAlign: TextAlign.center,
-            style: t(11, c: const Color(0xFFB2B9BE), h: 1.7),
+            style: t(AppFontSize.f11, c: const Color(0xFFB2B9BE), h: 1.7),
           ),
         ),
       ],
@@ -305,7 +322,7 @@ class _ShareScopeCard extends StatelessWidget {
       children: [
         Row(
           children: [
-            Text('공개 설정', style: t(14, w: FontWeight.w700)),
+            Text('공개 설정', style: t(AppFontSize.f14, w: FontWeight.w700)),
             const Spacer(),
             Pill(
               s.shareScope,
@@ -318,16 +335,16 @@ class _ShareScopeCard extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpace.s12),
         SegmentedRow(
           options: const ['비공개', '친구만', '전체 공개'],
           value: s.shareScope,
           onChanged: s.setShareScope,
         ),
-        const SizedBox(height: 11),
+        const SizedBox(height: AppSpace.s11),
         Text(
           '눈바디 사진과 첨부 이미지는 공개 설정과 무관하게 항상 본인만 볼 수 있어요.',
-          style: t(11, c: AppColor.textFaint, h: 1.6),
+          style: t(AppFontSize.f11, c: AppColor.textFaint, h: 1.6),
         ),
       ],
     ),
@@ -345,8 +362,8 @@ class _ConsentCard extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('동의 관리', style: t(14, w: FontWeight.w700)),
-        const SizedBox(height: 12),
+        Text('동의 관리', style: t(AppFontSize.f14, w: FontWeight.w700)),
+        const SizedBox(height: AppSpace.s12),
         for (final k in s.terms.keys) _ConsentRow(s: s, k: k),
       ],
     ),
@@ -361,21 +378,21 @@ class _ConsentRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: 12),
+    padding: const EdgeInsets.only(bottom: AppSpace.s12),
     child: Row(
       children: [
         Expanded(
-          child: Text(k, style: t(12, c: AppColor.textMuted)),
+          child: Text(k, style: t(AppFontSize.f12, c: AppColor.textMuted)),
         ),
         GestureDetector(
           // 약관 전문은 웹뷰로 — 앱 내 전용 화면 없음
           onTap: () => toast(context, '약관 전문을 웹뷰로 엽니다'),
-          child: Text('보기 ›', style: t(11, c: AppColor.textGhost)),
+          child: Text('보기 ›', style: t(AppFontSize.f11, c: AppColor.textGhost)),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: AppSpace.s10),
         AppToggle(
           value: s.terms[k]!,
-          width: 40,
+          width: AppSpace.s40,
           onChanged: () {
             if (k.contains('필수')) {
               toast(context, '필수 항목은 해제할 수 없어요 · 계정 삭제로 철회됩니다');
@@ -399,7 +416,8 @@ class _DangerActionsCard extends StatelessWidget {
     child: Column(
       children: [
         for (final (i, a) in _dangerActions.indexed) ...[
-          if (i > 0) const Divider(height: 1, indent: 18, endIndent: 18),
+          if (i > 0)
+            const Divider(height: AppSpace.s1, indent: 18, endIndent: 18),
           _DangerActionRow(a: a),
         ],
       ],
@@ -419,7 +437,10 @@ class _DangerActionRow extends StatelessWidget {
         : toast(context, '기록 삭제를 요청했어요'),
     behavior: HitTestBehavior.opaque,
     child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpace.s18,
+        vertical: AppSpace.s16,
+      ),
       child: Row(
         children: [
           Expanded(
@@ -428,10 +449,14 @@ class _DangerActionRow extends StatelessWidget {
               children: [
                 Text(
                   a.title,
-                  style: t(14, w: FontWeight.w700, c: AppColor.alertText),
+                  style: t(
+                    AppFontSize.f14,
+                    w: FontWeight.w700,
+                    c: AppColor.alertText,
+                  ),
                 ),
-                const SizedBox(height: 3),
-                Text(a.desc, style: t(11, c: AppColor.textFaint)),
+                const SizedBox(height: AppSpace.s3),
+                Text(a.desc, style: t(AppFontSize.f11, c: AppColor.textFaint)),
               ],
             ),
           ),

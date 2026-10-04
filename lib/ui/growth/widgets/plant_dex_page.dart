@@ -76,28 +76,36 @@ class _ProgressCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.baseline,
           textBaseline: TextBaseline.alphabetic,
           children: [
-            Text('수집 진행률 ', style: t(14, w: FontWeight.w700)),
+            Text('수집 진행률 ', style: t(AppFontSize.f14, w: FontWeight.w700)),
             Text(
               '변이 포함',
-              style: t(11, w: FontWeight.w500, c: AppColor.textGhost),
+              style: t(
+                AppFontSize.f11,
+                w: FontWeight.w500,
+                c: AppColor.textGhost,
+              ),
             ),
             const Spacer(),
             Text(
               '${s.dexPct}',
-              style: t(22, w: FontWeight.w900, c: AppColor.primary),
+              style: t(
+                AppFontSize.f22,
+                w: FontWeight.w900,
+                c: AppColor.primary,
+              ),
             ),
-            Text('%', style: t(12, c: AppColor.textFaint)),
+            Text('%', style: t(AppFontSize.f12, c: AppColor.textFaint)),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpace.s12),
         Row(
           children: [
             for (final tier in const ['일반', '희귀', '전설'])
               Expanded(
                 flex: s.dexTierCount(tier).own,
                 child: Container(
-                  height: 9,
-                  margin: const EdgeInsets.only(right: 3),
+                  height: AppSpace.s9,
+                  margin: const EdgeInsets.only(right: AppSpace.s3),
                   decoration: BoxDecoration(
                     color: _tierColor[tier],
                     borderRadius: BorderRadius.circular(3),
@@ -107,7 +115,7 @@ class _ProgressCard extends StatelessWidget {
             Expanded(
               flex: s.dexTotal - s.dexOwned,
               child: Container(
-                height: 9,
+                height: AppSpace.s9,
                 decoration: BoxDecoration(
                   color: AppColor.divider,
                   borderRadius: BorderRadius.circular(3),
@@ -116,13 +124,13 @@ class _ProgressCard extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: AppSpace.s14),
         for (final tier in const ['일반', '희귀', '전설']) _TierRow(s: s, tier: tier),
-        const Divider(height: 1),
-        const SizedBox(height: 12),
+        const Divider(height: AppSpace.s1),
+        const SizedBox(height: AppSpace.s12),
         Text(
           '베이스 ${AppState.dexBase.length}종 × 색상 변이를 합쳐 총 ${s.dexTotal}종. 시즌 업데이트로 계속 늘어나요.',
-          style: t(11, c: AppColor.textFaint, h: 1.6),
+          style: t(AppFontSize.f11, c: AppColor.textFaint, h: 1.6),
         ),
       ],
     ),
@@ -139,44 +147,44 @@ class _TierRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final g = s.dexTierCount(tier);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 11),
+      padding: const EdgeInsets.only(bottom: AppSpace.s11),
       child: Row(
         children: [
           Container(
-            width: 9,
-            height: 9,
+            width: AppSpace.s9,
+            height: AppSpace.s9,
             decoration: BoxDecoration(
               color: _tierColor[tier],
               borderRadius: BorderRadius.circular(3),
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: AppSpace.s10),
           SizedBox(
-            width: 74,
-            child: Text(tier, style: t(12, w: FontWeight.w700)),
+            width: AppSpace.s74,
+            child: Text(tier, style: t(AppFontSize.f12, w: FontWeight.w700)),
           ),
           Expanded(
             child: ProgressBar(
               value: g.own / g.all,
               color: _tierColor[tier]!,
-              height: 6,
+              height: AppSpace.s6,
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: AppSpace.s10),
           SizedBox(
-            width: 52,
+            width: AppSpace.s52,
             child: Text(
               '${g.own} / ${g.all}',
               textAlign: TextAlign.right,
-              style: t(11, c: AppColor.textMuted),
+              style: t(AppFontSize.f11, c: AppColor.textMuted),
             ),
           ),
           SizedBox(
-            width: 36,
+            width: AppSpace.s36,
             child: Text(
               _tierRatio[tier]!,
               textAlign: TextAlign.right,
-              style: t(10, c: AppColor.textGhost),
+              style: t(AppFontSize.f10, c: AppColor.textGhost),
             ),
           ),
         ],
@@ -217,7 +225,10 @@ class _DexGridTile extends StatelessWidget {
   Widget build(BuildContext context) => GestureDetector(
     onTap: () => s.setDexPick(d),
     child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpace.s8,
+        vertical: AppSpace.s14,
+      ),
       decoration: BoxDecoration(
         color: AppColor.surface,
         borderRadius: BorderRadius.circular(20),
@@ -260,7 +271,7 @@ class _DexGridTile extends StatelessWidget {
               child: Text(d.emoji, style: const TextStyle(fontSize: 30)),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpace.s8),
           Text(
             d.owned ? d.name : '???',
             maxLines: 1,
@@ -271,10 +282,10 @@ class _DexGridTile extends StatelessWidget {
               c: d.owned ? AppColor.text : const Color(0xFFB2B9BE),
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: AppSpace.s4),
           Text(
             d.tier + (d.variants.length > 1 ? ' ·${d.variants.length}' : ''),
-            style: t(9, c: _tierColor[d.tier]!),
+            style: t(AppFontSize.f9, c: _tierColor[d.tier]!),
           ),
         ],
       ),
@@ -295,16 +306,16 @@ class _SelectedSpeciesCard extends StatelessWidget {
       children: [
         Text(
           pick.owned ? pick.name : '미획득 식물',
-          style: t(14, w: FontWeight.w700),
+          style: t(AppFontSize.f14, w: FontWeight.w700),
         ),
-        const SizedBox(height: 5),
-        Text('해금 조건', style: t(11, c: AppColor.textGhost)),
-        const SizedBox(height: 14),
+        const SizedBox(height: AppSpace.s5),
+        Text('해금 조건', style: t(AppFontSize.f11, c: AppColor.textGhost)),
+        const SizedBox(height: AppSpace.s14),
         Row(
           children: [
             Container(
-              width: 80,
-              height: 80,
+              width: AppSpace.s80,
+              height: AppSpace.s80,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: pick.owned
@@ -317,7 +328,7 @@ class _SelectedSpeciesCard extends StatelessWidget {
                 child: Text(pick.emoji, style: const TextStyle(fontSize: 34)),
               ),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: AppSpace.s14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -330,37 +341,37 @@ class _SelectedSpeciesCard extends StatelessWidget {
                         fg: Colors.white,
                         fontSize: 9,
                       ),
-                      const SizedBox(width: 7),
+                      const SizedBox(width: AppSpace.s7),
                       Text(
                         '획득률 ${_tierRatio[pick.tier]}',
-                        style: t(11, c: AppColor.textFaint),
+                        style: t(AppFontSize.f11, c: AppColor.textFaint),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpace.s8),
                   Text(
                     pick.condition,
-                    style: t(12, c: AppColor.textMuted, h: 1.6),
+                    style: t(AppFontSize.f12, c: AppColor.textMuted, h: 1.6),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: AppSpace.s10),
                   ProgressBar(
                     value: pick.progress / 100,
                     color: pick.owned
                         ? AppColor.primary
                         : _tierColor[pick.tier]!,
-                    height: 6,
+                    height: AppSpace.s6,
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: AppSpace.s6),
                   Text(
                     pick.owned ? '획득 완료' : '조건 진행 ${pick.progress}%',
-                    style: t(10, c: AppColor.textGhost),
+                    style: t(AppFontSize.f10, c: AppColor.textGhost),
                   ),
                 ],
               ),
             ),
           ],
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: AppSpace.s14),
         Wrap(
           spacing: 7,
           runSpacing: 7,
@@ -396,21 +407,29 @@ class _SeasonalCard extends StatelessWidget {
           children: [
             Text(
               '이번 시즌 한정',
-              style: t(13, w: FontWeight.w700, c: const Color(0xFF5B4A8A)),
+              style: t(
+                AppFontSize.f13,
+                w: FontWeight.w700,
+                c: const Color(0xFF5B4A8A),
+              ),
             ),
             const Spacer(),
             Text(
               '9월 30일까지',
-              style: t(11, w: FontWeight.w700, c: const Color(0xFF8578AD)),
+              style: t(
+                AppFontSize.f11,
+                w: FontWeight.w700,
+                c: const Color(0xFF8578AD),
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 13),
+        const SizedBox(height: AppSpace.s13),
         Row(children: [for (final p in _seasonalItems) _SeasonalItem(p: p)]),
-        const SizedBox(height: 13),
+        const SizedBox(height: AppSpace.s13),
         Text(
           '시즌이 끝나면 도감에는 남지만 다시 획득할 수 없어요. 다음 시즌엔 새 3종이 열립니다.',
-          style: t(11, c: const Color(0xFF8578AD), h: 1.6),
+          style: t(AppFontSize.f11, c: const Color(0xFF8578AD), h: 1.6),
         ),
       ],
     ),
@@ -425,8 +444,8 @@ class _SeasonalItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Expanded(
     child: Container(
-      margin: const EdgeInsets.only(right: 10),
-      padding: const EdgeInsets.all(13),
+      margin: const EdgeInsets.only(right: AppSpace.s10),
+      padding: const EdgeInsets.all(AppSpace.s13),
       decoration: BoxDecoration(
         color: AppColor.surface,
         borderRadius: BorderRadius.circular(18),
@@ -434,17 +453,17 @@ class _SeasonalItem extends StatelessWidget {
       child: Column(
         children: [
           Text(p.$1, style: const TextStyle(fontSize: 24)),
-          const SizedBox(height: 7),
+          const SizedBox(height: AppSpace.s7),
           Text(
             p.$2,
             textAlign: TextAlign.center,
-            style: t(11, w: FontWeight.w700),
+            style: t(AppFontSize.f11, w: FontWeight.w700),
           ),
-          const SizedBox(height: 3),
+          const SizedBox(height: AppSpace.s3),
           Text(
             p.$3,
             textAlign: TextAlign.center,
-            style: t(9, c: const Color(0xFF8578AD)),
+            style: t(AppFontSize.f9, c: const Color(0xFF8578AD)),
           ),
         ],
       ),
@@ -465,14 +484,18 @@ class _RarityRulesCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.baseline,
           textBaseline: TextBaseline.alphabetic,
           children: [
-            Text('희귀도 규칙 ', style: t(14, w: FontWeight.w700)),
+            Text('희귀도 규칙 ', style: t(AppFontSize.f14, w: FontWeight.w700)),
             Text(
               '비율은 변이 포함 기준',
-              style: t(11, w: FontWeight.w500, c: AppColor.textGhost),
+              style: t(
+                AppFontSize.f11,
+                w: FontWeight.w500,
+                c: AppColor.textGhost,
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: AppSpace.s14),
         for (final r in _rarityRules) _RarityRuleRow(r: r),
       ],
     ),
@@ -486,19 +509,22 @@ class _RarityRuleRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: 12),
+    padding: const EdgeInsets.only(bottom: AppSpace.s12),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: 58,
+          width: AppSpace.s58,
           child: Text(
             r.$1,
-            style: t(11, w: FontWeight.w700, c: r.$3),
+            style: t(AppFontSize.f11, w: FontWeight.w700, c: r.$3),
           ),
         ),
         Expanded(
-          child: Text(r.$2, style: t(11, c: AppColor.textFaint, h: 1.6)),
+          child: Text(
+            r.$2,
+            style: t(AppFontSize.f11, c: AppColor.textFaint, h: 1.6),
+          ),
         ),
       ],
     ),

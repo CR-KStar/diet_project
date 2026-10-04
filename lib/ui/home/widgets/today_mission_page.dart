@@ -38,7 +38,10 @@ class TodayMissionScreen extends StatelessWidget {
                 onBack: () => s.setSub(() => s.missionOpen = false),
               ),
             ),
-            Text(s.todayDateLabel, style: t(12, c: AppColor.textFaint)),
+            Text(
+              s.todayDateLabel,
+              style: t(AppFontSize.f12, c: AppColor.textFaint),
+            ),
           ],
         ),
         const _AchievementCard(),
@@ -50,11 +53,11 @@ class TodayMissionScreen extends StatelessWidget {
         for (final m in list) _MissionCard(m: m, s: s),
         const _RewardStructureCard(),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpace.s12),
           child: Text(
             '미션은 하루 3~5개만 제시하고, 최근 기록과 부족한 영양소를 반영해 매일 새로 뽑아요.',
             textAlign: TextAlign.center,
-            style: t(12, c: AppColor.textFaint, h: 1.5),
+            style: t(AppFontSize.f12, c: AppColor.textFaint, h: 1.5),
           ),
         ),
       ],
@@ -80,38 +83,48 @@ class _AchievementCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('오늘 달성', style: t(12, c: AppColor.textFaint)),
-                const SizedBox(height: 8),
+                Text('오늘 달성', style: t(AppFontSize.f12, c: AppColor.textFaint)),
+                const SizedBox(height: AppSpace.s8),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.baseline,
                   textBaseline: TextBaseline.alphabetic,
                   children: [
                     Text(
                       '${s.missionDone}',
-                      style: t(28, w: FontWeight.w900, c: AppColor.primary),
+                      style: t(
+                        AppFontSize.f28,
+                        w: FontWeight.w900,
+                        c: AppColor.primary,
+                      ),
                     ),
-                    const SizedBox(width: 4),
-                    Text('/ $total 미션', style: t(13, c: AppColor.textFaint)),
+                    const SizedBox(width: AppSpace.s4),
+                    Text(
+                      '/ $total 미션',
+                      style: t(AppFontSize.f13, c: AppColor.textFaint),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 10),
-                ProgressBar(value: ratio, height: 8),
-                const SizedBox(height: 10),
+                const SizedBox(height: AppSpace.s10),
+                ProgressBar(value: ratio, height: AppSpace.s8),
+                const SizedBox(height: AppSpace.s10),
                 Text(
                   s.missionDone >= total
                       ? '오늘 미션을 모두 달성했어요!'
                       : '미션을 ${total - s.missionDone}개 더 달성하면 다음 성장 단계로 넘어가요.',
-                  style: t(12, c: AppColor.textMuted, h: 1.5),
+                  style: t(AppFontSize.f12, c: AppColor.textMuted, h: 1.5),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: AppSpace.s14),
           GestureDetector(
             onTap: () => s.go('plant'),
             child: Container(
-              width: 96,
-              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+              width: AppSpace.s96,
+              padding: const EdgeInsets.symmetric(
+                vertical: AppSpace.s14,
+                horizontal: AppSpace.s10,
+              ),
               decoration: BoxDecoration(
                 color: const Color(0xFFF2F8F2),
                 borderRadius: BorderRadius.circular(18),
@@ -120,8 +133,8 @@ class _AchievementCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 52,
-                    height: 52,
+                    width: AppSpace.s52,
+                    height: AppSpace.s52,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -129,16 +142,20 @@ class _AchievementCard extends StatelessWidget {
                     ),
                     child: const Text('🌿', style: TextStyle(fontSize: 24)),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpace.s8),
                   Text(
                     '성장 단계',
                     textAlign: TextAlign.center,
-                    style: t(11, w: FontWeight.w700, c: AppColor.primaryDark),
+                    style: t(
+                      AppFontSize.f11,
+                      w: FontWeight.w700,
+                      c: AppColor.primaryDark,
+                    ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: AppSpace.s10),
                   ProgressBar(
                     value: ratio,
-                    height: 10,
+                    height: AppSpace.s10,
                     color: const Color(0xFFE8B33C),
                     track: const Color(0xFFDCE6DD),
                   ),
@@ -178,7 +195,7 @@ class _MissionCard extends StatelessWidget {
                 bg: meta.$2,
                 fontSize: 18,
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpace.s12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -188,10 +205,10 @@ class _MissionCard extends StatelessWidget {
                         Flexible(
                           child: Text(
                             m.title,
-                            style: t(15, w: FontWeight.w700),
+                            style: t(AppFontSize.f15, w: FontWeight.w700),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: AppSpace.s8),
                         if (m.special != null)
                           Pill(
                             m.special!,
@@ -203,23 +220,23 @@ class _MissionCard extends StatelessWidget {
                           Pill('성장 +${m.exp}', fontSize: 10),
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: AppSpace.s4),
                     Text(
                       '${meta.$1} ${m.category} · ${done ? '달성 완료' : '${AppState.comma(m.current.round())} / ${AppState.comma(m.target.round())}${m.unit}'}',
-                      style: t(11, c: AppColor.textFaint),
+                      style: t(AppFontSize.f11, c: AppColor.textFaint),
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpace.s12),
           Row(
             children: [
               Expanded(
                 child: ProgressBar(value: m.ratio, height: AppSize.barBase),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: AppSpace.s10),
               Text(
                 '${(m.ratio * 100).round()}%',
                 style: t(
@@ -230,14 +247,14 @@ class _MissionCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpace.s12),
           Row(
             children: [
               _MissionActionButton(
                 label: '기록 화면으로',
                 onTap: () => s.go(m.route),
               ),
-              const SizedBox(width: 9),
+              const SizedBox(width: AppSpace.s9),
               if (done)
                 const _MissionActionButton(label: '달성 완료')
               else
@@ -274,7 +291,7 @@ class _MissionActionButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(vertical: 13),
+        padding: const EdgeInsets.symmetric(vertical: AppSpace.s13),
         decoration: BoxDecoration(
           color: active ? AppColor.primary : AppColor.surfaceSunken,
           borderRadius: BorderRadius.circular(14),
@@ -302,13 +319,13 @@ class _RewardStructureCard extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('보상 구조', style: t(15, w: FontWeight.w800)),
-        const SizedBox(height: 6),
+        Text('보상 구조', style: t(AppFontSize.f15, w: FontWeight.w800)),
+        const SizedBox(height: AppSpace.s6),
         Text(
           '미션 난이도에 따라 성장 · 발견 · 변이로 이어져요',
-          style: t(12, c: AppColor.textFaint),
+          style: t(AppFontSize.f12, c: AppColor.textFaint),
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: AppSpace.s18),
         for (final row in const [
           ('일반', AppColor.text, '🌱', '식물 성장 게이지 +'),
           ('특정', AppColor.text, '📖', '새로운 식물 발견 기회'),
@@ -316,19 +333,19 @@ class _RewardStructureCard extends StatelessWidget {
           ('어려움', Color(0xFF5B8DEF), '💎', '희귀 식물 · 희귀 변이'),
         ])
           Padding(
-            padding: const EdgeInsets.only(bottom: 14),
+            padding: const EdgeInsets.only(bottom: AppSpace.s14),
             child: Row(
               children: [
                 SizedBox(
-                  width: 56,
+                  width: AppSpace.s56,
                   child: Text(
                     row.$1,
-                    style: t(13, w: FontWeight.w800, c: row.$2),
+                    style: t(AppFontSize.f13, w: FontWeight.w800, c: row.$2),
                   ),
                 ),
                 Text(row.$3, style: const TextStyle(fontSize: 14)),
-                const SizedBox(width: 8),
-                Text(row.$4, style: t(13, c: AppColor.textMuted)),
+                const SizedBox(width: AppSpace.s8),
+                Text(row.$4, style: t(AppFontSize.f13, c: AppColor.textMuted)),
               ],
             ),
           ),

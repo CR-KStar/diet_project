@@ -21,7 +21,10 @@ class ReportScreen extends StatelessWidget {
             const Expanded(
               child: TabHeader(emoji: '📊', title: '리포트'),
             ),
-            Text(s.todayDateLabel, style: t(12, c: AppColor.textFaint)),
+            Text(
+              s.todayDateLabel,
+              style: t(AppFontSize.f12, c: AppColor.textFaint),
+            ),
           ],
         ),
         SegmentedRow(
@@ -63,16 +66,23 @@ class _CalorieBarCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(_kcalTitle(s), style: t(15, w: FontWeight.w800)),
+              Text(
+                _kcalTitle(s),
+                style: t(AppFontSize.f15, w: FontWeight.w800),
+              ),
               Text(
                 s.periodDelta,
-                style: t(12, w: FontWeight.w700, c: AppColor.primaryDark),
+                style: t(
+                  AppFontSize.f12,
+                  w: FontWeight.w700,
+                  c: AppColor.primaryDark,
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: AppSpace.s18),
           BarChart(bars: s.kcalBars),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpace.s16),
           RowBetween('평균 섭취', '${s.avgKcal} kcal / 일'),
         ],
       ),
@@ -100,25 +110,28 @@ class _WeightChangeCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: Text('체중 변화', style: t(15, w: FontWeight.w800)),
+                child: Text(
+                  '체중 변화',
+                  style: t(AppFontSize.f15, w: FontWeight.w800),
+                ),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
                     '목표 ${s.goalWeight.toStringAsFixed(1)}kg',
-                    style: t(11, c: AppColor.textFaint),
+                    style: t(AppFontSize.f11, c: AppColor.textFaint),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: AppSpace.s2),
                   Text(
                     '남은 ${remainKg.toStringAsFixed(1)}kg',
-                    style: t(11, c: AppColor.textFaint),
+                    style: t(AppFontSize.f11, c: AppColor.textFaint),
                   ),
                 ],
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: AppSpace.s10),
           Row(
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
@@ -132,9 +145,9 @@ class _WeightChangeCard extends StatelessWidget {
                   sp: -0.8,
                 ),
               ),
-              const SizedBox(width: 3),
-              Text('kg', style: t(13, c: AppColor.textFaint)),
-              const SizedBox(width: 8),
+              const SizedBox(width: AppSpace.s3),
+              Text('kg', style: t(AppFontSize.f13, c: AppColor.textFaint)),
+              const SizedBox(width: AppSpace.s8),
               Text(
                 '${delta <= 0 ? '-' : '+'}${delta.abs().toStringAsFixed(1)}kg ${delta <= 0 ? '↓' : '↑'}',
                 style: t(
@@ -145,19 +158,22 @@ class _WeightChangeCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpace.s16),
           WeightLineChart(series: s.weightSeries, goal: s.goalWeight),
-          const SizedBox(height: 18),
+          const SizedBox(height: AppSpace.s18),
           Row(
             children: [
               Expanded(
                 child: Column(
                   children: [
-                    Text('최고', style: t(11, c: AppColor.textFaint)),
-                    const SizedBox(height: 6),
+                    Text(
+                      '최고',
+                      style: t(AppFontSize.f11, c: AppColor.textFaint),
+                    ),
+                    const SizedBox(height: AppSpace.s6),
                     Text(
                       '${highKg.toStringAsFixed(1)} kg',
-                      style: t(14, w: FontWeight.w800),
+                      style: t(AppFontSize.f14, w: FontWeight.w800),
                     ),
                   ],
                 ),
@@ -165,11 +181,14 @@ class _WeightChangeCard extends StatelessWidget {
               Expanded(
                 child: Column(
                   children: [
-                    Text('최저', style: t(11, c: AppColor.textFaint)),
-                    const SizedBox(height: 6),
+                    Text(
+                      '최저',
+                      style: t(AppFontSize.f11, c: AppColor.textFaint),
+                    ),
+                    const SizedBox(height: AppSpace.s6),
                     Text(
                       '${lowKg.toStringAsFixed(1)} kg',
-                      style: t(14, w: FontWeight.w800),
+                      style: t(AppFontSize.f14, w: FontWeight.w800),
                     ),
                   ],
                 ),
@@ -179,8 +198,11 @@ class _WeightChangeCard extends StatelessWidget {
                   onTap: () => s.go('weight'),
                   child: Column(
                     children: [
-                      Text('눈바디', style: t(11, c: AppColor.textFaint)),
-                      const SizedBox(height: 6),
+                      Text(
+                        '눈바디',
+                        style: t(AppFontSize.f11, c: AppColor.textFaint),
+                      ),
+                      const SizedBox(height: AppSpace.s6),
                       Text(
                         '3장 ›',
                         style: t(
@@ -220,8 +242,11 @@ class _ExerciseAndDeltaRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('평균 운동 시간', style: t(12, c: AppColor.textFaint)),
-                  const SizedBox(height: 10),
+                  Text(
+                    '평균 운동 시간',
+                    style: t(AppFontSize.f12, c: AppColor.textFaint),
+                  ),
+                  const SizedBox(height: AppSpace.s10),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
@@ -234,11 +259,14 @@ class _ExerciseAndDeltaRow extends StatelessWidget {
                           c: AppColor.textStrong,
                         ),
                       ),
-                      const SizedBox(width: 2),
-                      Text('분', style: t(12, c: AppColor.textFaint)),
+                      const SizedBox(width: AppSpace.s2),
+                      Text(
+                        '분',
+                        style: t(AppFontSize.f12, c: AppColor.textFaint),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: AppSpace.s6),
                   Text(
                     s.exerciseMinDelta == 0
                         ? (s.period == '주간' ? '지난주와 비슷해요' : '지난달과 비슷해요')
@@ -257,14 +285,17 @@ class _ExerciseAndDeltaRow extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppSpace.s12),
           Expanded(
             child: AppCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('체중 변화', style: t(12, c: AppColor.textFaint)),
-                  const SizedBox(height: 10),
+                  Text(
+                    '체중 변화',
+                    style: t(AppFontSize.f12, c: AppColor.textFaint),
+                  ),
+                  const SizedBox(height: AppSpace.s10),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
@@ -277,14 +308,17 @@ class _ExerciseAndDeltaRow extends StatelessWidget {
                           c: AppColor.textStrong,
                         ),
                       ),
-                      const SizedBox(width: 2),
-                      Text('kg', style: t(12, c: AppColor.textFaint)),
+                      const SizedBox(width: AppSpace.s2),
+                      Text(
+                        'kg',
+                        style: t(AppFontSize.f12, c: AppColor.textFaint),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: AppSpace.s6),
                   Text(
                     '목표까지 ${remainKg.toStringAsFixed(1)}kg',
-                    style: t(12, c: AppColor.textFaint),
+                    style: t(AppFontSize.f12, c: AppColor.textFaint),
                   ),
                 ],
               ),
@@ -312,8 +346,11 @@ class _GoalAndRecordDaysRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('목표 달성률', style: t(12, c: AppColor.textFaint)),
-                  const SizedBox(height: 10),
+                  Text(
+                    '목표 달성률',
+                    style: t(AppFontSize.f12, c: AppColor.textFaint),
+                  ),
+                  const SizedBox(height: AppSpace.s10),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
@@ -326,24 +363,30 @@ class _GoalAndRecordDaysRow extends StatelessWidget {
                           c: AppColor.textStrong,
                         ),
                       ),
-                      const SizedBox(width: 2),
-                      Text('%', style: t(12, c: AppColor.textFaint)),
+                      const SizedBox(width: AppSpace.s2),
+                      Text(
+                        '%',
+                        style: t(AppFontSize.f12, c: AppColor.textFaint),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: AppSpace.s10),
                   ProgressBar(value: s.achieveRate / 100),
                 ],
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppSpace.s12),
           Expanded(
             child: AppCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('기록 일수', style: t(12, c: AppColor.textFaint)),
-                  const SizedBox(height: 10),
+                  Text(
+                    '기록 일수',
+                    style: t(AppFontSize.f12, c: AppColor.textFaint),
+                  ),
+                  const SizedBox(height: AppSpace.s10),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
@@ -356,14 +399,21 @@ class _GoalAndRecordDaysRow extends StatelessWidget {
                           c: AppColor.textStrong,
                         ),
                       ),
-                      const SizedBox(width: 2),
-                      Text('일', style: t(12, c: AppColor.textFaint)),
+                      const SizedBox(width: AppSpace.s2),
+                      Text(
+                        '일',
+                        style: t(AppFontSize.f12, c: AppColor.textFaint),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: AppSpace.s6),
                   Text(
                     '목표 ${s.recordGoalDays}일 달성',
-                    style: t(12, w: FontWeight.w700, c: AppColor.primaryDark),
+                    style: t(
+                      AppFontSize.f12,
+                      w: FontWeight.w700,
+                      c: AppColor.primaryDark,
+                    ),
                   ),
                 ],
               ),
@@ -385,8 +435,8 @@ class _PatternCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('패턴 분석', style: t(15, w: FontWeight.w800)),
-          const SizedBox(height: 6),
+          Text('패턴 분석', style: t(AppFontSize.f15, w: FontWeight.w800)),
+          const SizedBox(height: AppSpace.s6),
           RowBetween('가장 많이 먹은 음식', s.mostEatenFood),
           RowBetween('자주 쓴 그릇', s.mostUsedBowl),
           RowBetween('자주 쓴 소스', s.mostUsedSauce),
@@ -414,12 +464,16 @@ class _RecommendCard extends StatelessWidget {
         children: [
           Text(
             '추천 식단',
-            style: t(15, w: FontWeight.w800, c: AppColor.primaryDark),
+            style: t(
+              AppFontSize.f15,
+              w: FontWeight.w800,
+              c: AppColor.primaryDark,
+            ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpace.s8),
           Text(
             s.recommendedMeal,
-            style: t(13, c: AppColor.primaryDark, h: 1.5),
+            style: t(AppFontSize.f13, c: AppColor.primaryDark, h: 1.5),
           ),
         ],
       ),

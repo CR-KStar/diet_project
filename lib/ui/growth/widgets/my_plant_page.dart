@@ -32,7 +32,7 @@ class PlantScreen extends StatelessWidget {
               s.plantTab == '도감'
                   ? '${s.dexOwned} / ${s.dexTotal}종'
                   : 'Lv.${s.plantLevel} · ${s.plantStage.name}',
-              style: t(12, c: AppColor.textFaint),
+              style: t(AppFontSize.f12, c: AppColor.textFaint),
             ),
           ],
         ),
@@ -176,13 +176,13 @@ class _PlantBody extends StatelessWidget {
         const _GiftCard(),
         const SizedBox(height: AppSpace.cardGap),
         const _FriendGardenCard(),
-        const SizedBox(height: 8),
+        const SizedBox(height: AppSpace.s8),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpace.s10),
           child: Text(
             '식물의 상태는 기록 습관을 비춰주는 장치예요. 잘 자라지 않은 날도 평가가 아니라 신호일 뿐입니다.',
             textAlign: TextAlign.center,
-            style: t(11, c: const Color(0xFFB2B9BE), h: 1.7),
+            style: t(AppFontSize.f11, c: const Color(0xFFB2B9BE), h: 1.7),
           ),
         ),
       ],
@@ -204,8 +204,8 @@ class _StatusCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 126,
-            height: 126,
+            width: AppSpace.s126,
+            height: AppSpace.s126,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: s.wilting
@@ -224,7 +224,7 @@ class _StatusCard extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 18),
+          const SizedBox(width: AppSpace.s18),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -243,7 +243,7 @@ class _StatusCard extends StatelessWidget {
                       : AppColor.textMuted,
                   fontSize: 11,
                 ),
-                const SizedBox(height: 9),
+                const SizedBox(height: AppSpace.s9),
                 Text(
                   '${stage.name} 단계',
                   style: t(
@@ -253,26 +253,29 @@ class _StatusCard extends StatelessWidget {
                     sp: -0.3,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: AppSpace.s6),
                 Text(
                   s.plantMessage,
-                  style: t(12, c: AppColor.textMuted, h: 1.6),
+                  style: t(AppFontSize.f12, c: AppColor.textMuted, h: 1.6),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpace.s12),
                 ProgressBar(
                   value: (s.plantExp % 100) / 100,
                   color: s.wilting ? const Color(0xFFE8B33C) : AppColor.primary,
-                  height: 8,
+                  height: AppSpace.s8,
                 ),
-                const SizedBox(height: 7),
+                const SizedBox(height: AppSpace.s7),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       '${s.plantExp} EXP',
-                      style: t(11, c: AppColor.textFaint),
+                      style: t(AppFontSize.f11, c: AppColor.textFaint),
                     ),
-                    Text(s.plantExpLeft, style: t(11, c: AppColor.textFaint)),
+                    Text(
+                      s.plantExpLeft,
+                      style: t(AppFontSize.f11, c: AppColor.textFaint),
+                    ),
                   ],
                 ),
               ],
@@ -311,15 +314,19 @@ class _RecoveryCard extends StatelessWidget {
                         c: const Color(0xFF8A6B12),
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: AppSpace.s6),
                     Text(
                       '기록을 ${s.missedDays}일 쉬었어요. ${s.graceLeft}일 안에 돌보면 지금 크기 그대로 회복돼요.',
-                      style: t(12, c: const Color(0xFF9C8542), h: 1.6),
+                      style: t(
+                        AppFontSize.f12,
+                        c: const Color(0xFF9C8542),
+                        h: 1.6,
+                      ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpace.s12),
               SmallButton(
                 label: '회복 돌보기',
                 bg: const Color(0xFFE8B33C),
@@ -331,17 +338,17 @@ class _RecoveryCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpace.s12),
           ProgressBar(
             value: s.graceLeft / 3,
             color: const Color(0xFFE8B33C),
-            height: 5,
+            height: AppSpace.s5,
             track: const Color(0xFFF5E7C4),
           ),
-          const SizedBox(height: 7),
+          const SizedBox(height: AppSpace.s7),
           Text(
             '시들어도 사라지지 않아요. 돌아오면 그대로 이어서 자라요.',
-            style: t(10, c: const Color(0xFFB29751)),
+            style: t(AppFontSize.f10, c: const Color(0xFFB29751)),
           ),
         ],
       ),
@@ -362,7 +369,7 @@ class _BalanceCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text('성장 균형', style: t(14, w: FontWeight.w700)),
+              Text('성장 균형', style: t(AppFontSize.f14, w: FontWeight.w700)),
               const Spacer(),
               Pill(
                 s.balanced ? '균형 좋음' : '조금 치우침',
@@ -371,9 +378,12 @@ class _BalanceCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 5),
-          Text('기록 종류마다 자라는 부분이 달라요', style: t(11, c: AppColor.textGhost)),
-          const SizedBox(height: 15),
+          const SizedBox(height: AppSpace.s5),
+          Text(
+            '기록 종류마다 자라는 부분이 달라요',
+            style: t(AppFontSize.f11, c: AppColor.textGhost),
+          ),
+          const SizedBox(height: AppSpace.s15),
           Row(
             children: [
               for (final a in _axisMeta)
@@ -388,8 +398,8 @@ class _BalanceCard extends StatelessWidget {
                           (value: s.axisScore[a.key]! / 100, color: a.color),
                         ],
                         center: Container(
-                          width: 52,
-                          height: 52,
+                          width: AppSpace.s52,
+                          height: AppSpace.s52,
                           alignment: Alignment.center,
                           decoration: const BoxDecoration(
                             color: AppColor.surface,
@@ -401,11 +411,17 @@ class _BalanceCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 9),
-                      Text(a.name, style: t(12, w: FontWeight.w700)),
-                      const SizedBox(height: 3),
-                      Text(a.source, style: t(10, c: AppColor.textFaint)),
-                      const SizedBox(height: 5),
+                      const SizedBox(height: AppSpace.s9),
+                      Text(
+                        a.name,
+                        style: t(AppFontSize.f12, w: FontWeight.w700),
+                      ),
+                      const SizedBox(height: AppSpace.s3),
+                      Text(
+                        a.source,
+                        style: t(AppFontSize.f10, c: AppColor.textFaint),
+                      ),
+                      const SizedBox(height: AppSpace.s5),
                       Text(
                         '${s.axisScore[a.key]}%',
                         style: t(
@@ -421,10 +437,13 @@ class _BalanceCard extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 15),
-          const Divider(height: 1),
-          const SizedBox(height: 14),
-          Text(s.balanceHint, style: t(12, c: AppColor.textMuted, h: 1.6)),
+          const SizedBox(height: AppSpace.s15),
+          const Divider(height: AppSpace.s1),
+          const SizedBox(height: AppSpace.s14),
+          Text(
+            s.balanceHint,
+            style: t(AppFontSize.f12, c: AppColor.textMuted, h: 1.6),
+          ),
         ],
       ),
     );
@@ -442,10 +461,13 @@ class _CareCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('오늘 돌보기', style: t(14, w: FontWeight.w700)),
-          const SizedBox(height: 5),
-          Text('기록을 남기면 돌보기가 충전돼요', style: t(11, c: AppColor.textGhost)),
-          const SizedBox(height: 14),
+          Text('오늘 돌보기', style: t(AppFontSize.f14, w: FontWeight.w700)),
+          const SizedBox(height: AppSpace.s5),
+          Text(
+            '기록을 남기면 돌보기가 충전돼요',
+            style: t(AppFontSize.f11, c: AppColor.textGhost),
+          ),
+          const SizedBox(height: AppSpace.s14),
           for (final c in _careItems) _CareRow(item: c, s: s),
         ],
       ),
@@ -464,9 +486,9 @@ class _CareRow extends StatelessWidget {
     final left = s.cares[item.name]!;
     final done = left == 0;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 9),
+      padding: const EdgeInsets.only(bottom: AppSpace.s9),
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(AppSpace.s12),
         decoration: BoxDecoration(
           color: done ? AppColor.surfaceSunken : AppColor.surface,
           borderRadius: BorderRadius.circular(18),
@@ -484,16 +506,19 @@ class _CareRow extends StatelessWidget {
               bg: item.tint,
               fontSize: 19,
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpace.s12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(item.name, style: t(13, w: FontWeight.w700)),
-                  const SizedBox(height: 3),
+                  Text(
+                    item.name,
+                    style: t(AppFontSize.f13, w: FontWeight.w700),
+                  ),
+                  const SizedBox(height: AppSpace.s3),
                   Text(
                     '${item.desc} · 남은 $left회',
-                    style: t(11, c: AppColor.textFaint),
+                    style: t(AppFontSize.f11, c: AppColor.textFaint),
                   ),
                 ],
               ),
@@ -530,10 +555,13 @@ class _BranchCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('이대로 자라면', style: t(14, w: FontWeight.w700)),
-          const SizedBox(height: 5),
-          Text('지금 균형이 유지되면 아래 품종으로 자라요', style: t(11, c: AppColor.textGhost)),
-          const SizedBox(height: 14),
+          Text('이대로 자라면', style: t(AppFontSize.f14, w: FontWeight.w700)),
+          const SizedBox(height: AppSpace.s5),
+          Text(
+            '지금 균형이 유지되면 아래 품종으로 자라요',
+            style: t(AppFontSize.f11, c: AppColor.textGhost),
+          ),
+          const SizedBox(height: AppSpace.s14),
           for (final b in _branches)
             _BranchRow(item: b, on: _branchOn(s, b.name)),
         ],
@@ -550,9 +578,9 @@ class _BranchRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: 9),
+    padding: const EdgeInsets.only(bottom: AppSpace.s9),
     child: Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(AppSpace.s12),
       decoration: AppDeco.selectableCard(selected: on),
       child: Row(
         children: [
@@ -566,15 +594,22 @@ class _BranchRow extends StatelessWidget {
               fontSize: 21,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppSpace.s12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Text(item.name, style: t(13, w: FontWeight.w700)),
-                    const SizedBox(width: 7),
+                    Flexible(
+                      child: Text(
+                        item.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: t(AppFontSize.f13, w: FontWeight.w700),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpace.s7),
                     Pill(
                       item.rarity,
                       bg: item.rarity == '돌연변이'
@@ -591,8 +626,11 @@ class _BranchRow extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                Text(item.cond, style: t(11, c: AppColor.textFaint, h: 1.5)),
+                const SizedBox(height: AppSpace.s4),
+                Text(
+                  item.cond,
+                  style: t(AppFontSize.f11, c: AppColor.textFaint, h: 1.5),
+                ),
               ],
             ),
           ),
@@ -622,18 +660,22 @@ class _GardenCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text('내 정원', style: t(14, w: FontWeight.w700)),
+              Text('내 정원', style: t(AppFontSize.f14, w: FontWeight.w700)),
               const Spacer(),
               GestureDetector(
                 onTap: () => s.setSub(() => s.plantTab = '도감'),
                 child: Text(
                   '도감 ${s.dexOwned} / ${s.dexTotal} ›',
-                  style: t(11, w: FontWeight.w700, c: AppColor.primary),
+                  style: t(
+                    AppFontSize.f11,
+                    w: FontWeight.w700,
+                    c: AppColor.primary,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: AppSpace.s14),
           GridView.count(
             crossAxisCount: 4,
             shrinkWrap: true,
@@ -683,7 +725,7 @@ class _GardenCard extends StatelessWidget {
                           style: TextStyle(fontSize: g.emoji == '?' ? 15 : 24),
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: AppSpace.s4),
                       Text(
                         g.label,
                         style: t(
@@ -698,7 +740,7 @@ class _GardenCard extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: AppSpace.s14),
           SunkenBox(
             padding: 13,
             radius: 18,
@@ -706,7 +748,7 @@ class _GardenCard extends StatelessWidget {
             child: Row(
               children: [
                 const Text('🍁', style: TextStyle(fontSize: 22)),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppSpace.s12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -719,10 +761,10 @@ class _GardenCard extends StatelessWidget {
                           c: const Color(0xFF5B4A8A),
                         ),
                       ),
-                      const SizedBox(height: 3),
+                      const SizedBox(height: AppSpace.s3),
                       Text(
                         '9월 30일까지 완주하면 정원에 남아요',
-                        style: t(11, c: const Color(0xFF8578AD)),
+                        style: t(AppFontSize.f11, c: const Color(0xFF8578AD)),
                       ),
                     ],
                   ),
@@ -730,10 +772,10 @@ class _GardenCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 11),
+          const SizedBox(height: AppSpace.s11),
           Text(
             '떠나보낸 식물도 “지난 식물 기록”으로 남아요. 다시 심으면 그 기록에서 이어집니다.',
-            style: t(11, c: AppColor.textGhost, h: 1.6),
+            style: t(AppFontSize.f11, c: AppColor.textGhost, h: 1.6),
           ),
         ],
       ),
@@ -754,14 +796,20 @@ class _InventoryCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text('보관함', style: t(14, w: FontWeight.w700)),
+              Text('보관함', style: t(AppFontSize.f14, w: FontWeight.w700)),
               const Spacer(),
-              Text('챌린지 보상으로 모여요', style: t(11, c: AppColor.textGhost)),
+              Text(
+                '챌린지 보상으로 모여요',
+                style: t(AppFontSize.f11, c: AppColor.textGhost),
+              ),
             ],
           ),
-          const SizedBox(height: 5),
-          Text('아이템을 쓰면 해당 축이 바로 채워져요', style: t(11, c: AppColor.textGhost)),
-          const SizedBox(height: 14),
+          const SizedBox(height: AppSpace.s5),
+          Text(
+            '아이템을 쓰면 해당 축이 바로 채워져요',
+            style: t(AppFontSize.f11, c: AppColor.textGhost),
+          ),
+          const SizedBox(height: AppSpace.s14),
           GridView.count(
             crossAxisCount: 2,
             shrinkWrap: true,
@@ -797,7 +845,10 @@ class _InventoryTile extends StatelessWidget {
             }
           : () => toast(context, '보유한 “${item.key}”이 없어요'),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpace.s10,
+          vertical: AppSpace.s8,
+        ),
         decoration: BoxDecoration(
           color: AppColor.surface,
           borderRadius: BorderRadius.circular(18),
@@ -815,7 +866,7 @@ class _InventoryTile extends StatelessWidget {
                 fontSize: 16,
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: AppSpace.s10),
             Expanded(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -825,14 +876,14 @@ class _InventoryTile extends StatelessWidget {
                     item.key,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: t(13, w: FontWeight.w700),
+                    style: t(AppFontSize.f13, w: FontWeight.w700),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: AppSpace.s2),
                   Text(
                     item.desc,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: t(10, c: AppColor.textFaint),
+                    style: t(AppFontSize.f10, c: AppColor.textFaint),
                   ),
                 ],
               ),
@@ -870,7 +921,7 @@ class _GiftCard extends StatelessWidget {
                 Row(
                   children: [
                     const Text('🌷', style: TextStyle(fontSize: 16)),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: AppSpace.s6),
                     Text(
                       '꽃 선물하기',
                       style: t(
@@ -881,15 +932,15 @@ class _GiftCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 7),
+                const SizedBox(height: AppSpace.s7),
                 Text(
                   '챌린지를 완주해서 선물권 ${s.giftTickets}회가 열렸어요. 친구 정원에 꽃을 심어줄 수 있어요.',
-                  style: t(11, c: const Color(0xFF8578AD), h: 1.5),
+                  style: t(AppFontSize.f11, c: const Color(0xFF8578AD), h: 1.5),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppSpace.s12),
           GestureDetector(
             onTap: s.giftTickets > 0
                 ? () {
@@ -898,7 +949,10 @@ class _GiftCard extends StatelessWidget {
                   }
                 : null,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpace.s18,
+                vertical: AppSpace.s13,
+              ),
               decoration: BoxDecoration(
                 color: s.giftTickets > 0 ? AppColor.purple : AppColor.disabled,
                 borderRadius: BorderRadius.circular(16),
@@ -932,20 +986,20 @@ class _FriendGardenCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text('친구 정원', style: t(14, w: FontWeight.w700)),
+              Text('친구 정원', style: t(AppFontSize.f14, w: FontWeight.w700)),
               const Spacer(),
               Text(
                 '오늘 물 주기 ${s.wateredFriends.length} / ${DietRules.dailyFriendWatering}',
-                style: t(11, c: AppColor.textFaint),
+                style: t(AppFontSize.f11, c: AppColor.textFaint),
               ),
             ],
           ),
-          const SizedBox(height: 5),
+          const SizedBox(height: AppSpace.s5),
           Text(
             '서로 물을 주면 둘 다 +${DietRules.friendWateringExp} EXP를 받아요',
-            style: t(11, c: AppColor.textGhost),
+            style: t(AppFontSize.f11, c: AppColor.textGhost),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: AppSpace.s14),
           for (final f in _friendGardenSeed) _FriendGardenRow(item: f, s: s),
         ],
       ),
@@ -964,7 +1018,7 @@ class _FriendGardenRow extends StatelessWidget {
     final friend = AppState.personById(item.id);
     final done = s.wateredFriends.contains(item.id);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 9),
+      padding: const EdgeInsets.only(bottom: AppSpace.s9),
       child: SunkenBox(
         padding: 11,
         color: const Color(0xFFF9FBF9),
@@ -977,14 +1031,20 @@ class _FriendGardenRow extends StatelessWidget {
               bg: const Color(0xFFF2F8F2),
               fontSize: 20,
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpace.s12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(friend.nickname, style: t(13, w: FontWeight.w700)),
-                  const SizedBox(height: 3),
-                  Text(item.meta, style: t(11, c: AppColor.textFaint)),
+                  Text(
+                    friend.nickname,
+                    style: t(AppFontSize.f13, w: FontWeight.w700),
+                  ),
+                  const SizedBox(height: AppSpace.s3),
+                  Text(
+                    item.meta,
+                    style: t(AppFontSize.f11, c: AppColor.textFaint),
+                  ),
                 ],
               ),
             ),

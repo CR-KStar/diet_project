@@ -77,7 +77,7 @@ class _PhotoCard extends StatelessWidget {
     return GestureDetector(
       onTap: s.analyzingPhoto ? null : () => _pickPhoto(context),
       child: Container(
-        height: 260,
+        height: AppSpace.s260,
         width: double.infinity,
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
@@ -94,8 +94,8 @@ class _PhotoCard extends StatelessWidget {
             if (s.analyzingPhoto) const _AnalyzingOverlay(),
             if (photo != null && !s.analyzingPhoto)
               Positioned(
-                right: 12,
-                bottom: 12,
+                right: AppSpace.s12,
+                bottom: AppSpace.s12,
                 child: _RetakeChip(onTap: () => _pickPhoto(context)),
               ),
           ],
@@ -117,8 +117,8 @@ class _EmptyPhotoState extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 64,
-            height: 64,
+            width: AppSpace.s64,
+            height: AppSpace.s64,
             alignment: Alignment.center,
             decoration: const BoxDecoration(
               color: Colors.white,
@@ -127,16 +127,19 @@ class _EmptyPhotoState extends StatelessWidget {
             ),
             child: const Text('📷', style: TextStyle(fontSize: 28)),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: AppSpace.s14),
           Text('오늘 뭐 드셨나요?', style: AppText.cardTitle),
-          const SizedBox(height: 6),
+          const SizedBox(height: AppSpace.s6),
           Text(
             '사진 한 장이면 AI가 칼로리와 영양소를 대신 계산해요',
-            style: t(12, c: AppColor.textMuted),
+            style: t(AppFontSize.f12, c: AppColor.textMuted),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: AppSpace.s18),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpace.s20,
+              vertical: AppSpace.s12,
+            ),
             decoration: BoxDecoration(
               color: AppColor.primary,
               borderRadius: AppRadius.buttonR,
@@ -144,7 +147,7 @@ class _EmptyPhotoState extends StatelessWidget {
             ),
             child: Text(
               '📸 사진 추가하기',
-              style: t(13, w: FontWeight.w800, c: Colors.white),
+              style: t(AppFontSize.f13, w: FontWeight.w800, c: Colors.white),
             ),
           ),
         ],
@@ -165,7 +168,7 @@ class _AnalyzingOverlay extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           CircularProgressIndicator(color: Colors.white),
-          SizedBox(height: 14),
+          SizedBox(height: AppSpace.s14),
           Text(
             'AI가 사진을 분석하고 있어요...',
             style: TextStyle(
@@ -189,7 +192,10 @@ class _RetakeChip extends StatelessWidget {
   Widget build(BuildContext context) => GestureDetector(
     onTap: onTap,
     child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpace.s14,
+        vertical: AppSpace.s9,
+      ),
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(20),
@@ -220,11 +226,11 @@ class _AiAnalysisCard extends StatelessWidget {
         child: Row(
           children: [
             const Text('⚠️', style: TextStyle(fontSize: 18)),
-            const SizedBox(width: 10),
+            const SizedBox(width: AppSpace.s10),
             Expanded(
               child: Text(
                 s.photoAnalysisError!,
-                style: t(12, c: AppColor.alertText),
+                style: t(AppFontSize.f12, c: AppColor.alertText),
               ),
             ),
           ],
@@ -249,10 +255,14 @@ class _AiAnalysisCard extends StatelessWidget {
           Row(
             children: [
               const Text('✨', style: TextStyle(fontSize: 13)),
-              const SizedBox(width: 6),
+              const SizedBox(width: AppSpace.s6),
               Text(
                 'AI 분석 결과',
-                style: t(12, w: FontWeight.w700, c: AppColor.textMuted),
+                style: t(
+                  AppFontSize.f12,
+                  w: FontWeight.w700,
+                  c: AppColor.textMuted,
+                ),
               ),
               if (s.needsPhotoReview) ...[
                 const Spacer(),
@@ -265,27 +275,32 @@ class _AiAnalysisCard extends StatelessWidget {
               ],
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpace.s12),
           Text(
             s.aiMealName!,
-            style: t(17, w: FontWeight.w800),
+            style: t(AppFontSize.f17, w: FontWeight.w800),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpace.s8),
           Row(
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
               Text(
                 '${s.adjustedKcal}',
-                style: t(28, w: FontWeight.w900, c: AppColor.primary, sp: -0.6),
+                style: t(
+                  AppFontSize.f28,
+                  w: FontWeight.w900,
+                  c: AppColor.primary,
+                  sp: -0.6,
+                ),
               ),
-              const SizedBox(width: 4),
-              Text('kcal', style: t(13, c: AppColor.textFaint)),
+              const SizedBox(width: AppSpace.s4),
+              Text('kcal', style: t(AppFontSize.f13, c: AppColor.textFaint)),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: AppSpace.s18),
           Row(children: [for (final n in nutrients) _NutrientTile(n: n)]),
         ],
       ),
@@ -301,17 +316,17 @@ class _NutrientTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Expanded(
     child: Container(
-      margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      margin: const EdgeInsets.only(right: AppSpace.s8),
+      padding: const EdgeInsets.symmetric(vertical: AppSpace.s12),
       decoration: BoxDecoration(
         color: AppColor.surfaceSunken,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
         children: [
-          Text(n.$1, style: t(10, c: AppColor.textFaint)),
-          const SizedBox(height: 4),
-          Text(n.$2, style: t(15, w: FontWeight.w900)),
+          Text(n.$1, style: t(AppFontSize.f10, c: AppColor.textFaint)),
+          const SizedBox(height: AppSpace.s4),
+          Text(n.$2, style: t(AppFontSize.f15, w: FontWeight.w900)),
         ],
       ),
     ),
@@ -333,7 +348,10 @@ class _ExtraInfoBody extends StatelessWidget {
           emoji: '📝',
           title: '부가 정보',
           onBack: () => s.setSub(() => s.extraOpen = false),
-          trailing: Text('선택 입력', style: t(12, c: AppColor.textFaint)),
+          trailing: Text(
+            '선택 입력',
+            style: t(AppFontSize.f12, c: AppColor.textFaint),
+          ),
         ),
 
         _AdjustedKcalCard(s: s, bowl: bowl),
@@ -415,8 +433,8 @@ class _AdjustedKcalCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('보정된 칼로리', style: t(12, c: AppColor.textFaint)),
-              const SizedBox(height: 6),
+              Text('보정된 칼로리', style: t(AppFontSize.f12, c: AppColor.textFaint)),
+              const SizedBox(height: AppSpace.s6),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
@@ -430,16 +448,19 @@ class _AdjustedKcalCard extends StatelessWidget {
                       sp: -0.6,
                     ),
                   ),
-                  const SizedBox(width: 3),
-                  Text('kcal', style: t(12, c: AppColor.textFaint)),
+                  const SizedBox(width: AppSpace.s3),
+                  Text(
+                    'kcal',
+                    style: t(AppFontSize.f12, c: AppColor.textFaint),
+                  ),
                 ],
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: AppSpace.s6),
               Text(
                 bowl == null
                     ? '${s.portion} · ${s.fill}'
                     : '${s.portion} · ${bowl!.name} ${s.fill}',
-                style: t(11, c: AppColor.textFaint),
+                style: t(AppFontSize.f11, c: AppColor.textFaint),
               ),
             ],
           ),
@@ -449,10 +470,13 @@ class _AdjustedKcalCard extends StatelessWidget {
           children: [
             Text(
               'AI 추정 ${s.baseKcal}kcal',
-              style: t(11, c: AppColor.textFaint),
+              style: t(AppFontSize.f11, c: AppColor.textFaint),
             ),
-            const SizedBox(height: 2),
-            Text('부가 정보 반영 후', style: t(11, c: AppColor.textFaint)),
+            const SizedBox(height: AppSpace.s2),
+            Text(
+              '부가 정보 반영 후',
+              style: t(AppFontSize.f11, c: AppColor.textFaint),
+            ),
           ],
         ),
       ],
@@ -496,14 +520,14 @@ class _ExtraFieldCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: t(13, w: FontWeight.w700)),
-          const SizedBox(height: 11),
+          Text(label, style: t(AppFontSize.f13, w: FontWeight.w700)),
+          const SizedBox(height: AppSpace.s11),
           ChipWrap(
             options: {...options, if (current.isNotEmpty) current}.toList(),
             isSelected: (o) => current == o,
             onPick: (o) => s.setExtra(fieldKey, o),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: AppSpace.s10),
           Row(
             children: [
               Expanded(
@@ -514,7 +538,7 @@ class _ExtraFieldCard extends StatelessWidget {
                   onChanged: (v) => s.setCustomInput(fieldKey, v),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: AppSpace.s8),
               SmallButton(
                 label: '적용',
                 bg: canApply ? AppColor.primaryTint : AppColor.surfaceSunken,
@@ -545,17 +569,17 @@ class _PortionCard extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('섭취 분량', style: t(13, w: FontWeight.w700)),
-        const SizedBox(height: 11),
+        Text('섭취 분량', style: t(AppFontSize.f13, w: FontWeight.w700)),
+        const SizedBox(height: AppSpace.s11),
         SegmentedRow(
           options: const ['전체', '반절', '1/3', '직접'],
           value: s.portion,
           onChanged: s.setPortion,
         ),
         if (s.portion == '직접') ...[
-          const SizedBox(height: 12),
-          Text('직접 비율 입력', style: t(12, c: AppColor.textFaint)),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpace.s12),
+          Text('직접 비율 입력', style: t(AppFontSize.f12, c: AppColor.textFaint)),
+          const SizedBox(height: AppSpace.s8),
           NumberField(
             value: s.portionPct,
             unit: '%',
@@ -564,9 +588,9 @@ class _PortionCard extends StatelessWidget {
             onChanged: (v) => s.setPortionPct(v.toInt()),
           ),
         ],
-        const SizedBox(height: 16),
-        Text('그릇에 담긴 정도', style: t(13, w: FontWeight.w700)),
-        const SizedBox(height: 11),
+        const SizedBox(height: AppSpace.s16),
+        Text('그릇에 담긴 정도', style: t(AppFontSize.f13, w: FontWeight.w700)),
+        const SizedBox(height: AppSpace.s11),
         SegmentedRow(
           options: const ['가득', '반', '1/3'],
           value: s.fill,
@@ -591,26 +615,32 @@ class _BowlCard extends StatelessWidget {
       children: [
         Row(
           children: [
-            Text('그릇 선택', style: t(13, w: FontWeight.w700)),
+            Text('그릇 선택', style: t(AppFontSize.f13, w: FontWeight.w700)),
             const Spacer(),
             GestureDetector(
               onTap: () => s.setSub(() => s.bowlSheet = true),
               behavior: HitTestBehavior.opaque,
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-                child: Text('변경 ›', style: t(12, c: AppColor.textFaint)),
+                padding: const EdgeInsets.symmetric(
+                  vertical: AppSpace.s6,
+                  horizontal: AppSpace.s4,
+                ),
+                child: Text(
+                  '변경 ›',
+                  style: t(AppFontSize.f12, c: AppColor.textFaint),
+                ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpace.s12),
         Row(
           children: [
             if (bowl == null)
               Expanded(
                 child: Text(
                   '등록된 그릇이 없어요 · 그릇 없이도 기록할 수 있어요',
-                  style: t(12, c: AppColor.textFaint),
+                  style: t(AppFontSize.f12, c: AppColor.textFaint),
                 ),
               )
             else ...[
@@ -621,16 +651,19 @@ class _BowlCard extends StatelessWidget {
                 bg: AppColor.surfaceSunken,
                 fontSize: 20,
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpace.s12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(bowl!.name, style: t(15, w: FontWeight.w700)),
-                    const SizedBox(height: 4),
+                    Text(
+                      bowl!.name,
+                      style: t(AppFontSize.f15, w: FontWeight.w700),
+                    ),
+                    const SizedBox(height: AppSpace.s4),
                     Text(
                       '${bowl!.capacityMl}ml · ${bowl!.material} · ${s.fill}',
-                      style: t(12, c: AppColor.textFaint),
+                      style: t(AppFontSize.f12, c: AppColor.textFaint),
                     ),
                   ],
                 ),
@@ -654,8 +687,8 @@ class _MemoCard extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('자유 메모', style: t(13, w: FontWeight.w700)),
-        const SizedBox(height: 11),
+        Text('자유 메모', style: t(AppFontSize.f13, w: FontWeight.w700)),
+        const SizedBox(height: AppSpace.s11),
         AppTextField(
           value: s.memo,
           hint: '예: 기름기 좀 많음, 소스는 절반만 뿌렸어요.',
@@ -681,14 +714,14 @@ class _TagCard extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('태그', style: t(13, w: FontWeight.w700)),
-        const SizedBox(height: 11),
+        Text('태그', style: t(AppFontSize.f13, w: FontWeight.w700)),
+        const SizedBox(height: AppSpace.s11),
         ChipWrap(
           options: {..._tagOptions, ...s.customTags, ...s.tags}.toList(),
           isSelected: (o) => s.tags.contains(o),
           onPick: s.toggleTag,
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: AppSpace.s10),
         Row(
           children: [
             Expanded(
@@ -699,7 +732,7 @@ class _TagCard extends StatelessWidget {
                 onChanged: (v) => s.setSub(() => s.tagInput = v),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: AppSpace.s8),
             SmallButton(
               label: '추가',
               onTap: () {

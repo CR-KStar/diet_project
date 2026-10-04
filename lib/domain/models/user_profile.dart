@@ -34,8 +34,9 @@ class UserProfile {
     this.heightCm = 168,
     this.weightKg = 56.7,
     this.age = 29,
-    this.goalWeight = 52.0,
-  }) : _goal = _goalFromLabel(goal),
+    double? goalWeight,
+  }) : goalWeight = goalWeight ?? weightKg,
+       _goal = _goalFromLabel(goal),
        _activity = _activityFromLabel(activity),
        _gender = _genderFromLabel(gender);
 
