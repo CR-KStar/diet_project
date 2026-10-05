@@ -42,11 +42,7 @@ class FirestoreChallengeRepository implements ChallengeRepository {
   }
 
   @override
-  Future<void> reportProgress(
-    String challengeId,
-    String userId,
-    num value,
-  ) {
+  Future<void> reportProgress(String challengeId, String userId, num value) {
     return _progressCol.doc('${challengeId}_$userId').set({
       'challengeId': challengeId,
       'uid': userId,

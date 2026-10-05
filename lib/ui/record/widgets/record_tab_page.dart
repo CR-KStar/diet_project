@@ -183,7 +183,7 @@ class _CalendarCard extends StatelessWidget {
                     d,
                     textAlign: TextAlign.center,
                     style: t(
-                      11,
+                      AppFontSize.f11,
                       w: FontWeight.w700,
                       c: i == 0
                           ? AppColor.alert
@@ -248,7 +248,7 @@ class _CalendarDayCell extends StatelessWidget {
             Text(
               valid ? '$n' : '',
               style: t(
-                12,
+                AppFontSize.f12,
                 w: sel ? FontWeight.w700 : FontWeight.w500,
                 c: sel
                     ? Colors.white

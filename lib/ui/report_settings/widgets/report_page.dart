@@ -139,7 +139,7 @@ class _WeightChangeCard extends StatelessWidget {
               Text(
                 s.weightKg.toStringAsFixed(1),
                 style: t(
-                  28,
+                  AppFontSize.f28,
                   w: FontWeight.w900,
                   c: AppColor.textStrong,
                   sp: -0.8,
@@ -151,7 +151,7 @@ class _WeightChangeCard extends StatelessWidget {
               Text(
                 '${delta <= 0 ? '-' : '+'}${delta.abs().toStringAsFixed(1)}kg ${delta <= 0 ? '↓' : '↑'}',
                 style: t(
-                  13,
+                  AppFontSize.f13,
                   w: FontWeight.w700,
                   c: delta <= 0 ? AppColor.primaryDark : AppColor.alertText,
                 ),
@@ -199,14 +199,14 @@ class _WeightChangeCard extends StatelessWidget {
                   child: Column(
                     children: [
                       Text(
-                        '눈바디',
+                        '체중 기록',
                         style: t(AppFontSize.f11, c: AppColor.textFaint),
                       ),
                       const SizedBox(height: AppSpace.s6),
                       Text(
-                        '3장 ›',
+                        '${s.weightRecordCount}회 ›',
                         style: t(
-                          14,
+                          AppFontSize.f14,
                           w: FontWeight.w800,
                           c: AppColor.primaryDark,
                         ),
@@ -254,7 +254,7 @@ class _ExerciseAndDeltaRow extends StatelessWidget {
                       Text(
                         '${s.avgExerciseMin}',
                         style: t(
-                          24,
+                          AppFontSize.f24,
                           w: FontWeight.w900,
                           c: AppColor.textStrong,
                         ),
@@ -274,7 +274,7 @@ class _ExerciseAndDeltaRow extends StatelessWidget {
                               '${s.exerciseMinDelta.abs()}분 '
                               '${s.exerciseMinDelta > 0 ? '↑' : '↓'}',
                     style: t(
-                      12,
+                      AppFontSize.f12,
                       w: FontWeight.w700,
                       c: s.exerciseMinDelta >= 0
                           ? AppColor.primaryDark
@@ -303,7 +303,7 @@ class _ExerciseAndDeltaRow extends StatelessWidget {
                       Text(
                         '${delta <= 0 ? '-' : '+'}${delta.abs().toStringAsFixed(1)}',
                         style: t(
-                          24,
+                          AppFontSize.f24,
                           w: FontWeight.w900,
                           c: AppColor.textStrong,
                         ),
@@ -358,7 +358,7 @@ class _GoalAndRecordDaysRow extends StatelessWidget {
                       Text(
                         '${s.achieveRate}',
                         style: t(
-                          24,
+                          AppFontSize.f24,
                           w: FontWeight.w900,
                           c: AppColor.textStrong,
                         ),
@@ -394,7 +394,7 @@ class _GoalAndRecordDaysRow extends StatelessWidget {
                       Text(
                         '${s.recordDays}',
                         style: t(
-                          24,
+                          AppFontSize.f24,
                           w: FontWeight.w900,
                           c: AppColor.textStrong,
                         ),

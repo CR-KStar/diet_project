@@ -326,10 +326,10 @@ List<Widget> _challengeTab(BuildContext context, AppState s) => [
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('대칭 · 페널티 루프', style: t(AppFontSize.f14, w: FontWeight.w800)),
+        Text('챌린지 보상', style: t(AppFontSize.f14, w: FontWeight.w800)),
         const SizedBox(height: AppSpace.s8),
         Text(
-          '챌린지 실패 시에는 약속한 친구에게 눈바디가 전송돼요. 정원 루프와는 별개 트리거입니다.',
+          '챌린지를 달성하면 보너스 보상을 받아요.',
           style: t(AppFontSize.f12, c: AppColor.textMuted, h: 1.5),
         ),
       ],
@@ -405,7 +405,7 @@ class _ChallengeLeaderboardCard extends StatelessWidget {
                   child: Text(
                     '${r.rank}',
                     style: t(
-                      11,
+                      AppFontSize.f11,
                       w: FontWeight.w700,
                       c: r.rank == 1 ? Colors.white : AppColor.textFaint,
                     ),
@@ -655,7 +655,7 @@ class _JoinableChallengeCard extends StatelessWidget {
               child: Text(
                 joined ? '참여 중' : '참여하기',
                 style: t(
-                  13,
+                  AppFontSize.f13,
                   w: FontWeight.w700,
                   c: joined ? AppColor.textFaint : AppColor.primaryDark,
                 ),
@@ -831,7 +831,7 @@ class _InviteCodeCard extends StatelessWidget {
               Text(
                 s.inviteCode,
                 style: t(
-                  20,
+                  AppFontSize.f20,
                   w: FontWeight.w900,
                   c: AppColor.primaryDark,
                   sp: 1.2,
@@ -937,7 +937,7 @@ class _PillButton extends StatelessWidget {
       child: Text(
         label,
         style: t(
-          12,
+          AppFontSize.f12,
           w: FontWeight.w700,
           c: active ? AppColor.primaryDark : AppColor.textFaint,
         ),

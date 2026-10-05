@@ -113,7 +113,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Diet Project',
+      title: '밋그린',
       debugShowCheckedModeBanner: false,
       scaffoldMessengerKey: messengerKey,
       theme: buildAppTheme(),

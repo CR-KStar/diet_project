@@ -247,7 +247,7 @@ class _StatusCard extends StatelessWidget {
                 Text(
                   '${stage.name} 단계',
                   style: t(
-                    17,
+                    AppFontSize.f17,
                     w: FontWeight.w900,
                     c: AppColor.textStrong,
                     sp: -0.3,
@@ -309,7 +309,7 @@ class _RecoveryCard extends StatelessWidget {
                     Text(
                       '잎이 조금 처졌어요',
                       style: t(
-                        13,
+                        AppFontSize.f13,
                         w: FontWeight.w700,
                         c: const Color(0xFF8A6B12),
                       ),
@@ -425,7 +425,7 @@ class _BalanceCard extends StatelessWidget {
                       Text(
                         '${s.axisScore[a.key]}%',
                         style: t(
-                          12,
+                          AppFontSize.f12,
                           w: FontWeight.w700,
                           c: s.weakestAxis == a.key && !s.balanced
                               ? a.color
@@ -756,7 +756,7 @@ class _GardenCard extends StatelessWidget {
                       Text(
                         '가을 한정 · 단풍 화분',
                         style: t(
-                          12,
+                          AppFontSize.f12,
                           w: FontWeight.w700,
                           c: const Color(0xFF5B4A8A),
                         ),
@@ -891,7 +891,7 @@ class _InventoryTile extends StatelessWidget {
             Text(
               '$count',
               style: t(
-                17,
+                AppFontSize.f17,
                 w: FontWeight.w900,
                 c: active ? item.color : AppColor.textGhost,
               ),
@@ -925,7 +925,7 @@ class _GiftCard extends StatelessWidget {
                     Text(
                       '꽃 선물하기',
                       style: t(
-                        14,
+                        AppFontSize.f14,
                         w: FontWeight.w900,
                         c: const Color(0xFF6A54A8),
                       ),
@@ -960,7 +960,7 @@ class _GiftCard extends StatelessWidget {
               child: Text(
                 '선물하기',
                 style: t(
-                  13,
+                  AppFontSize.f13,
                   w: FontWeight.w700,
                   c: s.giftTickets > 0 ? Colors.white : AppColor.textGhost,
                 ),

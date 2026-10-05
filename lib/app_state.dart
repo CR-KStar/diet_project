@@ -1559,15 +1559,27 @@ class AppState extends ChangeNotifier {
   }
 
   // 체중
-  final Map<String, bool> bodyShots = {'FRONT': true, 'SIDE': false};
 
-  bool get bodyShotsOk =>
-      bodyShots['FRONT'] == true && bodyShots['SIDE'] == true;
-
-  void toggleBodyShot(String k) {
-    bodyShots[k] = !(bodyShots[k] ?? false);
-    notifyListeners();
+  /// 체중 화면 "최근 7일" — 오래된 날부터 오늘까지, 그날 마지막으로 기록한
+  /// 체중(기록이 없는 날은 kg가 null).
+  List<({int day, double? kg, bool isToday})> get recentWeightDays {
+    final entries = _weightViewModel.weightEntries;
+    return [
+      for (var i = 6; i >= 0; i--)
+        () {
+          final d = DateTime(today.year, today.month, today.day - i);
+          final key = dateKeyOf(d);
+          double? kg;
+          for (final w in entries) {
+            if (w.dateKey == key) kg = w.kg;
+          }
+          return (day: d.day, kg: kg, isToday: i == 0);
+        }(),
+    ];
   }
+
+  /// 지금까지 저장한 체중 기록 횟수.
+  int get weightRecordCount => _weightViewModel.weightEntries.length;
 
   /// 기록 탭 요약 카드에 쓰는, 가장 최근에 저장한 체중.
   double get latestWeightKg =>
@@ -2959,7 +2971,7 @@ class AppState extends ChangeNotifier {
       targetValue: 2000,
       isPublic: true,
       rewardDescription: '확정 물방울 1개',
-      bonusDescription: '보너스 15% 희귀 씨앗 · 실패 시 눈바디 전송',
+      bonusDescription: '보너스 15% 희귀 씨앗',
     ),
     Challenge(
       id: 'c_morning_run_sep',
@@ -2974,7 +2986,7 @@ class AppState extends ChangeNotifier {
       targetValue: 20,
       isPublic: true,
       rewardDescription: '확정 전설 씨앗 + 정원 장식',
-      bonusDescription: '보너스 10% 스페셜 아이템 · 실패 시 눈바디 전송',
+      bonusDescription: '보너스 10% 스페셜 아이템',
     ),
   ];
 

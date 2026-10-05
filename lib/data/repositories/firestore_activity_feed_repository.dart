@@ -29,7 +29,10 @@ class FirestoreActivityFeedRepository implements ActivityFeedRepository {
     // Firestore whereIn은 한 번에 최대 30개까지만 받아서, 30개씩 나눠 조회한다.
     final entries = <ActivityFeedEntry>[];
     for (var i = 0; i < userIds.length; i += 30) {
-      final chunk = userIds.sublist(i, i + 30 > userIds.length ? userIds.length : i + 30);
+      final chunk = userIds.sublist(
+        i,
+        i + 30 > userIds.length ? userIds.length : i + 30,
+      );
       final snap = await _col
           .where('uid', whereIn: chunk)
           .orderBy('createdAt', descending: true)
@@ -42,7 +45,11 @@ class FirestoreActivityFeedRepository implements ActivityFeedRepository {
         final createdAt = data['createdAt'];
         if (uid is String && message is String && createdAt is Timestamp) {
           entries.add(
-            ActivityFeedEntry(uid: uid, message: message, at: createdAt.toDate()),
+            ActivityFeedEntry(
+              uid: uid,
+              message: message,
+              at: createdAt.toDate(),
+            ),
           );
         }
       }

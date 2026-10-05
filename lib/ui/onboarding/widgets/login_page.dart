@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart'
+    show AppleLogoPainter;
 import '../../../app_state.dart';
 import '../../../common.dart';
 import '../../core/ui/themes/theme_tokens.dart';
@@ -35,7 +37,7 @@ class LoginPage extends StatelessWidget {
               '오늘의 한 끼, 기록부터',
               textAlign: TextAlign.center,
               style: t(
-                24,
+                AppFontSize.f24,
                 w: FontWeight.w900,
                 c: AppColor.textStrong,
                 sp: -0.5,
@@ -70,9 +72,12 @@ class LoginPage extends StatelessWidget {
               bg: const Color(0xFF111111),
               fg: Colors.white,
               badgeBg: const Color(0xFF2A2A2A),
-              badge: const Text(
-                '\uF8FF',
-                style: TextStyle(fontSize: 15, color: Colors.white),
+              badge: const SizedBox(
+                width: 14,
+                height: 16,
+                child: CustomPaint(
+                  painter: AppleLogoPainter(color: Colors.white),
+                ),
               ),
               shadow: const [],
               chevron: const Color(0xFF5A5A5A),

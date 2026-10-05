@@ -615,7 +615,6 @@ void main() {
     testWidgets('"체중 저장"', (tester) async {
       final server = _Server();
       final state = await _start(server);
-      state.bodyShots['SIDE'] = true; // 눈바디 2장 촬영 완료
       await _pumpScreen(tester, server, state, 'weight');
 
       await tester.ensureVisible(find.text('체중 저장'));

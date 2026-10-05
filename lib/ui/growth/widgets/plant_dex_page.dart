@@ -277,7 +277,7 @@ class _DexGridTile extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: t(
-              11,
+              AppFontSize.f11,
               w: FontWeight.w700,
               c: d.owned ? AppColor.text : const Color(0xFFB2B9BE),
             ),

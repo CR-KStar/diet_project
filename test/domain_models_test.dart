@@ -80,6 +80,28 @@ void main() {
       expect(registry.weightEntry?.kg, 56.4);
     });
 
+    test('체중 화면 "최근 7일"은 날짜별로 실제 기록한 체중을 보여준다', () {
+      final now = DateTime(2026, 9, 21, 9);
+      final weight = WeightViewModel(
+        weightRepo: MemoryRecordRepository(weightCodec),
+        now: () => now,
+      );
+      final s = AppState(weightViewModel: weight, now: () => now);
+
+      var days = s.recentWeightDays;
+      expect(days, hasLength(7));
+      expect(days.last.isToday, isTrue);
+      expect(days.last.kg, isNull); // 오늘은 아직 기록 전
+      expect(days[5].kg, 56.9); // 어제 = 예시 기록
+      expect(days.first.kg, isNull);
+
+      weight.setWeightInput(56.4);
+      weight.logWeight();
+      days = s.recentWeightDays;
+      expect(days.last.kg, 56.4);
+      expect(days.last.day, 21);
+    });
+
     test('기록 탭에서 다른 날짜를 넘겨봐도 오늘 요약은 그대로다', () {
       final s = AppState(now: () => DateTime(2026, 9, 21));
       final before = s.todayRegistry;

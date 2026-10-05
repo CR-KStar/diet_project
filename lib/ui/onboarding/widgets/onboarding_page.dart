@@ -448,7 +448,7 @@ class _BodyStep extends StatelessWidget {
                         Text(
                           '성별',
                           style: t(
-                            12,
+                            AppFontSize.f12,
                             w: FontWeight.w500,
                             c: AppColor.textFaint,
                           ),
@@ -564,7 +564,7 @@ class _GenderButton extends StatelessWidget {
       child: Text(
         label,
         style: t(
-          14,
+          AppFontSize.f14,
           w: selected ? FontWeight.w700 : FontWeight.w500,
           c: selected ? AppColor.primaryDark : AppColor.textFaint,
         ),
@@ -712,7 +712,7 @@ class _CalcTile extends StatelessWidget {
         Text(
           value,
           style: t(
-            20,
+            AppFontSize.f20,
             w: FontWeight.w900,
             c: highlight ? AppColor.primary : AppColor.text,
           ),

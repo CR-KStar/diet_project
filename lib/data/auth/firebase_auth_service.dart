@@ -4,7 +4,8 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 // firebase_auth에도 User 클래스가 있어서 LoginProvider만 가져온다.
-import 'package:diet_project/domain/models/models.dart' show AuthAccount, LoginProvider;
+import 'package:diet_project/domain/models/models.dart'
+    show AuthAccount, LoginProvider;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart'
     show TargetPlatform, defaultTargetPlatform, kIsWeb;

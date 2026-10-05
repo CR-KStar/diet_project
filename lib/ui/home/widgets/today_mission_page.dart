@@ -240,7 +240,7 @@ class _MissionCard extends StatelessWidget {
               Text(
                 '${(m.ratio * 100).round()}%',
                 style: t(
-                  12,
+                  AppFontSize.f12,
                   w: FontWeight.w700,
                   c: done ? AppColor.primary : AppColor.textMuted,
                 ),
@@ -299,7 +299,7 @@ class _MissionActionButton extends StatelessWidget {
         child: Text(
           label,
           style: t(
-            13,
+            AppFontSize.f13,
             w: FontWeight.w700,
             c: active
                 ? Colors.white

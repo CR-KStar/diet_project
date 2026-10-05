@@ -45,7 +45,7 @@ class MemoryChallengeRepository implements ChallengeRepository {
       targetValue: 2000,
       isPublic: true,
       rewardDescription: '확정 물방울 1개',
-      bonusDescription: '보너스 15% 희귀 씨앗 · 실패 시 눈바디 전송',
+      bonusDescription: '보너스 15% 희귀 씨앗',
     ),
     Challenge(
       id: 'c_morning_run_sep',
@@ -60,7 +60,7 @@ class MemoryChallengeRepository implements ChallengeRepository {
       targetValue: 20,
       isPublic: true,
       rewardDescription: '확정 전설 씨앗 + 정원 장식',
-      bonusDescription: '보너스 10% 스페셜 아이템 · 실패 시 눈바디 전송',
+      bonusDescription: '보너스 10% 스페셜 아이템',
     ),
   ];
 

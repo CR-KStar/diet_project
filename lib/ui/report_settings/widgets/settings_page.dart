@@ -236,7 +236,7 @@ class _WeekdayChip extends StatelessWidget {
           child: Text(
             d,
             style: t(
-              12,
+              AppFontSize.f12,
               w: selected ? FontWeight.w700 : FontWeight.w500,
               c: selected ? Colors.white : AppColor.textFaint,
             ),
@@ -343,7 +343,7 @@ class _ShareScopeCard extends StatelessWidget {
         ),
         const SizedBox(height: AppSpace.s11),
         Text(
-          '눈바디 사진과 첨부 이미지는 공개 설정과 무관하게 항상 본인만 볼 수 있어요.',
+          '공개 설정은 친구에게 보이는 정보의 범위에만 적용돼요.',
           style: t(AppFontSize.f11, c: AppColor.textFaint, h: 1.6),
         ),
       ],

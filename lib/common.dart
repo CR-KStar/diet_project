@@ -323,7 +323,7 @@ class SelectChip extends StatelessWidget {
       child: Text(
         label,
         style: t(
-          12,
+          AppFontSize.f12,
           w: selected ? FontWeight.w700 : FontWeight.w500,
           c: selected ? AppColor.primaryDark : AppColor.textMuted,
         ),
@@ -396,7 +396,7 @@ class SegmentedRow extends StatelessWidget {
               child: Text(
                 o,
                 style: t(
-                  13,
+                  AppFontSize.f13,
                   w: on ? FontWeight.w700 : FontWeight.w500,
                   c: on ? AppColor.primaryDark : AppColor.textFaint,
                 ),
@@ -445,7 +445,7 @@ class FilterTabs extends StatelessWidget {
               child: Text(
                 o,
                 style: t(
-                  12,
+                  AppFontSize.f12,
                   w: o == value ? FontWeight.w700 : FontWeight.w500,
                   c: o == value ? Colors.white : AppColor.textFaint,
                 ),
@@ -495,7 +495,7 @@ class PillTabs extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: t(
-                    13,
+                    AppFontSize.f13,
                     w: on ? FontWeight.w700 : FontWeight.w500,
                     c: on ? Colors.white : AppColor.textFaint,
                   ),
@@ -544,7 +544,7 @@ class ScrollChips extends StatelessWidget {
             child: Text(
               o,
               style: t(
-                13,
+                AppFontSize.f13,
                 w: on ? FontWeight.w900 : FontWeight.w500,
                 c: on ? Colors.white : AppColor.textMuted,
               ),
@@ -660,7 +660,7 @@ class PrimaryButton extends StatelessWidget {
       child: Text(
         label,
         style: t(
-          15,
+          AppFontSize.f15,
           w: FontWeight.w700,
           c: enabled ? Colors.white : AppColor.textGhost,
         ),
@@ -722,7 +722,7 @@ Future<bool> confirmDialog(
           child: Text(
             confirmLabel,
             style: t(
-              14,
+              AppFontSize.f14,
               w: FontWeight.w700,
               c: destructive ? AppColor.alertText : AppColor.primaryDark,
             ),

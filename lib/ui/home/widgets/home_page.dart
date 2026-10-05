@@ -216,7 +216,7 @@ class _CalorieRing extends StatelessWidget {
                       Text(
                         AppState.comma(s.intakeKcal),
                         style: t(
-                          24,
+                          AppFontSize.f24,
                           w: FontWeight.w900,
                           c: AppColor.textStrong,
                           sp: -0.8,
@@ -713,7 +713,7 @@ class _PlantCard extends StatelessWidget {
                         Text(
                           s.plantExpLeft,
                           style: t(
-                            11,
+                            AppFontSize.f11,
                             w: FontWeight.w700,
                             c: AppColor.primaryDark,
                           ),

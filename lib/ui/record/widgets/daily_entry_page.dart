@@ -1,4 +1,4 @@
-// 매일 입력하는 나머지 기록 — 운동(+루틴) · 체중(+눈바디) · 물 시트 · 그릇 관리
+// 매일 입력하는 나머지 기록 — 운동(+루틴) · 체중 · 물 시트 · 그릇 관리
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -155,7 +155,7 @@ class _ExerciseBurnCard extends StatelessWidget {
               Text(
                 '${s.exKcal}',
                 style: t(
-                  24,
+                  AppFontSize.f24,
                   w: FontWeight.w900,
                   c: AppColor.primaryDark,
                   sp: -0.6,
@@ -350,7 +350,7 @@ class _RoutineWeeklyRow extends StatelessWidget {
   );
 }
 
-// 체중 기록 (눈바디 2장 필수)
+// 체중 기록
 
 class WeightScreen extends StatelessWidget {
   const WeightScreen({super.key});
@@ -379,19 +379,19 @@ class WeightScreen extends StatelessWidget {
           ],
         ),
         const _WeightInputCard(),
-        const _BodyShotsCard(),
         const _WeightHistoryCard(),
         PrimaryButton(
-          label: s.bodyShotsOk ? '체중 저장' : '눈바디 2장을 촬영해 주세요',
-          enabled: s.bodyShotsOk,
+          label: '체중 저장',
           onTap: () {
-            if (!s.bodyShotsOk) return toast(context, '눈바디 정면·측면 사진을 촬영해 주세요');
+            if (weight.weightInput <= 0) {
+              return toast(context, '체중을 입력해 주세요');
+            }
             weight.logWeight();
             s.onWeightLogged(weight.weightInput);
             s.go('home');
             toast(
               context,
-              '체중 ${weight.weightInput.toStringAsFixed(1)}kg · 눈바디 2장 저장',
+              '체중 ${weight.weightInput.toStringAsFixed(1)}kg을 저장했어요',
             );
           },
         ),
@@ -429,120 +429,20 @@ class _WeightInputCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpace.s20),
           // 읽기 전용 — 목표 체중 위치에 고정. 드래그해서 바뀌지 않아요.
-          DragSlider(value: s.goalWeight, min: 50, max: 65),
+          DragSlider(value: s.goalWeight, min: 45, max: 70),
           const SizedBox(height: AppSpace.s4),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('50kg', style: t(AppFontSize.f10, c: AppColor.textGhost)),
+              Text('45kg', style: t(AppFontSize.f10, c: AppColor.textGhost)),
               Text(
                 '목표 ${s.goalWeight.toStringAsFixed(1)}kg',
                 style: t(AppFontSize.f10, c: AppColor.textGhost),
               ),
-              Text('65kg', style: t(AppFontSize.f10, c: AppColor.textGhost)),
+              Text('70kg', style: t(AppFontSize.f10, c: AppColor.textGhost)),
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _BodyShotsCard extends StatelessWidget {
-  const _BodyShotsCard();
-
-  @override
-  Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
-    return AppCard(
-      padding: 16,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text('눈바디 사진', style: t(AppFontSize.f13, w: FontWeight.w700)),
-              const SizedBox(width: AppSpace.s7),
-              Pill(
-                '필수',
-                bg: const Color(0xFFFFF3EF),
-                fg: AppColor.alertText,
-                fontSize: 9,
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpace.s6),
-          Text(
-            '정면·측면 2장을 촬영해야 체중이 저장돼요.',
-            style: t(AppFontSize.f11, c: AppColor.textGhost),
-          ),
-          const SizedBox(height: AppSpace.s12),
-          Row(
-            children: [
-              for (final b in const [('FRONT', '정면'), ('SIDE', '측면')])
-                _BodyShotTile(id: b.$1, label: b.$2, s: s),
-            ],
-          ),
-          const SizedBox(height: AppSpace.s10),
-          Text(
-            '사진은 암호화되어 본인만 볼 수 있어요.',
-            style: t(AppFontSize.f11, c: AppColor.textGhost),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _BodyShotTile extends StatelessWidget {
-  const _BodyShotTile({required this.id, required this.label, required this.s});
-
-  final String id;
-  final String label;
-  final AppState s;
-
-  @override
-  Widget build(BuildContext context) {
-    final done = s.bodyShots[id]!;
-    return Expanded(
-      child: Padding(
-        padding: EdgeInsets.only(right: id == 'FRONT' ? 10 : 0),
-        child: GestureDetector(
-          onTap: () => s.toggleBodyShot(id),
-          child: Container(
-            height: AppSpace.s96,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: done ? const Color(0xFFF2F5F6) : const Color(0xFFFFFCFB),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: done ? AppColor.primary : const Color(0xFFF0A98F),
-                width: 1.5,
-              ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '$label $id',
-                  style: t(
-                    AppFontSize.f9,
-                    c: done ? AppColor.textFaint : AppColor.primary,
-                  ),
-                ),
-                const SizedBox(height: AppSpace.s6),
-                Text(
-                  done ? '촬영 완료' : '＋ 촬영 필요',
-                  style: t(
-                    10,
-                    w: FontWeight.w700,
-                    c: done ? AppColor.primary : AppColor.alertText,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -552,65 +452,90 @@ class _WeightHistoryCard extends StatelessWidget {
   const _WeightHistoryCard();
 
   @override
-  Widget build(BuildContext context) => AppCard(
-    padding: 16,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('최근 7일', style: t(AppFontSize.f13, w: FontWeight.w700)),
-        const SizedBox(height: AppSpace.s12),
-        SizedBox(
-          height: AppSpace.s82,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              for (final d in const [
-                (13, 58.0, false),
-                (14, 55.0, false),
-                (15, 50.0, false),
-                (16, 52.0, false),
-                (17, 45.0, true),
-                (18, 42.0, true),
-                (19, 36.0, true),
-              ])
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 3.5),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Container(
-                          height: d.$2,
-                          decoration: BoxDecoration(
-                            color: d.$1 == 19
-                                ? AppColor.primary
-                                : d.$3
-                                ? AppColor.secondary
-                                : const Color(0xFFDCE6DD),
-                            borderRadius: BorderRadius.circular(6),
+  Widget build(BuildContext context) {
+    final s = context.watch<AppState>();
+    context.watch<WeightViewModel>();
+    final days = s.recentWeightDays;
+    final recorded = [for (final d in days) ?d.kg];
+    final lo = recorded.isEmpty
+        ? 0.0
+        : recorded.reduce((a, b) => a < b ? a : b);
+    final hi = recorded.isEmpty
+        ? 0.0
+        : recorded.reduce((a, b) => a > b ? a : b);
+
+    // 막대 높이: 기록한 날은 최저~최고를 24~58px에 맞춰 보여주고, 기록 없는 날은 짧은 자리표시.
+    double barHeight(double? kg) {
+      if (kg == null) return 6;
+      if (hi == lo) return 40;
+      return 24 + 34 * (kg - lo) / (hi - lo);
+    }
+
+    return AppCard(
+      padding: 16,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('최근 7일', style: t(AppFontSize.f13, w: FontWeight.w700)),
+          const SizedBox(height: AppSpace.s12),
+          SizedBox(
+            height: AppSpace.s82,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                for (final d in days)
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 3.5),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          if (d.kg != null)
+                            Text(
+                              d.kg!.toStringAsFixed(1),
+                              maxLines: 1,
+                              style: t(AppFontSize.f9, c: AppColor.textFaint),
+                            ),
+                          const SizedBox(height: AppSpace.s2),
+                          Container(
+                            height: barHeight(d.kg),
+                            decoration: BoxDecoration(
+                              color: d.kg == null
+                                  ? AppColor.divider
+                                  : d.isToday
+                                  ? AppColor.primary
+                                  : AppColor.secondary,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: AppSpace.s5),
-                        Text(
-                          '${d.$1}',
-                          style: t(
-                            9,
-                            w: d.$1 == 19 ? FontWeight.w700 : FontWeight.w400,
-                            c: d.$1 == 19 ? AppColor.text : AppColor.textGhost,
+                          const SizedBox(height: AppSpace.s5),
+                          Text(
+                            '${d.day}',
+                            style: t(
+                              AppFontSize.f9,
+                              w: d.isToday ? FontWeight.w700 : FontWeight.w400,
+                              c: d.isToday ? AppColor.text : AppColor.textGhost,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
-    ),
-  );
+          if (recorded.isEmpty) ...[
+            const SizedBox(height: AppSpace.s8),
+            Text(
+              '체중을 기록하면 여기에 7일 변화가 보여요.',
+              style: t(AppFontSize.f11, c: AppColor.textGhost),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 }
-
 // 물 기록 시트 (화면 대신 시트)
 
 class WaterSheet extends StatelessWidget {

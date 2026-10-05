@@ -65,7 +65,7 @@ class QuickSheet extends StatelessWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              tile('⚖️', '체중 기록', '눈바디 사진', () => s.go('weight')),
+              tile('⚖️', '체중 기록', '오늘 체중 입력', () => s.go('weight')),
               const SizedBox(width: 12),
               tile('💧', '물 기록', '컵 단위로 빠르게', () {
                 s.setSub(() {

@@ -147,7 +147,7 @@ class _PlantStageTile extends StatelessWidget {
             Text(
               '${st.$2} Lv.${st.$3}',
               style: t(
-                10,
+                AppFontSize.f10,
                 w: active ? FontWeight.w700 : FontWeight.w400,
                 c: active ? AppColor.primaryDark : AppColor.textFaint,
               ),
