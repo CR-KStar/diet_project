@@ -62,7 +62,9 @@ void main() {
 
     test('이름을 못 받으면 기존 닉네임을 유지한다', () async {
       final s = AppState(
-        auth: _FakeAuth(result: const AuthAccount(uid: 'u1', provider: LoginProvider.google)),
+        auth: _FakeAuth(
+          result: const AuthAccount(uid: 'u1', provider: LoginProvider.google),
+        ),
       );
       final before = s.nickname;
 
@@ -80,7 +82,9 @@ void main() {
     });
 
     test('실패하면 false이고 사용자용 문구가 남는다', () async {
-      final s = AppState(auth: _FakeAuth(failure: const AuthFailure('로그인에 실패했어요.')));
+      final s = AppState(
+        auth: _FakeAuth(failure: const AuthFailure('로그인에 실패했어요.')),
+      );
 
       expect(await s.signIn(LoginProvider.google), isFalse);
       expect(s.authError, '로그인에 실패했어요.');
@@ -99,7 +103,9 @@ void main() {
 
   group('AppState.signOut · deleteAccount', () {
     test('로그아웃하면 계정이 지워지고 로그인 화면으로 돌아간다', () async {
-      final fake = _FakeAuth(result: const AuthAccount(uid: 'u1', provider: LoginProvider.google));
+      final fake = _FakeAuth(
+        result: const AuthAccount(uid: 'u1', provider: LoginProvider.google),
+      );
       final s = AppState(auth: fake);
       await s.signIn(LoginProvider.google);
 

@@ -123,14 +123,20 @@ class MyApp extends StatelessWidget {
       // 완충한다.
       builder: (context, child) {
         final mq = MediaQuery.of(context);
-        return MediaQuery(
-          data: mq.copyWith(
-            textScaler: mq.textScaler.clamp(
-              minScaleFactor: 0.9,
-              maxScaleFactor: 1.3,
+        // 입력창 바깥을 누르면 키보드를 내린다. iOS 숫자 키패드에는 '완료'
+        // 버튼이 없어서, 이게 없으면 키보드가 하단 버튼을 가린 채 남는다.
+        return GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+          child: MediaQuery(
+            data: mq.copyWith(
+              textScaler: mq.textScaler.clamp(
+                minScaleFactor: 0.9,
+                maxScaleFactor: 1.3,
+              ),
             ),
+            child: child!,
           ),
-          child: child!,
         );
       },
       // 이 앱은 Navigator 라우트 대신 AppState.screen 문자열로 화면을

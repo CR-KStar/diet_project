@@ -102,11 +102,12 @@ void main() {
       expect(s.todayRegistry.dateKey, '2026-09-21');
       expect(s.todayRegistry.meals, isNotEmpty);
       expect(s.hasRecordOn(DateTime(2026, 9, 21)), isTrue);
-      expect(s.hasRecordOn(DateTime(2026, 9, 19)), isFalse);
+      expect(s.hasRecordOn(DateTime(2026, 9, 19)), isTrue); // 예시: 지난 6일치 식단
+      expect(s.hasRecordOn(DateTime(2026, 9, 10)), isFalse);
     });
 
-    test('연속 기록은 오늘부터 이어진 날 수다 (예시: 오늘 식단 + 어제 체중 = 2일)', () {
-      expect(_at(DateTime(2026, 9, 21)).streakDays, 2);
+    test('연속 기록은 오늘부터 이어진 날 수다 (예시: 오늘 + 지난 6일 = 7일)', () {
+      expect(_at(DateTime(2026, 9, 21)).streakDays, 7);
     });
 
     test('실제 계정으로 로그인하면 예시 기록이 비워진다', () async {

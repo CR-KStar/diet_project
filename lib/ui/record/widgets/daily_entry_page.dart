@@ -479,7 +479,8 @@ class _WeightHistoryCard extends StatelessWidget {
           Text('최근 7일', style: t(AppFontSize.f13, w: FontWeight.w700)),
           const SizedBox(height: AppSpace.s12),
           SizedBox(
-            height: AppSpace.s82,
+            // 막대(최대 58) + 위·아래 글자 + 여백이 글자 크기 1.3배에서도 들어가도록 여유를 둔다.
+            height: AppSpace.s110,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [

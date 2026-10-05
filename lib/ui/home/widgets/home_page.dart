@@ -385,12 +385,17 @@ class _NutritionRow extends StatelessWidget {
         ),
         const SizedBox(width: AppSpace.s8),
         SizedBox(
-          width: AppSpace.s76,
-          child: Text(
-            '${AppState.comma(stat.value.round())} / '
-            '${AppState.comma(stat.target.round())}${stat.unit}',
-            textAlign: TextAlign.right,
-            style: t(AppFontSize.f11, c: AppColor.textMuted),
+          width: AppSpace.s92,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerRight,
+            child: Text(
+              '${AppState.comma(stat.value.round())} / '
+              '${AppState.comma(stat.target.round())}${stat.unit}',
+              maxLines: 1,
+              textAlign: TextAlign.right,
+              style: t(AppFontSize.f11, c: AppColor.textMuted),
+            ),
           ),
         ),
         SizedBox(

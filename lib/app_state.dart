@@ -319,7 +319,7 @@ class AppState extends ChangeNotifier {
 
   // 인증 · 온보딩
   String provider = 'Google';
-  String nickname = '채린';
+  String nickname = '새싹';
 
   /// 로그인한 계정 (로그인 전에는 null)
   AuthAccount? account;
@@ -1314,17 +1314,33 @@ class AppState extends ChangeNotifier {
       kcal: 320,
       dateKey: _todayKey,
       bowlId: 'bowl_home',
+      proteinG: 9,
+      carbG: 55,
+      fatG: 6,
+      fiberG: 8,
+      sodiumMg: 120,
+      sugarG: 14,
+      calciumMg: 90,
+      ironMg: 2,
     ),
     MealLog(
       id: 'meal_seed_lunch',
       userId: User.meId,
       mealType: MealType.lunch,
-      name: aiMealName ?? '음식 (추정)',
+      name: aiMealName ?? '현미밥 · 닭가슴살 도시락',
       meta: '회사 도시락 · 가득 · 도시락',
       kcal: 450,
       dateKey: _todayKey,
       bowlId: 'bowl_lunchbox',
       needsReview: needsPhotoReview,
+      proteinG: 28,
+      carbG: 62,
+      fatG: 12,
+      fiberG: 5,
+      sodiumMg: 800,
+      sugarG: 6,
+      calciumMg: 60,
+      ironMg: 3,
     ),
     MealLog(
       id: 'meal_seed_dinner',
@@ -1335,6 +1351,14 @@ class AppState extends ChangeNotifier {
       kcal: 480,
       dateKey: _todayKey,
       bowlId: 'bowl_salad',
+      proteinG: 38,
+      carbG: 20,
+      fatG: 22,
+      fiberG: 7,
+      sodiumMg: 640,
+      sugarG: 5,
+      calciumMg: 110,
+      ironMg: 4,
     ),
     MealLog(
       id: 'meal_seed_snack',
@@ -1344,8 +1368,67 @@ class AppState extends ChangeNotifier {
       meta: '컵 · 가득 · 외식',
       kcal: 200,
       dateKey: _todayKey,
+      proteinG: 17,
+      carbG: 14,
+      fatG: 6,
+      sodiumMg: 70,
+      sugarG: 9,
+      calciumMg: 180,
     ),
+    ..._demoPastMeals(),
   ];
+
+  /// 예시 모드에서 달력 · 리포트가 비어 보이지 않도록 지난 6일치 식단을 채운다.
+  /// (실제 계정은 로그인 시 예시 기록이 비워진다.)
+  List<MealLog> _demoPastMeals() {
+    const kcals = [
+      (320, 520, 560),
+      (350, 480, 610),
+      (300, 560, 520),
+      (340, 450, 640),
+      (330, 600, 580),
+      (360, 500, 540),
+    ];
+    const names = [
+      ('그릭요거트 · 베리', '현미 비빔밥', '연어 포케 볼'),
+      ('통밀 토스트 · 달걀', '닭가슴살 샐러드', '두부 스테이크'),
+      ('오트밀 · 바나나', '샌드위치', '야채 볶음밥'),
+      ('고구마 · 우유', '잡곡밥 · 제육볶음', '닭가슴살 샐러드'),
+      ('바나나 스무디', '곤약 쫄면', '연어 구이 · 채소'),
+      ('오트밀 · 블루베리', '월남쌈', '두부 샐러드'),
+    ];
+    const types = [MealType.breakfast, MealType.lunch, MealType.dinner];
+    final out = <MealLog>[];
+    for (var i = 0; i < kcals.length; i++) {
+      final key = dateKeyOf(
+        DateTime(today.year, today.month, today.day - (i + 1)),
+      );
+      final k = [kcals[i].$1, kcals[i].$2, kcals[i].$3];
+      final n = [names[i].$1, names[i].$2, names[i].$3];
+      for (var m = 0; m < 3; m++) {
+        out.add(
+          MealLog(
+            id: 'meal_seed_${i}_$m',
+            userId: User.meId,
+            mealType: types[m],
+            name: n[m],
+            meta: '집밥',
+            kcal: k[m],
+            dateKey: key,
+            proteinG: k[m] * 0.06,
+            carbG: k[m] * 0.11,
+            fatG: k[m] * 0.03,
+            fiberG: k[m] * 0.012,
+            sodiumMg: k[m] * 1.3,
+            sugarG: k[m] * 0.02,
+            calciumMg: k[m] * 0.2,
+            ironMg: k[m] * 0.006,
+          ),
+        );
+      }
+    }
+    return out;
+  }
 
   /// 기록 탭에서 지금 보고 있는 날짜(month/day)의 식단.
   List<MealLog> get meals => _mealLogs
@@ -1958,7 +2041,7 @@ class AppState extends ChangeNotifier {
     exp: 240,
     axisScore: {PlantAxis.water: 82, PlantAxis.sun: 45, PlantAxis.nutri: 68},
     cares: {'물 주기': 3, '햇빛 받기': 2, '영양 주기': 2},
-    missedDays: 2,
+    missedDays: 0,
     inventory: {'물방울': 6, '희귀 씨앗': 2, '전설 씨앗': 0, '정원 장식': 1},
     giftTickets: 1,
   );

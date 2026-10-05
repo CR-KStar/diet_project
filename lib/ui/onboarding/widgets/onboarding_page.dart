@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart'
+    show AppleLogoPainter;
 import '../../../app_state.dart';
 import '../../../common.dart';
 import '../../core/ui/themes/theme_tokens.dart';
@@ -54,22 +56,38 @@ class _AccountLinkStep extends StatelessWidget {
         AppCard(
           child: Row(
             children: [
-              IconTile(
-                apple ? '\uF8FF' : 'G',
-                size: 44,
-                radius: 14,
-                fontSize: 18,
-                bg: apple ? const Color(0xFF111111) : const Color(0xFFF1F3F4),
-              ),
+              if (apple)
+                Container(
+                  width: 44,
+                  height: 44,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF111111),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const SizedBox(
+                    width: 17,
+                    height: 20,
+                    child: CustomPaint(
+                      painter: AppleLogoPainter(color: Colors.white),
+                    ),
+                  ),
+                )
+              else
+                IconTile(
+                  'G',
+                  size: 44,
+                  radius: 14,
+                  fontSize: 18,
+                  bg: const Color(0xFFF1F3F4),
+                ),
               const SizedBox(width: AppSpace.s14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      apple
-                          ? 'chaerin@privaterelay.appleid.com'
-                          : 'chaerin@gmail.com',
+                      s.account?.email ?? '${s.provider} 계정',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: t(AppFontSize.f14, w: FontWeight.w700),

@@ -93,7 +93,7 @@ void main() {
       expect(days.last.isToday, isTrue);
       expect(days.last.kg, isNull); // 오늘은 아직 기록 전
       expect(days[5].kg, 56.9); // 어제 = 예시 기록
-      expect(days.first.kg, isNull);
+      expect(days.first.kg, 57.6); // 예시: 6일 전부터 서서히 감소
 
       weight.setWeightInput(56.4);
       weight.logWeight();

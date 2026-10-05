@@ -233,14 +233,14 @@ class _PrivacyCard extends StatelessWidget {
                 onTap: () async {
                   try {
                     await Clipboard.setData(
-                      const ClipboardData(
-                        text: 'https://dietapp.app/u/chaerin',
-                      ),
+                      ClipboardData(text: s.nickname),
                     ).timeout(const Duration(seconds: 1));
                   } catch (_) {
                     // 클립보드 접근이 막혔거나 응답이 없는 환경에서도 조용히 무시
                   }
-                  if (context.mounted) toast(context, '프로필 링크를 복사했어요');
+                  if (context.mounted) {
+                    toast(context, '닉네임을 복사했어요. 친구가 검색으로 찾을 수 있어요');
+                  }
                 },
                 child: Container(
                   alignment: Alignment.center,
@@ -251,7 +251,7 @@ class _PrivacyCard extends StatelessWidget {
                     boxShadow: AppShadow.card,
                   ),
                   child: Text(
-                    '프로필 링크 복사',
+                    '내 닉네임 복사',
                     style: t(
                       AppFontSize.f13,
                       w: FontWeight.w700,

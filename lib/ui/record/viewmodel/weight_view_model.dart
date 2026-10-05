@@ -24,13 +24,29 @@ class WeightViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  String get _yesterdayKey {
+  String _keyDaysAgo(int days) {
     final n = _now();
-    final y = DateTime(n.year, n.month, n.day - 1);
+    final y = DateTime(n.year, n.month, n.day - days);
     return '${y.year}-${y.month.toString().padLeft(2, '0')}-${y.day.toString().padLeft(2, '0')}';
   }
 
+  String get _yesterdayKey => _keyDaysAgo(1);
+
   late List<WeightEntry> weightEntries = [
+    for (final (i, kg) in const [
+      (6, 57.6),
+      (5, 57.5),
+      (4, 57.3),
+      (3, 57.2),
+      (2, 57.0),
+    ])
+      WeightEntry(
+        id: 'weight_seed_$i',
+        userId: User.meId,
+        kg: kg,
+        dateKey: _keyDaysAgo(i),
+        time: '07:30',
+      ),
     WeightEntry(
       id: 'weight_seed',
       userId: User.meId,
@@ -43,8 +59,18 @@ class WeightViewModel extends ChangeNotifier {
   double? get latestWeightKg =>
       weightEntries.isEmpty ? null : weightEntries.last.kg;
 
+  /// 오늘 이전에 가장 최근에 기록한 체중. 오늘 이미 저장했어도 그 값이 아니라
+  /// 이전 기록과 비교해야 "어제보다" 변화가 맞게 나온다.
+  double? get previousWeightKg {
+    final today = _keyDaysAgo(0);
+    for (final e in weightEntries.reversed) {
+      if (e.dateKey != today) return e.kg;
+    }
+    return null;
+  }
+
   String weightDiffFrom(double baseline) {
-    final last = latestWeightKg ?? baseline;
+    final last = previousWeightKg ?? baseline;
     return '${(weightInput - last).toStringAsFixed(1)}kg';
   }
 
