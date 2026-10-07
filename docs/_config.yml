@@ -1,0 +1,6 @@
+theme: jekyll-theme-minimal
+title: 밋그린
+exclude:
+  - screenshots
+  - domain_models.html
+  - login_persistence_study.html
