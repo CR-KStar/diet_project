@@ -41,6 +41,13 @@ class _PhotoCard extends StatelessWidget {
 
   final AppState s;
 
+  /// 동의를 받은 뒤에만 사진을 고르고 AI 분석을 요청한다.
+  Future<void> _start(BuildContext context, ImageSource source) async {
+    Navigator.pop(context);
+    if (!await ensureAiConsent(context, s)) return;
+    await s.pickAndAnalyzeMealPhoto(source);
+  }
+
   void _pickPhoto(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -51,18 +58,12 @@ class _PhotoCard extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.camera_alt),
               title: const Text('카메라로 촬영'),
-              onTap: () {
-                Navigator.pop(context);
-                s.pickAndAnalyzeMealPhoto(ImageSource.camera);
-              },
+              onTap: () => _start(context, ImageSource.camera),
             ),
             ListTile(
               leading: const Icon(Icons.photo_library),
               title: const Text('갤러리에서 선택'),
-              onTap: () {
-                Navigator.pop(context);
-                s.pickAndAnalyzeMealPhoto(ImageSource.gallery);
-              },
+              onTap: () => _start(context, ImageSource.gallery),
             ),
           ],
         ),

@@ -15,7 +15,10 @@ type ImageMediaType = "image/jpeg" | "image/png" | "image/gif" | "image/webp";
 
 // AI가 반드시 이 모양으로만 답하도록 하는 스키마.
 const MealAnalysisSchema = z.object({
-  name: z.string(),
+  // 앱 화면에 그대로 보이는 이름이라 반드시 한국어로 받는다.
+  name: z.string().describe(
+    "음식 이름. 반드시 한국어로 (예: 비빔밥, 닭가슴살 샐러드). 영어 금지."
+  ),
   kcal: z.number().int(),
   protein_g: z.number(),
   carb_g: z.number(),
@@ -68,6 +71,8 @@ export const analyzeMealPhoto = onCall(
               type: "text",
               text:
                 `이 사진 속 음식을 분석해줘. ${bowlHint} ` +
+                "음식 이름(name)은 반드시 한국어로 짧게 써줘. " +
+                "(예: 비빔밥, 닭가슴살 샐러드. 영어로 쓰지 마.) " +
                 "칼로리와 3대 영양소(단백질·탄수화물·지방)뿐 아니라 " +
                 "식이섬유(g), 나트륨(mg), 당류(g), 칼슘(mg), 철분(mg)도 " +
                 "음식 종류와 양을 근거로 함께 추정해줘. " +

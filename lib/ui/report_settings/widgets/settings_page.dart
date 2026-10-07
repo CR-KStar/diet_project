@@ -365,6 +365,40 @@ class _ConsentCard extends StatelessWidget {
         Text('동의 관리', style: t(AppFontSize.f14, w: FontWeight.w700)),
         const SizedBox(height: AppSpace.s12),
         for (final k in s.terms.keys) _ConsentRow(s: s, k: k),
+        _AiConsentRow(s: s),
+      ],
+    ),
+  );
+}
+
+/// 식사 사진 · 식단 정보를 외부 AI로 보내 분석하는 것에 대한 동의 — 켜고 끌 수 있다.
+class _AiConsentRow extends StatelessWidget {
+  const _AiConsentRow({required this.s});
+
+  final AppState s;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(bottom: AppSpace.s12),
+    child: Row(
+      children: [
+        Expanded(
+          child: Text(
+            '(선택) 외부 AI로 사진·식단 정보 전송',
+            style: t(AppFontSize.f12, c: AppColor.textMuted),
+          ),
+        ),
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => openLegalDoc(context, '개인정보 처리방침'),
+          child: Text('보기 ›', style: t(AppFontSize.f11, c: AppColor.textGhost)),
+        ),
+        const SizedBox(width: AppSpace.s10),
+        AppToggle(
+          value: s.aiConsent,
+          width: AppSpace.s40,
+          onChanged: () => s.setAiConsent(!s.aiConsent),
+        ),
       ],
     ),
   );

@@ -12,6 +12,7 @@ import 'package:diet_project/data/repositories/record_codecs.dart';
 import 'package:diet_project/data/repositories/record_repository.dart';
 import 'package:diet_project/data/repositories/water_repository.dart';
 import 'package:diet_project/data/repositories/profile_repository.dart';
+import 'package:diet_project/data/services/ai_consent_store.dart';
 import 'package:diet_project/firebase_options.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
@@ -80,6 +81,7 @@ Future<void> main() async {
     dexRepo: dex,
     friendRepo: friends,
     challengeRepo: challenges,
+    aiConsentStore: PrefsAiConsentStore(),
   );
 
   await state.restoreSession();

@@ -33,7 +33,11 @@ class RecommendScreen extends StatelessWidget {
               GestureDetector(
                 onTap: s.loadingRecommendations
                     ? null
-                    : () => s.fetchAiRecommendations(),
+                    : () async {
+                        if (await ensureAiConsent(context, s)) {
+                          await s.fetchAiRecommendations();
+                        }
+                      },
                 child: Text(
                   s.loadingRecommendations ? 'AI 추천 새로고침 중...' : 'AI 추천 새로고침',
                   style: t(

@@ -9,6 +9,7 @@ import 'package:diet_project/ui/record/viewmodel/weight_view_model.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:diet_project/data/services/app_icon_service.dart';
 import 'package:diet_project/data/services/meal_analysis_service.dart';
+import 'package:diet_project/data/services/ai_consent_store.dart';
 import 'package:diet_project/data/services/meal_recommendation_service.dart';
 import 'package:diet_project/data/services/notification_service.dart';
 import 'package:diet_project/data/repositories/friend_repository.dart';
@@ -104,8 +105,10 @@ class AppState extends ChangeNotifier {
     FriendRepository? friendRepo,
     ChallengeRepository? challengeRepo,
     ActivityFeedRepository? activityFeedRepo,
+    AiConsentStore? aiConsentStore,
     DateTime Function()? now,
-  }) : _auth = auth ?? MockAuthService(),
+  }) : _aiConsentStore = aiConsentStore ?? MemoryAiConsentStore(),
+       _auth = auth ?? MockAuthService(),
        _profiles = profiles ?? MemoryProfileRepository(),
        _waterViewModel =
            waterViewModel ??
@@ -205,7 +208,8 @@ class AppState extends ChangeNotifier {
       screen = id;
       if (id == 'report') period = '주간';
       if (id == 'onboard') step = 2;
-      if (id == 'recommend' && aiRecommendations == null) {
+      // AI 추천은 동의한 뒤에만 자동으로 불러온다 (동의 전에는 화면의 버튼으로 요청).
+      if (id == 'recommend' && aiRecommendations == null && aiConsent) {
         unawaited(fetchAiRecommendations());
       }
     }
@@ -355,6 +359,7 @@ class AppState extends ChangeNotifier {
 
   /// 앱을 켤 때 호출 — 로그인 · 온보딩 완료 여부에 따라 알맞은 화면으로 보낸다.
   Future<bool> restoreSession() async {
+    await loadAiConsent();
     final current = await _auth.restoreAccount();
     if (current == null) return false;
     if (!await _enter(current)) return false;
@@ -1095,6 +1100,21 @@ class AppState extends ChangeNotifier {
   double? aiCalciumMg;
   double? aiIronMg;
   bool needsPhotoReview = false;
+
+  // 외부 AI로 데이터를 보내는 기능(사진 분석 · 식단 추천)을 쓰기 전에 받는 동의.
+  final AiConsentStore _aiConsentStore;
+  bool aiConsent = false;
+
+  Future<void> loadAiConsent() async {
+    aiConsent = await _aiConsentStore.read();
+    notifyListeners();
+  }
+
+  Future<void> setAiConsent(bool value) async {
+    aiConsent = value;
+    notifyListeners();
+    await _aiConsentStore.write(value);
+  }
 
   /// 사진을 고르고 즉시 AI 분석을 요청한다.
   Future<void> pickAndAnalyzeMealPhoto(ImageSource source) async {
