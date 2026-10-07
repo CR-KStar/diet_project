@@ -385,8 +385,8 @@ class _ConsentRow extends StatelessWidget {
           child: Text(k, style: t(AppFontSize.f12, c: AppColor.textMuted)),
         ),
         GestureDetector(
-          // 약관 전문은 웹뷰로 — 앱 내 전용 화면 없음
-          onTap: () => toast(context, '약관 전문을 웹뷰로 엽니다'),
+          behavior: HitTestBehavior.opaque,
+          onTap: () => openLegalDoc(context, k),
           child: Text('보기 ›', style: t(AppFontSize.f11, c: AppColor.textGhost)),
         ),
         const SizedBox(width: AppSpace.s10),

@@ -184,7 +184,8 @@ class _AccountLinkStep extends StatelessWidget {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () => toast(context, '약관 전문을 웹뷰로 엽니다'),
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => openLegalDoc(context, k),
                         child: Text(
                           '보기 ›',
                           style: t(AppFontSize.f11, c: AppColor.textGhost),

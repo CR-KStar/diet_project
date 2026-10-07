@@ -2583,8 +2583,10 @@ class AppState extends ChangeNotifier {
   String get avgKcal => AppStateFormat.comma(_avgKcalThisPeriod);
 
   String get periodDelta {
-    final delta = _avgKcalThisPeriod - _avgKcalPrevPeriod;
     final label = period == '주간' ? '지난주' : '지난달';
+    // 비교할 이전 기록이 없으면 이번 평균 전체가 "증가분"으로 보이므로 비교하지 않는다.
+    if (_avgKcalPrevPeriod == 0) return '$label 기록이 없어요';
+    final delta = _avgKcalThisPeriod - _avgKcalPrevPeriod;
     if (delta == 0) return '$label과 비슷해요';
     final sign = delta > 0 ? '+' : '-';
     return '$label 대비 $sign${AppStateFormat.comma(delta.abs())}kcal';

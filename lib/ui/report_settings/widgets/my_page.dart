@@ -1,4 +1,4 @@
-// 마이 — 프로필 카드 · 나의 식물 요약 · 메뉴(그릇 관리/알림 설정/데이터·개인정보) (+ 내 정보 수정 모드)
+// 마이 — 프로필 카드 · 나의 식물 요약 · 메뉴(그릇 관리/알림 설정/데이터·개인정보/처방침·약관) (+ 내 정보 수정 모드)
 //
 // SettingsScreen(알림 · 데이터/개인정보 탭)은 settings_page.dart로 분리했습니다.
 
@@ -195,6 +195,20 @@ class _MenuCard extends StatelessWidget {
             s.go('settings');
             s.setSetTab('데이터 · 개인정보');
           },
+        ),
+        const Divider(height: AppSpace.s1, indent: 18, endIndent: 18),
+        _MenuRow(
+          emoji: '📄',
+          title: '개인정보 처리방침',
+          desc: '수집하는 정보와 이용 방법',
+          onTap: () => openLegalDoc(context, '개인정보 처리방침'),
+        ),
+        const Divider(height: AppSpace.s1, indent: 18, endIndent: 18),
+        _MenuRow(
+          emoji: '📜',
+          title: '서비스 이용약관',
+          desc: '서비스 이용 규칙',
+          onTap: () => openLegalDoc(context, '서비스 이용약관'),
         ),
       ],
     ),
