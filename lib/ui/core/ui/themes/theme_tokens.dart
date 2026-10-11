@@ -459,7 +459,7 @@ abstract final class DietRules {
   /// 그릇 최대 등록 개수
   static const maxBowls = 20;
 
-  /// 친구 정원 물 주기 하루 한도 / 회당 EXP (양쪽)
+  /// 친구 정원 물 주기 하루 한도 / 회당 EXP
   static const dailyFriendWatering = 3;
   static const friendWateringExp = 5;
 }

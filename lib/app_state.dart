@@ -3175,9 +3175,7 @@ class AppState extends ChangeNotifier {
 
   // 챌린지 만들기 폼
   /// 챌린지 생성 화면의 임시 입력값입니다. Challenge는 저장 시에만 만듭니다.
-  final ChallengeDraft challengeDraft = ChallengeDraft(
-    invitedUserIds: ['u_jihyun', 'u_minsu'],
-  );
+  final ChallengeDraft challengeDraft = ChallengeDraft();
 
   String get chKind => challengeDraft.type.label;
   set chKind(String value) => challengeDraft.type = switch (value) {
@@ -3229,8 +3227,9 @@ class AppState extends ChangeNotifier {
       '$chKind ${AppStateFormat.comma(chTarget)}$chUnit $chDurLabel 챌린지';
 
   String get chRange {
-    final end = DateTime(2026, 9, chDays.clamp(1, 365));
-    return '9월 1일 ~ ${end.month}월 ${end.day}일 ($chDays일)';
+    final start = today;
+    final end = start.add(Duration(days: chDays.clamp(1, 365) - 1));
+    return '${start.month}월 ${start.day}일 ~ ${end.month}월 ${end.day}일 ($chDays일)';
   }
 
   String get chRewardDesc => {
@@ -3286,7 +3285,8 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> createChallenge() async {
-    final end = DateTime(2026, 9, chDays.clamp(1, 365));
+    final start = today;
+    final end = start.add(Duration(days: chDays.clamp(1, 365) - 1));
     final invitedIds = chInvites
         .map(
           (n) => people
@@ -3309,7 +3309,7 @@ class AppState extends ChangeNotifier {
           '매일 ${AppStateFormat.comma(chTarget)}$chUnit 달성 · 보상 $chReward',
       icon: chKindMeta[chKind]!.icon,
       category: chDurLabel,
-      period: '9/1 ~ ${end.month}/${end.day}',
+      period: '${start.month}/${start.day} ~ ${end.month}/${end.day}',
       creatorId: currentUser.id,
       participantIds: [currentUser.id, ...invitedIds],
       metricType: challengeDraft.type,

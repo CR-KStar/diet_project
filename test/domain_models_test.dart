@@ -115,4 +115,18 @@ void main() {
       expect(s.intakeKcal, before.totalIntakeKcal);
     });
   });
+
+  group('챌린지 만들기', () {
+    test('기간은 오늘부터 계산하고, 가짜 사람을 초대하지 않는다', () async {
+      final s = AppState(now: () => DateTime(2026, 10, 7));
+      s.chDays = 7;
+      expect(s.chInvites, isEmpty);
+
+      await s.createChallenge();
+
+      final c = s.challenges.last;
+      expect(c.period, '10/7 ~ 10/13');
+      expect(c.participantIds, [s.currentUser.id]);
+    });
+  });
 }

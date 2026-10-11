@@ -133,12 +133,6 @@ const _inventoryItems = [
   ),
 ];
 
-const _friendGardenSeed = [
-  (id: 'u_jihyun', emoji: '🌻', meta: '해바라기 Lv.18 · 오늘 물 받음'),
-  (id: 'u_minsu', emoji: '🪴', meta: '어린잎 Lv.9 · 이틀 쉬는 중'),
-  (id: 'u_seoyeon', emoji: '🌸', meta: '꽃 Lv.20 · 정원 4개'),
-];
-
 bool _branchOn(AppState s, String name) => switch (name) {
   '해바라기' => s.balanced,
   '선인장' => !s.balanced && s.weakestAxis == PlantAxis.water,
@@ -996,11 +990,17 @@ class _FriendGardenCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpace.s5),
           Text(
-            '서로 물을 주면 둘 다 +${DietRules.friendWateringExp} EXP를 받아요',
+            '친구 정원에 물을 주면 +${DietRules.friendWateringExp} EXP를 받아요',
             style: t(AppFontSize.f11, c: AppColor.textGhost),
           ),
           const SizedBox(height: AppSpace.s14),
-          for (final f in _friendGardenSeed) _FriendGardenRow(item: f, s: s),
+          if (s.realFriends.isEmpty)
+            Text(
+              '아직 친구가 없어요. 친구 탭에서 초대 코드로 친구를 추가하면 여기에서 물을 줄 수 있어요.',
+              style: t(AppFontSize.f12, c: AppColor.textFaint, h: 1.6),
+            )
+          else
+            for (final f in s.realFriends) _FriendGardenRow(friend: f, s: s),
         ],
       ),
     );
@@ -1008,15 +1008,14 @@ class _FriendGardenCard extends StatelessWidget {
 }
 
 class _FriendGardenRow extends StatelessWidget {
-  const _FriendGardenRow({required this.item, required this.s});
+  const _FriendGardenRow({required this.friend, required this.s});
 
-  final ({String id, String emoji, String meta}) item;
+  final PublicProfile friend;
   final AppState s;
 
   @override
   Widget build(BuildContext context) {
-    final friend = AppState.personById(item.id);
-    final done = s.wateredFriends.contains(item.id);
+    final done = s.wateredFriends.contains(friend.uid);
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpace.s9),
       child: SunkenBox(
@@ -1025,7 +1024,7 @@ class _FriendGardenRow extends StatelessWidget {
         child: Row(
           children: [
             IconTile(
-              item.emoji,
+              '🪴',
               size: 42,
               radius: 14,
               bg: const Color(0xFFF2F8F2),
@@ -1042,7 +1041,7 @@ class _FriendGardenRow extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpace.s3),
                   Text(
-                    item.meta,
+                    done ? '오늘 물을 줬어요' : '물을 줄 수 있어요',
                     style: t(AppFontSize.f11, c: AppColor.textFaint),
                   ),
                 ],
@@ -1055,10 +1054,10 @@ class _FriendGardenRow extends StatelessWidget {
               onTap: done
                   ? null
                   : () {
-                      s.waterFriend(item.id);
+                      s.waterFriend(friend.uid);
                       toast(
                         context,
-                        '${friend.nickname}님 식물에 물을 줬어요 · 둘 다 +5 EXP',
+                        '${friend.nickname}님 정원에 물을 줬어요 · +${DietRules.friendWateringExp} EXP',
                       );
                     },
             ),
