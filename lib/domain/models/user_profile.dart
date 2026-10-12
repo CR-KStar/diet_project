@@ -69,7 +69,8 @@ class UserProfile {
   /// 체질량지수 (BMI) = 몸무게(kg) / 키(m)^2
   double get bmi => weightKg / ((heightCm / 100) * (heightCm / 100));
 
-  /// 기초대사량 (BMR) — 해리스-베네딕트 공식
+  /// 기초대사량 (BMR) — 미플린–세인트 조르(Mifflin–St Jeor) 공식
+  /// (Am J Clin Nutr 1990;51:241-7)
   double get bmr => _gender == Gender.female
       ? 10 * weightKg + 6.25 * heightCm - 5 * age - 161
       : 10 * weightKg + 6.25 * heightCm - 5 * age + 5;

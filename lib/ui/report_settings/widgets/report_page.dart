@@ -1,3 +1,4 @@
+import 'package:diet_project/ui/core/ui/health_sources_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../app_state.dart';
@@ -42,6 +43,7 @@ class ReportScreen extends StatelessWidget {
           const _PatternCard(),
           const _RecommendCard(),
         ],
+        const HealthSourcesCard(),
       ],
     );
   }

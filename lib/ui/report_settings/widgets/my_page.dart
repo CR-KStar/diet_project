@@ -2,6 +2,8 @@
 //
 // SettingsScreen(알림 · 데이터/개인정보 탭)은 settings_page.dart로 분리했습니다.
 
+import 'package:diet_project/data/services/health_sources.dart';
+import 'package:diet_project/data/services/legal_links.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../app_state.dart';
@@ -195,6 +197,13 @@ class _MenuCard extends StatelessWidget {
             s.go('settings');
             s.setSetTab('데이터 · 개인정보');
           },
+        ),
+        const Divider(height: AppSpace.s1, indent: 18, endIndent: 18),
+        _MenuRow(
+          emoji: '📚',
+          title: '건강 정보 출처',
+          desc: '칼로리·영양소 계산 방법과 참고 자료',
+          onTap: () => LegalLinks.open(HealthSources.fullPage),
         ),
         const Divider(height: AppSpace.s1, indent: 18, endIndent: 18),
         _MenuRow(
