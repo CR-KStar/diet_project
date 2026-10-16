@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>권채린 · Flutter 앱 개발 포트폴리오</title>
+  <meta name="description" content="권채린 포트폴리오 — 식단 기록 앱 '밋그린'을 기획부터 스토어 제출까지 진행한 Flutter 앱 개발 프로젝트">
+  <meta property="og:title" content="권채린 · Flutter 앱 개발 포트폴리오">
+  <meta property="og:description" content="식단 기록 앱 '밋그린' — 기획, 구현, 테스트, 스토어 심사 대응까지">
+  <meta property="og:image" content="https://cr-kstar.github.io/diet_project/portfolio/icon.png">
+  <meta name="theme-color" content="#F5EBDD">
+  <link rel="icon" href="portfolio/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cream: #F5EBDD;
+      --paper: #FFFDF9;
+      --green: #00B140;
+      --green-dark: #0B7A35;
+      --green-soft: #E7F4E6;
+      --ink: #1F2A24;
+      --muted: #5E6B63;
+      --line: #E6DCCB;
+      --shadow: 0 18px 40px rgba(60, 50, 30, .14);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --cream: #1A1F1C; --paper: #222925; --green-soft: #213428;
+        --ink: #EEF2EE; --muted: #A5B1A9; --line: #33403A; --shadow: 0 18px 40px rgba(0,0,0,.4);
+      }
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--cream); color: var(--ink);
+      font-family: "Noto Sans KR", -apple-system, "Apple SD Gothic Neo", sans-serif;
+      line-height: 1.65; -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--green-dark); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .sheet { max-width: 1080px; margin: 0 auto; padding: 56px 28px; }
+    .sheet + .sheet { border-top: 1px dashed var(--line); }
+
+    /* 상단 */
+    .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 40px; flex-wrap: wrap; }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 900; font-size: 20px; }
+    .brand img { width: 40px; height: 40px; border-radius: 12px; }
+    .brand small { display: block; font-weight: 500; font-size: 12px; color: var(--muted); }
+    .links { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px; padding: 11px 18px; border-radius: 999px;
+      font-weight: 700; font-size: 14px; border: 1.5px solid var(--ink); color: var(--ink); background: transparent;
+      cursor: pointer; font-family: inherit;
+    }
+    .btn.primary { background: var(--green); border-color: var(--green); color: #fff; }
+    .btn:hover { text-decoration: none; transform: translateY(-1px); }
+
+    /* 히어로 */
+    .hero { display: grid; grid-template-columns: 1.15fr .85fr; gap: 40px; align-items: center; }
+    .eyebrow { color: var(--green-dark); font-weight: 700; font-size: 13px; letter-spacing: .12em; margin-bottom: 14px; }
+    h1 { font-size: clamp(32px, 5.2vw, 54px); line-height: 1.18; margin: 0 0 18px; font-weight: 900; letter-spacing: -.02em; }
+    h1 em { font-style: normal; color: var(--green-dark); background: linear-gradient(transparent 62%, #BFE8C4 62%); }
+    .lead { font-size: 17px; color: var(--muted); max-width: 520px; margin: 0 0 22px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 24px; }
+    .chip { padding: 6px 12px; border-radius: 999px; font-size: 12.5px; font-weight: 700; background: var(--paper); border: 1px solid var(--line); }
+    .chip.status { background: var(--green-soft); border-color: transparent; color: var(--green-dark); }
+    .chip.status::before { content: "●"; font-size: 9px; margin-right: 6px; vertical-align: 1px; }
+
+    /* 폰 목업 */
+    .phones { position: relative; height: 520px; }
+    .phone {
+      position: absolute; width: 210px; aspect-ratio: 560 / 1127; border-radius: 34px; background: #151917;
+      padding: 7px; box-shadow: var(--shadow);
+    }
+    .phone img { width: 100%; height: 100%; object-fit: cover; border-radius: 28px; display: block; }
+    .phone.p1 { left: 50%; top: 0; transform: translateX(-50%) rotate(-3deg); z-index: 2; width: 236px; }
+    .phone.p2 { left: -4%; top: 70px; transform: rotate(-9deg); z-index: 1; }
+    .phone.p3 { right: -4%; top: 90px; transform: rotate(8deg); z-index: 1; }
+
+    /* 숫자 */
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 44px 0 0; }
+    .stat { background: var(--paper); border: 1px solid var(--line); border-radius: 20px; padding: 18px 18px 16px; }
+    .stat b { display: block; font-size: 34px; line-height: 1.1; font-weight: 900; color: var(--green-dark); }
+    .stat span { font-size: 13px; color: var(--muted); }
+
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+    .box { background: var(--paper); border: 1px solid var(--line); border-radius: 22px; padding: 22px 24px; }
+    .box h3 { margin: 0 0 10px; font-size: 15px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 7px; }
+    .tag { font-size: 12.5px; padding: 5px 11px; border-radius: 10px; background: var(--cream); border: 1px solid var(--line); font-weight: 500; }
+    .box p { margin: 0; font-size: 14px; color: var(--muted); }
+    .box p b { color: var(--ink); }
+
+    /* 2쪽 */
+    h2 { font-size: clamp(24px, 3.6vw, 34px); margin: 0 0 6px; font-weight: 900; letter-spacing: -.01em; }
+    .sub { color: var(--muted); margin: 0 0 26px; font-size: 15px; }
+    .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .card { background: var(--paper); border: 1px solid var(--line); border-radius: 22px; padding: 22px 24px; position: relative; }
+    .card:nth-child(5) { grid-column: 1 / -1; }
+    .num { position: absolute; top: 18px; right: 22px; font-weight: 900; font-size: 34px; color: var(--green-soft); }
+    .card h3 { margin: 0 0 10px; font-size: 17px; padding-right: 40px; line-height: 1.4; }
+    .card dl { margin: 0; font-size: 13.5px; }
+    .card dt { font-weight: 700; color: var(--green-dark); font-size: 12px; margin-top: 8px; letter-spacing: .04em; }
+    .card dd { margin: 2px 0 0; color: var(--muted); }
+    .card dd b { color: var(--ink); font-weight: 700; }
+    .wip { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 8px; background: #FFF1CC; color: #8A5B00; margin-left: 6px; vertical-align: 2px; }
+
+    .contact { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 12px 28px; align-items: center; justify-content: space-between;
+      background: var(--green-dark); color: #fff; border-radius: 24px; padding: 22px 28px; }
+    .contact a { color: #fff; font-weight: 700; }
+    .contact .who b { font-size: 20px; display: block; }
+    .contact .who span { font-size: 13px; opacity: .85; }
+    .contact .row { display: flex; gap: 20px; flex-wrap: wrap; font-size: 14px; }
+    .foot { margin-top: 18px; font-size: 12px; color: var(--muted); }
+
+    /* 체험판 */
+    .demo { display: none; margin-top: 28px; }
+    .demo.open { display: block; }
+    .demo iframe { width: 390px; max-width: 100%; height: 760px; border: 8px solid #151917; border-radius: 40px; background: #fff; box-shadow: var(--shadow); display: block; margin: 0 auto; }
+
+    @media screen and (max-width: 860px) {
+      .hero { grid-template-columns: 1fr; }
+      .phones { height: 470px; order: -1; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .grid2, .cards { grid-template-columns: 1fr; }
+      .card:nth-child(5) { grid-column: auto; }
+      .sheet { padding: 36px 18px; }
+    }
+
+    /* 인쇄(PDF): A4 2장 */
+    @page { size: A4; margin: 10mm; }
+    @media print {
+      body { background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-size: 11.5px; }
+      .sheet { padding: 0; max-width: none; }
+      .sheet + .sheet { border: 0; page-break-before: always; }
+      .links .btn.ghost, .demo, #demoBtn { display: none !important; }
+      .top { margin-bottom: 14px; }
+      h1 { font-size: 31px; margin-bottom: 10px; }
+      .lead { font-size: 13.5px; margin-bottom: 12px; }
+      .hero { grid-template-columns: 1.08fr .92fr; gap: 22px; }
+      .lead { max-width: none; }
+      .phones { height: 430px; }
+      .phone { width: 158px; border-radius: 26px; padding: 5px; }
+      .phone img { border-radius: 18px; }
+      .phone.p1 { width: 172px; }
+      .phone.p2 { top: 70px; left: 6%; } .phone.p3 { top: 86px; right: -2%; }
+      .phone { box-shadow: none; }
+      .stats { margin-top: 18px; gap: 8px; grid-template-columns: repeat(4, 1fr); }
+      .stat { padding: 12px 14px; border-radius: 12px; } .stat b { font-size: 26px; } .stat span { font-size: 11px; }
+      .grid2 { margin-top: 10px; gap: 8px; grid-template-columns: 1fr 1fr; } .box { padding: 14px 16px; border-radius: 12px; }
+      .box h3 { font-size: 13px; margin-bottom: 8px; } .box p { font-size: 11.5px; } .tag { font-size: 10.5px; padding: 4px 9px; }
+      .cards { gap: 8px; grid-template-columns: 1fr 1fr; } .card { padding: 12px 14px; border-radius: 12px; break-inside: avoid; }
+      .card h3 { font-size: 13px; margin-bottom: 4px; } .card dl { font-size: 10px; } .card dt { margin-top: 4px; font-size: 9.5px; }
+      .num { font-size: 22px; top: 10px; right: 14px; }
+      h2 { font-size: 22px; } .sub { font-size: 11.5px; margin-bottom: 12px; }
+      .contact { margin-top: 12px; padding: 12px 16px; border-radius: 12px; }
+      .contact .who b { font-size: 15px; } .contact .row { font-size: 11px; }
+      .foot { font-size: 9.5px; margin-top: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ───────────── 1쪽: 한눈에 보기 ───────────── -->
+<section class="sheet" id="page1">
+  <div class="top">
+    <div class="brand">
+      <img src="portfolio/icon.png" alt="밋그린 앱 아이콘">
+      <div>권채린<small>Flutter 앱 개발 · 신입 포트폴리오</small></div>
+    </div>
+    <div class="links">
+      <a class="btn" href="https://github.com/CR-KStar/diet_project">GitHub</a>
+      <a class="btn ghost" href="portfolio/portfolio-kwon-chaerin.pdf">PDF 내려받기</a>
+      <a class="btn ghost" href="mailto:lynna7@naver.com">lynna7@naver.com</a>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div>
+      <div class="eyebrow">PROJECT · 밋그린 (MEATGREEN)</div>
+      <h1>사진 한 장으로 시작하는<br><em>식단 기록 앱</em>,<br>밋그린</h1>
+      <p class="lead">식사 사진을 찍으면 AI가 칼로리와 영양소를 추정하고, 기록할수록 식물이 자라는 다이어트 기록 앱이에요. 기획부터 구현, 테스트, <b>App Store · Google Play 제출과 심사 대응</b>까지 한 사이클을 경험했어요.</p>
+      <div class="chips">
+        <span class="chip status">App Store 심사 중 (재제출)</span>
+        <span class="chip status">Google Play 비공개 테스트 중</span>
+        <span class="chip">Flutter · Firebase · Claude API</span>
+      </div>
+      <div class="links">
+        <button class="btn primary" id="demoBtn" type="button">▶ 앱 체험하기 (웹 데모)</button>
+        <a class="btn ghost" href="https://diet-project-81ce1.web.app" target="_blank" rel="noopener">새 창에서 열기 ↗</a>
+      </div>
+    </div>
+    <div class="phones" aria-hidden="true">
+      <div class="phone p2"><img src="portfolio/report.jpg" alt=""></div>
+      <div class="phone p1"><img src="portfolio/home.jpg" alt="밋그린 홈 화면"></div>
+      <div class="phone p3"><img src="portfolio/plant.jpg" alt=""></div>
+    </div>
+  </div>
+
+  <div class="demo" id="demo">
+    <iframe id="demoFrame" title="밋그린 웹 체험판" loading="lazy" data-src="https://diet-project-81ce1.web.app"></iframe>
+    <p class="foot" style="text-align:center">웹 체험판 · 예시 데이터로 둘러볼 수 있어요. 로그인과 AI 사진 분석은 앱에서 가능해요.</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b>120</b><span>자동 테스트 (전부 통과)</span></div>
+    <div class="stat"><b>2건</b><span>App Store 심사 반려 → 수정 후 재제출</span></div>
+    <div class="stat"><b>12명</b><span>Google Play 비공개 테스트 참여</span></div>
+    <div class="stat"><b>2개</b><span>iOS · Android, 하나의 코드로 제출</span></div>
+  </div>
+
+  <div class="grid2">
+    <div class="box">
+      <h3>기술 스택</h3>
+      <div class="tags">
+        <span class="tag">Flutter / Dart</span><span class="tag">Provider · ChangeNotifier</span>
+        <span class="tag">Firebase Auth · Firestore</span><span class="tag">Cloud Functions (TypeScript)</span>
+        <span class="tag">Claude API</span><span class="tag">Sign in with Apple / Google</span>
+        <span class="tag">GitHub Pages · Firebase Hosting</span>
+      </div>
+    </div>
+    <div class="box">
+      <h3>만든 방식 (AI 협업)</h3>
+      <p><b>Claude Code와 협업해 개발</b>했고, 제품 기획과 검증, 스토어 배포, 심사 대응은 직접 진행했어요. 구현한 코드를 이해하려고 구조를 따로 다시 만들어 보며 공부하고 있어요. 앱 아이콘의 캐릭터 이미지는 AI로 생성했어요.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── 2쪽: 해결한 문제 5가지 ───────────── -->
+<section class="sheet" id="page2">
+  <h2>이 프로젝트에서 보여드릴 수 있는 것 5가지</h2>
+  <p class="sub">각 항목은 실제로 겪은 문제와 해결 과정이에요. 코드는 GitHub에서 확인할 수 있어요.</p>
+
+  <div class="cards">
+    <article class="card">
+      <div class="num">01</div>
+      <h3>스토어 출시와 심사 대응 전 과정</h3>
+      <dl>
+        <dt>무엇을</dt><dd>iOS 서명·TestFlight·App Privacy, Google Play 데이터 보안·콘텐츠 등급·개인 계정 비공개 테스트(12명, 14일)를 진행했어요.</dd>
+        <dt>어떻게 풀었나</dt><dd>App Store 반려 <b>2건</b>(건강 정보 출처 1.4.1, Apple 로그인 2.1)을 원인 분석 후 수정해 재제출했어요.</dd>
+        <dt>배운 점</dt><dd>앱은 "만드는 것"과 "내보내는 것"이 다르고, 심사 기준을 코드와 문서에 반영해야 해요.</dd>
+      </dl>
+    </article>
+
+    <article class="card">
+      <div class="num">02</div>
+      <h3>개인정보·데이터 보호 설계</h3>
+      <dl>
+        <dt>무엇을</dt><dd>계정 삭제 시 친구·챌린지·활동 피드까지 서버 데이터를 지우고, Apple 토큰도 철회해요. 외부 AI로 사진을 보내기 전 <b>동의 팝업</b>을 받아요.</dd>
+        <dt>어떻게 풀었나</dt><dd>삭제가 빠뜨린 데이터를 찾아 저장소 코드, <b>Firestore 보안 규칙</b>, 처방침 문구를 함께 고치고 테스트로 보호했어요.</dd>
+        <dt>배운 점</dt><dd>규정 준수는 문서가 아니라 동작으로 증명해야 해요.</dd>
+      </dl>
+    </article>
+
+    <article class="card">
+      <div class="num">03</div>
+      <h3>구조 설계와 테스트 <span class="wip">진행 중</span></h3>
+      <dl>
+        <dt>무엇을</dt><dd>Repository 패턴, ViewModel 분리(물·체중 완료, 식단 진행 중), <b>시계를 주입</b>해 날짜를 고정하는 테스트를 만들었어요.</dd>
+        <dt>어떻게 풀었나</dt><dd>3,400줄짜리 상태 클래스를 영역별로 나누고, 한 단계마다 테스트가 통과하는지 확인해요.</dd>
+        <dt>배운 점</dt><dd>데이터의 원본을 한 곳에 두면 화면 간 어긋남이 줄어요.</dd>
+      </dl>
+    </article>
+
+    <article class="card">
+      <div class="num">04</div>
+      <h3>AI 기능 통합 (사진 → 영양 분석)</h3>
+      <dl>
+        <dt>무엇을</dt><dd>사진을 서버 함수로 보내 Claude가 음식·칼로리·영양소를 <b>정해진 JSON 형식</b>으로 돌려주게 했어요.</dd>
+        <dt>어떻게 풀었나</dt><dd>API 키는 앱이 아니라 서버에만 두고, 이름이 영어로 나오는 문제는 프롬프트와 스키마 양쪽에 한국어 지시를 넣어 해결했어요.</dd>
+        <dt>배운 점</dt><dd>AI 출력은 검증 가능한 형식과 사용자 동의 흐름이 같이 있어야 해요.</dd>
+      </dl>
+    </article>
+
+    <article class="card">
+      <div class="num">05</div>
+      <h3>사용자 경험의 세부 완성도</h3>
+      <dl>
+        <dt>무엇을</dt><dd>오늘 기록 여부에 따라 바뀌는 <b>동적 앱 아이콘</b>(iOS·Android 방식이 서로 달라요), 글자 크기 배율 대응, 디자인 토큰, 로그인 없는 <b>웹 체험판</b>을 만들었어요.</dd>
+        <dt>어떻게 풀었나</dt><dd>iOS는 대체 아이콘 API, Android는 activity-alias로 구현하고, 화면 오버플로를 점검해 어떤 기기에서도 깨지지 않게 했어요.</dd>
+        <dt>배운 점</dt><dd>플랫폼마다 다른 기능은 같은 인터페이스 뒤에 숨기면 앱 코드가 단순해져요.</dd>
+      </dl>
+    </article>
+  </div>
+
+  <div class="contact">
+    <div class="who"><b>권채린</b><span>Flutter 앱 개발 지망 · 신입</span></div>
+    <div class="row">
+      <a href="mailto:lynna7@naver.com">lynna7@naver.com</a>
+      <a href="https://github.com/CR-KStar/diet_project">github.com/CR-KStar/diet_project</a>
+      <a href="https://diet-project-81ce1.web.app">웹 체험판</a>
+      <a href="privacy/">개인정보 처리방침</a>
+    </div>
+  </div>
+  <p class="foot">※ 현재 상태(2026년 10월 기준): App Store 심사 중, Google Play 비공개 테스트 진행 중이며 아직 일반 공개 전이에요.</p>
+</section>
+
+<script>
+  const btn = document.getElementById('demoBtn');
+  const demo = document.getElementById('demo');
+  const frame = document.getElementById('demoFrame');
+  btn.addEventListener('click', () => {
+    const open = demo.classList.toggle('open');
+    btn.textContent = open ? '✕ 체험판 닫기' : '▶ 앱 체험하기 (웹 데모)';
+    if (open && !frame.src) frame.src = frame.dataset.src;
+    if (open) demo.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+</script>
+</body>
+</html>
