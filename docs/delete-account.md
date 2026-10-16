@@ -42,6 +42,6 @@ permalink: /delete-account/
 
 앱을 사용할 수 없는 상황에서 삭제를 요청하려면 아래 이메일로 가입한 계정(Google 또는 Apple)의 이메일 주소와 함께 삭제를 요청해 주세요. 확인 후 지체 없이 삭제합니다.
 
-- 이메일: lynna7@naver.com
+- 이메일: kchaerin0811@gmail.com
 
 자세한 내용은 [개인정보 처리방침](../privacy/)을 참고해 주세요.

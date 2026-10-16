@@ -85,7 +85,7 @@ permalink: /privacy/
 ## 10. 개인정보 보호책임자 및 문의처
 
 - 책임자(운영자): **chaerin**
-- 이메일: **lynna7@naver.com**
+- 이메일: **kchaerin0811@gmail.com**
 
 ## 11. 방침의 변경
 
