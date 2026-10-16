@@ -1,11 +1,11 @@
 {
-    "name": "diet_project",
-    "short_name": "diet_project",
+    "name": "밋그린",
+    "short_name": "밋그린",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#F5EBDD",
+    "theme_color": "#00B140",
+    "description": "사진 한 장으로 식단을 기록하고, 식물과 함께 건강한 습관을 키워요.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
@@ -31,5 +31,6 @@
             "type": "image/png",
             "purpose": "maskable"
         }
-    ]
+    ],
+    "lang": "ko"
 }
