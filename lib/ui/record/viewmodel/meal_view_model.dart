@@ -30,6 +30,13 @@ class MealViewModel extends ChangeNotifier {
 
   String? uid;
   String get _uid => uid ?? User.meId;
+  final List<MealLog> mealLogs = [];
+
+  List<MealLog> mealsOn(String dateKey) =>
+  mealLogs.where((m) => m.userId == _uid && m.dateKey == dateKey).toList();
+
+  /// 오늘의 식단
+  List<MealLog> get todayMeals => mealsOn(_todayKey);
 
   bool analyzingPhoto = false;
   String? photoAnalysisError;
