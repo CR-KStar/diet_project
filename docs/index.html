@@ -78,7 +78,7 @@
     .axes { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
     .axes span { padding: 5px 10px; border-radius: 10px; font-size: 12px; font-weight: 700; background: var(--g-tint); border: 1px solid var(--line); }
 
-    .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr 1.25fr; gap: 16px; margin-top: 16px; }
+    .row3 { display: grid; grid-template-columns: 1fr 1.3fr; gap: 16px; margin-top: 16px; }
     .sw { display: flex; gap: 10px; flex-wrap: wrap; }
     .sw div { text-align: center; font-size: 10.5px; color: var(--muted); }
     .sw b { display: block; width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 4px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); }
@@ -89,6 +89,17 @@
     .how { font-size: 12.5px; margin: 10px 0 0; color: var(--muted); }
     .how b { color: var(--ink); }
 
+
+    .arch { display: grid; gap: 5px; margin: 2px 0 10px; }
+    .layer { display: grid; grid-template-columns: 74px 1fr; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 12px; background: var(--g-tint); border: 1px solid var(--line); font-size: 12px; line-height: 1.4; }
+    .layer b { font-size: 12px; color: var(--g-dark); }
+    .layer span { color: var(--muted); }
+    .layer.dom { border-style: dashed; }
+    .down { text-align: center; color: var(--g); font-weight: 900; font-size: 12px; line-height: .9; }
+    .how-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 20px; align-items: start; }
+    .why { margin: 0; padding: 0; list-style: none; font-size: 12px; color: var(--muted); }
+    .why li { margin: 3px 0; padding-left: 14px; position: relative; } .why li::before { content: "✔"; position: absolute; left: 0; color: var(--g); font-size: 10px; top: 2px; }
+    .why b { color: var(--ink); }
     .demo { display: none; margin-top: 16px; }
     .demo.open { display: block; }
     .demo iframe { width: 390px; max-width: 100%; height: 760px; border: 8px solid #151917; border-radius: 40px; background: #fff; box-shadow: var(--shadow); display: block; margin: 0 auto; }
@@ -132,12 +143,13 @@
     .foot { margin-top: 10px; font-size: 12px; color: var(--muted); }
 
     @media screen and (max-width: 1000px) {
-      .p1, .p2top, .p2bot { grid-template-columns: 1fr; }
+      .p1, .p2top, .p2bot, .how-grid { grid-template-columns: 1fr; }
       .row3 { grid-template-columns: 1fr 1fr; } .cards6 { grid-template-columns: 1fr 1fr; }
     }
     @media screen and (max-width: 640px) {
       .page { padding: 18px 14px 28px; }
       .tiles { grid-template-columns: 1fr 1fr; } .row3, .cards6, .nums { grid-template-columns: 1fr; }
+      .layer { grid-template-columns: 1fr; gap: 2px; }
       .phones5 { grid-template-columns: repeat(5, 46%); overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; }
       .phones5 .ph { scroll-snap-align: start; }
       .flow { grid-template-columns: 1fr; } .arr { transform: rotate(90deg); } .tl { flex-direction: column; } .tl div { border-top: 0; border-left: 3px solid var(--g); text-align: left; padding-left: 14px; }
@@ -147,11 +159,16 @@
     /* 인쇄(PDF): A4 가로 2장 */
     @page { size: A4 landscape; margin: 7mm; }
     @media print {
-      html { zoom: .66; }
+      html { zoom: 0.56; }
       body { background: var(--bg) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       .page { max-width: none; padding: 0; } .page + .page { border: 0; page-break-before: always; }
       .noprint, .demo { display: none !important; }
       .card, .cs { box-shadow: none; } .frame { box-shadow: none; }
+      .page { padding: 0; } .card { padding: 16px 18px; } .p1, .row3 { gap: 12px; } .row3 { margin-top: 12px; }
+      .feat { gap: 5px; } .feat li { padding: 6px 8px; } .hero h1 { font-size: 46px; }
+      .layer { padding: 5px 8px; } .arch { gap: 3px; }
+      .frame img { aspect-ratio: 560 / 800; object-position: top; }
+      .stage .em { font-size: 30px; } .axes { margin-top: 8px; }
       .card, .cs, .num, .node { break-inside: avoid; }
     }
   </style>
@@ -230,13 +247,38 @@
         <div><b style="background:#4CAF50"></b>#4CAF50</div><div><b style="background:#A8E0A2"></b>#A8E0A2</div>
         <div><b style="background:#FFD566"></b>#FFD566</div><div><b style="background:#FFB74D"></b>#FFB74D</div>
         <div><b style="background:#FF8A65"></b>#FF8A65</div><div><b style="background:#F5F8F5"></b>#F5F8F5</div>
-      </div></div>
-    <div class="card"><h3 class="ttl">아이콘 · 디자인</h3>
-      <div class="icons"><span>🏠</span><span>📋</span><span>📊</span><span>👥</span><span>👤</span><small>이모지 기반 아이콘, 디자인 토큰(색·간격·글자)으로 관리</small></div></div>
+      </div>
+      <p class="how" style="margin-top:8px">이모지 아이콘 · 색/간격/글자를 디자인 토큰으로 관리</p></div>
     <div class="card"><h3 class="ttl">기술 스택</h3>
       <div class="tags"><span class="tag">Flutter / Dart</span><span class="tag">Provider</span><span class="tag">Firebase Auth</span><span class="tag">Firestore</span><span class="tag">Cloud Functions (TS)</span><span class="tag">Claude API</span><span class="tag">Sign in with Apple/Google</span></div></div>
-    <div class="card"><h3 class="ttl">만든 방식</h3>
-      <p class="how"><b>Claude Code와 협업해 개발</b>했고, 기획 방향과 검증, 스토어 배포, 심사 대응은 직접 진행했어요. 구조를 따로 다시 만들어 보며 공부하고 있어요. 앱 아이콘 캐릭터는 AI로 생성했어요.</p></div>
+
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3 class="ttl">만든 방식 · 앱 아키텍처</h3>
+    <div class="how-grid">
+      <div>
+        <div class="arch">
+          <div class="layer"><b>UI</b><span>화면 위젯 (홈 · 기록 · 리포트 · 식물 · 친구) · 디자인 토큰</span></div>
+          <div class="down">▼ 상태 구독 (Provider)</div>
+          <div class="layer"><b>상태</b><span>ViewModel(물 · 체중 분리 완료) + AppState(나머지는 분리 진행 중)</span></div>
+          <div class="down">▼ 인터페이스 호출</div>
+          <div class="layer"><b>Repository</b><span>저장소 인터페이스 → <b style="color:var(--ink)">Firestore 구현 / 메모리 구현</b> (테스트 · 웹 데모)</span></div>
+          <div class="down">▼</div>
+          <div class="layer"><b>서비스</b><span>인증 · AI 분석 · 알림 · 앱 아이콘 (Firebase, Cloud Functions)</span></div>
+          <div class="layer dom"><b>모델</b><span>domain/models — 모든 모델이 id · userId를 가지고, 코덱이 저장 형식으로 변환</span></div>
+        </div>
+      </div>
+      <div>
+        <ul class="why">
+          <li><b>인터페이스 뒤에 저장소를 숨겨서</b> 서버 없이 테스트하고 웹 체험판을 만들 수 있어요</li>
+          <li><b>시계를 주입</b>해 날짜가 걸린 기능도 테스트로 고정해요</li>
+          <li>화면은 상태만 구독하고, <b>저장 · 서버 접근은 Repository 뒤</b>로 모았어요</li>
+          <li>3,400줄 상태 클래스를 영역별 ViewModel로 <b>한 단계씩 분리</b>하는 중이에요 <span class="wip">진행 중</span></li>
+        </ul>
+        <p class="how"><b>Claude Code와 협업해 개발</b>했고, 기획 방향과 검증, 스토어 배포, 심사 대응은 직접 진행했어요. 구조를 따로 다시 만들어 보며 공부하고 있어요. 앱 아이콘 캐릭터는 AI로 생성했어요.</p>
+      </div>
+    </div>
   </div>
 </section>
 
