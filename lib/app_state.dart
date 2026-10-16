@@ -439,7 +439,8 @@ class AppState extends ChangeNotifier {
         }
         if (saved.nickname.isNotEmpty) nickname = saved.nickname;
       } else {
-        onboardingDone = false;
+        // 웹 체험판(로그인 없는 데모)은 온보딩 없이 바로 홈의 예시 데이터를 보여준다.
+        onboardingDone = kIsWeb && _isDemo;
         _resumeStep = 1;
         final name = a.displayName?.trim();
         if (name != null && name.isNotEmpty) nickname = name;

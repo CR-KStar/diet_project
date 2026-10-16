@@ -15,6 +15,7 @@ import 'package:diet_project/data/repositories/profile_repository.dart';
 import 'package:diet_project/data/services/ai_consent_store.dart';
 import 'package:diet_project/firebase_options.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
+import 'package:diet_project/ui/core/ui/web_frame.dart';
 import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/weight_view_model.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -130,14 +131,16 @@ class MyApp extends StatelessWidget {
         return GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-          child: MediaQuery(
-            data: mq.copyWith(
-              textScaler: mq.textScaler.clamp(
-                minScaleFactor: 0.9,
-                maxScaleFactor: 1.3,
+          child: WebFrame(
+            child: MediaQuery(
+              data: mq.copyWith(
+                textScaler: mq.textScaler.clamp(
+                  minScaleFactor: 0.9,
+                  maxScaleFactor: 1.3,
+                ),
               ),
+              child: child!,
             ),
-            child: child!,
           ),
         );
       },
