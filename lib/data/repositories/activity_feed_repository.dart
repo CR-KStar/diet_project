@@ -6,6 +6,9 @@ abstract class ActivityFeedRepository {
 
   /// userIds(친구 + 나)가 남긴 최근 활동을 최신순으로.
   Future<List<ActivityFeedEntry>> loadRecent(List<String> userIds);
+
+  /// 계정 삭제 때 이 사용자가 남긴 활동을 모두 지운다.
+  Future<void> deleteAllForUser(String uid);
 }
 
 /// Firebase 없이 메모리에만 저장하는 버전 — 데모 모드 · 테스트용.
@@ -25,4 +28,9 @@ class MemoryActivityFeedRepository implements ActivityFeedRepository {
     for (final e in _all)
       if (userIds.contains(e.uid)) e,
   ];
+
+  @override
+  Future<void> deleteAllForUser(String uid) async {
+    _all.removeWhere((e) => e.uid == uid);
+  }
 }

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:diet_project/domain/models/models.dart';
 
 import 'challenge_repository.dart';
+import 'firestore_delete_where.dart';
 
 /// 챌린지를 Firestore 최상위 `challenges` 컬렉션에 저장하는 저장소.
 ///
@@ -70,6 +71,26 @@ class FirestoreChallengeRepository implements ChallengeRepository {
       if (uid is String && value is num) result[uid] = value;
     }
     return result;
+  }
+
+  @override
+  Future<void> removeUser(String userId) async {
+    final mine = await _col
+        .where('participantIds', arrayContains: userId)
+        .get();
+    for (final d in mine.docs) {
+      final data = d.data();
+      final ids = (data['participantIds'] as List?)?.cast<String>() ?? const [];
+      final onlyMe = ids.every((id) => id == userId);
+      if (onlyMe && data['creatorId'] == userId) {
+        await d.reference.delete();
+      } else {
+        await d.reference.update({
+          'participantIds': FieldValue.arrayRemove([userId]),
+        });
+      }
+    }
+    await deleteWhere(_db, _progressCol.where('uid', isEqualTo: userId));
   }
 
   Map<String, Object?> _toMap(Challenge c) => {

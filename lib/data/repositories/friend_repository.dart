@@ -26,6 +26,9 @@ abstract class FriendRepository {
 
   /// 이 계정의 친구 uid 목록.
   Future<List<String>> loadFriendUids(String uid);
+
+  /// 계정 삭제 때 이 사용자의 공개 프로필 · 초대 코드 · 친구 관계 · 친구 요청을 모두 지운다.
+  Future<void> deleteAllForUser(String uid);
 }
 
 /// Firebase 없이 메모리에만 저장하는 버전 — 데모 모드 · 테스트용.
@@ -93,4 +96,13 @@ class MemoryFriendRepository implements FriendRepository {
     for (final f in _friendships)
       if (f.a == uid) f.b else if (f.b == uid) f.a,
   ];
+
+  @override
+  Future<void> deleteAllForUser(String uid) async {
+    final code = _uidToCode.remove(uid);
+    if (code != null) _codeToUid.remove(code);
+    _nicknames.remove(uid);
+    _requests.removeWhere((r) => r.fromUid == uid || r.toUid == uid);
+    _friendships.removeWhere((f) => f.a == uid || f.b == uid);
+  }
 }

@@ -1863,6 +1863,10 @@ class AppState extends ChangeNotifier {
       _routineRepo.deleteAll(uid),
       _plantRepo.deleteAll(uid),
       _dexRepo.deleteAll(uid),
+      // 친구 · 챌린지 · 활동 피드는 다른 사용자와 함께 쓰는 공간이라 따로 지운다.
+      _friendRepo.deleteAllForUser(uid),
+      _challengeRepo.removeUser(uid),
+      _activityFeedRepo.deleteAllForUser(uid),
     ]).timeout(limit);
     await _profiles.delete(uid).timeout(limit);
   }
