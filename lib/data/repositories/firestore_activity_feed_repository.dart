@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:diet_project/domain/models/models.dart';
 
 import 'activity_feed_repository.dart';
+import 'firestore_delete_where.dart';
 
 /// 활동 피드를 Firestore 최상위 `activityFeed` 컬렉션에 저장하는 저장소.
 class FirestoreActivityFeedRepository implements ActivityFeedRepository {
@@ -57,4 +58,8 @@ class FirestoreActivityFeedRepository implements ActivityFeedRepository {
     entries.sort((a, b) => b.at.compareTo(a.at));
     return entries.take(20).toList();
   }
+
+  @override
+  Future<void> deleteAllForUser(String uid) =>
+      deleteWhere(_db, _col.where('uid', isEqualTo: uid));
 }

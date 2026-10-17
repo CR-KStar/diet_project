@@ -91,3 +91,15 @@ v3.0에서 제외한 항목: 이메일/비밀번호 로그인, 첨부파일 기�
 - 데이터는 모두 목업이며 서버 연동은 포함되지 않습니다.
 - 모든 영양 정보는 참고용이며 의료 진단이 아닙니다.
 - 눈바디·기록 이미지는 암호화 저장을 전제로 하며 본인만 조회합니다.
+
+## 웹 체험판 (로그인 없는 데모)
+
+예시 데이터로 앱을 둘러볼 수 있는 웹 버전이에요. 실제 로그인과 AI 사진 분석은 앱에서만 돼요.
+
+```bash
+flutter build web --release --dart-define=USE_FIREBASE=false
+firebase deploy --only hosting
+```
+
+- `USE_FIREBASE=false`라서 서버(Firebase)에 연결하지 않고 예시 데이터만 써요.
+- 웹에서는 화면을 폰 너비로 가운데 정렬하고(`lib/ui/core/ui/web_frame.dart`) 위에 체험판 안내 띠를 보여줘요.

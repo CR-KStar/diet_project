@@ -439,7 +439,8 @@ class AppState extends ChangeNotifier {
         }
         if (saved.nickname.isNotEmpty) nickname = saved.nickname;
       } else {
-        onboardingDone = false;
+        // 웹 체험판(로그인 없는 데모)은 온보딩 없이 바로 홈의 예시 데이터를 보여준다.
+        onboardingDone = kIsWeb && _isDemo;
         _resumeStep = 1;
         final name = a.displayName?.trim();
         if (name != null && name.isNotEmpty) nickname = name;
@@ -1863,6 +1864,10 @@ class AppState extends ChangeNotifier {
       _routineRepo.deleteAll(uid),
       _plantRepo.deleteAll(uid),
       _dexRepo.deleteAll(uid),
+      // 친구 · 챌린지 · 활동 피드는 다른 사용자와 함께 쓰는 공간이라 따로 지운다.
+      _friendRepo.deleteAllForUser(uid),
+      _challengeRepo.removeUser(uid),
+      _activityFeedRepo.deleteAllForUser(uid),
     ]).timeout(limit);
     await _profiles.delete(uid).timeout(limit);
   }

@@ -44,4 +44,4 @@ permalink: /sources/
 ## 문의
 
 - 운영자: chaerin
-- 이메일: lynna7@naver.com
+- 이메일: kchaerin0811@gmail.com

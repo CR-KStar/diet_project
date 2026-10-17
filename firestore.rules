@@ -38,8 +38,12 @@ service cloud.firestore {
          request.auth.uid == resource.data.toUid);
       allow create: if request.auth != null &&
         request.auth.uid == request.resource.data.fromUid;
-      allow update, delete: if request.auth != null &&
+      allow update: if request.auth != null &&
         request.auth.uid == resource.data.toUid;
+      // 받은 사람은 물론, 보낸 사람도 자기가 보낸 요청은 지울 수 있다(계정 삭제 때).
+      allow delete: if request.auth != null &&
+        (request.auth.uid == resource.data.toUid ||
+         request.auth.uid == resource.data.fromUid);
     }
 
     // 확정된 친구 관계. 두 사람 다 읽을 수 있고, 생성은 그 관계에 포함된
@@ -69,8 +73,11 @@ service cloud.firestore {
     // 읽을 수 있고, 쓰기는 본인 것만 가능합니다.
     match /challengeProgress/{progressId} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null &&
+      allow create, update: if request.auth != null &&
         request.resource.data.uid == request.auth.uid;
+      // 계정 삭제 때 본인 진행 기록을 지울 수 있다.
+      allow delete: if request.auth != null &&
+        resource.data.uid == request.auth.uid;
     }
 
     // 친구 활동 피드("누가 뭘 했다"). 정확한 수치가 아니라 짧은 한 줄이라
@@ -79,6 +86,9 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow create: if request.auth != null &&
         request.resource.data.uid == request.auth.uid;
+      // 계정 삭제 때 본인이 남긴 활동을 지울 수 있다.
+      allow delete: if request.auth != null &&
+        resource.data.uid == request.auth.uid;
     }
   }
 }

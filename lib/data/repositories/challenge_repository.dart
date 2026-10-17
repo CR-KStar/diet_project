@@ -22,6 +22,11 @@ abstract class ChallengeRepository {
     String challengeId,
     List<String> userIds,
   );
+
+  /// 계정 삭제 때 이 사용자를 챌린지에서 뺀다.
+  /// 혼자 만들고 혼자 참여한 챌린지는 삭제하고, 다른 사람이 함께하는 챌린지는
+  /// 참여자 목록에서만 이 사용자를 지운다. 이 사용자의 진행 기록도 지운다.
+  Future<void> removeUser(String userId);
 }
 
 /// Firebase 없이 메모리에만 저장하는 버전 — 데모 모드 · 테스트용.
@@ -98,4 +103,16 @@ class MemoryChallengeRepository implements ChallengeRepository {
   ) async => {
     for (final id in userIds) id: _progress['${challengeId}_$id'] ?? 0,
   };
+
+  @override
+  Future<void> removeUser(String userId) async {
+    _all.removeWhere(
+      (c) =>
+          c.creatorId == userId && c.participantIds.every((p) => p == userId),
+    );
+    for (final c in _all) {
+      c.participantIds.remove(userId);
+    }
+    _progress.removeWhere((key, _) => key.endsWith('_$userId'));
+  }
 }

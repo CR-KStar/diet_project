@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:diet_project/domain/models/models.dart';
 
+import 'firestore_delete_where.dart';
 import 'friend_repository.dart';
 
 /// 초대 코드 · 친구 요청 · 친구 관계를 Firestore에 저장하고 불러오는 저장소.
@@ -131,5 +132,27 @@ class FirestoreFriendRepository implements FriendRepository {
     return [
       for (final d in snap.docs) ...(d.data()['users'] as List).cast<String>(),
     ]..removeWhere((id) => id == uid);
+  }
+
+  @override
+  Future<void> deleteAllForUser(String uid) async {
+    // 관계 → 초대 코드 → 공개 프로필 순으로 지운다.
+    await deleteWhere(
+      _db,
+      _db.collection('friendships').where('users', arrayContains: uid),
+    );
+    await deleteWhere(
+      _db,
+      _db.collection('friendRequests').where('fromUid', isEqualTo: uid),
+    );
+    await deleteWhere(
+      _db,
+      _db.collection('friendRequests').where('toUid', isEqualTo: uid),
+    );
+    await deleteWhere(
+      _db,
+      _db.collection('inviteCodes').where('uid', isEqualTo: uid),
+    );
+    await _db.collection('publicProfiles').doc(uid).delete();
   }
 }
