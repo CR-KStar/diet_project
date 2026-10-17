@@ -36,7 +36,79 @@ class MealViewModel extends ChangeNotifier {
 
   String? uid;
   String get _uid => uid ?? User.meId;
-  late final List<MealLog> mealLogs = [..._demoPastMeals()];
+  /// 전체 식단 기록 저장소. bowlId로 Bowl을, dateKey로 날짜를 참조한다.
+  late final List<MealLog> mealLogs = [
+    MealLog(
+      id: 'meal_seed_breakfast',
+      userId: User.meId,
+      mealType: MealType.breakfast,
+      name: '오트밀 · 바나나',
+      meta: '집 밥그릇 · 가득 · 집밥',
+      kcal: 320,
+      dateKey: _todayKey,
+      bowlId: 'bowl_home',
+      proteinG: 9,
+      carbG: 55,
+      fatG: 6,
+      fiberG: 8,
+      sodiumMg: 120,
+      sugarG: 14,
+      calciumMg: 90,
+      ironMg: 2,
+    ),
+    MealLog(
+      id: 'meal_seed_lunch',
+      userId: User.meId,
+      mealType: MealType.lunch,
+      name: '현미밥 · 닭가슴살 도시락',
+      meta: '회사 도시락 · 가득 · 도시락',
+      kcal: 450,
+      dateKey: _todayKey,
+      bowlId: 'bowl_lunchbox',
+      proteinG: 28,
+      carbG: 62,
+      fatG: 12,
+      fiberG: 5,
+      sodiumMg: 800,
+      sugarG: 6,
+      calciumMg: 60,
+      ironMg: 3,
+    ),
+    MealLog(
+      id: 'meal_seed_dinner',
+      userId: User.meId,
+      mealType: MealType.dinner,
+      name: '닭가슴살 샐러드',
+      meta: '샐러드 볼 · 반 · 집밥',
+      kcal: 480,
+      dateKey: _todayKey,
+      bowlId: 'bowl_salad',
+      proteinG: 38,
+      carbG: 20,
+      fatG: 22,
+      fiberG: 7,
+      sodiumMg: 640,
+      sugarG: 5,
+      calciumMg: 110,
+      ironMg: 4,
+    ),
+    MealLog(
+      id: 'meal_seed_snack',
+      userId: User.meId,
+      mealType: MealType.snack,
+      name: '그릭요거트',
+      meta: '컵 · 가득 · 외식',
+      kcal: 200,
+      dateKey: _todayKey,
+      proteinG: 17,
+      carbG: 14,
+      fatG: 6,
+      sodiumMg: 70,
+      sugarG: 9,
+      calciumMg: 180,
+    ),
+    ..._demoPastMeals()
+  ];
 
   List<MealLog> mealsOn(String dateKey) =>
       mealLogs.where((m) => m.userId == _uid && m.dateKey == dateKey).toList();
