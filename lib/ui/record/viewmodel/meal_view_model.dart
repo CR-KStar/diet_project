@@ -33,10 +33,25 @@ class MealViewModel extends ChangeNotifier {
   final List<MealLog> mealLogs = [];
 
   List<MealLog> mealsOn(String dateKey) =>
-  mealLogs.where((m) => m.userId == _uid && m.dateKey == dateKey).toList();
+      mealLogs.where((m) => m.userId == _uid && m.dateKey == dateKey).toList();
 
   /// 오늘의 식단
   List<MealLog> get todayMeals => mealsOn(_todayKey);
+
+  void addMeal(MealLog log) {
+    mealLogs.add(log);
+    notifyListeners();
+    _saveMeal(log);
+  }
+
+  void _saveMeal(MealLog log) {
+    if (uid == null) return;
+    unawaited(
+      _mealRepo.save(uid!, log).catchError((Object e, StackTrace stack) {
+        debugPrint('식단 기록 저장 실패 : $e\n$stack');
+      }),
+    );
+  }
 
   bool analyzingPhoto = false;
   String? photoAnalysisError;
