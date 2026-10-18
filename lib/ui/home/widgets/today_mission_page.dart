@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/common.dart';
+import 'package:diet_project/ui/home/viewmodel/mission_view_model.dart';
 
 const _categories = ['전체', '식단', '운동', '생활', '꾸준함'];
 
@@ -21,10 +22,13 @@ class TodayMissionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mission = context.watch<MissionViewModel>();
     final s = context.watch<AppState>();
-    final list = s.missionFilterTab == '전체'
-        ? s.missions
-        : s.missions.where((m) => m.category == s.missionFilterTab).toList();
+    final list = mission.missionFilterTab == '전체'
+        ? mission.missions
+        : mission.missions
+              .where((m) => m.category == mission.missionFilterTab)
+              .toList();
 
     return ScreenScroll(
       children: [
@@ -47,10 +51,10 @@ class TodayMissionScreen extends StatelessWidget {
         const _AchievementCard(),
         FilterTabs(
           options: _categories,
-          value: s.missionFilterTab,
-          onChanged: s.setMissionFilterTab,
+          value: mission.missionFilterTab,
+          onChanged: mission.setMissionFilterTab,
         ),
-        for (final m in list) _MissionCard(m: m, s: s),
+        for (final m in list) _MissionCard(m: m),
         const _RewardStructureCard(),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpace.s12),
@@ -71,9 +75,10 @@ class _AchievementCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mission = context.watch<MissionViewModel>();
     final s = context.watch<AppState>();
-    final total = s.missions.length;
-    final ratio = total == 0 ? 0.0 : s.missionDone / total;
+    final total = mission.missions.length;
+    final ratio = total == 0 ? 0.0 : mission.missionDone / total;
 
     return AppCard(
       child: Row(
@@ -90,7 +95,7 @@ class _AchievementCard extends StatelessWidget {
                   textBaseline: TextBaseline.alphabetic,
                   children: [
                     Text(
-                      '${s.missionDone}',
+                      '${mission.missionDone}',
                       style: t(
                         AppFontSize.f28,
                         w: FontWeight.w900,
@@ -108,9 +113,9 @@ class _AchievementCard extends StatelessWidget {
                 ProgressBar(value: ratio, height: AppSpace.s8),
                 const SizedBox(height: AppSpace.s10),
                 Text(
-                  s.missionDone >= total
+                  mission.missionDone >= total
                       ? '오늘 미션을 모두 달성했어요!'
-                      : '미션을 ${total - s.missionDone}개 더 달성하면 다음 성장 단계로 넘어가요.',
+                      : '미션을 ${total - mission.missionDone}개 더 달성하면 다음 성장 단계로 넘어가요.',
                   style: t(AppFontSize.f12, c: AppColor.textMuted, h: 1.5),
                 ),
               ],
@@ -170,14 +175,15 @@ class _AchievementCard extends StatelessWidget {
 }
 
 class _MissionCard extends StatelessWidget {
-  const _MissionCard({required this.m, required this.s});
+  const _MissionCard({required this.m});
 
   final Mission m;
-  final AppState s;
 
   @override
   Widget build(BuildContext context) {
-    final done = s.missionEffectivelyDone(m);
+    final mission = context.watch<MissionViewModel>();
+    final s = context.watch<AppState>();
+    final done = mission.missionEffectivelyDone(m);
     final meta = _categoryMeta[m.category] ?? ('🎯', AppColor.surfaceSunken);
 
     return AppCard(
@@ -262,7 +268,7 @@ class _MissionCard extends StatelessWidget {
                   label: '달성 처리',
                   active: true,
                   onTap: () {
-                    s.completeMissionManually(m);
+                    mission.completeMissionManually(m);
                     toast(context, '“${m.title}” 완료 · +${m.exp} EXP');
                   },
                 ),

@@ -6,6 +6,7 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart'
 import '../../../app_state.dart';
 import '../../../common.dart';
 import '../../core/ui/themes/theme_tokens.dart';
+import 'package:diet_project/ui/onboarding/viewmodel/auth_view_model.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -13,13 +14,14 @@ class LoginPage extends StatelessWidget {
   /// 로그인에 성공하면 홈(온보딩을 마친 계정) 또는 계정 연결(처음 가입) 화면으로, 실패하면 이유를 토스트로 알려준다.
   /// (사용자가 로그인 창을 닫아 취소한 경우에는 아무것도 하지 않는다.)
   Future<void> _signIn(BuildContext context, LoginProvider provider) async {
+    final auth = context.read<AuthViewModel>();
     final s = context.read<AppState>();
     final ok = await s.signIn(provider);
     if (!context.mounted) return;
     if (ok) {
       s.goAfterLogin();
-    } else if (s.authError != null) {
-      toast(context, s.authError!);
+    } else if (auth.authError != null) {
+      toast(context, auth.authError!);
     }
   }
 

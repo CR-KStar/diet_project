@@ -6,14 +6,16 @@ import 'package:provider/provider.dart';
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/common.dart';
+import 'package:diet_project/ui/home/viewmodel/recommendation_view_model.dart';
 
 class RecommendScreen extends StatelessWidget {
   const RecommendScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final recommendation = context.watch<RecommendationViewModel>();
     final s = context.watch<AppState>();
-    final recs = s.recommendations;
+    final recs = recommendation.recommendations;
 
     return ScreenScroll(
       children: [
@@ -31,15 +33,17 @@ class RecommendScreen extends StatelessWidget {
               ),
               const Spacer(),
               GestureDetector(
-                onTap: s.loadingRecommendations
+                onTap: recommendation.loadingRecommendations
                     ? null
                     : () async {
                         if (await ensureAiConsent(context, s)) {
-                          await s.fetchAiRecommendations();
+                          await recommendation.fetchAiRecommendations();
                         }
                       },
                 child: Text(
-                  s.loadingRecommendations ? 'AI 추천 새로고침 중...' : 'AI 추천 새로고침',
+                  recommendation.loadingRecommendations
+                      ? 'AI 추천 새로고침 중...'
+                      : 'AI 추천 새로고침',
                   style: t(
                     AppFontSize.f11,
                     c: AppColor.primary,
@@ -53,11 +57,11 @@ class RecommendScreen extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpace.s4),
           child: Text(
-            '${s.recMeal} · ${AppState.comma(s.recMaxKcal)}kcal 이하',
+            '${recommendation.recMeal} · ${AppState.comma(recommendation.recMaxKcal)}kcal 이하',
             style: t(AppFontSize.f11, c: AppColor.textFaint),
           ),
         ),
-        if (s.loadingRecommendations && recs.isEmpty)
+        if (recommendation.loadingRecommendations && recs.isEmpty)
           const AppCard(
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: AppSpace.s24),
@@ -72,10 +76,10 @@ class RecommendScreen extends StatelessWidget {
               ),
             ),
           )
-        else if (s.recommendationError != null)
+        else if (recommendation.recommendationError != null)
           AppCard(
             child: Text(
-              s.recommendationError!,
+              recommendation.recommendationError!,
               style: t(AppFontSize.f12, c: AppColor.alertText, h: 1.6),
             ),
           )
@@ -86,7 +90,7 @@ class RecommendScreen extends StatelessWidget {
               style: t(AppFontSize.f12, c: AppColor.textFaint, h: 1.6),
             ),
           ),
-        for (final r in recs) _RecommendationCard(r: r, s: s),
+        for (final r in recs) _RecommendationCard(r: r),
         const _ComboCard(),
       ],
     );
@@ -156,7 +160,7 @@ class _NeedsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final recommendation = context.watch<RecommendationViewModel>();
     return AppCard(
       padding: 16,
       child: Column(
@@ -171,8 +175,8 @@ class _NeedsCard extends StatelessWidget {
           const SizedBox(height: AppSpace.s12),
           ChipWrap(
             options: AppState.needOptions,
-            isSelected: s.needs.contains,
-            onPick: s.toggleNeed,
+            isSelected: recommendation.needs.contains,
+            onPick: recommendation.toggleNeed,
           ),
         ],
       ),
@@ -185,7 +189,7 @@ class _ConditionsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final recommendation = context.watch<RecommendationViewModel>();
     return AppCard(
       padding: 16,
       child: Column(
@@ -195,14 +199,14 @@ class _ConditionsCard extends StatelessWidget {
           const SizedBox(height: AppSpace.s12),
           SegmentedRow(
             options: const ['아침', '점심', '저녁', '간식'],
-            value: s.recMeal,
-            onChanged: s.setRecMeal,
+            value: recommendation.recMeal,
+            onChanged: recommendation.setRecMeal,
           ),
           const SizedBox(height: AppSpace.s12),
           ChipWrap(
             options: const ['채식 위주', '고단백', '저나트륨', '간편식', '외식 가능'],
-            isSelected: s.recPrefs.contains,
-            onPick: s.togglePref,
+            isSelected: recommendation.recPrefs.contains,
+            onPick: recommendation.togglePref,
           ),
           const SizedBox(height: AppSpace.s16),
           Row(
@@ -210,7 +214,7 @@ class _ConditionsCard extends StatelessWidget {
               Text('칼로리 상한', style: t(AppFontSize.f12, c: AppColor.textFaint)),
               const Spacer(),
               Text(
-                '${AppState.comma(s.recMaxKcal)} kcal',
+                '${AppState.comma(recommendation.recMaxKcal)} kcal',
                 style: t(
                   AppFontSize.f13,
                   w: FontWeight.w900,
@@ -220,17 +224,17 @@ class _ConditionsCard extends StatelessWidget {
             ],
           ),
           DragSlider(
-            value: s.recMaxKcal.toDouble(),
+            value: recommendation.recMaxKcal.toDouble(),
             min: 200,
             max: 800,
             step: 20,
-            onChanged: (v) => s.setRecMaxKcal(v.round()),
+            onChanged: (v) => recommendation.setRecMaxKcal(v.round()),
           ),
           const SizedBox(height: AppSpace.s6),
           SegmentedRow(
             options: const ['추천순', '칼로리 낮은 순'],
-            value: s.recSort,
-            onChanged: s.setRecSort,
+            value: recommendation.recSort,
+            onChanged: recommendation.setRecSort,
           ),
         ],
       ),
@@ -239,127 +243,133 @@ class _ConditionsCard extends StatelessWidget {
 }
 
 class _RecommendationCard extends StatelessWidget {
-  const _RecommendationCard({required this.r, required this.s});
+  const _RecommendationCard({required this.r});
 
   final ({MealSuggestion meal, int score, bool offMeal}) r;
-  final AppState s;
 
   @override
-  Widget build(BuildContext context) => AppCard(
-    padding: 15,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            IconTile(
-              r.meal.emoji,
-              size: 56,
-              radius: 18,
-              bg: AppColor.surfaceSunken,
-              fontSize: 26,
-            ),
-            const SizedBox(width: AppSpace.s13),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          r.meal.name,
-                          style: t(AppFontSize.f14, w: FontWeight.w700),
+  Widget build(BuildContext context) {
+    final recommendation = context.watch<RecommendationViewModel>();
+    final s = context.watch<AppState>();
+    return AppCard(
+      padding: 15,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              IconTile(
+                r.meal.emoji,
+                size: 56,
+                radius: 18,
+                bg: AppColor.surfaceSunken,
+                fontSize: 26,
+              ),
+              const SizedBox(width: AppSpace.s13),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            r.meal.name,
+                            style: t(AppFontSize.f14, w: FontWeight.w700),
+                          ),
                         ),
-                      ),
-                      Pill('${r.score}%', fontSize: 10),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpace.s5),
-                  Text(
-                    r.meal.meta,
-                    style: t(AppFontSize.f11, c: AppColor.textFaint, h: 1.45),
-                  ),
-                  const SizedBox(height: AppSpace.s6),
-                  Row(
-                    children: [
-                      Pill(
-                        r.meal.tag,
-                        bg: AppColor.surfaceSunken,
-                        fg: AppColor.textMuted,
-                        fontSize: 10,
-                      ),
-                      const Spacer(),
-                      Text(
-                        '${r.meal.kcal} kcal',
-                        style: t(AppFontSize.f13, w: FontWeight.w900),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpace.s11),
-        SunkenBox(
-          padding: 11,
-          radius: 14,
-          child: Text(
-            r.offMeal
-                ? '${r.meal.why} (${r.meal.meals.join('·')} 메뉴예요)'
-                : r.meal.why,
-            style: t(AppFontSize.f11, c: AppColor.textMuted, h: 1.55),
-          ),
-        ),
-        const SizedBox(height: AppSpace.s11),
-        Wrap(
-          spacing: 5,
-          runSpacing: 5,
-          children: r.meal.covers
-              .map(
-                (c) => Pill(
-                  '+$c',
-                  bg: s.needs.contains(c)
-                      ? AppColor.primaryTint
-                      : AppColor.surfaceSunken,
-                  fg: s.needs.contains(c)
-                      ? AppColor.primaryDark
-                      : AppColor.textFaint,
-                  fontSize: 10,
+                        Pill('${r.score}%', fontSize: 10),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpace.s5),
+                    Text(
+                      r.meal.meta,
+                      style: t(AppFontSize.f11, c: AppColor.textFaint, h: 1.45),
+                    ),
+                    const SizedBox(height: AppSpace.s6),
+                    Row(
+                      children: [
+                        Pill(
+                          r.meal.tag,
+                          bg: AppColor.surfaceSunken,
+                          fg: AppColor.textMuted,
+                          fontSize: 10,
+                        ),
+                        const Spacer(),
+                        Text(
+                          '${r.meal.kcal} kcal',
+                          style: t(AppFontSize.f13, w: FontWeight.w900),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              )
-              .toList(),
-        ),
-        const SizedBox(height: AppSpace.s12),
-        GestureDetector(
-          onTap: () {
-            s.go('capture');
-            s.setSub(() => s.extraOpen = true);
-            toast(context, '“${r.meal.name}”을 ${s.recMeal} 기록으로 불러왔어요');
-          },
-          child: Container(
-            width: double.infinity,
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(vertical: AppSpace.s12),
-            decoration: BoxDecoration(
-              color: AppColor.primarySoft,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColor.primary, width: 1.5),
-            ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpace.s11),
+          SunkenBox(
+            padding: 11,
+            radius: 14,
             child: Text(
-              '이 식단으로 기록하기',
-              style: t(
-                AppFontSize.f12,
-                w: FontWeight.w700,
-                c: AppColor.primaryDark,
+              r.offMeal
+                  ? '${r.meal.why} (${r.meal.meals.join('·')} 메뉴예요)'
+                  : r.meal.why,
+              style: t(AppFontSize.f11, c: AppColor.textMuted, h: 1.55),
+            ),
+          ),
+          const SizedBox(height: AppSpace.s11),
+          Wrap(
+            spacing: 5,
+            runSpacing: 5,
+            children: r.meal.covers
+                .map(
+                  (c) => Pill(
+                    '+$c',
+                    bg: recommendation.needs.contains(c)
+                        ? AppColor.primaryTint
+                        : AppColor.surfaceSunken,
+                    fg: recommendation.needs.contains(c)
+                        ? AppColor.primaryDark
+                        : AppColor.textFaint,
+                    fontSize: 10,
+                  ),
+                )
+                .toList(),
+          ),
+          const SizedBox(height: AppSpace.s12),
+          GestureDetector(
+            onTap: () {
+              s.go('capture');
+              s.setSub(() => s.extraOpen = true);
+              toast(
+                context,
+                '“${r.meal.name}”을 ${recommendation.recMeal} 기록으로 불러왔어요',
+              );
+            },
+            child: Container(
+              width: double.infinity,
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(vertical: AppSpace.s12),
+              decoration: BoxDecoration(
+                color: AppColor.primarySoft,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColor.primary, width: 1.5),
+              ),
+              child: Text(
+                '이 식단으로 기록하기',
+                style: t(
+                  AppFontSize.f12,
+                  w: FontWeight.w700,
+                  c: AppColor.primaryDark,
+                ),
               ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }
 
 class _ComboCard extends StatelessWidget {
