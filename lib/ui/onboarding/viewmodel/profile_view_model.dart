@@ -301,6 +301,18 @@ class ProfileViewModel extends ChangeNotifier {
       ..waterReminder = true
       ..exerciseReminder = false
       ..friendActivity = true;
+    // 약관 동의와 공개 범위도 처음 상태로 — 같은 기기에서 다음 계정이 로그인할 때
+    // 이전 계정의 동의(특히 민감 건강정보 동의)를 물려받으면 안 된다.
+    terms
+      ..clear()
+      ..addAll(_defaultTerms);
+    privacySettings
+      ..scope = ShareScope.friends
+      ..shareGarden = true
+      ..shareStreak = true
+      ..shareWeightTrend = false
+      ..shareMealPhotos = true
+      ..shareChallengeRank = true;
     notifyListeners();
   }
 

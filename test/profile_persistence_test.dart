@@ -330,4 +330,16 @@ void main() {
     expect(s.nickname, '');
     expect(s.screen, 'login');
   });
+
+  test('로그아웃 뒤 다른 계정으로 로그인하면 약관 동의를 다시 받는다', () async {
+    final s = AppState(auth: _FakeAuth(current: _account));
+    await s.restoreSession();
+    s.toggleAllTerms(); // 이전 계정이 모든 약관에 동의
+    expect(s.requiredTermsOk, isTrue);
+
+    await s.signOut();
+    await s.signIn(LoginProvider.google); // 저장된 프로필이 없는 새 계정처럼 시작
+
+    expect(s.requiredTermsOk, isFalse);
+  });
 }

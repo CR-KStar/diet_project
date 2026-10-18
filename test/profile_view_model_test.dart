@@ -260,6 +260,21 @@ void main() {
       expect(repo.saves, 0);
     });
 
+    test('reset: 이전 계정의 약관 동의와 공개 범위가 다음 계정에 남지 않는다', () async {
+      await signedIn();
+      vm.toggleAllTerms(); // 선택 약관 · 민감 건강정보 동의까지 모두 켬
+      vm.setShareScope('비공개');
+      vm.toggleFriendVisibility('체중 변화');
+
+      vm.reset();
+
+      expect(vm.requiredTermsOk, isFalse); // 민감 건강정보 동의는 다시 받아야 한다
+      expect(vm.terms['(선택) 마케팅 정보 수신'], isFalse);
+      expect(vm.shareScope, '친구만');
+      expect(vm.privacySettings.shareWeightTrend, isFalse);
+      expect(vm.privacySettings.shareGarden, isTrue);
+    });
+
     test('deleteProfile: 저장된 프로필을 지운다', () async {
       await signedIn();
       await vm.persist();
