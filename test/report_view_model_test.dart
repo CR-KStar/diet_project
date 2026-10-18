@@ -351,10 +351,10 @@ void main() {
       expect(s.period, '주간');
     });
 
-    test('기간을 바꾸면 AppState 구독자에게도 전달된다', () {
+    test('기간을 바꾸면 화면이 구독하는 ViewModel에 전달된다', () {
       final s = AppState(now: () => _today);
       var notified = 0;
-      s.addListener(() => notified++);
+      s.reportViewModel.addListener(() => notified++);
 
       s.setPeriod('월간');
 

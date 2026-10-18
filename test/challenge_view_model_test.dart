@@ -321,10 +321,10 @@ void main() {
       expect(s.challenges.last.creatorId, User.meId);
     });
 
-    test('챌린지 목록 변화가 AppState 구독자에게도 전달된다', () async {
+    test('챌린지 목록 변화가 화면이 구독하는 ViewModel에 전달된다', () async {
       final s = AppState(challengeRepo: MemoryChallengeRepository(seed: []));
       var notified = 0;
-      s.addListener(() => notified++);
+      s.challengeViewModel.addListener(() => notified++);
 
       s.setChKind('단백질');
 

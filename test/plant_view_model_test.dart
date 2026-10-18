@@ -188,10 +188,10 @@ void main() {
   });
 
   group('AppState와의 연결', () {
-    test('식물을 돌보면 AppState를 구독한 화면에도 알려진다', () {
+    test('식물을 돌보면 화면이 구독하는 ViewModel에 전달된다', () {
       final s = AppState();
       var notified = 0;
-      s.addListener(() => notified++);
+      s.plantViewModel.addListener(() => notified++);
       final before = s.plantExp;
 
       s.care('물 주기');

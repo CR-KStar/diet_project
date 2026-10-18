@@ -209,7 +209,7 @@ void main() {
     test('입력값을 바꾸면 보정 칼로리가 바뀌고 구독자에게도 전달된다', () {
       final s = AppState(now: () => DateTime(2026, 10, 18));
       var notified = 0;
-      s.addListener(() => notified++);
+      s.mealDraftViewModel.addListener(() => notified++);
       final before = s.adjustedKcal;
 
       s.setPortion('반절');

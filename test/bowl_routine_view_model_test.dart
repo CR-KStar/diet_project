@@ -211,10 +211,11 @@ void main() {
   });
 
   group('AppState와의 연결', () {
-    test('그릇 · 루틴이 바뀌면 AppState를 구독한 화면에도 알려진다', () {
+    test('그릇 · 루틴이 바뀌면 화면이 구독하는 ViewModel에 전달된다', () {
       final s = AppState();
       var notified = 0;
-      s.addListener(() => notified++);
+      s.bowlViewModel.addListener(() => notified++);
+      s.routineViewModel.addListener(() => notified++);
 
       s.startAddBowl();
       expect(s.bowlEditing, -1);

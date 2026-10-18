@@ -242,10 +242,10 @@ void main() {
       expect(s.recommendations, isNotEmpty); // 규칙 기반 추천은 보인다
     });
 
-    test('추천 조건이 바뀌면 AppState 구독자에게도 전달된다', () {
+    test('추천 조건이 바뀌면 화면이 구독하는 ViewModel에 전달된다', () {
       final s = AppState(mealRecommendationService: service);
       var notified = 0;
-      s.addListener(() => notified++);
+      s.recommendationViewModel.addListener(() => notified++);
 
       s.setRecMeal('아침');
 

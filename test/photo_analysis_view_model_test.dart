@@ -228,9 +228,9 @@ void main() {
       expect(log.carbG, 0);
     });
 
-    test('분석 상태가 바뀌면 AppState 구독자에게도 전달된다', () async {
+    test('분석 상태가 바뀌면 화면이 구독하는 ViewModel에 전달된다', () async {
       var notified = 0;
-      s.addListener(() => notified++);
+      s.photoAnalysisViewModel.addListener(() => notified++);
 
       await s.pickAndAnalyzeMealPhoto(ImageSource.gallery);
 

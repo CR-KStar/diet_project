@@ -286,10 +286,10 @@ void main() {
   });
 
   group('AppState 연결', () {
-    test('알림을 바꾸면 AppState 구독자에게도 전달된다', () {
+    test('알림을 바꾸면 화면이 구독하는 ViewModel에 전달된다', () {
       final s = AppState();
       var notified = 0;
-      s.addListener(() => notified++);
+      s.profileViewModel.addListener(() => notified++);
 
       s.toggleNotify('운동 리마인드');
 

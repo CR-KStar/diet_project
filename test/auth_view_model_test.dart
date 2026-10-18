@@ -241,10 +241,10 @@ void main() {
   });
 
   group('AppState 연결', () {
-    test('로그인 상태 변화가 AppState 구독자에게도 전달된다', () async {
+    test('로그인 상태 변화가 화면이 구독하는 ViewModel에 전달된다', () async {
       final s = AppState(auth: auth);
       var notified = 0;
-      s.addListener(() => notified++);
+      s.authViewModel.addListener(() => notified++);
 
       await s.signIn(LoginProvider.google);
 

@@ -160,34 +160,23 @@ class AppState extends ChangeNotifier {
       _notice = '식단 기록 저장에 실패했어요. 네트워크를 확인해 주세요.';
       notifyListeners();
     };
-    // 그릇 · 루틴은 화면이 AppState를 통해 구독하므로, ViewModel의 변경을 그대로 전달한다.
+    // 저장·불러오기에 실패하면 화면 밖 안내(스낵바)로 알린다. 화면은 필요한 ViewModel을 직접 구독한다.
     void showNotice(String message) {
       _notice = message;
       notifyListeners();
     }
 
-    _bowlViewModel
-      ..onSyncFailed = showNotice
-      ..addListener(notifyListeners);
-    _routineViewModel
-      ..onSyncFailed = showNotice
-      ..addListener(notifyListeners);
-    _plantViewModel
-      ..onSyncFailed = showNotice
-      ..addListener(notifyListeners);
-    _authViewModel.addListener(notifyListeners);
-    _mealDraftViewModel
-      ..inputs = (() => MealDraftInputs(
-        baseKcal: _photoAnalysisViewModel.baseKcal,
-        bowl: _bowlViewModel.currentBowl,
-      ))
-      ..addListener(notifyListeners);
+    _bowlViewModel.onSyncFailed = showNotice;
+    _routineViewModel.onSyncFailed = showNotice;
+    _plantViewModel.onSyncFailed = showNotice;
+    _mealDraftViewModel.inputs = (() => MealDraftInputs(
+      baseKcal: _photoAnalysisViewModel.baseKcal,
+      bowl: _bowlViewModel.currentBowl,
+    ));
     Listenable.merge([
       _photoAnalysisViewModel,
       _bowlViewModel,
     ]).addListener(_mealDraftViewModel.refresh);
-    _aiConsentViewModel.addListener(notifyListeners);
-    _notificationInboxViewModel.addListener(notifyListeners);
     // 미션과 리포트는 여러 기록에서 값을 계산하므로, 그 기록이 바뀌면 다시 계산하게 알린다.
     final sources = Listenable.merge([
       _mealViewModel,
@@ -200,20 +189,14 @@ class AppState extends ChangeNotifier {
     sources.addListener(_reportViewModel.refresh);
     sources.addListener(_recordsViewModel.refresh);
     sources.addListener(_todayViewModel.refresh);
-    _profileViewModel
-      ..onSyncFailed = showNotice
-      ..addListener(notifyListeners);
-    _photoAnalysisViewModel.addListener(notifyListeners);
-    _recommendationViewModel.addListener(notifyListeners);
+    _profileViewModel.onSyncFailed = showNotice;
     // 친구와 챌린지는 서로의 사람 정보를 쓰고, 내 닉네임은 AppState가 갖고 있다.
     _friendViewModel
       ..nickname = (() => nickname)
-      ..onSyncFailed = showNotice
-      ..addListener(notifyListeners);
+      ..onSyncFailed = showNotice;
     _challengeViewModel
       ..userFor = _friendViewModel.userFor
-      ..onSyncFailed = showNotice
-      ..addListener(notifyListeners);
+      ..onSyncFailed = showNotice;
   }
 
   // 화면이 필요한 ViewModel을 직접 구독할 수 있도록 밖으로 내놓는다 (AppProviders 참고).
@@ -267,11 +250,11 @@ class AppState extends ChangeNotifier {
     now: _now,
     onViewedMonthChanged: (y, m) =>
         unawaited(_loadMonth(y, m).then((_) => notifyListeners())),
-  )..addListener(notifyListeners);
+  );
   late final TodayViewModel _todayViewModel = TodayViewModel(
     snapshot: _recordsSnapshot,
     now: _now,
-  )..addListener(notifyListeners);
+  );
 
   RecordsSnapshot _recordsSnapshot() => RecordsSnapshot(
     meals: _mealViewModel.mealLogs,
@@ -290,12 +273,12 @@ class AppState extends ChangeNotifier {
   late final MissionViewModel _missionViewModel = MissionViewModel(
     inputs: _missionInputs,
     gainExp: (exp) => _plantViewModel.gainExp(exp),
-  )..addListener(notifyListeners);
+  );
 
   /// 리포트는 다른 ViewModel의 기록을 읽어 계산만 해서, AppState가 만들어진 뒤에 연결한다.
   late final ReportViewModel _reportViewModel = ReportViewModel(
     inputs: _reportInputs,
-  )..addListener(notifyListeners);
+  );
   final RecommendationViewModel _recommendationViewModel;
   final FriendViewModel _friendViewModel;
   final ChallengeViewModel _challengeViewModel;
