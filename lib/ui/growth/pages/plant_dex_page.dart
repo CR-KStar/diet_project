@@ -15,12 +15,6 @@ const _tierColor = {
 };
 const _tierRatio = {'일반': '60%', '희귀': '30%', '전설': '10%'};
 
-const _seasonalItems = [
-  ('🍁', '단풍 화분', '9월 기록 20일'),
-  ('🌰', '도토리 나무', '가을 챌린지 완주'),
-  ('🎃', '호박 넝쿨', '균형 유지 14일'),
-];
-
 const _rarityRules = [
   ('일반', '3~7일 안에 개화. 축 균형 조건 없음 · 전체의 60%', AppColor.textMuted),
   ('희귀', '10~14일 꾸준함 + 특정 축 편중/균형 조건 · 전체의 30%', Color(0xFF3C63C0)),
@@ -51,9 +45,6 @@ class PlantDexTab extends StatelessWidget {
         const SizedBox(height: AppSpace.cardGap),
 
         _SelectedSpeciesCard(pick: pick),
-        const SizedBox(height: AppSpace.cardGap),
-
-        const _SeasonalCard(),
         const SizedBox(height: AppSpace.cardGap),
 
         const _RarityRulesCard(),
@@ -395,84 +386,6 @@ class _SelectedSpeciesCard extends StatelessWidget {
           ],
         ),
       ],
-    ),
-  );
-}
-
-/// 시즌 한정
-class _SeasonalCard extends StatelessWidget {
-  const _SeasonalCard();
-
-  @override
-  Widget build(BuildContext context) => AppCard(
-    color: const Color(0xFFF7F4FF),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              '이번 시즌 한정',
-              style: t(
-                AppFontSize.f13,
-                w: FontWeight.w700,
-                c: const Color(0xFF5B4A8A),
-              ),
-            ),
-            const Spacer(),
-            Text(
-              '9월 30일까지',
-              style: t(
-                AppFontSize.f11,
-                w: FontWeight.w700,
-                c: const Color(0xFF8578AD),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpace.s13),
-        Row(children: [for (final p in _seasonalItems) _SeasonalItem(p: p)]),
-        const SizedBox(height: AppSpace.s13),
-        Text(
-          '시즌이 끝나면 도감에는 남지만 다시 획득할 수 없어요. 다음 시즌엔 새 3종이 열립니다.',
-          style: t(AppFontSize.f11, c: const Color(0xFF8578AD), h: 1.6),
-        ),
-      ],
-    ),
-  );
-}
-
-class _SeasonalItem extends StatelessWidget {
-  const _SeasonalItem({required this.p});
-
-  final (String, String, String) p;
-
-  @override
-  Widget build(BuildContext context) => Expanded(
-    child: Container(
-      margin: const EdgeInsets.only(right: AppSpace.s10),
-      padding: const EdgeInsets.all(AppSpace.s13),
-      decoration: BoxDecoration(
-        color: AppColor.surface,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Column(
-        children: [
-          Text(p.$1, style: const TextStyle(fontSize: 24)),
-          const SizedBox(height: AppSpace.s7),
-          Text(
-            p.$2,
-            textAlign: TextAlign.center,
-            style: t(AppFontSize.f11, w: FontWeight.w700),
-          ),
-          const SizedBox(height: AppSpace.s3),
-          Text(
-            p.$3,
-            textAlign: TextAlign.center,
-            style: t(AppFontSize.f9, c: const Color(0xFF8578AD)),
-          ),
-        ],
-      ),
     ),
   );
 }

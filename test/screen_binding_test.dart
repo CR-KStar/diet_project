@@ -1,17 +1,47 @@
 import 'package:diet_project/app_providers.dart';
 import 'package:diet_project/app_shell.dart';
 import 'package:diet_project/app_state.dart';
+import 'package:diet_project/ui/growth/viewmodel/plant_view_model.dart';
+import 'package:diet_project/data/auth/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:diet_project/utils/app_state_format.dart';
+
+/// 로그인한 실제 새 계정 — 예시 기록이 없고, 도감에 모은 식물도 없다.
+class _NewAccountAuth implements AuthService {
+  static const _account = AuthAccount(
+    uid: 'uid_new',
+    provider: LoginProvider.google,
+    isNewUser: true,
+  );
+
+  @override
+  AuthAccount? get currentAccount => _account;
+
+  @override
+  Future<AuthAccount?> restoreAccount() async => _account;
+
+  @override
+  Future<AuthAccount?> signIn(LoginProvider provider) async => _account;
+
+  @override
+  Future<void> signOut() async {}
+
+  @override
+  Future<void> deleteAccount({Future<void> Function()? beforeDelete}) async {}
+}
 
 /// 화면이 AppState 하나가 아니라 자기 ViewModel을 직접 구독한다 — AppState가 변경을 대신
 /// 알려주지 않아도, ViewModel이 바뀌면 그 값을 보여주는 화면이 다시 그려져야 한다.
 void main() {
   setUpAll(() => GoogleFonts.config.allowRuntimeFetching = false);
 
-  Future<AppState> pumpAt(WidgetTester tester, String screen) async {
+  Future<AppState> pumpAt(
+    WidgetTester tester,
+    String screen, {
+    AppState? with_,
+  }) async {
     // 테스트용 글꼴은 실제 글꼴보다 커서 몇 px 넘치는 경고가 나는데, 여기서 보려는 것이 아니다.
     final original = FlutterError.onError;
     FlutterError.onError = (details) {
@@ -23,7 +53,7 @@ void main() {
     tester.view.devicePixelRatio = 2.0;
     addTearDown(tester.view.reset);
 
-    final state = AppState(now: () => DateTime(2026, 10, 18));
+    final state = with_ ?? AppState(now: () => DateTime(2026, 10, 18));
     state.go(screen);
     await tester.pumpWidget(
       AppProviders(
@@ -135,5 +165,42 @@ void main() {
       findsOneWidget,
     );
     expect(find.textContaining('350kcal'), findsNothing);
+  });
+
+  testWidgets('새 계정의 정원에는 키우는 식물과 빈 화분뿐이다 (지어낸 화분 없음)', (tester) async {
+    final state = AppState(
+      auth: _NewAccountAuth(),
+      now: () => DateTime(2026, 10, 18),
+    );
+    await state.restoreSession();
+    await pumpAt(tester, 'plant', with_: state);
+
+    expect(find.text('내 정원'), findsOneWidget);
+    expect(find.text('키우는 중'), findsOneWidget);
+    expect(find.text('빈 화분'), findsNWidgets(7));
+    expect(find.text('벚꽃'), findsNothing);
+    expect(find.text('몬스테라'), findsNothing);
+    expect(find.text('기록으로'), findsNothing);
+    expect(find.textContaining('가을 한정'), findsNothing);
+    expect(find.textContaining('9월 30일'), findsNothing);
+  });
+
+  testWidgets('예시 계정의 정원은 도감에 모은 식물을 그대로 보여준다', (tester) async {
+    final state = await pumpAt(tester, 'plant');
+
+    final collected = state.plantViewModel.gardenPots
+        .where((p) => p.kind == GardenPotKind.collected)
+        .map((p) => p.label);
+    expect(collected, contains('몬스테라')); // 예시 도감에서 모은 식물
+    expect(find.text('몬스테라'), findsOneWidget);
+    expect(find.textContaining('가을 한정'), findsNothing);
+  });
+
+  testWidgets('식물 도감에는 지난 시즌 한정 카드가 없다', (tester) async {
+    await pumpAt(tester, 'dex');
+
+    expect(find.text('수집 진행률 '), findsOneWidget);
+    expect(find.textContaining('이번 시즌 한정'), findsNothing);
+    expect(find.text('단풍 화분'), findsNothing);
   });
 }

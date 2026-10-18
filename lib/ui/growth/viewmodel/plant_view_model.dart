@@ -4,6 +4,12 @@ import 'package:diet_project/domain/models/models.dart';
 import 'package:flutter/foundation.dart';
 import 'package:diet_project/domain/repositories/record_repository.dart';
 
+/// 정원 화분 한 칸의 종류.
+enum GardenPotKind { growing, collected, empty }
+
+/// 정원 화분 한 칸 — 보여줄 그림(emoji), 이름, 종류.
+typedef GardenPot = ({String emoji, String label, GardenPotKind kind});
+
 /// "내 식물"의 성장 상태와 식물 도감(수집 현황)을 담당한다.
 ///
 /// 성장 상태와 거기서 계산되는 값(레벨 · 시듦 여부 …)은 Plant 모델이,
@@ -105,6 +111,29 @@ class PlantViewModel extends ChangeNotifier {
   String get plantMood => plant.mood;
   String get plantMessage => plant.message;
   String get balanceHint => plant.balanceHint;
+
+  // ── 정원 ────────────────────────────────────────────────────────────
+
+  /// 정원의 화분 칸 수.
+  static const gardenSlots = 8;
+
+  /// 정원 화분들 — 지금 키우는 식물이 맨 앞, 그다음에 도감에서 모은 식물, 나머지는 빈 화분.
+  /// 실제로 키우거나 모은 것만 보여준다 (모은 게 없으면 빈 화분으로 남는다).
+  List<GardenPot> get gardenPots {
+    final owned = [
+      for (final sp in PlantSpecies.catalog)
+        if (dexEntries.any((e) => e.speciesId == sp.id && e.owned))
+          (emoji: sp.emoji, label: sp.name, kind: GardenPotKind.collected),
+    ];
+    final pots = <GardenPot>[
+      (emoji: plantStage.emoji, label: '키우는 중', kind: GardenPotKind.growing),
+      ...owned.take(gardenSlots - 1),
+    ];
+    while (pots.length < gardenSlots) {
+      pots.add((emoji: '', label: '빈 화분', kind: GardenPotKind.empty));
+    }
+    return pots;
+  }
 
   void _scheduleSave() {
     if (uid == null || !_syncOk) return;

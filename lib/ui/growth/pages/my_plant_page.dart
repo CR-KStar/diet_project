@@ -91,21 +91,21 @@ const _careItems = [
     icon: AppIcons.water,
     color: AppColor.info,
     tint: Color(0xFFF0F5FF),
-    desc: '식단 기록으로 충전 · 물 축 +10',
+    desc: '누르면 경험치 +10',
   ),
   (
     name: '햇빛 받기',
     icon: AppIcons.sun,
     color: Color(0xFFE8B33C),
     tint: Color(0xFFFFF9E9),
-    desc: '운동 기록으로 충전 · 햇빛 축 +15',
+    desc: '누르면 경험치 +15',
   ),
   (
     name: '영양 주기',
     icon: AppIcons.nutrition,
     color: AppColor.teal,
     tint: Color(0xFFF2F8F2),
-    desc: '수면·물 기록으로 충전 · 영양 축 +20',
+    desc: '누르면 경험치 +20',
   ),
 ];
 
@@ -469,7 +469,7 @@ class _CareCard extends StatelessWidget {
           Text('오늘 돌보기', style: t(AppFontSize.f14, w: FontWeight.w700)),
           const SizedBox(height: AppSpace.s5),
           Text(
-            '기록을 남기면 돌보기가 충전돼요',
+            '남은 횟수만큼 눌러서 식물을 돌볼 수 있어요',
             style: t(AppFontSize.f11, c: AppColor.textGhost),
           ),
           const SizedBox(height: AppSpace.s14),
@@ -652,7 +652,7 @@ class _BranchRow extends StatelessWidget {
   );
 }
 
-/// 내 정원 카드 — 화분 그리드 + 계절 한정 안내
+/// 내 정원 카드 — 화분 그리드
 class _GardenCard extends StatelessWidget {
   const _GardenCard();
 
@@ -660,8 +660,6 @@ class _GardenCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final plant = context.watch<PlantViewModel>();
     final s = context.watch<AppState>();
-    final stage = plant.plantStage;
-
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -690,100 +688,62 @@ class _GardenCard extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             mainAxisSpacing: 10,
             crossAxisSpacing: 10,
-            children: [
-              for (final g in [
-                (emoji: '🌸', label: '벚꽃', kind: 'done'),
-                (emoji: '🌿', label: '몬스테라', kind: 'done'),
-                (emoji: '🌵', label: '선인장', kind: 'done'),
-                (emoji: stage.emoji, label: '키우는 중', kind: 'active'),
-                (emoji: '🥀', label: '기록으로', kind: 'memorial'),
-                (emoji: '?', label: '빈 화분', kind: 'empty'),
-                (emoji: '?', label: '빈 화분', kind: 'empty'),
-                (emoji: '?', label: '빈 화분', kind: 'empty'),
-              ])
-                Container(
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: switch (g.kind) {
-                      'active' => AppColor.primaryTint,
-                      'done' => const Color(0xFFF2F8F2),
-                      'memorial' => const Color(0xFFF7F7F8),
-                      _ => const Color(0xFFFAFBFB),
-                    },
-                    borderRadius: BorderRadius.circular(16),
-                    border: switch (g.kind) {
-                      'active' => Border.all(
-                        color: AppColor.primary,
-                        width: 1.5,
-                      ),
-                      'empty' => Border.all(
-                        color: AppColor.disabled,
-                        width: 1.5,
-                      ),
-                      _ => null,
-                    },
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Opacity(
-                        opacity: g.kind == 'memorial' ? 0.5 : 1,
-                        child: Text(
-                          g.emoji,
-                          style: TextStyle(fontSize: g.emoji == '?' ? 15 : 24),
-                        ),
-                      ),
-                      const SizedBox(height: AppSpace.s4),
-                      Text(
-                        g.label,
-                        style: t(
-                          8,
-                          c: g.emoji == '?'
-                              ? AppColor.disabled
-                              : AppColor.textFaint,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: AppSpace.s14),
-          SunkenBox(
-            padding: 13,
-            radius: 18,
-            color: const Color(0xFFF7F4FF),
-            child: Row(
-              children: [
-                const Text('🍁', style: TextStyle(fontSize: 22)),
-                const SizedBox(width: AppSpace.s12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '가을 한정 · 단풍 화분',
-                        style: t(
-                          AppFontSize.f12,
-                          w: FontWeight.w700,
-                          c: const Color(0xFF5B4A8A),
-                        ),
-                      ),
-                      const SizedBox(height: AppSpace.s3),
-                      Text(
-                        '9월 30일까지 완주하면 정원에 남아요',
-                        style: t(AppFontSize.f11, c: const Color(0xFF8578AD)),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+            children: [for (final pot in plant.gardenPots) _GardenPotTile(pot)],
           ),
           const SizedBox(height: AppSpace.s11),
           Text(
-            '떠나보낸 식물도 “지난 식물 기록”으로 남아요. 다시 심으면 그 기록에서 이어집니다.',
+            '지금 키우는 식물과, 도감에 모은 식물이 정원에 놓여요.',
             style: t(AppFontSize.f11, c: AppColor.textGhost, h: 1.6),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 정원의 화분 한 칸.
+class _GardenPotTile extends StatelessWidget {
+  const _GardenPotTile(this.pot);
+
+  final GardenPot pot;
+
+  @override
+  Widget build(BuildContext context) {
+    final empty = pot.kind == GardenPotKind.empty;
+    return Container(
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: switch (pot.kind) {
+          GardenPotKind.growing => AppColor.primaryTint,
+          GardenPotKind.collected => const Color(0xFFF2F8F2),
+          GardenPotKind.empty => const Color(0xFFFAFBFB),
+        },
+        borderRadius: BorderRadius.circular(16),
+        border: switch (pot.kind) {
+          GardenPotKind.growing => Border.all(
+            color: AppColor.primary,
+            width: 1.5,
+          ),
+          GardenPotKind.empty => Border.all(
+            color: AppColor.disabled,
+            width: 1.5,
+          ),
+          GardenPotKind.collected => null,
+        },
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (empty)
+            const Icon(Icons.add_rounded, size: 18, color: AppColor.disabled)
+          else
+            Text(pot.emoji, style: const TextStyle(fontSize: 24)),
+          const SizedBox(height: AppSpace.s4),
+          Text(
+            pot.label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: t(8, c: empty ? AppColor.disabled : AppColor.textFaint),
           ),
         ],
       ),

@@ -141,6 +141,50 @@ void main() {
     });
   });
 
+  group('PlantViewModel · 정원', () {
+    test('새 계정의 정원은 키우는 식물 하나와 빈 화분뿐이다 (가짜 화분이 없다)', () async {
+      final vm = build();
+      await vm.loadForUid('uid_new');
+
+      final pots = vm.gardenPots;
+      expect(pots, hasLength(PlantViewModel.gardenSlots));
+      expect(pots.first.kind, GardenPotKind.growing);
+      expect(pots.first.label, '키우는 중');
+      expect(pots.skip(1).every((p) => p.kind == GardenPotKind.empty), isTrue);
+    });
+
+    test('도감에 모은 식물이 키우는 식물 다음에 놓인다', () async {
+      final vm = build();
+      await vm.loadForUid('uid_1');
+      vm.dexEntries = [
+        for (final sp in PlantSpecies.catalog)
+          DexEntry(
+            userId: 'uid_1',
+            speciesId: sp.id,
+            owned: sp.id == 'sp_tulip' || sp.id == 'sp_rose',
+          ),
+      ];
+
+      final pots = vm.gardenPots;
+      expect(
+        pots
+            .where((p) => p.kind == GardenPotKind.collected)
+            .map((p) => p.label),
+        ['튤립', '장미'],
+      );
+      expect(pots[1].emoji, '🌷');
+      expect(pots.where((p) => p.kind == GardenPotKind.empty), hasLength(5));
+    });
+
+    test('모은 식물이 많아도 화분 칸 수를 넘기지 않는다', () {
+      final vm = build(); // 예시 계정은 도감 8종을 모은 상태로 시작한다
+
+      final pots = vm.gardenPots;
+      expect(pots, hasLength(PlantViewModel.gardenSlots));
+      expect(pots.where((p) => p.kind == GardenPotKind.empty), isEmpty);
+    });
+  });
+
   group('PlantViewModel · 도감', () {
     test('데모 도감은 일부를 획득한 상태이고 비율은 0~100 사이다', () {
       final vm = build();
