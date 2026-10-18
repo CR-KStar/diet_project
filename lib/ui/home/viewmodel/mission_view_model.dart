@@ -49,6 +49,18 @@ class _MissionTemplate {
   final double Function(MissionInputs) current;
 }
 
+/// 같은 글자면 앱을 다시 켜도, 어느 기기에서도 같은 숫자가 나오는 시드.
+///
+/// Object.hash는 실행할 때마다 값이 달라져서, 이걸로 난수를 고정하면 앱을 다시 켤
+/// 때마다 오늘의 미션이 새로 뽑힌다. 값이 32비트 안에서만 움직이게 해서 웹에서도 같다.
+int _stableSeed(String text) {
+  var h = 7;
+  for (final unit in text.codeUnits) {
+    h = (h * 31 + unit) & 0x7fffffff;
+  }
+  return h;
+}
+
 /// 오늘의 미션을 뽑고 진행도를 계산하며, 수동 완료를 기억한다.
 ///
 /// 기록은 직접 들고 있지 않고 [inputs]로 매번 받아서 계산만 한다. 여기서 들고 있는
@@ -196,7 +208,7 @@ class MissionViewModel extends ChangeNotifier {
 
   List<Mission> get missions {
     final input = inputs();
-    final rng = Random(Object.hash(input.uid, input.todayKey));
+    final rng = Random(_stableSeed('${input.uid}|${input.todayKey}'));
     final categories = _missionPool.keys.toList()..shuffle(rng);
     final missionCount = 3 + rng.nextInt(3); // 3~5개
 

@@ -52,6 +52,15 @@ void main() {
       );
     });
 
+    test('앱을 다시 켜도 같은 날 같은 조합이 나온다 (기준값 고정)', () {
+      // 이 값이 바뀌면 사용자가 앱을 다시 켤 때마다 오늘의 미션이 달라질 수 있다.
+      expect(vm.missions.map((m) => m.id).toList(), [
+        'm_exercise20',
+        'm_water1000',
+        'm_streak3',
+      ]);
+    });
+
     test('날짜가 바뀌면 다른 조합이 나온다', () {
       final sets = {
         for (final day in acrossDays()) day.map((m) => m.id).join(','),
@@ -241,7 +250,7 @@ void main() {
 
     test('수동 완료하면 식물 경험치가 오른다', () {
       final s = AppState(now: () => DateTime(2026, 10, 18));
-      final m = s.missions.first;
+      final m = s.missions.firstWhere((m) => !s.missionEffectivelyDone(m));
       final exp = s.plantExp;
 
       s.completeMissionManually(m);
