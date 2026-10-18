@@ -83,6 +83,29 @@ class PlantViewModel extends ChangeNotifier {
     _scheduleSave();
   }
 
+  // 화면이 바로 쓰는 값들 — 계산은 Plant 모델이 하고, 여기서는 이름만 붙여 내놓는다.
+  int get plantExp => plant.exp;
+  Map<PlantAxis, int> get axisScore => plant.axisScore;
+  Map<String, int> get cares => plant.cares;
+  int get missedDays => plant.missedDays;
+  bool get revived => plant.revived;
+  List<String> get wateredFriends => plant.wateredFriendIds;
+  Map<String, int> get inventory => plant.inventory;
+  int get giftTickets => plant.giftTickets;
+
+  int get plantLevel => plant.level;
+  bool get wilting => plant.wilting;
+  int get graceLeft => plant.graceLeft;
+  int get axisSpread => plant.axisSpread;
+  bool get balanced => plant.balanced;
+  PlantAxis get weakestAxis => plant.weakestAxis;
+  ({String emoji, String name, int lv, double size}) get plantStage =>
+      plant.stage;
+  String get plantExpLeft => plant.expLeft;
+  String get plantMood => plant.mood;
+  String get plantMessage => plant.message;
+  String get balanceHint => plant.balanceHint;
+
   void _scheduleSave() {
     if (uid == null || !_syncOk) return;
     _saveTimer?.cancel();

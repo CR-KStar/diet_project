@@ -594,26 +594,26 @@ class AppState extends ChangeNotifier {
   UserProfile get profile => _profileViewModel.profile;
   set profile(UserProfile value) => _profileViewModel.profile = value;
 
-  String get goal => profile.goal;
-  set goal(String v) => profile.goal = v;
+  String get goal => _profileViewModel.goal;
+  set goal(String v) => _profileViewModel.goal = v;
 
-  String get activity => profile.activity;
-  set activity(String v) => profile.activity = v;
+  String get activity => _profileViewModel.activity;
+  set activity(String v) => _profileViewModel.activity = v;
 
-  String get gender => profile.gender;
-  set gender(String v) => profile.gender = v;
+  String get gender => _profileViewModel.gender;
+  set gender(String v) => _profileViewModel.gender = v;
 
-  double get heightCm => profile.heightCm;
-  set heightCm(double v) => profile.heightCm = v;
+  double get heightCm => _profileViewModel.heightCm;
+  set heightCm(double v) => _profileViewModel.heightCm = v;
 
-  double get weightKg => profile.weightKg;
-  set weightKg(double v) => profile.weightKg = v;
+  double get weightKg => _profileViewModel.weightKg;
+  set weightKg(double v) => _profileViewModel.weightKg = v;
 
-  int get age => profile.age;
-  set age(int v) => profile.age = v;
+  int get age => _profileViewModel.age;
+  set age(int v) => _profileViewModel.age = v;
 
-  double get goalWeight => profile.goalWeight;
-  set goalWeight(double v) => profile.goalWeight = v;
+  double get goalWeight => _profileViewModel.goalWeight;
+  set goalWeight(double v) => _profileViewModel.goalWeight = v;
 
   NotificationSettings get notificationSettings =>
       _profileViewModel.notificationSettings;
@@ -621,10 +621,10 @@ class AppState extends ChangeNotifier {
   void toggleOnboardAlert(String label) =>
       _profileViewModel.toggleOnboardAlert(label);
 
-  double get bmi => profile.bmi;
-  double get bmr => profile.bmr;
-  int get dailyTarget => profile.dailyTarget;
-  String get goalDelta => profile.goalDelta;
+  double get bmi => _profileViewModel.bmi;
+  double get bmr => _profileViewModel.bmr;
+  int get dailyTarget => _profileViewModel.dailyTarget;
+  String get goalDelta => _profileViewModel.goalDelta;
 
   // 홈 · 오늘 수치
   /// 고정된 오늘 날짜(_todayKey)의 기록 요약. 기록 탭에서 넘겨보는 날짜(month/day)와
@@ -1314,27 +1314,27 @@ class AppState extends ChangeNotifier {
   // s.plantLevel 같은 이름으로 쓸 수 있게, 같은 이름으로 전달만 한다.
   Plant get plant => _plantViewModel.plant;
 
-  int get plantExp => plant.exp;
-  Map<PlantAxis, int> get axisScore => plant.axisScore;
-  Map<String, int> get cares => plant.cares;
-  int get missedDays => plant.missedDays;
-  bool get revived => plant.revived;
-  List<String> get wateredFriends => plant.wateredFriendIds;
-  Map<String, int> get inventory => plant.inventory;
-  int get giftTickets => plant.giftTickets;
+  int get plantExp => _plantViewModel.plantExp;
+  Map<PlantAxis, int> get axisScore => _plantViewModel.axisScore;
+  Map<String, int> get cares => _plantViewModel.cares;
+  int get missedDays => _plantViewModel.missedDays;
+  bool get revived => _plantViewModel.revived;
+  List<String> get wateredFriends => _plantViewModel.wateredFriends;
+  Map<String, int> get inventory => _plantViewModel.inventory;
+  int get giftTickets => _plantViewModel.giftTickets;
 
-  int get plantLevel => plant.level;
-  bool get wilting => plant.wilting;
-  int get graceLeft => plant.graceLeft;
-  int get axisSpread => plant.axisSpread;
-  bool get balanced => plant.balanced;
-  PlantAxis get weakestAxis => plant.weakestAxis;
+  int get plantLevel => _plantViewModel.plantLevel;
+  bool get wilting => _plantViewModel.wilting;
+  int get graceLeft => _plantViewModel.graceLeft;
+  int get axisSpread => _plantViewModel.axisSpread;
+  bool get balanced => _plantViewModel.balanced;
+  PlantAxis get weakestAxis => _plantViewModel.weakestAxis;
   ({String emoji, String name, int lv, double size}) get plantStage =>
-      plant.stage;
-  String get plantExpLeft => plant.expLeft;
-  String get plantMood => plant.mood;
-  String get plantMessage => plant.message;
-  String get balanceHint => plant.balanceHint;
+      _plantViewModel.plantStage;
+  String get plantExpLeft => _plantViewModel.plantExpLeft;
+  String get plantMood => _plantViewModel.plantMood;
+  String get plantMessage => _plantViewModel.plantMessage;
+  String get balanceHint => _plantViewModel.balanceHint;
 
   void care(String name) => _plantViewModel.care(name);
   void revive() => _plantViewModel.revive();

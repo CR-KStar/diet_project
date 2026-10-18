@@ -64,6 +64,54 @@ class ProfileViewModel extends ChangeNotifier {
   // ── 신체 정보 · 목표 ─────────────────────────────────────────────────
   UserProfile profile = UserProfile(userId: User.meId);
 
+  // 입력 화면(온보딩 · 내 정보 수정)이 쓰는 값들 — 바꾸면 화면이 바로 다시 그려진다.
+  String get goal => profile.goal;
+  set goal(String v) {
+    profile.goal = v;
+    notifyListeners();
+  }
+
+  String get activity => profile.activity;
+  set activity(String v) {
+    profile.activity = v;
+    notifyListeners();
+  }
+
+  String get gender => profile.gender;
+  set gender(String v) {
+    profile.gender = v;
+    notifyListeners();
+  }
+
+  double get heightCm => profile.heightCm;
+  set heightCm(double v) {
+    profile.heightCm = v;
+    notifyListeners();
+  }
+
+  double get weightKg => profile.weightKg;
+  set weightKg(double v) {
+    profile.weightKg = v;
+    notifyListeners();
+  }
+
+  int get age => profile.age;
+  set age(int v) {
+    profile.age = v;
+    notifyListeners();
+  }
+
+  double get goalWeight => profile.goalWeight;
+  set goalWeight(double v) {
+    profile.goalWeight = v;
+    notifyListeners();
+  }
+
+  double get bmi => profile.bmi;
+  double get bmr => profile.bmr;
+  int get dailyTarget => profile.dailyTarget;
+  String get goalDelta => profile.goalDelta;
+
   /// 체중을 기록하면 프로필의 현재 체중도 함께 바뀐다.
   void onWeightLogged(double kg) {
     profile.weightKg = kg;
