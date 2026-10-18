@@ -5,6 +5,7 @@
 
 import 'dart:convert';
 import 'dart:math';
+import 'package:diet_project/ui/record/viewmodel/exercise_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/meal_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/weight_view_model.dart';
 import 'package:image_picker/image_picker.dart';
@@ -98,6 +99,7 @@ class AppState extends ChangeNotifier {
     WaterViewModel? waterViewModel,
     WeightViewModel? weightViewModel,
     MealViewModel? mealViewModel,
+    ExerciseViewModel? exerciseViewModel,
     RecordRepository<ExerciseLog>? exerciseRepo,
     RecordRepository<MealLog>? mealRepo,
     RecordRepository<Bowl>? bowlRepo,
@@ -127,6 +129,13 @@ class AppState extends ChangeNotifier {
              mealRepo: mealRepo ?? MemoryRecordRepository(mealCodec),
              now: now,
            ),
+       _exerciseViewModel =
+           exerciseViewModel ??
+           ExerciseViewModel(
+             exerciseRepo:
+                 exerciseRepo ?? MemoryRecordRepository(exerciseCodec),
+             now: now,
+           ),
        _exerciseRepo = exerciseRepo ?? MemoryRecordRepository(exerciseCodec),
        _mealRepo = mealRepo ?? MemoryRecordRepository(mealCodec),
        _bowlRepo = bowlRepo ?? MemoryRecordRepository(bowlCodec),
@@ -138,6 +147,10 @@ class AppState extends ChangeNotifier {
        _activityFeedRepo = activityFeedRepo ?? MemoryActivityFeedRepository(),
        _now = now ?? DateTime.now {
     // 식단 저장이 실패하면 예전처럼 화면에 알림을 띄운다.
+    _exerciseViewModel.onSaveFailed = () {
+      _notice = '운동 기록 저장에 실패했어요. 네트워크를 확인해 주세요.';
+      notifyListeners();
+    };
     _mealViewModel.onSaveFailed = () {
       _notice = '식단 기록 저장에 실패했어요. 네트워크를 확인해 주세요.';
       notifyListeners();
@@ -152,6 +165,7 @@ class AppState extends ChangeNotifier {
   /// 통해서 읽는다(물 데이터를 따로 복사해서 들고 있지 않는다).
   final WaterViewModel _waterViewModel;
   final WeightViewModel _weightViewModel;
+  final ExerciseViewModel _exerciseViewModel;
   final MealViewModel _mealViewModel;
   final RecordRepository<ExerciseLog> _exerciseRepo;
   final RecordRepository<MealLog> _mealRepo;
@@ -518,7 +532,7 @@ class AppState extends ChangeNotifier {
   /// 예시 기록을 비운다. 실제 계정은 자기 기록만 보여야 한다.
   void _clearSampleRecords() {
     _mealViewModel.clear();
-    _exerciseLogs.clear();
+    _exerciseViewModel.clear();
     _plantSaveTimer?.cancel();
     _plantSaveTimer = null;
     bowls = [];
@@ -688,9 +702,7 @@ class AppState extends ChangeNotifier {
     dateKey: _todayKey,
     meals: todayMeals,
     waterEntries: _waterViewModel.waterEntries,
-    exerciseLogs: _exerciseLogs
-        .where((e) => e.userId == _uid && e.dateKey == _todayKey)
-        .toList(),
+    exerciseLogs: _exerciseViewModel.exercisesOn(_todayKey),
     weightEntry: _todayWeightEntry,
   );
 
@@ -1275,9 +1287,7 @@ class AppState extends ChangeNotifier {
 
   Map<String, bool> get logged => {
     '식단': meals.isNotEmpty,
-    '운동': _exerciseLogs.any(
-      (e) => e.userId == _uid && e.dateKey == _selectedKey,
-    ),
+    '운동': _exerciseViewModel.exercisesOn(_selectedKey).isNotEmpty,
     '체중': _viewingToday && _weightViewModel.weightEntries.isNotEmpty,
     '물': _viewingToday && _waterViewModel.waterEntries.isNotEmpty,
   };
@@ -1320,7 +1330,7 @@ class AppState extends ChangeNotifier {
   bool hasRecordOn(DateTime date) {
     final key = dateKeyOf(date);
     return _mealViewModel.mealLogs.any((m) => m.dateKey == key) ||
-        _exerciseLogs.any((e) => e.dateKey == key) ||
+        _exerciseViewModel.exerciseLogs.any((e) => e.dateKey == key) ||
         _weightViewModel.weightEntries.any((w) => w.dateKey == key) ||
         _waterViewModel.waterEntries.any((w) => w.dateKey == key);
   }
@@ -1406,54 +1416,31 @@ class AppState extends ChangeNotifier {
   }
 
   // 운동
-  /// 운동 화면의 입력 상태입니다. 저장 전까지만 유지되는 Draft 모델입니다.
-  final ExerciseDraft exerciseDraft = ExerciseDraft();
+  //
+  // 입력값(Draft) · 저장된 운동 기록 · 칼로리 계산은 ExerciseViewModel이 맡는다.
+  // 화면이 예전처럼 s.exType 같은 이름으로 쓸 수 있게, 같은 이름의 getter/setter로 전달만 한다.
+  ExerciseDraft get exerciseDraft => _exerciseViewModel.exerciseDraft;
 
-  String get exType => exerciseDraft.type;
-  set exType(String value) => exerciseDraft.type = value;
+  String get exType => _exerciseViewModel.exType;
+  set exType(String value) => _exerciseViewModel.exType = value;
 
-  int get exMinutes => exerciseDraft.minutes;
-  set exMinutes(int value) => exerciseDraft.minutes = value;
+  int get exMinutes => _exerciseViewModel.exMinutes;
+  set exMinutes(int value) => _exerciseViewModel.exMinutes = value;
 
-  String get exIntensity => exerciseDraft.intensity.label;
-  set exIntensity(String value) => exerciseDraft.intensity = switch (value) {
-    '낮음' => ExerciseIntensity.low,
-    '높음' => ExerciseIntensity.high,
-    _ => ExerciseIntensity.moderate,
-  };
+  String get exIntensity => _exerciseViewModel.exIntensity;
+  set exIntensity(String value) => _exerciseViewModel.exIntensity = value;
 
-  bool get exTypeKnown =>
-      DietRules.exerciseTypeFactor.containsKey(exType.trim());
-
-  int get exKcal {
-    final f = DietRules.exerciseTypeFactor[exType.trim()] ?? 1.0;
-    final i = DietRules.exerciseIntensityFactor[exIntensity] ?? 8;
-    return (exMinutes * i * f).round();
-  }
-
-  /// 실제로 저장한 운동 기록 저장소.
-  final List<ExerciseLog> _exerciseLogs = [];
+  bool get exTypeKnown => _exerciseViewModel.exTypeKnown;
+  int get exKcal => _exerciseViewModel.exKcal;
 
   /// 홈 · 미션에서 쓰는, 고정된 오늘 날짜의 운동 시간 합계.
-  int get todayExerciseMinutes => _exerciseLogs
-      .where((e) => e.userId == _uid && e.dateKey == _todayKey)
-      .fold(0, (a, e) => a + e.minutes);
+  int get todayExerciseMinutes => _exerciseViewModel.minutesOn(_todayKey);
 
   /// 지금 입력값으로 실제 운동 기록을 저장한다.
   void logExercise() {
-    final log = ExerciseLog(
-      id: 'ex_${DateTime.now().microsecondsSinceEpoch}',
-      userId: _uid,
-      type: exType,
-      minutes: exMinutes,
-      intensity: exerciseDraft.intensity,
-      kcal: exKcal,
-      dateKey: _selectedKey,
-      time: _clockTime,
-    );
-    _exerciseLogs.add(log);
+    final log = _exerciseViewModel.logFromDraft(dateKey: _selectedKey);
+    _exerciseViewModel.addExercise(log); // 목록 추가 + 서버 저장은 ViewModel이 한다
     notifyListeners();
-    _saveRecord(_exerciseRepo, log, '운동 기록');
     _postActivity('$exType $exMinutes분 운동했어요');
     _reportChallengeProgress(ChallengeType.exercise, todayExerciseMinutes);
   }
@@ -1577,11 +1564,6 @@ class AppState extends ChangeNotifier {
 
   String get _uid => account?.uid ?? User.meId;
 
-  String get _clockTime {
-    final n = _now();
-    return '${n.hour.toString().padLeft(2, '0')}:${n.minute.toString().padLeft(2, '0')}';
-  }
-
   int get waterTotal => _waterViewModel.waterTotal;
   int get waterLeft => _waterViewModel.waterLeft;
   int get waterPct => _waterViewModel.waterPct;
@@ -1639,6 +1621,7 @@ class AppState extends ChangeNotifier {
 
   Future<void> _loadAccountData(String uid) async {
     _mealViewModel.uid = uid;
+    _exerciseViewModel.uid = uid;
     final prev = DateTime(today.year, today.month - 1, 1);
     await Future.wait([
       _waterViewModel.loadForUid(uid),
@@ -1718,9 +1701,8 @@ class AppState extends ChangeNotifier {
         '$key-01',
         '$key-31',
       );
-      final haveWorkouts = {for (final e in _exerciseLogs) e.id};
       _mealViewModel.mergeLoaded(meals);
-      _exerciseLogs.addAll(workouts.where((e) => !haveWorkouts.contains(e.id)));
+      _exerciseViewModel.mergeLoaded(workouts);
       _loadedMonths.add(key);
     } catch (e, stack) {
       debugPrint('$key 기록을 불러오지 못했어요: $e\n$stack');
@@ -2411,7 +2393,7 @@ class AppState extends ChangeNotifier {
 
   int _exerciseMinOn(DateTime d) {
     final key = dateKeyOf(d);
-    return _exerciseLogs
+    return _exerciseViewModel.exerciseLogs
         .where((e) => e.dateKey == key)
         .fold(0, (a, e) => a + e.minutes);
   }
