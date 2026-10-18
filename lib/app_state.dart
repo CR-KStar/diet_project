@@ -3,13 +3,13 @@
 // 화면 전환도 여기서 관리합니다 (Navigator 대신 screen 문자열).
 // 통합된 화면은 부모 screen + 서브 모드 플래그로 표현합니다.
 
-import 'dart:convert';
 import 'dart:math';
 import 'package:diet_project/ui/growth/viewmodel/plant_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/recommendation_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/bowl_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/exercise_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/meal_view_model.dart';
+import 'package:diet_project/ui/record/viewmodel/photo_analysis_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/routine_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/weight_view_model.dart';
 import 'package:diet_project/ui/social/viewmodel/challenge_view_model.dart';
@@ -109,6 +109,7 @@ class AppState extends ChangeNotifier {
     BowlViewModel? bowlViewModel,
     RoutineViewModel? routineViewModel,
     PlantViewModel? plantViewModel,
+    PhotoAnalysisViewModel? photoAnalysisViewModel,
     RecommendationViewModel? recommendationViewModel,
     FriendViewModel? friendViewModel,
     ChallengeViewModel? challengeViewModel,
@@ -122,6 +123,7 @@ class AppState extends ChangeNotifier {
     ChallengeRepository? challengeRepo,
     ActivityFeedRepository? activityFeedRepo,
     AiConsentStore? aiConsentStore,
+    MealAnalysisService? mealAnalysisService,
     MealRecommendationService? mealRecommendationService,
     DateTime Function()? now,
   }) : _aiConsentStore = aiConsentStore ?? MemoryAiConsentStore(),
@@ -167,6 +169,9 @@ class AppState extends ChangeNotifier {
              plantRepo: plantRepo ?? MemoryRecordRepository(plantCodec),
              dexRepo: dexRepo ?? MemoryRecordRepository(dexEntryCodec),
            ),
+       _photoAnalysisViewModel =
+           photoAnalysisViewModel ??
+           PhotoAnalysisViewModel(service: mealAnalysisService),
        _recommendationViewModel =
            recommendationViewModel ??
            RecommendationViewModel(service: mealRecommendationService),
@@ -209,6 +214,7 @@ class AppState extends ChangeNotifier {
     _plantViewModel
       ..onSyncFailed = showNotice
       ..addListener(notifyListeners);
+    _photoAnalysisViewModel.addListener(notifyListeners);
     _recommendationViewModel.addListener(notifyListeners);
     // 친구와 챌린지는 서로의 사람 정보를 쓰고, 내 닉네임은 AppState가 갖고 있다.
     _friendViewModel
@@ -236,6 +242,7 @@ class AppState extends ChangeNotifier {
   final BowlViewModel _bowlViewModel;
   final RoutineViewModel _routineViewModel;
   final PlantViewModel _plantViewModel;
+  final PhotoAnalysisViewModel _photoAnalysisViewModel;
   final RecommendationViewModel _recommendationViewModel;
   final FriendViewModel _friendViewModel;
   final ChallengeViewModel _challengeViewModel;
@@ -1130,9 +1137,8 @@ class AppState extends ChangeNotifier {
       : (DietRules.portionRatio[portion] ?? 1.0);
 
   /// AI가 사진만 보고 추정한 기본 칼로리 (부가 정보 반영 전)
-  int get baseKcal => _aiKcal ?? 450;
+  int get baseKcal => _photoAnalysisViewModel.baseKcal;
 
-  final MealAnalysisService _mealAnalysisService = MealAnalysisService();
   final AppIconService _appIconService = AppIconService();
   final NotificationService _notificationService = NotificationService();
 
@@ -1168,22 +1174,23 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  bool analyzingPhoto = false;
-  String? photoAnalysisError;
+  // 사진 분석 — 사진 고르기 · AI 분석 · 분석 결과는 PhotoAnalysisViewModel이 맡는다.
+  // 화면이 예전처럼 s.aiMealName 같은 이름으로 쓸 수 있게, 같은 이름으로 전달만 한다.
+  bool get analyzingPhoto => _photoAnalysisViewModel.analyzingPhoto;
+  String? get photoAnalysisError => _photoAnalysisViewModel.photoAnalysisError;
 
   /// 방금 찍거나 고른 사진 원본 — 화면에 실제로 보여주는 용도.
-  Uint8List? pickedPhotoBytes;
-  String? aiMealName;
-  int? _aiKcal;
-  double? aiProteinG;
-  double? aiCarbG;
-  double? aiFatG;
-  double? aiFiberG;
-  double? aiSodiumMg;
-  double? aiSugarG;
-  double? aiCalciumMg;
-  double? aiIronMg;
-  bool needsPhotoReview = false;
+  Uint8List? get pickedPhotoBytes => _photoAnalysisViewModel.pickedPhotoBytes;
+  String? get aiMealName => _photoAnalysisViewModel.aiMealName;
+  double? get aiProteinG => _photoAnalysisViewModel.aiProteinG;
+  double? get aiCarbG => _photoAnalysisViewModel.aiCarbG;
+  double? get aiFatG => _photoAnalysisViewModel.aiFatG;
+  double? get aiFiberG => _photoAnalysisViewModel.aiFiberG;
+  double? get aiSodiumMg => _photoAnalysisViewModel.aiSodiumMg;
+  double? get aiSugarG => _photoAnalysisViewModel.aiSugarG;
+  double? get aiCalciumMg => _photoAnalysisViewModel.aiCalciumMg;
+  double? get aiIronMg => _photoAnalysisViewModel.aiIronMg;
+  bool get needsPhotoReview => _photoAnalysisViewModel.needsPhotoReview;
 
   // 외부 AI로 데이터를 보내는 기능(사진 분석 · 식단 추천)을 쓰기 전에 받는 동의.
   final AiConsentStore _aiConsentStore;
@@ -1200,46 +1207,9 @@ class AppState extends ChangeNotifier {
     await _aiConsentStore.write(value);
   }
 
-  /// 사진을 고르고 즉시 AI 분석을 요청한다.
-  Future<void> pickAndAnalyzeMealPhoto(ImageSource source) async {
-    final picker = ImagePicker();
-    final photo = await picker.pickImage(source: source, imageQuality: 70);
-    if (photo == null) return;
-
-    analyzingPhoto = true;
-    photoAnalysisError = null;
-    notifyListeners();
-
-    try {
-      final bytes = await photo.readAsBytes();
-      pickedPhotoBytes = bytes;
-      final result = await _mealAnalysisService.analyze(
-        imageBase64: base64Encode(bytes),
-        mediaType: photo.mimeType ?? 'image/jpeg',
-        bowl: currentBowl == null
-            ? null
-            : (name: currentBowl!.name, capacityMl: currentBowl!.capacityMl),
-      );
-
-      aiMealName = result.name;
-      _aiKcal = result.kcal;
-      aiProteinG = result.proteinG;
-      aiCarbG = result.carbG;
-      aiFatG = result.fatG;
-      aiFiberG = result.fiberG;
-      aiSodiumMg = result.sodiumMg;
-      aiSugarG = result.sugarG;
-      aiCalciumMg = result.calciumMg;
-      aiIronMg = result.ironMg;
-      needsPhotoReview = result.needsReview;
-    } catch (e) {
-      photoAnalysisError = '사진 분석에 실패했어요. 다시 시도해주세요.';
-      debugPrint('사진 분석 실패: $e');
-    } finally {
-      analyzingPhoto = false;
-      notifyListeners();
-    }
-  }
+  /// 사진을 고르고 즉시 AI 분석을 요청한다 (지금 고른 그릇을 함께 알려 준다).
+  Future<void> pickAndAnalyzeMealPhoto(ImageSource source) =>
+      _photoAnalysisViewModel.pickAndAnalyze(source, bowl: currentBowl);
 
   /// 지금 선택된 그릇 — 등록한 그릇이 하나도 없으면 null (그릇 없이도 기록할 수 있다).
   Bowl? get currentBowl => _bowlViewModel.currentBowl;
@@ -1441,18 +1411,7 @@ class AppState extends ChangeNotifier {
     _mealViewModel.addMeal(log); // 목록 추가 + 서버 저장은 ViewModel이 한다
     // 이번 분석 결과는 이 기록에 다 썼다 — 다음 끼니를 새 사진 없이 저장하면
     // 방금 분석값을 재사용하지 않고 0(분석 안 함)으로 시작하게 비워준다.
-    pickedPhotoBytes = null;
-    aiMealName = null;
-    _aiKcal = null;
-    aiProteinG = null;
-    aiCarbG = null;
-    aiFatG = null;
-    aiFiberG = null;
-    aiSodiumMg = null;
-    aiSugarG = null;
-    aiCalciumMg = null;
-    aiIronMg = null;
-    needsPhotoReview = false;
+    _photoAnalysisViewModel.reset();
     notifyListeners();
     _friendViewModel.postActivity('${log.mealType.label} 식단을 기록했어요');
     _challengeViewModel.reportProgress(

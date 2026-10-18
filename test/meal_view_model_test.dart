@@ -42,9 +42,8 @@ void main() {
       expect(vm.mealsOn('2026-10-11'), isEmpty); // 7일 전부터는 없다
     });
 
-    test('예시 점심 이름은 사진 분석 결과와 무관하게 고정이다', () {
+    test('예시 점심 이름은 고정이다', () {
       final vm = build();
-      vm.aiMealName = '비빔밥'; // 분석 결과가 있어도
       final lunch = vm.todayMeals.firstWhere((m) => m.id == 'meal_seed_lunch');
       expect(lunch.name, '현미밥 · 닭가슴살 도시락');
     });
