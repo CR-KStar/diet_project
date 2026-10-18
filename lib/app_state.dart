@@ -7,6 +7,7 @@ import 'package:diet_project/ui/growth/viewmodel/plant_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/mission_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/recommendation_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/today_summary.dart';
+import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/bowl_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/exercise_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/meal_view_model.dart';
@@ -56,6 +57,7 @@ class AppState extends ChangeNotifier {
     BowlViewModel? bowlViewModel,
     RoutineViewModel? routineViewModel,
     PlantViewModel? plantViewModel,
+    ProfileViewModel? profileViewModel,
     PhotoAnalysisViewModel? photoAnalysisViewModel,
     RecommendationViewModel? recommendationViewModel,
     FriendViewModel? friendViewModel,
@@ -75,7 +77,9 @@ class AppState extends ChangeNotifier {
     DateTime Function()? now,
   }) : _aiConsentStore = aiConsentStore ?? MemoryAiConsentStore(),
        _auth = auth ?? MockAuthService(),
-       _profiles = profiles ?? MemoryProfileRepository(),
+       _profileViewModel =
+           profileViewModel ??
+           ProfileViewModel(profiles: profiles ?? MemoryProfileRepository()),
        _waterViewModel =
            waterViewModel ??
            WaterViewModel(waterRepo: MemoryWaterRepository(), now: now),
@@ -161,6 +165,9 @@ class AppState extends ChangeNotifier {
     _plantViewModel
       ..onSyncFailed = showNotice
       ..addListener(notifyListeners);
+    _profileViewModel
+      ..onSyncFailed = showNotice
+      ..addListener(notifyListeners);
     _photoAnalysisViewModel.addListener(notifyListeners);
     _recommendationViewModel.addListener(notifyListeners);
     // 친구와 챌린지는 서로의 사람 정보를 쓰고, 내 닉네임은 AppState가 갖고 있다.
@@ -175,7 +182,7 @@ class AppState extends ChangeNotifier {
   }
 
   final AuthService _auth;
-  final ProfileRepository _profiles;
+  final ProfileViewModel _profileViewModel;
 
   /// 물 기록은 이제 이 화면 전용 ViewModel이 갖고 있다 — AppState는 연속
   /// 기록 계산 · 오늘의 기록 요약 · 미션 진행도 계산에 필요할 때만 이걸
@@ -382,10 +389,15 @@ class AppState extends ChangeNotifier {
 
   // 인증 · 온보딩
   String provider = 'Google';
-  String nickname = '새싹';
 
-  /// 로그인한 계정 (로그인 전에는 null)
-  AuthAccount? account;
+  /// 로그인한 계정 (로그인 전에는 null). 바뀌면 내 정보 저장 대상도 함께 바뀐다.
+  AuthAccount? get account => _account;
+  set account(AuthAccount? value) {
+    _account = value;
+    _profileViewModel.uid = value?.uid;
+  }
+
+  AuthAccount? _account;
 
   /// 로그인 버튼 중복 탭 방지.
   bool signingIn = false;
@@ -433,11 +445,9 @@ class AppState extends ChangeNotifier {
       return;
     }
     go('signup'); // 온보딩 1단계 (이때 step이 1로 초기화된다)
-    step = _resumeStep;
+    step = _profileViewModel.resumeStep;
     notifyListeners();
   }
-
-  int _resumeStep = 1;
 
   /// 화면 밖 안내 문구(저장 실패, 로그아웃 등) — main.dart가 스낵바로 보여주고 비운다.
   String? _notice;
@@ -452,58 +462,20 @@ class AppState extends ChangeNotifier {
   Future<void> goToStep(int next) async {
     step = next;
     notifyListeners();
-    await _persistInBackground();
+    await _profileViewModel.persistAndReport();
   }
-
-  Future<void> _persistInBackground() async {
-    if (!await _persist()) {
-      _notice = authError;
-      authError = null;
-      notifyListeners();
-    }
-  }
-
-  bool onboardingDone = false;
 
   /// 로그인한 계정의 저장된 프로필을 불러와 반영한다. 없으면 계정 이름을 닉네임으로 쓴다.
   Future<bool> _enter(AuthAccount a) async {
     try {
-      final saved = await _profiles.load(a.uid);
+      // 웹 체험판(로그인 없는 데모)은 온보딩 없이 바로 홈의 예시 데이터를 보여준다.
+      await _profileViewModel.loadFor(
+        a,
+        skipOnboardingForNewAccount: kIsWeb && _isDemo,
+      );
       account = a;
       provider = a.provider.label;
       if (!_isDemo) _clearSampleRecords();
-      if (saved != null) {
-        onboardingDone = saved.onboardingDone;
-        _resumeStep = saved.onboardingStep;
-        profile = saved.profile;
-        notificationSettings
-          ..mealReminder = saved.notifications.mealReminder
-          ..waterReminder = saved.notifications.waterReminder
-          ..exerciseReminder = saved.notifications.exerciseReminder
-          ..friendActivity = saved.notifications.friendActivity
-          ..morningAlertTime = saved.notifications.morningAlertTime
-          ..eveningAlertTime = saved.notifications.eveningAlertTime
-          ..weeklyReportTime = saved.notifications.weeklyReportTime;
-        privacySettings
-          ..scope = saved.privacy.scope
-          ..shareGarden = saved.privacy.shareGarden
-          ..shareStreak = saved.privacy.shareStreak
-          ..shareWeightTrend = saved.privacy.shareWeightTrend
-          ..shareMealPhotos = saved.privacy.shareMealPhotos
-          ..shareChallengeRank = saved.privacy.shareChallengeRank;
-        if (saved.terms.isNotEmpty) {
-          for (final e in saved.terms.entries) {
-            if (terms.containsKey(e.key)) terms[e.key] = e.value;
-          }
-        }
-        if (saved.nickname.isNotEmpty) nickname = saved.nickname;
-      } else {
-        // 웹 체험판(로그인 없는 데모)은 온보딩 없이 바로 홈의 예시 데이터를 보여준다.
-        onboardingDone = kIsWeb && _isDemo;
-        _resumeStep = 1;
-        final name = a.displayName?.trim();
-        if (name != null && name.isNotEmpty) nickname = name;
-      }
       if (!_isDemo) await _loadAccountData(a.uid);
       unawaited(_applyNotificationSchedule());
       unawaited(_appIconService.setFilled(todayMeals.isNotEmpty));
@@ -531,29 +503,9 @@ class AppState extends ChangeNotifier {
   Future<bool> saveProfile() => _persist();
 
   Future<bool> _persist() async {
-    final a = account;
-    if (a == null) return true;
-    try {
-      await _profiles
-          .save(
-            a.uid,
-            SavedProfile(
-              nickname: nickname,
-              onboardingDone: onboardingDone,
-              onboardingStep: step.clamp(1, 4),
-              profile: profile,
-              notifications: notificationSettings,
-              privacy: privacySettings,
-              terms: terms,
-            ),
-          )
-          .timeout(const Duration(seconds: 10));
-      return true;
-    } catch (e, stack) {
-      debugPrint('프로필을 저장하지 못했어요: $e\n$stack');
-      authError = '내 정보를 저장하지 못했어요. 네트워크를 확인하고 다시 시도해 주세요.';
-      return false;
-    }
+    if (await _profileViewModel.persist()) return true;
+    authError = _profileViewModel.saveError;
+    return false;
   }
 
   /// 가짜 로그인(Mock)일 때만 true — 이때는 예시 기록을 그대로 보여준다.
@@ -581,16 +533,7 @@ class AppState extends ChangeNotifier {
     _plantViewModel.uid = null;
     _friendViewModel.uid = null;
     _challengeViewModel.uid = null;
-    onboardingDone = false;
-    _resumeStep = 1;
-    nickname = '';
-    step = 1;
-    profile = UserProfile(userId: User.meId);
-    notificationSettings
-      ..mealReminder = true
-      ..waterReminder = true
-      ..exerciseReminder = false
-      ..friendActivity = true;
+    _profileViewModel.reset();
   }
 
   Future<void> signOut() async {
@@ -630,34 +573,26 @@ class AppState extends ChangeNotifier {
 
   /// 계정 삭제가 진행 중인 동안 true — 버튼 중복 탭을 막는다.
   bool deleting = false;
-  int step = 1; // 1 계정연결 / 2 목표 / 3 신체 / 4 알림
+  // 내 정보 — 닉네임 · 신체 정보와 목표 · 약관 · 알림 · 공개 범위 · 온보딩 진행 상황은
+  // ProfileViewModel이 맡는다. 화면이 예전처럼 s.nickname 같은 이름으로 쓸 수 있게,
+  // 같은 이름으로 전달만 한다.
+  String get nickname => _profileViewModel.nickname;
+  set nickname(String value) => _profileViewModel.nickname = value;
 
-  final Map<String, bool> terms = {
-    '(필수) 서비스 이용약관': true,
-    '(필수) 개인정보 처리방침': true,
-    '(필수) 민감 건강정보 수집·이용 동의': false,
-    '(선택) 마케팅 정보 수신': false,
-  };
+  /// 1 계정연결 / 2 목표 / 3 신체 / 4 알림
+  int get step => _profileViewModel.step;
+  set step(int value) => _profileViewModel.step = value;
 
-  bool get requiredTermsOk =>
-      terms.entries.where((e) => e.key.contains('필수')).every((e) => e.value);
+  bool get onboardingDone => _profileViewModel.onboardingDone;
+  set onboardingDone(bool value) => _profileViewModel.onboardingDone = value;
 
-  void toggleTerm(String k) {
-    terms[k] = !(terms[k] ?? false);
-    notifyListeners();
-    unawaited(_persistInBackground());
-  }
+  Map<String, bool> get terms => _profileViewModel.terms;
+  bool get requiredTermsOk => _profileViewModel.requiredTermsOk;
+  void toggleTerm(String k) => _profileViewModel.toggleTerm(k);
+  void toggleAllTerms() => _profileViewModel.toggleAllTerms();
 
-  void toggleAllTerms() {
-    final all = terms.values.every((v) => v);
-    for (final k in terms.keys) {
-      terms[k] = !all;
-    }
-    notifyListeners();
-    unawaited(_persistInBackground());
-  }
-
-  UserProfile profile = UserProfile(userId: User.meId);
+  UserProfile get profile => _profileViewModel.profile;
+  set profile(UserProfile value) => _profileViewModel.profile = value;
 
   String get goal => profile.goal;
   set goal(String v) => profile.goal = v;
@@ -680,38 +615,11 @@ class AppState extends ChangeNotifier {
   double get goalWeight => profile.goalWeight;
   set goalWeight(double v) => profile.goalWeight = v;
 
-  /// 알림 화면과 온보딩이 함께 쓰는 사용자 알림 설정입니다.
-  final NotificationSettings notificationSettings = NotificationSettings(
-    userId: User.meId,
-  );
-
-  Map<String, bool> get onboardAlerts => {
-    '식단 미기록 알림': notificationSettings.mealReminder,
-    '물 마시기 알림': notificationSettings.waterReminder,
-    '운동 리마인드': notificationSettings.exerciseReminder,
-    '친구 응원 알림': notificationSettings.friendActivity,
-  };
-
-  void toggleOnboardAlert(String label) {
-    switch (label) {
-      case '식단 미기록 알림':
-        notificationSettings.mealReminder = !notificationSettings.mealReminder;
-        break;
-      case '물 마시기 알림':
-        notificationSettings.waterReminder =
-            !notificationSettings.waterReminder;
-        break;
-      case '운동 리마인드':
-        notificationSettings.exerciseReminder =
-            !notificationSettings.exerciseReminder;
-        break;
-      case '친구 응원 알림':
-        notificationSettings.friendActivity =
-            !notificationSettings.friendActivity;
-        break;
-    }
-    notifyListeners();
-  }
+  NotificationSettings get notificationSettings =>
+      _profileViewModel.notificationSettings;
+  Map<String, bool> get onboardAlerts => _profileViewModel.onboardAlerts;
+  void toggleOnboardAlert(String label) =>
+      _profileViewModel.toggleOnboardAlert(label);
 
   double get bmi => profile.bmi;
   double get bmr => profile.bmr;
@@ -1244,8 +1152,7 @@ class AppState extends ChangeNotifier {
       _weightViewModel.latestWeightKg ?? profile.weightKg;
 
   void onWeightLogged(double kg) {
-    profile.weightKg = kg;
-    unawaited(_persistInBackground());
+    _profileViewModel.onWeightLogged(kg);
   }
 
   // 물
@@ -1339,7 +1246,7 @@ class AppState extends ChangeNotifier {
       _friendViewModel.deleteAll(uid),
       _challengeViewModel.deleteAll(uid),
     ]).timeout(limit);
-    await _profiles.delete(uid).timeout(limit);
+    await _profileViewModel.deleteProfile(uid).timeout(limit);
   }
 
   // 그릇
@@ -1618,128 +1525,39 @@ class AppState extends ChangeNotifier {
     return saving;
   }
 
-  final PrivacySettings privacySettings = PrivacySettings(userId: User.meId);
+  // 친구에게 보이는 공개 범위 — ProfileViewModel이 맡는다.
+  PrivacySettings get privacySettings => _profileViewModel.privacySettings;
+  String get shareScope => _profileViewModel.shareScope;
+  set shareScope(String value) => _profileViewModel.shareScope = value;
+  void setShareScope(String s) => _profileViewModel.setShareScope(s);
 
-  String get shareScope => privacySettings.scope.label;
-  set shareScope(String value) => privacySettings.scope = value == '비공개'
-      ? ShareScope.private
-      : ShareScope.friends;
+  static const friendVisibilityDesc = ProfileViewModel.friendVisibilityDesc;
+  Map<String, bool> get friendVisibility => _profileViewModel.friendVisibility;
+  void toggleFriendVisibility(String k) =>
+      _profileViewModel.toggleFriendVisibility(k);
+  String get friendVisibilitySummary =>
+      _profileViewModel.friendVisibilitySummary;
+  bool get gardenPublic => _profileViewModel.gardenPublic;
+  void toggleGardenPublic() => _profileViewModel.toggleGardenPublic();
 
   void setFriendTab(String t) {
     friendTab = t;
     notifyListeners();
   }
 
-  void setShareScope(String s) {
-    shareScope = s;
-    notifyListeners();
-    unawaited(_persistInBackground());
-  }
-
-  static const friendVisibilityDesc = {
-    '식물 · 정원': '단계 · 변이 · 도감 수집률',
-    '연속 기록 · 스트릭': '며칠 연속 기록했는지',
-    '체중 변화': '증감 추세만 (실제 수치 제외)',
-    '식단 사진': '기록한 음식 사진',
-    '챌린지 순위': '참여 챌린지의 내 순위',
-  };
-
-  Map<String, bool> get friendVisibility => {
-    '식물 · 정원': privacySettings.shareGarden,
-    '연속 기록 · 스트릭': privacySettings.shareStreak,
-    '체중 변화': privacySettings.shareWeightTrend,
-    '식단 사진': privacySettings.shareMealPhotos,
-    '챌린지 순위': privacySettings.shareChallengeRank,
-  };
-
-  void toggleFriendVisibility(String k) {
-    switch (k) {
-      case '식물 · 정원':
-        privacySettings.shareGarden = !privacySettings.shareGarden;
-        break;
-      case '연속 기록 · 스트릭':
-        privacySettings.shareStreak = !privacySettings.shareStreak;
-        break;
-      case '체중 변화':
-        privacySettings.shareWeightTrend = !privacySettings.shareWeightTrend;
-        break;
-      case '식단 사진':
-        privacySettings.shareMealPhotos = !privacySettings.shareMealPhotos;
-        break;
-      case '챌린지 순위':
-        privacySettings.shareChallengeRank =
-            !privacySettings.shareChallengeRank;
-        break;
-    }
-    notifyListeners();
-    unawaited(_persistInBackground());
-  }
-
-  String get friendVisibilitySummary {
-    final on = friendVisibility.entries
-        .where((e) => e.value)
-        .map((e) => e.key)
-        .toList();
-    return on.isEmpty
-        ? '$shareScope · 공개 항목 없음'
-        : '$shareScope · 공개 항목 ${on.length}개 — ${on.join(', ')}';
-  }
-
-  bool get gardenPublic => privacySettings.shareGarden;
-
-  void toggleGardenPublic() {
-    privacySettings.shareGarden = !privacySettings.shareGarden;
-    notifyListeners();
-    unawaited(_persistInBackground());
-  }
-
   // 설정
   //
-  // 여기 보이는 토글 · 시간은 새 상태가 아니라, 이미 계정에 저장되고 있는
-  // notificationSettings를 화면이 읽기 쉬운 한글 키로 보여주는 것뿐이다.
-  Map<String, bool> get notifyToggles => {
-    '식단 미기록 알림': notificationSettings.mealReminder,
-    '물 마시기 알림': notificationSettings.waterReminder,
-    '운동 리마인드': notificationSettings.exerciseReminder,
-    '친구 응원 알림': notificationSettings.friendActivity,
-  };
-
-  Map<String, String> get alertTime => {
-    '아침 기록 알림': notificationSettings.morningAlertTime,
-    '저녁 정리 알림': notificationSettings.eveningAlertTime,
-    '주간 리포트': notificationSettings.weeklyReportTime,
-  };
+  // 알림 토글 · 시간은 ProfileViewModel이 저장하고, 바뀌면 기기 알림 예약을 다시 한다.
+  Map<String, bool> get notifyToggles => _profileViewModel.notifyToggles;
+  Map<String, String> get alertTime => _profileViewModel.alertTime;
 
   void toggleNotify(String k) {
-    switch (k) {
-      case '식단 미기록 알림':
-        notificationSettings.mealReminder = !notificationSettings.mealReminder;
-      case '물 마시기 알림':
-        notificationSettings.waterReminder =
-            !notificationSettings.waterReminder;
-      case '운동 리마인드':
-        notificationSettings.exerciseReminder =
-            !notificationSettings.exerciseReminder;
-      case '친구 응원 알림':
-        notificationSettings.friendActivity =
-            !notificationSettings.friendActivity;
-    }
-    notifyListeners();
-    unawaited(_persistInBackground());
+    _profileViewModel.toggleNotify(k);
     unawaited(_applyNotificationSchedule());
   }
 
   void setAlertTime(String key, String value) {
-    switch (key) {
-      case '아침 기록 알림':
-        notificationSettings.morningAlertTime = value;
-      case '저녁 정리 알림':
-        notificationSettings.eveningAlertTime = value;
-      case '주간 리포트':
-        notificationSettings.weeklyReportTime = value;
-    }
-    notifyListeners();
-    unawaited(_persistInBackground());
+    _profileViewModel.setAlertTime(key, value);
     unawaited(_applyNotificationSchedule());
   }
 
