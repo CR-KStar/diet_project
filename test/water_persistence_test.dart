@@ -2,12 +2,14 @@ import 'package:diet_project/app_shell.dart';
 import 'package:diet_project/app_providers.dart';
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/data/auth/auth_service.dart';
-import 'package:diet_project/data/repositories/profile_repository.dart';
-import 'package:diet_project/data/repositories/water_repository.dart';
 import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:diet_project/data/repositories/impl/memory_profile_repository.dart';
+import 'package:diet_project/data/repositories/impl/memory_water_repository.dart';
+import 'package:diet_project/domain/repositories/water_repository.dart';
+import 'package:diet_project/data/repositories/water_codec.dart';
 
 const _account = AuthAccount(
   uid: 'uid_1',

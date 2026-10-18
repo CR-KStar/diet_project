@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:diet_project/domain/models/models.dart';
 
-import 'challenge_repository.dart';
 import 'firestore_delete_where.dart';
+import 'package:diet_project/domain/repositories/challenge_repository.dart';
 
 /// 챌린지를 Firestore 최상위 `challenges` 컬렉션에 저장하는 저장소.
 ///

@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:diet_project/domain/models/models.dart';
 
-import 'activity_feed_repository.dart';
 import 'firestore_delete_where.dart';
+import 'package:diet_project/domain/repositories/activity_feed_repository.dart';
 
 /// 활동 피드를 Firestore 최상위 `activityFeed` 컬렉션에 저장하는 저장소.
 class FirestoreActivityFeedRepository implements ActivityFeedRepository {

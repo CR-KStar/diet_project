@@ -1,7 +1,9 @@
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/data/auth/auth_service.dart';
-import 'package:diet_project/data/repositories/profile_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:diet_project/data/repositories/impl/memory_profile_repository.dart';
+import 'package:diet_project/domain/repositories/profile_repository.dart';
+import 'package:diet_project/data/repositories/profile_codec.dart';
 
 const _account = AuthAccount(
   uid: 'uid_1',
@@ -80,8 +82,8 @@ SavedProfile _saved({required bool onboardingDone, String nickname = '저장된�
 void main() {
   group('SavedProfile 저장 형식', () {
     test('저장했다가 복원하면 같은 값이 나온다', () {
-      final restored = SavedProfile.fromMap(
-        _saved(onboardingDone: true).toMap(),
+      final restored = ProfileCodec.fromMap(
+        ProfileCodec.toMap(_saved(onboardingDone: true)),
         userId: 'uid_1',
       );
 
@@ -99,7 +101,7 @@ void main() {
     });
 
     test('값이 비어 있거나 알 수 없어도 기본값으로 복원한다', () {
-      final restored = SavedProfile.fromMap({
+      final restored = ProfileCodec.fromMap({
         'nickname': 123,
         'profile': {'goal': '없는목표', 'heightCm': '문자열'},
         'notifications': {'meal': 'yes'},

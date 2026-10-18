@@ -1,8 +1,9 @@
-import 'package:diet_project/data/repositories/activity_feed_repository.dart';
-import 'package:diet_project/data/repositories/friend_repository.dart';
 import 'package:diet_project/domain/models/models.dart';
 import 'package:diet_project/ui/social/viewmodel/friend_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:diet_project/data/repositories/impl/memory_activity_feed_repository.dart';
+import 'package:diet_project/data/repositories/impl/memory_friend_repository.dart';
+import 'package:diet_project/domain/repositories/friend_repository.dart';
 
 /// 불러오기를 실패시킬 수 있는 친구 저장소.
 class _FailingFriendRepo extends MemoryFriendRepository {

@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:diet_project/data/repositories/record_repository.dart';
 import 'package:diet_project/domain/models/models.dart';
 import 'package:diet_project/domain/rules/diet_rules.dart';
 import 'package:flutter/foundation.dart';
+import 'package:diet_project/domain/repositories/record_repository.dart';
 
 /// 내 그릇 목록과 그릇 추가·수정 화면의 입력 상태를 담당한다.
 ///

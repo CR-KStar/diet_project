@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:diet_project/data/repositories/activity_feed_repository.dart';
-import 'package:diet_project/data/repositories/friend_repository.dart';
 import 'package:diet_project/domain/models/models.dart';
 import 'package:flutter/foundation.dart';
+import 'package:diet_project/domain/repositories/activity_feed_repository.dart';
+import 'package:diet_project/domain/repositories/friend_repository.dart';
 
 /// 친구 목록 · 친구 요청 · 초대 코드 검색 · 친구 활동 피드를 담당한다.
 ///

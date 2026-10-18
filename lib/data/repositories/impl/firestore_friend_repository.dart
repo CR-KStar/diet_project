@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:diet_project/domain/models/models.dart';
 
 import 'firestore_delete_where.dart';
-import 'friend_repository.dart';
+import 'package:diet_project/domain/repositories/friend_repository.dart';
 
 /// 초대 코드 · 친구 요청 · 친구 관계를 Firestore에 저장하고 불러오는 저장소.
 ///

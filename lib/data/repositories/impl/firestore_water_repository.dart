@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:diet_project/domain/models/models.dart';
-
-import 'water_repository.dart';
+import 'package:diet_project/domain/repositories/water_repository.dart';
+import 'package:diet_project/data/repositories/water_codec.dart';
 
 /// Firestore의 `users/{uid}/water/{기록 id}` 문서에 물 기록을 저장하는 저장소.
 class FirestoreWaterRepository implements WaterRepository {

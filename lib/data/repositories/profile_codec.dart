@@ -1,64 +1,56 @@
 import 'package:diet_project/domain/models/models.dart';
 
-/// 계정 하나에 저장해 두는 프로필 묶음.
-class SavedProfile {
-  const SavedProfile({
-    required this.nickname,
-    required this.onboardingDone,
-    required this.profile,
-    required this.notifications,
-    required this.privacy,
-    this.onboardingStep = 1,
-    this.terms = const {},
-  });
-
-  final String nickname;
-  final bool onboardingDone;
-
-  /// 온보딩 도중에 나갔을 때 이어서 시작할 단계 (1~4).
-  final int onboardingStep;
-  final UserProfile profile;
-  final NotificationSettings notifications;
-  final PrivacySettings privacy;
-
-  /// 약관 동의 상태 — 키는 화면에 보이는 약관 이름 그대로.
-  final Map<String, bool> terms;
-
+/// 프로필 묶음(SavedProfile)을 저장소에 넣는 모양(Map)으로 바꾸고 되돌린다.
+///
+/// 목표 · 활동량 · 성별은 label 대신 enum 이름으로 저장한다. 저장 모양은 데이터 쪽 일이라
+/// 도메인 모델(SavedProfile)에는 두지 않는다.
+abstract final class ProfileCodec {
   /// 목표 · 활동량 · 성별은 label 대신 enum 이름으로 저장한다.
-  Map<String, Object?> toMap() => {
-    'nickname': nickname,
-    'onboardingDone': onboardingDone,
-    'onboardingStep': onboardingStep,
-    'profile': {
-      'goal': profile.goalType.name,
-      'activity': profile.activityLevel.name,
-      'gender': profile.genderType.name,
-      'heightCm': profile.heightCm,
-      'weightKg': profile.weightKg,
-      'age': profile.age,
-      'goalWeight': profile.goalWeight,
-    },
-    'notifications': {
-      'meal': notifications.mealReminder,
-      'water': notifications.waterReminder,
-      'exercise': notifications.exerciseReminder,
-      'friendActivity': notifications.friendActivity,
-      'morningAlertTime': notifications.morningAlertTime,
-      'eveningAlertTime': notifications.eveningAlertTime,
-      'weeklyReportTime': notifications.weeklyReportTime,
-    },
-    'privacy': {
-      'scope': privacy.scope.name,
-      'shareGarden': privacy.shareGarden,
-      'shareStreak': privacy.shareStreak,
-      'shareWeightTrend': privacy.shareWeightTrend,
-      'shareMealPhotos': privacy.shareMealPhotos,
-      'shareChallengeRank': privacy.shareChallengeRank,
-    },
-    'terms': terms,
-  };
+  static Map<String, Object?> toMap(SavedProfile saved) {
+    final SavedProfile(
+      :nickname,
+      :onboardingDone,
+      :onboardingStep,
+      :profile,
+      :notifications,
+      :privacy,
+      :terms,
+    ) = saved;
+    return {
+      'nickname': nickname,
+      'onboardingDone': onboardingDone,
+      'onboardingStep': onboardingStep,
+      'profile': {
+        'goal': profile.goalType.name,
+        'activity': profile.activityLevel.name,
+        'gender': profile.genderType.name,
+        'heightCm': profile.heightCm,
+        'weightKg': profile.weightKg,
+        'age': profile.age,
+        'goalWeight': profile.goalWeight,
+      },
+      'notifications': {
+        'meal': notifications.mealReminder,
+        'water': notifications.waterReminder,
+        'exercise': notifications.exerciseReminder,
+        'friendActivity': notifications.friendActivity,
+        'morningAlertTime': notifications.morningAlertTime,
+        'eveningAlertTime': notifications.eveningAlertTime,
+        'weeklyReportTime': notifications.weeklyReportTime,
+      },
+      'privacy': {
+        'scope': privacy.scope.name,
+        'shareGarden': privacy.shareGarden,
+        'shareStreak': privacy.shareStreak,
+        'shareWeightTrend': privacy.shareWeightTrend,
+        'shareMealPhotos': privacy.shareMealPhotos,
+        'shareChallengeRank': privacy.shareChallengeRank,
+      },
+      'terms': terms,
+    };
+  }
 
-  factory SavedProfile.fromMap(
+  static SavedProfile fromMap(
     Map<String, Object?> map, {
     required String userId,
   }) {
@@ -131,35 +123,4 @@ class SavedProfile {
   static bool? _bool(Object? value) => value is bool ? value : null;
 
   static String? _str(Object? value) => value is String ? value : null;
-}
-
-/// 계정별 프로필을 저장하고 불러오는 저장소.
-abstract class ProfileRepository {
-  /// 저장된 프로필이 없으면(처음 가입) null.
-  Future<SavedProfile?> load(String uid);
-
-  Future<void> save(String uid, SavedProfile profile);
-
-  Future<void> delete(String uid);
-}
-
-/// Firebase 없이 메모리에만 저장하는 버전 — 테스트용.
-class MemoryProfileRepository implements ProfileRepository {
-  final Map<String, Map<String, Object?>> _store = {};
-
-  @override
-  Future<SavedProfile?> load(String uid) async {
-    final map = _store[uid];
-    return map == null ? null : SavedProfile.fromMap(map, userId: uid);
-  }
-
-  @override
-  Future<void> save(String uid, SavedProfile profile) async {
-    _store[uid] = profile.toMap();
-  }
-
-  @override
-  Future<void> delete(String uid) async {
-    _store.remove(uid);
-  }
 }

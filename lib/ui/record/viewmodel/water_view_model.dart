@@ -1,7 +1,7 @@
-import 'package:diet_project/data/repositories/water_repository.dart';
 import 'package:diet_project/domain/models/models.dart';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:diet_project/domain/repositories/water_repository.dart';
 
 class WaterViewModel extends ChangeNotifier {
   WaterViewModel({required WaterRepository waterRepo, DateTime Function()? now})

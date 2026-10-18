@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-import 'record_repository.dart';
+import 'package:diet_project/data/repositories/record_codec.dart';
+import 'package:diet_project/domain/repositories/record_repository.dart';
 
 /// Firestore의 `users/{uid}/{collection}/{문서 id}`에 기록을 저장하는 공통 저장소.
 class FirestoreRecordRepository<T> implements RecordRepository<T> {

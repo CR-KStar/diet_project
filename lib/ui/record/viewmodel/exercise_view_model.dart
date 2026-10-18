@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:diet_project/data/repositories/record_repository.dart';
 import 'package:diet_project/domain/models/models.dart';
 import 'package:diet_project/domain/rules/diet_rules.dart';
 import 'package:flutter/foundation.dart';
+import 'package:diet_project/domain/repositories/record_repository.dart';
 
 /// 운동 화면의 입력값(Draft)과 저장된 운동 기록을 담당한다.
 ///

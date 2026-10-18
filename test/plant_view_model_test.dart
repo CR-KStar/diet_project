@@ -1,8 +1,8 @@
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/data/repositories/record_codecs.dart';
-import 'package:diet_project/data/repositories/record_repository.dart';
 import 'package:diet_project/ui/growth/viewmodel/plant_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:diet_project/data/repositories/impl/memory_record_repository.dart';
 
 /// 저장 횟수를 세고, 불러오기 · 저장을 실패시킬 수 있는 저장소.
 class _Repo<T> extends MemoryRecordRepository<T> {

@@ -1,8 +1,9 @@
 import 'package:diet_project/data/repositories/record_codecs.dart';
-import 'package:diet_project/data/repositories/record_repository.dart';
 import 'package:diet_project/domain/models/models.dart';
 import 'package:diet_project/ui/record/viewmodel/meal_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:diet_project/data/repositories/impl/memory_record_repository.dart';
+import 'package:diet_project/domain/repositories/record_repository.dart';
 
 /// 저장이 항상 실패하는 저장소 — 저장 실패 알림을 확인하는 데 쓴다.
 class _FailingRepo extends MemoryRecordRepository<MealLog> {

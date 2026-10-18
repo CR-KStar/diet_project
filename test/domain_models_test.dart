@@ -1,8 +1,8 @@
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/data/repositories/record_codecs.dart';
-import 'package:diet_project/data/repositories/record_repository.dart';
 import 'package:diet_project/ui/record/viewmodel/weight_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:diet_project/data/repositories/impl/memory_record_repository.dart';
 
 void main() {
   group('Plant · PlantAxis', () {

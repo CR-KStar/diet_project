@@ -1,7 +1,7 @@
-import 'package:diet_project/data/repositories/record_repository.dart';
 import 'package:diet_project/domain/models/models.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:async';
+import 'package:diet_project/domain/repositories/record_repository.dart';
 
 class WeightViewModel extends ChangeNotifier {
   WeightViewModel({

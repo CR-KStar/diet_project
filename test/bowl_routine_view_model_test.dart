@@ -1,10 +1,11 @@
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/data/repositories/record_codecs.dart';
-import 'package:diet_project/data/repositories/record_repository.dart';
 import 'package:diet_project/domain/rules/diet_rules.dart';
 import 'package:diet_project/ui/record/viewmodel/bowl_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/routine_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:diet_project/data/repositories/impl/memory_record_repository.dart';
+import 'package:diet_project/domain/repositories/record_repository.dart';
 
 /// 저장 · 삭제 · 불러오기 중 원하는 동작을 실패시킬 수 있는 저장소.
 class _Flaky<T> extends MemoryRecordRepository<T> {

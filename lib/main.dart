@@ -2,17 +2,7 @@ import 'package:diet_project/app_providers.dart';
 import 'package:diet_project/app_shell.dart';
 import 'package:diet_project/data/auth/mock_auth_service.dart';
 import 'package:diet_project/data/auth/firebase_auth_service.dart';
-import 'package:diet_project/data/repositories/firestore_challenge_repository.dart';
-import 'package:diet_project/data/repositories/challenge_repository.dart';
-import 'package:diet_project/data/repositories/firestore_friend_repository.dart';
-import 'package:diet_project/data/repositories/friend_repository.dart';
-import 'package:diet_project/data/repositories/firestore_profile_repository.dart';
-import 'package:diet_project/data/repositories/firestore_record_repository.dart';
-import 'package:diet_project/data/repositories/firestore_water_repository.dart';
 import 'package:diet_project/data/repositories/record_codecs.dart';
-import 'package:diet_project/data/repositories/record_repository.dart';
-import 'package:diet_project/data/repositories/water_repository.dart';
-import 'package:diet_project/data/repositories/profile_repository.dart';
 import 'package:diet_project/data/services/ai_consent_store.dart';
 import 'package:diet_project/firebase_options.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
@@ -25,6 +15,19 @@ import 'package:flutter/services.dart' show SystemNavigator;
 import 'package:provider/provider.dart';
 import 'app_state.dart';
 import 'data/auth/auth_service.dart';
+import 'package:diet_project/data/repositories/impl/firestore_challenge_repository.dart';
+import 'package:diet_project/data/repositories/impl/firestore_friend_repository.dart';
+import 'package:diet_project/data/repositories/impl/firestore_profile_repository.dart';
+import 'package:diet_project/data/repositories/impl/firestore_record_repository.dart';
+import 'package:diet_project/data/repositories/impl/firestore_water_repository.dart';
+import 'package:diet_project/data/repositories/impl/memory_profile_repository.dart';
+import 'package:diet_project/data/repositories/impl/memory_record_repository.dart';
+import 'package:diet_project/data/repositories/impl/memory_water_repository.dart';
+import 'package:diet_project/domain/repositories/challenge_repository.dart';
+import 'package:diet_project/domain/repositories/friend_repository.dart';
+import 'package:diet_project/domain/repositories/profile_repository.dart';
+import 'package:diet_project/domain/repositories/record_repository.dart';
+import 'package:diet_project/domain/repositories/water_repository.dart';
 
 /// 기본은 Firebase(실제 로그인 · 저장)다. 화면만 확인할 땐 아래 옵션으로 끈다.
 ///   flutter run --dart-define=USE_FIREBASE=false

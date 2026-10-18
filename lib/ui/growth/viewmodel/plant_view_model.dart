@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:diet_project/data/repositories/record_repository.dart';
 import 'package:diet_project/domain/models/models.dart';
 import 'package:flutter/foundation.dart';
+import 'package:diet_project/domain/repositories/record_repository.dart';
 
 /// "내 식물"의 성장 상태와 식물 도감(수집 현황)을 담당한다.
 ///

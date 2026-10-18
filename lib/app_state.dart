@@ -29,16 +29,10 @@ import 'package:diet_project/data/services/meal_analysis_service.dart';
 import 'package:diet_project/data/services/ai_consent_store.dart';
 import 'package:diet_project/data/services/meal_recommendation_service.dart';
 import 'package:diet_project/data/services/notification_service.dart';
-import 'package:diet_project/data/repositories/friend_repository.dart';
 import 'package:diet_project/common.dart' show AppStateFormat;
 import 'package:diet_project/data/auth/mock_auth_service.dart';
-import 'package:diet_project/data/repositories/profile_repository.dart';
 import 'package:diet_project/data/repositories/record_codecs.dart';
-import 'package:diet_project/data/repositories/record_repository.dart';
-import 'package:diet_project/data/repositories/water_repository.dart';
 import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
-import 'package:diet_project/data/repositories/challenge_repository.dart';
-import 'package:diet_project/data/repositories/activity_feed_repository.dart';
 import 'package:diet_project/domain/models/models.dart';
 import 'package:flutter/material.dart' show Offset;
 import 'dart:async';
@@ -46,6 +40,17 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import 'data/auth/auth_service.dart';
+import 'package:diet_project/data/repositories/impl/memory_activity_feed_repository.dart';
+import 'package:diet_project/data/repositories/impl/memory_challenge_repository.dart';
+import 'package:diet_project/data/repositories/impl/memory_friend_repository.dart';
+import 'package:diet_project/data/repositories/impl/memory_profile_repository.dart';
+import 'package:diet_project/data/repositories/impl/memory_record_repository.dart';
+import 'package:diet_project/data/repositories/impl/memory_water_repository.dart';
+import 'package:diet_project/domain/repositories/activity_feed_repository.dart';
+import 'package:diet_project/domain/repositories/challenge_repository.dart';
+import 'package:diet_project/domain/repositories/friend_repository.dart';
+import 'package:diet_project/domain/repositories/profile_repository.dart';
+import 'package:diet_project/domain/repositories/record_repository.dart';
 
 export 'package:diet_project/domain/models/models.dart';
 export 'package:diet_project/ui/home/viewmodel/today_summary.dart'

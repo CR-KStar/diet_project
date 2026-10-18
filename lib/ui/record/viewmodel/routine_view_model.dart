@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:diet_project/data/repositories/record_repository.dart';
 import 'package:diet_project/domain/models/models.dart';
 import 'package:flutter/foundation.dart';
+import 'package:diet_project/domain/repositories/record_repository.dart';
 
 /// 자주 하는 운동을 저장해 두는 "내 루틴"을 담당한다.
 ///

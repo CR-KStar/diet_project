@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:diet_project/data/repositories/profile_repository.dart';
 import 'package:diet_project/domain/models/models.dart';
 import 'package:flutter/foundation.dart';
+import 'package:diet_project/domain/repositories/profile_repository.dart';
 
 /// 계정과 함께 저장되는 "내 정보" 전부를 담당한다 — 닉네임 · 신체 정보와 목표 · 약관 동의 ·
 /// 알림 설정 · 친구에게 보이는 공개 범위 · 온보딩 진행 상황.

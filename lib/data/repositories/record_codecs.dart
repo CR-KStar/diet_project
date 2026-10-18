@@ -1,6 +1,5 @@
 import 'package:diet_project/domain/models/models.dart';
-
-import 'record_repository.dart';
+import 'package:diet_project/data/repositories/record_codec.dart';
 
 // 저장된 값의 타입이 예상과 달라도(직접 고친 문서 등) 앱이 멈추지 않게, 타입이 맞을 때만 씁니다.
 String _str(Object? v, [String fallback = '']) => v is String ? v : fallback;

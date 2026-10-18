@@ -13,3 +13,4 @@ export 'friend_social.dart';
 export 'meal_suggestion.dart';
 export 'drafts.dart'; // MealDraft 등 유지
 export 'nutrients.dart';
+export 'saved_profile.dart';

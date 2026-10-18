@@ -1,7 +1,8 @@
 import 'package:diet_project/app_state.dart';
-import 'package:diet_project/data/repositories/challenge_repository.dart';
 import 'package:diet_project/ui/social/viewmodel/challenge_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:diet_project/data/repositories/impl/memory_challenge_repository.dart';
+import 'package:diet_project/domain/repositories/challenge_repository.dart';
 
 Challenge _challenge(
   String id, {
@@ -171,12 +172,8 @@ void main() {
           _challenge('c', creator: 'me', people: ['me', 'bob']),
         ],
       );
-      vm.userFor = (id) => User(
-        id: id,
-        nickname: '닉네임-$id',
-        emoji: '🙂',
-        tint: 0xFFFFFFFF,
-      );
+      vm.userFor = (id) =>
+          User(id: id, nickname: '닉네임-$id', emoji: '🙂', tint: 0xFFFFFFFF);
       await vm.loadForUid('me');
 
       expect(vm.challengeLeaderboard.map((r) => r.user.nickname).toSet(), {
