@@ -1,3 +1,4 @@
+import 'package:diet_project/app_providers.dart';
 import 'package:diet_project/app_shell.dart';
 import 'package:diet_project/data/auth/mock_auth_service.dart';
 import 'package:diet_project/data/auth/firebase_auth_service.dart';
@@ -95,16 +96,7 @@ Future<void> main() async {
       ..showSnackBar(SnackBar(content: Text(message)));
   });
 
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider.value(value: state),
-        ChangeNotifierProvider.value(value: waterViewModel),
-        ChangeNotifierProvider.value(value: weightViewModel),
-      ],
-      child: const MyApp(),
-    ),
-  );
+  runApp(AppProviders(state: state, child: const MyApp()));
 }
 
 /// 화면 밖에서 스낵바를 띄우기 위한 키.

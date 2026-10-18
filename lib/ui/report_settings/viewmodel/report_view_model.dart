@@ -40,6 +40,9 @@ String _dateKeyOf(DateTime d) =>
 class ReportViewModel extends ChangeNotifier {
   ReportViewModel({required this.inputs});
 
+  /// 계산에 쓰는 기록이 바뀌었을 때 화면이 다시 계산하도록 알린다 (AppState가 연결한다).
+  void refresh() => notifyListeners();
+
   /// 집계에 쓸 최신 기록을 돌려주는 함수.
   final ReportInputs Function() inputs;
 

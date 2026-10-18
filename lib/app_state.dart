@@ -169,6 +169,16 @@ class AppState extends ChangeNotifier {
       ..onSyncFailed = showNotice
       ..addListener(notifyListeners);
     _authViewModel.addListener(notifyListeners);
+    // 미션과 리포트는 여러 기록에서 값을 계산하므로, 그 기록이 바뀌면 다시 계산하게 알린다.
+    final sources = Listenable.merge([
+      _mealViewModel,
+      _exerciseViewModel,
+      _weightViewModel,
+      _waterViewModel,
+      _profileViewModel,
+    ]);
+    sources.addListener(_missionViewModel.refresh);
+    sources.addListener(_reportViewModel.refresh);
     _profileViewModel
       ..onSyncFailed = showNotice
       ..addListener(notifyListeners);
@@ -184,6 +194,25 @@ class AppState extends ChangeNotifier {
       ..onSyncFailed = showNotice
       ..addListener(notifyListeners);
   }
+
+  // 화면이 필요한 ViewModel을 직접 구독할 수 있도록 밖으로 내놓는다 (AppProviders 참고).
+  // AppState는 이것들을 만들고 서로 연결하는 일을 맡는다.
+  AuthViewModel get authViewModel => _authViewModel;
+  ProfileViewModel get profileViewModel => _profileViewModel;
+  WaterViewModel get waterViewModel => _waterViewModel;
+  WeightViewModel get weightViewModel => _weightViewModel;
+  ExerciseViewModel get exerciseViewModel => _exerciseViewModel;
+  MealViewModel get mealViewModel => _mealViewModel;
+  BowlViewModel get bowlViewModel => _bowlViewModel;
+  RoutineViewModel get routineViewModel => _routineViewModel;
+  PlantViewModel get plantViewModel => _plantViewModel;
+  PhotoAnalysisViewModel get photoAnalysisViewModel => _photoAnalysisViewModel;
+  MissionViewModel get missionViewModel => _missionViewModel;
+  ReportViewModel get reportViewModel => _reportViewModel;
+  RecommendationViewModel get recommendationViewModel =>
+      _recommendationViewModel;
+  FriendViewModel get friendViewModel => _friendViewModel;
+  ChallengeViewModel get challengeViewModel => _challengeViewModel;
 
   final AuthViewModel _authViewModel;
   final ProfileViewModel _profileViewModel;

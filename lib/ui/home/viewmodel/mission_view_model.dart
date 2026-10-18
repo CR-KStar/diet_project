@@ -69,6 +69,9 @@ int _stableSeed(String text) {
 class MissionViewModel extends ChangeNotifier {
   MissionViewModel({required this.inputs, required this.gainExp});
 
+  /// 계산에 쓰는 기록이 바뀌었을 때 화면이 다시 계산하도록 알린다 (AppState가 연결한다).
+  void refresh() => notifyListeners();
+
   final MissionInputs Function() inputs;
   final void Function(int exp) gainExp;
 
