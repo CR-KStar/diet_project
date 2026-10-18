@@ -1,13 +1,13 @@
 import 'package:diet_project/app_shell.dart';
 import 'package:diet_project/app_providers.dart';
 import 'package:diet_project/app_state.dart';
-import 'package:diet_project/data/auth/auth_service.dart';
 import 'package:diet_project/data/repositories/record_codecs.dart';
 import 'package:diet_project/ui/record/viewmodel/weight_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:diet_project/data/repositories/impl/memory_record_repository.dart';
+import 'package:diet_project/data/auth/auth_service.dart';
 
 /// 로그인된 실제 계정 — 프로토타입 예시 기록이 비워져서 "기록이 하나도 없는" 상태가 된다.
 class _RealAuth implements AuthService {

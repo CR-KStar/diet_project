@@ -1,6 +1,6 @@
-import 'package:diet_project/data/services/meal_recommendation_service.dart';
 import 'package:diet_project/domain/models/models.dart';
 import 'package:flutter/foundation.dart';
+import 'package:diet_project/data/services/meal_recommendation_service.dart';
 
 /// 식단 추천 화면의 조건(부족한 영양소 · 끼니 · 선호 · 최대 칼로리 · 정렬)과
 /// 추천 결과를 담당한다.
@@ -9,8 +9,8 @@ import 'package:flutter/foundation.dart';
 /// 규칙 기반 목록으로 대신한다. 외부 AI로 보내도 되는지 묻는 동의는 사진 분석과
 /// 함께 쓰는 값이라 AppState가 갖고 있고, 여기서는 요청만 처리한다.
 class RecommendationViewModel extends ChangeNotifier {
-  RecommendationViewModel({MealRecommendationService? service})
-    : _service = service ?? MealRecommendationService();
+  RecommendationViewModel({required MealRecommendationService service})
+    : _service = service;
 
   final MealRecommendationService _service;
 

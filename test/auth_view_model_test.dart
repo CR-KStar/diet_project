@@ -1,10 +1,11 @@
 import 'dart:async';
 
 import 'package:diet_project/app_state.dart';
-import 'package:diet_project/data/auth/auth_service.dart';
-import 'package:diet_project/data/auth/mock_auth_service.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/auth_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:diet_project/data/auth/auth_failure.dart';
+import 'package:diet_project/data/auth/auth_service.dart';
+import 'package:diet_project/data/auth/impl/mock_auth_service.dart';
 
 const _account = AuthAccount(
   uid: 'uid_1',

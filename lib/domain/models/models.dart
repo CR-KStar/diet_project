@@ -14,3 +14,5 @@ export 'meal_suggestion.dart';
 export 'drafts.dart'; // MealDraft 등 유지
 export 'nutrients.dart';
 export 'saved_profile.dart';
+export 'meal_analysis_result.dart';
+export 'ai_meal_suggestion.dart';

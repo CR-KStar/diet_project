@@ -11,8 +11,8 @@ import 'package:flutter/foundation.dart'
     show TargetPlatform, defaultTargetPlatform, kIsWeb;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
-
-import 'auth_service.dart';
+import 'package:diet_project/data/auth/auth_failure.dart';
+import 'package:diet_project/data/auth/auth_service.dart';
 
 /// Firebase Auth로 Google · Apple 로그인을 처리하는 인증 서비스.
 class FirebaseAuthService implements AuthService {

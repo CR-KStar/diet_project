@@ -1,9 +1,9 @@
 import 'package:diet_project/app_state.dart';
-import 'package:diet_project/data/auth/auth_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:diet_project/data/repositories/impl/memory_activity_feed_repository.dart';
 import 'package:diet_project/data/repositories/impl/memory_challenge_repository.dart';
 import 'package:diet_project/data/repositories/impl/memory_friend_repository.dart';
+import 'package:diet_project/data/auth/auth_service.dart';
 
 /// 로그인된 계정처럼 동작하고, 삭제 전에 beforeDelete를 불러주는 가짜 인증.
 class _Auth implements AuthService {

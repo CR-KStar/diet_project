@@ -1,10 +1,10 @@
 import 'dart:typed_data';
 
 import 'package:diet_project/app_state.dart';
-import 'package:diet_project/data/services/meal_analysis_service.dart';
 import 'package:diet_project/ui/record/viewmodel/photo_analysis_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:diet_project/data/services/meal_analysis_service.dart';
 
 MealAnalysisResult _result({
   String name = '비빔밥',
@@ -26,7 +26,7 @@ MealAnalysisResult _result({
 );
 
 /// 받은 요청을 기록하고, 결과 · 실패를 정할 수 있는 가짜 분석 서비스.
-class _FakeService extends MealAnalysisService {
+class _FakeService implements MealAnalysisService {
   MealAnalysisResult result = _result();
   bool fail = false;
   int calls = 0;

@@ -1,6 +1,6 @@
 import 'package:diet_project/app_state.dart';
-import 'package:diet_project/data/services/ai_consent_store.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:diet_project/data/services/impl/memory_ai_consent_store.dart';
 
 void main() {
   group('외부 AI 전송 동의', () {

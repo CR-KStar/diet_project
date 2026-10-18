@@ -1,5 +1,5 @@
-import 'package:diet_project/data/services/ai_consent_store.dart';
 import 'package:flutter/foundation.dart';
+import 'package:diet_project/data/services/ai_consent_store.dart';
 
 /// 외부 AI로 데이터를 보내는 기능(사진 분석 · 식단 추천)을 쓰기 전에 받는 동의를 담당한다.
 ///

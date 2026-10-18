@@ -1,7 +1,7 @@
-import 'package:diet_project/data/services/ai_consent_store.dart';
 import 'package:diet_project/ui/home/viewmodel/ai_consent_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/notification_inbox_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:diet_project/data/services/impl/memory_ai_consent_store.dart';
 
 void main() {
   group('NotificationInboxViewModel', () {

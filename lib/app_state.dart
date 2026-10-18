@@ -24,13 +24,7 @@ import 'package:diet_project/ui/record/viewmodel/weight_view_model.dart';
 import 'package:diet_project/ui/social/viewmodel/challenge_view_model.dart';
 import 'package:diet_project/ui/social/viewmodel/friend_view_model.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:diet_project/data/services/app_icon_service.dart';
-import 'package:diet_project/data/services/meal_analysis_service.dart';
-import 'package:diet_project/data/services/ai_consent_store.dart';
-import 'package:diet_project/data/services/meal_recommendation_service.dart';
-import 'package:diet_project/data/services/notification_service.dart';
 import 'package:diet_project/common.dart' show AppStateFormat;
-import 'package:diet_project/data/auth/mock_auth_service.dart';
 import 'package:diet_project/data/repositories/record_codecs.dart';
 import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
 import 'package:diet_project/domain/models/models.dart';
@@ -39,7 +33,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import 'data/auth/auth_service.dart';
 import 'package:diet_project/data/repositories/impl/memory_activity_feed_repository.dart';
 import 'package:diet_project/data/repositories/impl/memory_challenge_repository.dart';
 import 'package:diet_project/data/repositories/impl/memory_friend_repository.dart';
@@ -51,6 +44,18 @@ import 'package:diet_project/domain/repositories/challenge_repository.dart';
 import 'package:diet_project/domain/repositories/friend_repository.dart';
 import 'package:diet_project/domain/repositories/profile_repository.dart';
 import 'package:diet_project/domain/repositories/record_repository.dart';
+import 'package:diet_project/data/auth/auth_service.dart';
+import 'package:diet_project/data/auth/impl/mock_auth_service.dart';
+import 'package:diet_project/data/services/ai_consent_store.dart';
+import 'package:diet_project/data/services/app_icon_service.dart';
+import 'package:diet_project/data/services/impl/memory_ai_consent_store.dart';
+import 'package:diet_project/data/services/meal_analysis_service.dart';
+import 'package:diet_project/data/services/meal_recommendation_service.dart';
+import 'package:diet_project/data/services/notification_service.dart';
+import 'package:diet_project/data/services/impl/cloud_meal_analysis_service.dart';
+import 'package:diet_project/data/services/impl/cloud_meal_recommendation_service.dart';
+import 'package:diet_project/data/services/impl/local_notification_service.dart';
+import 'package:diet_project/data/services/impl/platform_app_icon_service.dart';
 
 export 'package:diet_project/domain/models/models.dart';
 export 'package:diet_project/ui/home/viewmodel/today_summary.dart'
@@ -85,8 +90,12 @@ class AppState extends ChangeNotifier {
     AiConsentStore? aiConsentStore,
     MealAnalysisService? mealAnalysisService,
     MealRecommendationService? mealRecommendationService,
+    NotificationService? notificationService,
+    AppIconService? appIconService,
     DateTime Function()? now,
-  }) : _aiConsentViewModel = AiConsentViewModel(
+  }) : _notificationService = notificationService ?? LocalNotificationService(),
+       _appIconService = appIconService ?? PlatformAppIconService(),
+       _aiConsentViewModel = AiConsentViewModel(
          store: aiConsentStore ?? MemoryAiConsentStore(),
        ),
        _notificationInboxViewModel = NotificationInboxViewModel(),
@@ -137,10 +146,15 @@ class AppState extends ChangeNotifier {
            ),
        _photoAnalysisViewModel =
            photoAnalysisViewModel ??
-           PhotoAnalysisViewModel(service: mealAnalysisService),
+           PhotoAnalysisViewModel(
+             service: mealAnalysisService ?? CloudMealAnalysisService(),
+           ),
        _recommendationViewModel =
            recommendationViewModel ??
-           RecommendationViewModel(service: mealRecommendationService),
+           RecommendationViewModel(
+             service:
+                 mealRecommendationService ?? CloudMealRecommendationService(),
+           ),
        _friendViewModel =
            friendViewModel ??
            FriendViewModel(
@@ -766,8 +780,8 @@ class AppState extends ChangeNotifier {
   /// AI가 사진만 보고 추정한 기본 칼로리 (부가 정보 반영 전)
   int get baseKcal => _photoAnalysisViewModel.baseKcal;
 
-  final AppIconService _appIconService = AppIconService();
-  final NotificationService _notificationService = NotificationService();
+  final AppIconService _appIconService;
+  final NotificationService _notificationService;
 
   /// 지금 알림 설정(notificationSettings)에 맞춰 기기 알림을 다시 예약한다.
   /// 토글을 끄면 해당 알림은 취소된다.

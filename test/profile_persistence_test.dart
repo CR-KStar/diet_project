@@ -1,9 +1,9 @@
 import 'package:diet_project/app_state.dart';
-import 'package:diet_project/data/auth/auth_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:diet_project/data/repositories/impl/memory_profile_repository.dart';
 import 'package:diet_project/domain/repositories/profile_repository.dart';
 import 'package:diet_project/data/repositories/profile_codec.dart';
+import 'package:diet_project/data/auth/auth_service.dart';
 
 const _account = AuthAccount(
   uid: 'uid_1',

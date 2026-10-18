@@ -1,7 +1,8 @@
 import 'package:diet_project/app_state.dart';
-import 'package:diet_project/data/auth/auth_service.dart';
-import 'package:diet_project/data/auth/mock_auth_service.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:diet_project/data/auth/auth_failure.dart';
+import 'package:diet_project/data/auth/auth_service.dart';
+import 'package:diet_project/data/auth/impl/mock_auth_service.dart';
 
 /// 정해 둔 결과만 돌려주는 가짜 인증 서비스.
 class _FakeAuth implements AuthService {

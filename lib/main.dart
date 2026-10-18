@@ -1,9 +1,6 @@
 import 'package:diet_project/app_providers.dart';
 import 'package:diet_project/app_shell.dart';
-import 'package:diet_project/data/auth/mock_auth_service.dart';
-import 'package:diet_project/data/auth/firebase_auth_service.dart';
 import 'package:diet_project/data/repositories/record_codecs.dart';
-import 'package:diet_project/data/services/ai_consent_store.dart';
 import 'package:diet_project/firebase_options.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/ui/core/ui/web_frame.dart';
@@ -14,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemNavigator;
 import 'package:provider/provider.dart';
 import 'app_state.dart';
-import 'data/auth/auth_service.dart';
 import 'package:diet_project/data/repositories/impl/firestore_challenge_repository.dart';
 import 'package:diet_project/data/repositories/impl/firestore_friend_repository.dart';
 import 'package:diet_project/data/repositories/impl/firestore_profile_repository.dart';
@@ -28,6 +24,10 @@ import 'package:diet_project/domain/repositories/friend_repository.dart';
 import 'package:diet_project/domain/repositories/profile_repository.dart';
 import 'package:diet_project/domain/repositories/record_repository.dart';
 import 'package:diet_project/domain/repositories/water_repository.dart';
+import 'package:diet_project/data/auth/auth_service.dart';
+import 'package:diet_project/data/auth/impl/firebase_auth_service.dart';
+import 'package:diet_project/data/auth/impl/mock_auth_service.dart';
+import 'package:diet_project/data/services/impl/prefs_ai_consent_store.dart';
 
 /// 기본은 Firebase(실제 로그인 · 저장)다. 화면만 확인할 땐 아래 옵션으로 끈다.
 ///   flutter run --dart-define=USE_FIREBASE=false

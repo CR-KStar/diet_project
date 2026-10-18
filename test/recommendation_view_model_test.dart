@@ -1,7 +1,7 @@
 import 'package:diet_project/app_state.dart';
-import 'package:diet_project/data/services/meal_recommendation_service.dart';
 import 'package:diet_project/ui/home/viewmodel/recommendation_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:diet_project/data/services/meal_recommendation_service.dart';
 
 AiMealSuggestion _ai(
   String name, {
@@ -22,7 +22,7 @@ AiMealSuggestion _ai(
 );
 
 /// 부른 횟수와 받은 조건을 기록하고, 결과 · 실패를 정할 수 있는 가짜 서비스.
-class _FakeService extends MealRecommendationService {
+class _FakeService implements MealRecommendationService {
   _FakeService();
 
   List<AiMealSuggestion> result = [];

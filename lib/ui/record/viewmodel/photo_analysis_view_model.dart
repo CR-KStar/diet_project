@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'package:diet_project/data/services/meal_analysis_service.dart';
 import 'package:diet_project/domain/models/models.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:diet_project/data/services/meal_analysis_service.dart';
 
 /// 사진을 고르는 방법 — 테스트에서는 갤러리 · 카메라 대신 가짜를 넣는다.
 typedef PhotoPicker = Future<XFile?> Function(ImageSource source);
@@ -17,9 +17,11 @@ Future<XFile?> _pickWithImagePicker(ImageSource source) =>
 /// 어느 그릇으로 먹었는지, 부가 정보를 반영한 칼로리가 얼마인지는 식단 입력값과
 /// 만나는 부분이라 AppState가 맡고, 여기서는 사진 분석만 다룬다.
 class PhotoAnalysisViewModel extends ChangeNotifier {
-  PhotoAnalysisViewModel({MealAnalysisService? service, PhotoPicker? picker})
-    : _service = service ?? MealAnalysisService(),
-      _picker = picker ?? _pickWithImagePicker;
+  PhotoAnalysisViewModel({
+    required MealAnalysisService service,
+    PhotoPicker? picker,
+  }) : _service = service,
+       _picker = picker ?? _pickWithImagePicker;
 
   final MealAnalysisService _service;
   final PhotoPicker _picker;

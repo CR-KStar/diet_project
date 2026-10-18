@@ -1,7 +1,8 @@
-import 'package:diet_project/data/auth/auth_service.dart';
-import 'package:diet_project/data/auth/mock_auth_service.dart';
 import 'package:diet_project/domain/models/models.dart';
 import 'package:flutter/foundation.dart';
+import 'package:diet_project/data/auth/auth_failure.dart';
+import 'package:diet_project/data/auth/auth_service.dart';
+import 'package:diet_project/data/auth/impl/mock_auth_service.dart';
 
 /// 로그인 · 로그아웃 · 계정 삭제를 담당한다 — 진행 중 표시(중복 탭 방지)와
 /// 실패했을 때 사용자에게 보여줄 문구까지.
