@@ -4,9 +4,9 @@
 
 import 'dart:math' as math;
 
-import 'package:diet_project/app_state.dart';
 import 'package:diet_project/data/services/legal_links.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
+import 'package:diet_project/ui/home/viewmodel/ai_consent_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -744,8 +744,11 @@ Future<bool> confirmDialog(
 
 /// 식사 사진 · 식단 정보를 외부 AI로 보내기 전에 동의를 받는다.
 /// 이미 동의했으면 묻지 않고 true, 동의하지 않으면 false (이때는 아무것도 보내지 않는다).
-Future<bool> ensureAiConsent(BuildContext context, AppState s) async {
-  if (s.aiConsent) return true;
+Future<bool> ensureAiConsent(
+  BuildContext context,
+  AiConsentViewModel consent,
+) async {
+  if (consent.aiConsent) return true;
   final ok = await confirmDialog(
     context,
     title: 'AI 분석에 동의해 주세요',
@@ -757,7 +760,7 @@ Future<bool> ensureAiConsent(BuildContext context, AppState s) async {
         '· 설정 > 데이터 및 개인정보에서 언제든 철회할 수 있어요.',
     confirmLabel: '동의하고 진행',
   );
-  if (ok) await s.setAiConsent(true);
+  if (ok) await consent.setAiConsent(true);
   return ok;
 }
 

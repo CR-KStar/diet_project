@@ -1,6 +1,8 @@
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/ui/growth/viewmodel/plant_view_model.dart';
+import 'package:diet_project/ui/home/viewmodel/ai_consent_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/mission_view_model.dart';
+import 'package:diet_project/ui/home/viewmodel/notification_inbox_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/recommendation_view_model.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/auth_view_model.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
@@ -33,6 +35,12 @@ class AppProviders extends StatelessWidget {
       providers: [
         ChangeNotifierProvider<AppState>.value(value: state),
         ChangeNotifierProvider<AuthViewModel>.value(value: state.authViewModel),
+        ChangeNotifierProvider<AiConsentViewModel>.value(
+          value: state.aiConsentViewModel,
+        ),
+        ChangeNotifierProvider<NotificationInboxViewModel>.value(
+          value: state.notificationInboxViewModel,
+        ),
         ChangeNotifierProvider<ProfileViewModel>.value(
           value: state.profileViewModel,
         ),

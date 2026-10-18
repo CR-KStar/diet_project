@@ -1,6 +1,7 @@
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:diet_project/ui/home/viewmodel/ai_consent_view_model.dart';
 import '../../../app_state.dart';
 import '../../../common.dart';
 import '../../core/ui/themes/theme_tokens.dart';
@@ -43,9 +44,10 @@ class _PhotoCard extends StatelessWidget {
 
   /// 동의를 받은 뒤에만 사진을 고르고 AI 분석을 요청한다.
   Future<void> _start(BuildContext context, ImageSource source) async {
-    final s = context.read<AppState>();
+    final s = context.watch<AppState>();
+    final consent = context.read<AiConsentViewModel>();
     Navigator.pop(context);
-    if (!await ensureAiConsent(context, s)) return;
+    if (!await ensureAiConsent(context, consent)) return;
     await s.pickAndAnalyzeMealPhoto(source);
   }
 

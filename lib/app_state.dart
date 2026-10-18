@@ -4,7 +4,9 @@
 // 통합된 화면은 부모 screen + 서브 모드 플래그로 표현합니다.
 
 import 'package:diet_project/ui/growth/viewmodel/plant_view_model.dart';
+import 'package:diet_project/ui/home/viewmodel/ai_consent_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/mission_view_model.dart';
+import 'package:diet_project/ui/home/viewmodel/notification_inbox_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/recommendation_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/today_summary.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/auth_view_model.dart';
@@ -77,7 +79,10 @@ class AppState extends ChangeNotifier {
     MealAnalysisService? mealAnalysisService,
     MealRecommendationService? mealRecommendationService,
     DateTime Function()? now,
-  }) : _aiConsentStore = aiConsentStore ?? MemoryAiConsentStore(),
+  }) : _aiConsentViewModel = AiConsentViewModel(
+         store: aiConsentStore ?? MemoryAiConsentStore(),
+       ),
+       _notificationInboxViewModel = NotificationInboxViewModel(),
        _authViewModel =
            authViewModel ?? AuthViewModel(auth: auth ?? MockAuthService()),
        _profileViewModel =
@@ -169,6 +174,8 @@ class AppState extends ChangeNotifier {
       ..onSyncFailed = showNotice
       ..addListener(notifyListeners);
     _authViewModel.addListener(notifyListeners);
+    _aiConsentViewModel.addListener(notifyListeners);
+    _notificationInboxViewModel.addListener(notifyListeners);
     // 미션과 리포트는 여러 기록에서 값을 계산하므로, 그 기록이 바뀌면 다시 계산하게 알린다.
     final sources = Listenable.merge([
       _mealViewModel,
@@ -198,6 +205,9 @@ class AppState extends ChangeNotifier {
   // 화면이 필요한 ViewModel을 직접 구독할 수 있도록 밖으로 내놓는다 (AppProviders 참고).
   // AppState는 이것들을 만들고 서로 연결하는 일을 맡는다.
   AuthViewModel get authViewModel => _authViewModel;
+  AiConsentViewModel get aiConsentViewModel => _aiConsentViewModel;
+  NotificationInboxViewModel get notificationInboxViewModel =>
+      _notificationInboxViewModel;
   ProfileViewModel get profileViewModel => _profileViewModel;
   WaterViewModel get waterViewModel => _waterViewModel;
   WeightViewModel get weightViewModel => _weightViewModel;
@@ -215,6 +225,8 @@ class AppState extends ChangeNotifier {
   ChallengeViewModel get challengeViewModel => _challengeViewModel;
 
   final AuthViewModel _authViewModel;
+  final AiConsentViewModel _aiConsentViewModel;
+  final NotificationInboxViewModel _notificationInboxViewModel;
   final ProfileViewModel _profileViewModel;
 
   /// 물 기록은 이제 이 화면 전용 ViewModel이 갖고 있다 — AppState는 연속
@@ -692,32 +704,14 @@ class AppState extends ChangeNotifier {
     streakDays: streakDays,
   );
 
-  // 알림
-  String notifTab = '전체';
-
-  static const _unreadNotifIds = [
-    '저녁 식단을 기록하지 않았어요',
-    '식물이 물을 기다려요',
-    '지현님이 응원을 보냈어요',
-  ];
-  final Set<String> readNotifIds = {};
-
-  int get unread =>
-      _unreadNotifIds.where((id) => !readNotifIds.contains(id)).length;
-
-  void setNotifTab(String t) {
-    notifTab = t;
-    notifyListeners();
-  }
-
-  void markNotifRead(String id) {
-    if (readNotifIds.add(id)) notifyListeners();
-  }
-
-  void readAll() {
-    readNotifIds.addAll(_unreadNotifIds);
-    notifyListeners();
-  }
+  // 알림함 — 탭과 읽음 표시는 NotificationInboxViewModel이 맡는다.
+  String get notifTab => _notificationInboxViewModel.notifTab;
+  Set<String> get readNotifIds => _notificationInboxViewModel.readNotifIds;
+  int get unread => _notificationInboxViewModel.unread;
+  void setNotifTab(String t) => _notificationInboxViewModel.setNotifTab(t);
+  void markNotifRead(String id) =>
+      _notificationInboxViewModel.markNotifRead(id);
+  void readAll() => _notificationInboxViewModel.readAll();
 
   // 식단 기록 · 부가 정보
   /// 식단 화면의 입력값은 이 Draft 하나가 소유합니다.
@@ -829,20 +823,11 @@ class AppState extends ChangeNotifier {
   double? get aiIronMg => _photoAnalysisViewModel.aiIronMg;
   bool get needsPhotoReview => _photoAnalysisViewModel.needsPhotoReview;
 
-  // 외부 AI로 데이터를 보내는 기능(사진 분석 · 식단 추천)을 쓰기 전에 받는 동의.
-  final AiConsentStore _aiConsentStore;
-  bool aiConsent = false;
-
-  Future<void> loadAiConsent() async {
-    aiConsent = await _aiConsentStore.read();
-    notifyListeners();
-  }
-
-  Future<void> setAiConsent(bool value) async {
-    aiConsent = value;
-    notifyListeners();
-    await _aiConsentStore.write(value);
-  }
+  // 외부 AI로 데이터를 보내기 전에 받는 동의는 AiConsentViewModel이 맡는다.
+  bool get aiConsent => _aiConsentViewModel.aiConsent;
+  Future<void> loadAiConsent() => _aiConsentViewModel.loadAiConsent();
+  Future<void> setAiConsent(bool value) =>
+      _aiConsentViewModel.setAiConsent(value);
 
   /// 사진을 고르고 즉시 AI 분석을 요청한다 (지금 고른 그릇을 함께 알려 준다).
   Future<void> pickAndAnalyzeMealPhoto(ImageSource source) =>

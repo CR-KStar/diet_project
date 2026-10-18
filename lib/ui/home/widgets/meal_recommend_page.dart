@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:diet_project/ui/home/viewmodel/ai_consent_view_model.dart';
 
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
@@ -15,6 +16,7 @@ class RecommendScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final recommendation = context.watch<RecommendationViewModel>();
     final s = context.watch<AppState>();
+    final consent = context.read<AiConsentViewModel>();
     final recs = recommendation.recommendations;
 
     return ScreenScroll(
@@ -36,7 +38,7 @@ class RecommendScreen extends StatelessWidget {
                 onTap: recommendation.loadingRecommendations
                     ? null
                     : () async {
-                        if (await ensureAiConsent(context, s)) {
+                        if (await ensureAiConsent(context, consent)) {
                           await recommendation.fetchAiRecommendations();
                         }
                       },
