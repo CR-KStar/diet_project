@@ -44,7 +44,7 @@ class _PhotoCard extends StatelessWidget {
 
   /// 동의를 받은 뒤에만 사진을 고르고 AI 분석을 요청한다.
   Future<void> _start(BuildContext context, ImageSource source) async {
-    final s = context.watch<AppState>();
+    final s = context.read<AppState>();
     final consent = context.read<AiConsentViewModel>();
     Navigator.pop(context);
     if (!await ensureAiConsent(context, consent)) return;
