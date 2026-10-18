@@ -5,6 +5,7 @@
 
 import 'dart:convert';
 import 'dart:math';
+import 'package:diet_project/ui/growth/viewmodel/plant_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/bowl_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/exercise_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/meal_view_model.dart';
@@ -104,6 +105,7 @@ class AppState extends ChangeNotifier {
     ExerciseViewModel? exerciseViewModel,
     BowlViewModel? bowlViewModel,
     RoutineViewModel? routineViewModel,
+    PlantViewModel? plantViewModel,
     RecordRepository<ExerciseLog>? exerciseRepo,
     RecordRepository<MealLog>? mealRepo,
     RecordRepository<Bowl>? bowlRepo,
@@ -152,8 +154,12 @@ class AppState extends ChangeNotifier {
            RoutineViewModel(
              routineRepo: routineRepo ?? MemoryRecordRepository(routineCodec),
            ),
-       _plantRepo = plantRepo ?? MemoryRecordRepository(plantCodec),
-       _dexRepo = dexRepo ?? MemoryRecordRepository(dexEntryCodec),
+       _plantViewModel =
+           plantViewModel ??
+           PlantViewModel(
+             plantRepo: plantRepo ?? MemoryRecordRepository(plantCodec),
+             dexRepo: dexRepo ?? MemoryRecordRepository(dexEntryCodec),
+           ),
        _friendRepo = friendRepo ?? MemoryFriendRepository(),
        _challengeRepo = challengeRepo ?? MemoryChallengeRepository(),
        _activityFeedRepo = activityFeedRepo ?? MemoryActivityFeedRepository(),
@@ -179,6 +185,9 @@ class AppState extends ChangeNotifier {
     _routineViewModel
       ..onSyncFailed = showNotice
       ..addListener(notifyListeners);
+    _plantViewModel
+      ..onSyncFailed = showNotice
+      ..addListener(notifyListeners);
   }
 
   final AuthService _auth;
@@ -195,8 +204,7 @@ class AppState extends ChangeNotifier {
   final RecordRepository<MealLog> _mealRepo;
   final BowlViewModel _bowlViewModel;
   final RoutineViewModel _routineViewModel;
-  final RecordRepository<Plant> _plantRepo;
-  final RecordRepository<DexEntry> _dexRepo;
+  final PlantViewModel _plantViewModel;
   final FriendRepository _friendRepo;
   final ChallengeRepository _challengeRepo;
   final ActivityFeedRepository _activityFeedRepo;
@@ -557,16 +565,9 @@ class AppState extends ChangeNotifier {
   void _clearSampleRecords() {
     _mealViewModel.clear();
     _exerciseViewModel.clear();
-    _plantSaveTimer?.cancel();
-    _plantSaveTimer = null;
     _bowlViewModel.clear();
     _routineViewModel.clear();
-    plant = Plant.starter(_uid);
-    _plantSyncOk = true;
-    dexEntries = [
-      for (final sp in PlantSpecies.catalog)
-        DexEntry(userId: _uid, speciesId: sp.id),
-    ];
+    _plantViewModel.clear(_uid);
     inviteCode = '';
     realFriends = [];
     incomingFriendRequests = [];
@@ -1003,9 +1004,8 @@ class AppState extends ChangeNotifier {
   void completeMissionManually(Mission m) {
     if (missionEffectivelyDone(m)) return;
     _manualMissionDone.add(m.id);
-    plant.exp += m.exp;
+    _plantViewModel.gainExp(m.exp);
     notifyListeners();
-    _schedulePlantSave();
   }
 
   int get missionDone => missions.where(missionEffectivelyDone).length;
@@ -1539,33 +1539,6 @@ class AppState extends ChangeNotifier {
 
   // 계정에 저장되는 기록들 (체중 · 운동 · 식단 · 그릇 · 루틴 · 식물)
 
-  void _saveRecord<T>(RecordRepository<T> repo, T entry, String what) {
-    final a = account;
-    if (a == null) return;
-    unawaited(
-      repo.save(a.uid, entry).catchError((Object e, StackTrace stack) {
-        debugPrint('$what 저장 실패: $e\n$stack');
-        _notice = '$what 저장에 실패했어요. 네트워크를 확인해 주세요.';
-        notifyListeners();
-      }),
-    );
-  }
-
-  Timer? _plantSaveTimer;
-  static const _plantSaveDelay = Duration(milliseconds: 500);
-
-  /// 식물을 불러오지 못했을 때는 저장도 멈춘다 (덮어쓰기 방지).
-  bool _plantSyncOk = true;
-
-  void _schedulePlantSave() {
-    if (account == null || !_plantSyncOk) return;
-    _plantSaveTimer?.cancel();
-    _plantSaveTimer = Timer(_plantSaveDelay, () {
-      _plantSaveTimer = null;
-      _saveRecord(_plantRepo, plant, '식물 상태');
-    });
-  }
-
   final Set<String> _loadedMonths = {};
 
   Future<void> _loadAccountData(String uid) async {
@@ -1576,8 +1549,7 @@ class AppState extends ChangeNotifier {
       _waterViewModel.loadForUid(uid),
       _weightViewModel.loadForUid(uid, fallbackKg: profile.weightKg),
       _loadTemplates(uid),
-      _loadPlant(uid),
-      _loadDex(uid),
+      _plantViewModel.loadForUid(uid),
       _loadFriendData(uid),
       _loadChallenges(uid),
       _loadMonth(today.year, today.month),
@@ -1588,30 +1560,6 @@ class AppState extends ChangeNotifier {
   /// 저장된 수집 상태를 불러온다. 처음 가입한 계정(저장된 게 없음)은
   /// 전부 미획득 상태로 시작하고, 그 상태를 그대로 저장해 다음부터는
   /// 다시 만들지 않는다.
-  Future<void> _loadDex(String uid) async {
-    try {
-      final saved = await _dexRepo.loadAll(uid);
-      if (saved.isNotEmpty) {
-        dexEntries = saved;
-        return;
-      }
-      dexEntries = [
-        for (final sp in PlantSpecies.catalog)
-          DexEntry(userId: uid, speciesId: sp.id),
-      ];
-      for (final e in dexEntries) {
-        unawaited(_dexRepo.save(uid, e));
-      }
-    } catch (e, stack) {
-      debugPrint('도감 정보를 불러오지 못했어요: $e\n$stack');
-      dexEntries = [
-        for (final sp in PlantSpecies.catalog)
-          DexEntry(userId: uid, speciesId: sp.id),
-      ];
-      _notice = '도감 정보를 불러오지 못했어요.';
-    }
-  }
-
   Future<void> _loadTemplates(String uid) async {
     final results = await Future.wait([
       _bowlViewModel.loadForUid(uid),
@@ -1619,19 +1567,6 @@ class AppState extends ChangeNotifier {
     ]);
     if (results.contains(false)) {
       _notice = '그릇과 운동 루틴을 불러오지 못했어요.';
-    }
-  }
-
-  Future<void> _loadPlant(String uid) async {
-    _plantSyncOk = true;
-    try {
-      final saved = await _plantRepo.loadAll(uid);
-      plant = saved.isEmpty ? Plant.starter(uid) : saved.first;
-    } catch (e, stack) {
-      debugPrint('식물 정보를 불러오지 못했어요: $e\n$stack');
-      plant = Plant.starter(uid);
-      _plantSyncOk = false;
-      _notice = '식물 정보를 불러오지 못했어요. 다시 로그인하기 전까지 식물 변화는 저장되지 않아요.';
     }
   }
 
@@ -1668,8 +1603,7 @@ class AppState extends ChangeNotifier {
       _mealRepo.deleteAll(uid),
       _bowlViewModel.deleteAll(uid),
       _routineViewModel.deleteAll(uid),
-      _plantRepo.deleteAll(uid),
-      _dexRepo.deleteAll(uid),
+      _plantViewModel.deleteAll(uid),
       // 친구 · 챌린지 · 활동 피드는 다른 사용자와 함께 쓰는 공간이라 따로 지운다.
       _friendRepo.deleteAllForUser(uid),
       _challengeRepo.removeUser(uid),
@@ -1739,19 +1673,9 @@ class AppState extends ChangeNotifier {
 
   // 식물
   //
-  // "내 식물"의 성장 상태(경험치 · 3축 점수 · 돌보기 횟수 등)와 그 상태로부터
-  // 계산되는 값(레벨 · 품종 · 시듦 여부 …)은 전부 Plant 모델이 담당한다.
-  // AppState는 Plant 인스턴스 하나를 들고 있다가, 화면에서 그대로 쓸 수
-  // 있도록 이름을 맞춘 getter로 흘려보낸다(forward)만 한다.
-  Plant plant = Plant(
-    userId: User.meId,
-    exp: 240,
-    axisScore: {PlantAxis.water: 82, PlantAxis.sun: 45, PlantAxis.nutri: 68},
-    cares: {'물 주기': 3, '햇빛 받기': 2, '영양 주기': 2},
-    missedDays: 0,
-    inventory: {'물방울': 6, '희귀 씨앗': 2, '전설 씨앗': 0, '정원 장식': 1},
-    giftTickets: 1,
-  );
+  // 성장 상태 · 저장 · 도감 수집 현황은 PlantViewModel이 맡는다. 화면이 예전처럼
+  // s.plantLevel 같은 이름으로 쓸 수 있게, 같은 이름으로 전달만 한다.
+  Plant get plant => _plantViewModel.plant;
 
   int get plantExp => plant.exp;
   Map<PlantAxis, int> get axisScore => plant.axisScore;
@@ -1775,128 +1699,30 @@ class AppState extends ChangeNotifier {
   String get plantMessage => plant.message;
   String get balanceHint => plant.balanceHint;
 
-  void care(String name) {
-    plant.care(name);
-    notifyListeners();
-    _schedulePlantSave();
-  }
-
-  void revive() {
-    plant.revive();
-    notifyListeners();
-    _schedulePlantSave();
-  }
-
-  /// friendUserId(친구의 User.id)의 정원에 물을 준다.
-  void waterFriend(String friendUserId) {
-    if (!plant.waterFriend(friendUserId)) return;
-    notifyListeners();
-    _schedulePlantSave();
-  }
-
-  /// 보관함 아이템 사용 — 즉시 1개 소모하고 효과를 바로 반영해요.
-  void useInventoryItem(String key) {
-    plant.useInventoryItem(key);
-    notifyListeners();
-    _schedulePlantSave();
-  }
-
-  void sendGiftFlower() {
-    if (!plant.sendGiftFlower()) return;
-    notifyListeners();
-    _schedulePlantSave();
-  }
+  void care(String name) => _plantViewModel.care(name);
+  void revive() => _plantViewModel.revive();
+  void waterFriend(String friendUserId) =>
+      _plantViewModel.waterFriend(friendUserId);
+  void useInventoryItem(String key) => _plantViewModel.useInventoryItem(key);
+  void sendGiftFlower() => _plantViewModel.sendGiftFlower();
 
   // 도감
-  //
-  // 카탈로그(어떤 종이 있는지)는 PlantSpecies.catalog가 담당하고, "내가 그
-  // 종을 얼마나 모았는지"는 계정별로 저장되는 dexEntries가 담당한다.
-  // 여기서는 둘을 합친 DexCard 목록만 다룬다.
-  String dexTab = '전체';
-  int dexPick = 0;
-
-  static const _dexDemoOwned = {
-    'sp_tulip',
-    'sp_sunflower',
-    'sp_rose',
-    'sp_daisy',
-    'sp_monstera',
-    'sp_cactus',
-    'sp_sprout',
-    'sp_cherry_blossom',
-  };
-  static const _dexDemoProgress = <String, int>{
-    'sp_rubber_tree': 62,
-    'sp_clover': 75,
-    'sp_rice': 40,
-    'sp_lotus': 55,
-    'sp_moss_fern': 30,
-    'sp_conifer': 45,
-    'sp_bamboo': 20,
-    'sp_mutant_tulip': 12,
-    'sp_golden_rose': 33,
-    'sp_rare_hibiscus': 8,
-  };
-
-  /// 데모(Mock) 계정에서 보여줄 예시 수집 상태. 실제 계정은 로그인 후
-  /// _loadDex에서 저장된 값(없으면 전부 미획득)으로 덮어쓴다.
-  List<DexEntry> dexEntries = [
-    for (final sp in PlantSpecies.catalog)
-      DexEntry(
-        userId: User.meId,
-        speciesId: sp.id,
-        owned: _dexDemoOwned.contains(sp.id),
-        progress: _dexDemoOwned.contains(sp.id)
-            ? 100
-            : (_dexDemoProgress[sp.id] ?? 0),
-      ),
-  ];
+  String get dexTab => _plantViewModel.dexTab;
+  int get dexPick => _plantViewModel.dexPick;
+  List<DexEntry> get dexEntries => _plantViewModel.dexEntries;
 
   /// 모두가 공유하는 도감 베이스 카탈로그.
   static List<PlantSpecies> get dexBase => PlantSpecies.catalog;
 
-  DexEntry _dexEntryFor(String speciesId) => dexEntries.firstWhere(
-    (e) => e.speciesId == speciesId,
-    orElse: () => DexEntry(userId: _uid, speciesId: speciesId),
-  );
-
-  List<DexCard> get _dexCards => [
-    for (final sp in PlantSpecies.catalog) DexCard(sp, _dexEntryFor(sp.id)),
-  ];
-
-  int get dexTotal => _dexCards.fold(0, (a, b) => a + b.variants.length);
-  int get dexOwned => _dexCards.fold(0, (a, b) => a + b.ownedVariants);
-  int get dexPct => ((dexOwned / dexTotal) * 100).round();
-
-  ({int own, int all}) dexTierCount(String tier) {
-    final g = _dexCards.where((c) => c.tier == tier);
-    return (
-      own: g.fold(0, (a, b) => a + b.ownedVariants),
-      all: g.fold(0, (a, b) => a + b.variants.length),
-    );
-  }
-
-  List<DexCard> get dexFiltered {
-    final cards = _dexCards;
-    return dexTab == '전체'
-        ? cards
-        : cards.where((c) => c.tier == dexTab).toList();
-  }
-
-  DexCard get dexSelected {
-    final cards = _dexCards;
-    return cards[dexPick.clamp(0, cards.length - 1)];
-  }
-
-  void setDexTab(String t) {
-    dexTab = t;
-    notifyListeners();
-  }
-
-  void setDexPick(DexCard c) {
-    dexPick = _dexCards.indexOf(c);
-    notifyListeners();
-  }
+  int get dexTotal => _plantViewModel.dexTotal;
+  int get dexOwned => _plantViewModel.dexOwned;
+  int get dexPct => _plantViewModel.dexPct;
+  ({int own, int all}) dexTierCount(String tier) =>
+      _plantViewModel.dexTierCount(tier);
+  List<DexCard> get dexFiltered => _plantViewModel.dexFiltered;
+  DexCard get dexSelected => _plantViewModel.dexSelected;
+  void setDexTab(String t) => _plantViewModel.setDexTab(t);
+  void setDexPick(DexCard c) => _plantViewModel.setDexPick(c);
 
   // 식단 추천
   List<String> needs = ['식이섬유', '칼슘'];
