@@ -5,6 +5,7 @@
 
 import 'dart:convert';
 import 'dart:math';
+import 'package:diet_project/ui/record/viewmodel/meal_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/weight_view_model.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:diet_project/data/services/app_icon_service.dart';
@@ -96,6 +97,7 @@ class AppState extends ChangeNotifier {
     ProfileRepository? profiles,
     WaterViewModel? waterViewModel,
     WeightViewModel? weightViewModel,
+    MealViewModel? mealViewModel,
     RecordRepository<ExerciseLog>? exerciseRepo,
     RecordRepository<MealLog>? mealRepo,
     RecordRepository<Bowl>? bowlRepo,
@@ -119,6 +121,12 @@ class AppState extends ChangeNotifier {
              weightRepo: MemoryRecordRepository(weightCodec),
              now: now,
            ),
+       _mealViewModel =
+           mealViewModel ??
+           MealViewModel(
+             mealRepo: mealRepo ?? MemoryRecordRepository(mealCodec),
+             now: now,
+           ),
        _exerciseRepo = exerciseRepo ?? MemoryRecordRepository(exerciseCodec),
        _mealRepo = mealRepo ?? MemoryRecordRepository(mealCodec),
        _bowlRepo = bowlRepo ?? MemoryRecordRepository(bowlCodec),
@@ -138,6 +146,7 @@ class AppState extends ChangeNotifier {
   /// 통해서 읽는다(물 데이터를 따로 복사해서 들고 있지 않는다).
   final WaterViewModel _waterViewModel;
   final WeightViewModel _weightViewModel;
+  final MealViewModel _mealViewModel;
   final RecordRepository<ExerciseLog> _exerciseRepo;
   final RecordRepository<MealLog> _mealRepo;
   final RecordRepository<Bowl> _bowlRepo;
