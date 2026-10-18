@@ -9,6 +9,7 @@ import 'package:diet_project/ui/onboarding/viewmodel/auth_view_model.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/bowl_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/exercise_view_model.dart';
+import 'package:diet_project/ui/record/viewmodel/meal_draft_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/meal_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/photo_analysis_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/records_view_model.dart';
@@ -56,6 +57,9 @@ class AppProviders extends StatelessWidget {
           value: state.exerciseViewModel,
         ),
         ChangeNotifierProvider<MealViewModel>.value(value: state.mealViewModel),
+        ChangeNotifierProvider<MealDraftViewModel>.value(
+          value: state.mealDraftViewModel,
+        ),
         ChangeNotifierProvider<BowlViewModel>.value(value: state.bowlViewModel),
         ChangeNotifierProvider<RoutineViewModel>.value(
           value: state.routineViewModel,

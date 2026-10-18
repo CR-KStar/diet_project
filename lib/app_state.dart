@@ -14,6 +14,7 @@ import 'package:diet_project/ui/onboarding/viewmodel/auth_view_model.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/bowl_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/exercise_view_model.dart';
+import 'package:diet_project/ui/record/viewmodel/meal_draft_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/meal_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/photo_analysis_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/records_view_model.dart';
@@ -39,7 +40,6 @@ import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
 import 'package:diet_project/data/repositories/challenge_repository.dart';
 import 'package:diet_project/data/repositories/activity_feed_repository.dart';
 import 'package:diet_project/domain/models/models.dart';
-import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:flutter/material.dart' show Offset;
 import 'dart:async';
 
@@ -176,6 +176,7 @@ class AppState extends ChangeNotifier {
       ..onSyncFailed = showNotice
       ..addListener(notifyListeners);
     _authViewModel.addListener(notifyListeners);
+    _mealDraftViewModel.addListener(notifyListeners);
     _aiConsentViewModel.addListener(notifyListeners);
     _notificationInboxViewModel.addListener(notifyListeners);
     // 미션과 리포트는 여러 기록에서 값을 계산하므로, 그 기록이 바뀌면 다시 계산하게 알린다.
@@ -217,6 +218,7 @@ class AppState extends ChangeNotifier {
   WeightViewModel get weightViewModel => _weightViewModel;
   ExerciseViewModel get exerciseViewModel => _exerciseViewModel;
   MealViewModel get mealViewModel => _mealViewModel;
+  MealDraftViewModel get mealDraftViewModel => _mealDraftViewModel;
   BowlViewModel get bowlViewModel => _bowlViewModel;
   RoutineViewModel get routineViewModel => _routineViewModel;
   PlantViewModel get plantViewModel => _plantViewModel;
@@ -231,6 +233,7 @@ class AppState extends ChangeNotifier {
   ChallengeViewModel get challengeViewModel => _challengeViewModel;
 
   final AuthViewModel _authViewModel;
+  final MealDraftViewModel _mealDraftViewModel = MealDraftViewModel();
   final AiConsentViewModel _aiConsentViewModel;
   final NotificationInboxViewModel _notificationInboxViewModel;
   final ProfileViewModel _profileViewModel;
@@ -738,58 +741,39 @@ class AppState extends ChangeNotifier {
   void readAll() => _notificationInboxViewModel.readAll();
 
   // 식단 기록 · 부가 정보
-  /// 식단 화면의 입력값은 이 Draft 하나가 소유합니다.
-  final MealDraft mealDraft = MealDraft(
-    proteinType: '돼지고기',
-    sauce: '저당 소스',
-    cookingMethod: '볶음',
-    carbohydrateType: '백미',
-  );
+  // 식단 기록 · 부가 정보 — 입력값(끼니 · 소스 · 양 · 태그 · 메모)은 MealDraftViewModel이 맡는다.
+  // 화면이 예전처럼 s.extras 같은 이름으로 쓸 수 있게, 같은 이름으로 전달만 한다.
+  MealDraft get mealDraft => _mealDraftViewModel.mealDraft;
+  Map<String, String> get extras => _mealDraftViewModel.extras;
+  Map<String, String> get customInputs => _mealDraftViewModel.customInputs;
+  String get portion => _mealDraftViewModel.portion;
+  int get portionPct => _mealDraftViewModel.portionPct;
+  String get fill => _mealDraftViewModel.fill;
+  List<String> get tags => _mealDraftViewModel.tags;
+  List<String> get customTags => _mealDraftViewModel.customTags;
+  String get tagInput => _mealDraftViewModel.tagInput;
+  set tagInput(String value) => _mealDraftViewModel.tagInput = value;
+  String get memo => _mealDraftViewModel.memo;
+  set memo(String value) => _mealDraftViewModel.memo = value;
+  double get portionRatio => _mealDraftViewModel.portionRatio;
 
-  Map<String, String> get extras => {
-    'meat': mealDraft.proteinType ?? '',
-    'sauce': mealDraft.sauce ?? '',
-    'cook': mealDraft.cookingMethod ?? '',
-    'carb': mealDraft.carbohydrateType ?? '',
-    'meal': mealDraft.customMealTypeLabel ?? mealDraft.mealType.label,
-    'context': mealDraft.customContextLabel ?? mealDraft.context.label,
-  };
+  Map<String, String>? get savedPreset => _mealDraftViewModel.savedPreset;
+  int? get savedPresetBowlIndex => _mealDraftViewModel.savedPresetBowlIndex;
+  String? get savedPresetPortion => _mealDraftViewModel.savedPresetPortion;
+  String? get savedPresetFill => _mealDraftViewModel.savedPresetFill;
+  void saveExtrasAsPreset() =>
+      _mealDraftViewModel.saveExtrasAsPreset(bowlIndex: bowlIndex);
 
-  final Map<String, String> customInputs = {
-    'meat': '',
-    'sauce': '',
-    'cook': '',
-    'carb': '',
-    'meal': '',
-    'context': '',
-  };
-
-  String get portion => mealDraft.portion.label;
-  int get portionPct => mealDraft.portionPercent;
-  String get fill => mealDraft.fillLevel.label;
-  List<String> get tags => mealDraft.tags;
-  List<String> customTags = [];
-  String tagInput = '';
-  String get memo => mealDraft.memo;
-  set memo(String value) => mealDraft.memo = value;
-
-  /// 부가 정보 화면에서 "자주 쓰는 설정으로 저장" 했을 때의 스냅샷
-  Map<String, String>? savedPreset;
-  int? savedPresetBowlIndex;
-  String? savedPresetPortion;
-  String? savedPresetFill;
-
-  void saveExtrasAsPreset() {
-    savedPreset = Map.of(extras);
-    savedPresetBowlIndex = bowlIndex;
-    savedPresetPortion = portion;
-    savedPresetFill = fill;
-    notifyListeners();
-  }
-
-  double get portionRatio => mealDraft.portion == PortionSize.custom
-      ? mealDraft.portionPercent / 100
-      : (DietRules.portionRatio[portion] ?? 1.0);
+  void setExtra(String key, String value) =>
+      _mealDraftViewModel.setExtra(key, value);
+  void setCustomInput(String key, String value) =>
+      _mealDraftViewModel.setCustomInput(key, value);
+  bool applyCustom(String key) => _mealDraftViewModel.applyCustom(key);
+  void setPortion(String p) => _mealDraftViewModel.setPortion(p);
+  void setPortionPct(int pct) => _mealDraftViewModel.setPortionPct(pct);
+  void setFill(String f) => _mealDraftViewModel.setFill(f);
+  void toggleTag(String t) => _mealDraftViewModel.toggleTag(t);
+  bool addCustomTag() => _mealDraftViewModel.addCustomTag();
 
   /// AI가 사진만 보고 추정한 기본 칼로리 (부가 정보 반영 전)
   int get baseKcal => _photoAnalysisViewModel.baseKcal;
@@ -860,95 +844,14 @@ class AppState extends ChangeNotifier {
   /// 지금 선택된 그릇 — 등록한 그릇이 하나도 없으면 null (그릇 없이도 기록할 수 있다).
   Bowl? get currentBowl => _bowlViewModel.currentBowl;
 
-  /// 부가 정보 반영 보정 칼로리
-  int get adjustedKcal {
-    var v =
-        baseKcal *
-        portionRatio *
-        (DietRules.fillRatio[fill] ?? 1.0) *
-        (currentBowl?.capacityFactor ?? 1.0);
-    v *= DietRules.cookFactor[extras['cook']] ?? 1.0;
-    v *= DietRules.sauceFactor[extras['sauce']] ?? 1.0;
-    v *= DietRules.proteinFactor[extras['meat']] ?? 1.0;
-    return v.round();
-  }
+  /// 부가 정보 반영 보정 칼로리 (입력값 + 사진 분석의 기본 칼로리 + 고른 그릇)
+  int get adjustedKcal =>
+      _mealDraftViewModel.adjustedKcal(baseKcal: baseKcal, bowl: currentBowl);
 
-  void setExtra(String key, String value) {
-    switch (key) {
-      case 'meat':
-        mealDraft.proteinType = value;
-        break;
-      case 'sauce':
-        mealDraft.sauce = value;
-        break;
-      case 'cook':
-        mealDraft.cookingMethod = value;
-        break;
-      case 'carb':
-        mealDraft.carbohydrateType = value;
-        break;
-      case 'meal':
-        final type = _mealTypeFromLabel(value);
-        mealDraft.mealType = type;
-        mealDraft.customMealTypeLabel = type.label == value ? null : value;
-        break;
-      case 'context':
-        final context = _mealContextFromLabel(value);
-        mealDraft.context = context;
-        mealDraft.customContextLabel = context.label == value ? null : value;
-        break;
-    }
+  void selectBowl(int i) {
+    bowlIndex = i;
+    mealDraft.bowlId = bowls[i].id;
     notifyListeners();
-  }
-
-  void setCustomInput(String key, String value) {
-    customInputs[key] = value;
-    notifyListeners();
-  }
-
-  /// 직접 입력값 적용 — 칩으로 추가되고 즉시 선택됩니다.
-  bool applyCustom(String key) {
-    final v = (customInputs[key] ?? '').trim();
-    if (v.isEmpty) return false;
-    customInputs[key] = '';
-    setExtra(key, v);
-    return true;
-  }
-
-  void setPortion(String p) {
-    mealDraft.portion = _portionFromLabel(p);
-    mealDraft.portionPercent =
-        {'전체': 100, '반절': 50, '1/3': 33}[p] ?? mealDraft.portionPercent;
-    notifyListeners();
-  }
-
-  void setPortionPct(int pct) {
-    mealDraft.portionPercent = pct.clamp(1, 300);
-    mealDraft.portion = pct == 100
-        ? PortionSize.full
-        : pct == 50
-        ? PortionSize.half
-        : pct == 33
-        ? PortionSize.third
-        : PortionSize.custom;
-    notifyListeners();
-  }
-
-  void toggleTag(String t) {
-    tags.contains(t) ? tags.remove(t) : tags.add(t);
-    notifyListeners();
-  }
-
-  bool addCustomTag() {
-    final raw = tagInput.trim();
-    if (raw.isEmpty) return false;
-    final t = raw.startsWith('#') ? raw : '#$raw';
-    if (tags.contains(t)) return false;
-    if (!customTags.contains(t)) customTags.add(t);
-    tags.add(t);
-    tagInput = '';
-    notifyListeners();
-    return true;
   }
 
   // 기록 탭 — 달력(보고 있는 달 · 날짜)과 "기록한 날 · 연속 기록" 계산은
@@ -979,7 +882,7 @@ class AppState extends ChangeNotifier {
     final log = MealLog(
       id: 'meal_${DateTime.now().microsecondsSinceEpoch}',
       userId: _uid,
-      mealType: _mealTypeFromLabel(extras['meal'] ?? '점심'),
+      mealType: MealDraftViewModel.mealTypeFromLabel(extras['meal'] ?? '점심'),
       name: aiMealName ?? '식사 (직접 기록)',
       meta: bowl == null
           ? '기록 · $fill · ${extras['context']}'
@@ -1196,43 +1099,6 @@ class AppState extends ChangeNotifier {
   void cancelBowlEdit() => _bowlViewModel.cancelBowlEdit();
   bool saveBowl() => _bowlViewModel.saveBowl();
   void removeBowl(int i) => _bowlViewModel.removeBowl(i);
-
-  void selectBowl(int i) {
-    bowlIndex = i;
-    mealDraft.bowlId = bowls[i].id;
-    notifyListeners();
-  }
-
-  void setFill(String f) {
-    mealDraft.fillLevel = switch (f) {
-      '반' => BowlFillLevel.half,
-      '1/3' => BowlFillLevel.third,
-      _ => BowlFillLevel.full,
-    };
-    notifyListeners();
-  }
-
-  static MealType _mealTypeFromLabel(String value) => switch (value) {
-    '아침' => MealType.breakfast,
-    '저녁' => MealType.dinner,
-    '간식' => MealType.snack,
-    _ => MealType.lunch,
-  };
-
-  static MealContext _mealContextFromLabel(String value) => switch (value) {
-    '집밥' => MealContext.home,
-    '외식' => MealContext.diningOut,
-    '배달' => MealContext.delivery,
-    '도시락' => MealContext.lunchbox,
-    _ => MealContext.other,
-  };
-
-  static PortionSize _portionFromLabel(String value) => switch (value) {
-    '반절' => PortionSize.half,
-    '1/3' => PortionSize.third,
-    '직접' => PortionSize.custom,
-    _ => PortionSize.full,
-  };
 
   // 식물
   //

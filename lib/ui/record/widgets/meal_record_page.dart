@@ -7,6 +7,7 @@ import '../../../common.dart';
 import '../../core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/ui/record/viewmodel/bowl_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/photo_analysis_view_model.dart';
+import 'package:diet_project/ui/record/viewmodel/meal_draft_view_model.dart';
 
 /// 식단 촬영/기록 화면 — 사진(자리표시자) + AI 분석 결과 + 저장
 class CaptureScreen extends StatelessWidget {
@@ -14,6 +15,7 @@ class CaptureScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final draft = context.watch<MealDraftViewModel>();
     final s = context.watch<AppState>();
     if (s.extraOpen) return const _ExtraInfoBody();
 
@@ -27,7 +29,7 @@ class CaptureScreen extends StatelessWidget {
           onTap: () {
             s.logMeal();
             s.go('home');
-            toast(context, '${s.extras['meal']} 기록 저장 · AI 추정값으로 반영됐어요');
+            toast(context, '${draft.extras['meal']} 기록 저장 · AI 추정값으로 반영됐어요');
           },
         ),
         TextLink(
@@ -345,6 +347,7 @@ class _ExtraInfoBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bowlVm = context.watch<BowlViewModel>();
+    final draft = context.watch<MealDraftViewModel>();
     final s = context.watch<AppState>();
     final bowl = bowlVm.currentBowl;
 
@@ -403,7 +406,7 @@ class _ExtraInfoBody extends StatelessWidget {
           onTap: () {
             s.logMeal();
             s.go('home');
-            toast(context, '${s.extras['meal']} 기록 저장 · 부가 정보가 반영됐어요');
+            toast(context, '${draft.extras['meal']} 기록 저장 · 부가 정보가 반영됐어요');
           },
         ),
         TextLink(
@@ -425,6 +428,7 @@ class _AdjustedKcalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final draft = context.watch<MealDraftViewModel>();
     final s = context.watch<AppState>();
     final photo = context.watch<PhotoAnalysisViewModel>();
     return AppCard(
@@ -463,8 +467,8 @@ class _AdjustedKcalCard extends StatelessWidget {
                 const SizedBox(height: AppSpace.s6),
                 Text(
                   bowl == null
-                      ? '${s.portion} · ${s.fill}'
-                      : '${s.portion} · ${bowl!.name} ${s.fill}',
+                      ? '${draft.portion} · ${draft.fill}'
+                      : '${draft.portion} · ${bowl!.name} ${draft.fill}',
                   style: t(AppFontSize.f11, c: AppColor.textFaint),
                 ),
               ],
@@ -516,9 +520,9 @@ class _ExtraFieldCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
-    final current = s.extras[fieldKey] ?? '';
-    final input = s.customInputs[fieldKey] ?? '';
+    final draft = context.watch<MealDraftViewModel>();
+    final current = draft.extras[fieldKey] ?? '';
+    final input = draft.customInputs[fieldKey] ?? '';
     final canApply = input.trim().isNotEmpty;
     return AppCard(
       padding: 16,
@@ -530,7 +534,7 @@ class _ExtraFieldCard extends StatelessWidget {
           ChipWrap(
             options: {...options, if (current.isNotEmpty) current}.toList(),
             isSelected: (o) => current == o,
-            onPick: (o) => s.setExtra(fieldKey, o),
+            onPick: (o) => draft.setExtra(fieldKey, o),
           ),
           const SizedBox(height: AppSpace.s10),
           Row(
@@ -540,7 +544,7 @@ class _ExtraFieldCard extends StatelessWidget {
                   value: input,
                   hint: _hints[fieldKey] ?? '직접 입력',
                   fontSize: 13,
-                  onChanged: (v) => s.setCustomInput(fieldKey, v),
+                  onChanged: (v) => draft.setCustomInput(fieldKey, v),
                 ),
               ),
               const SizedBox(width: AppSpace.s8),
@@ -550,7 +554,7 @@ class _ExtraFieldCard extends StatelessWidget {
                 fg: canApply ? AppColor.primaryDark : AppColor.textGhost,
                 onTap: canApply
                     ? () {
-                        if (s.applyCustom(fieldKey)) {
+                        if (draft.applyCustom(fieldKey)) {
                           toast(context, '$label 항목을 추가했어요');
                         }
                       }
@@ -569,7 +573,7 @@ class _PortionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final draft = context.watch<MealDraftViewModel>();
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -578,19 +582,19 @@ class _PortionCard extends StatelessWidget {
           const SizedBox(height: AppSpace.s11),
           SegmentedRow(
             options: const ['전체', '반절', '1/3', '직접'],
-            value: s.portion,
-            onChanged: s.setPortion,
+            value: draft.portion,
+            onChanged: draft.setPortion,
           ),
-          if (s.portion == '직접') ...[
+          if (draft.portion == '직접') ...[
             const SizedBox(height: AppSpace.s12),
             Text('직접 비율 입력', style: t(AppFontSize.f12, c: AppColor.textFaint)),
             const SizedBox(height: AppSpace.s8),
             NumberField(
-              value: s.portionPct,
+              value: draft.portionPct,
               unit: '%',
               fontSize: 22,
               max: 300,
-              onChanged: (v) => s.setPortionPct(v.toInt()),
+              onChanged: (v) => draft.setPortionPct(v.toInt()),
             ),
           ],
           const SizedBox(height: AppSpace.s16),
@@ -598,8 +602,8 @@ class _PortionCard extends StatelessWidget {
           const SizedBox(height: AppSpace.s11),
           SegmentedRow(
             options: const ['가득', '반', '1/3'],
-            value: s.fill,
-            onChanged: s.setFill,
+            value: draft.fill,
+            onChanged: draft.setFill,
           ),
         ],
       ),
@@ -615,6 +619,7 @@ class _BowlCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bowlVm = context.watch<BowlViewModel>();
+    final draft = context.watch<MealDraftViewModel>();
     final s = context.watch<AppState>();
     return AppCard(
       padding: 16,
@@ -670,7 +675,7 @@ class _BowlCard extends StatelessWidget {
                       ),
                       const SizedBox(height: AppSpace.s4),
                       Text(
-                        '${bowl!.capacityMl}ml · ${bowl!.material} · ${s.fill}',
+                        '${bowl!.capacityMl}ml · ${bowl!.material} · ${draft.fill}',
                         style: t(AppFontSize.f12, c: AppColor.textFaint),
                       ),
                     ],
@@ -691,6 +696,7 @@ class _MemoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final draft = context.watch<MealDraftViewModel>();
     final s = context.watch<AppState>();
     return AppCard(
       child: Column(
@@ -699,11 +705,11 @@ class _MemoCard extends StatelessWidget {
           Text('자유 메모', style: t(AppFontSize.f13, w: FontWeight.w700)),
           const SizedBox(height: AppSpace.s11),
           AppTextField(
-            value: s.memo,
+            value: draft.memo,
             hint: '예: 기름기 좀 많음, 소스는 절반만 뿌렸어요.',
             fontSize: 13,
             maxLines: 3,
-            onChanged: (v) => s.setSub(() => s.memo = v),
+            onChanged: (v) => s.setSub(() => draft.memo = v),
           ),
         ],
       ),
@@ -718,6 +724,7 @@ class _TagCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final draft = context.watch<MealDraftViewModel>();
     final s = context.watch<AppState>();
     return AppCard(
       padding: 16,
@@ -727,26 +734,30 @@ class _TagCard extends StatelessWidget {
           Text('태그', style: t(AppFontSize.f13, w: FontWeight.w700)),
           const SizedBox(height: AppSpace.s11),
           ChipWrap(
-            options: {..._tagOptions, ...s.customTags, ...s.tags}.toList(),
-            isSelected: (o) => s.tags.contains(o),
-            onPick: s.toggleTag,
+            options: {
+              ..._tagOptions,
+              ...draft.customTags,
+              ...draft.tags,
+            }.toList(),
+            isSelected: (o) => draft.tags.contains(o),
+            onPick: draft.toggleTag,
           ),
           const SizedBox(height: AppSpace.s10),
           Row(
             children: [
               Expanded(
                 child: AppTextField(
-                  value: s.tagInput,
+                  value: draft.tagInput,
                   hint: '새 태그 직접 입력',
                   fontSize: 13,
-                  onChanged: (v) => s.setSub(() => s.tagInput = v),
+                  onChanged: (v) => s.setSub(() => draft.tagInput = v),
                 ),
               ),
               const SizedBox(width: AppSpace.s8),
               SmallButton(
                 label: '추가',
                 onTap: () {
-                  if (s.addCustomTag()) toast(context, '태그를 추가했어요');
+                  if (draft.addCustomTag()) toast(context, '태그를 추가했어요');
                 },
               ),
             ],
