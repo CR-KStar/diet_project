@@ -10,8 +10,7 @@ import 'package:diet_project/domain/repositories/record_repository.dart';
 /// 어떤 그릇으로 식사를 기록할지 고르는 일(식단 입력값과 만나는 부분)은
 /// AppState가 맡고, 여기서는 그릇 자체만 다룬다.
 class BowlViewModel extends ChangeNotifier {
-  BowlViewModel({required RecordRepository<Bowl> bowlRepo})
-    : _bowlRepo = bowlRepo;
+  BowlViewModel({required this._bowlRepo});
 
   final RecordRepository<Bowl> _bowlRepo;
 

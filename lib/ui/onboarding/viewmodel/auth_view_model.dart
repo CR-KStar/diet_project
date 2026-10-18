@@ -10,7 +10,7 @@ import 'package:diet_project/data/auth/impl/mock_auth_service.dart';
 /// 로그인한 뒤 무엇을 불러오고, 로그아웃 · 삭제 뒤 무엇을 비우는지(여러 ViewModel이 얽힌
 /// 순서가 중요한 부분)는 AppState가 맡고, 호출할 때 함수로 넘겨받는다.
 class AuthViewModel extends ChangeNotifier {
-  AuthViewModel({required AuthService auth}) : _auth = auth;
+  AuthViewModel({required this._auth});
 
   final AuthService _auth;
 

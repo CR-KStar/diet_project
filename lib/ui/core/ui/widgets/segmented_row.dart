@@ -1,6 +1,5 @@
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:diet_project/ui/core/ui/widgets/text_style.dart';
 
 /// 균등 분할 세그먼트 (전체/반절/1/3 등)

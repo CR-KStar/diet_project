@@ -9,8 +9,7 @@ import 'package:diet_project/data/services/meal_recommendation_service.dart';
 /// 규칙 기반 목록으로 대신한다. 외부 AI로 보내도 되는지 묻는 동의는 사진 분석과
 /// 함께 쓰는 값이라 AppState가 갖고 있고, 여기서는 요청만 처리한다.
 class RecommendationViewModel extends ChangeNotifier {
-  RecommendationViewModel({required MealRecommendationService service})
-    : _service = service;
+  RecommendationViewModel({required this._service});
 
   final MealRecommendationService _service;
 

@@ -1,6 +1,5 @@
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:diet_project/ui/core/ui/widgets/text_style.dart';
 
 /// 화면 상단 알약 탭 (식물/도감, 활동/챌린지/친구 추가, 알림/개인정보)

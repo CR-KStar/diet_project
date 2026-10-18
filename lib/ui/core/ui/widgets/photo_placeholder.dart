@@ -1,6 +1,5 @@
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// 사진 플레이스홀더 — 대각선 스트라이프

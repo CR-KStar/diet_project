@@ -1,4 +1,5 @@
 /// 날짜 · 시각을 저장 · 비교에 쓰는 문자열로 바꾸는 함수들 — 앱 전체가 같은 모양을 쓰도록 한곳에 둔다.
+library;
 
 /// 'yyyy-MM-dd' — 기록의 날짜 키.
 String formatDateKey(DateTime d) =>

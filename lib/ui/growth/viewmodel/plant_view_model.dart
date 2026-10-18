@@ -39,14 +39,11 @@ typedef GardenPot = ({String emoji, String label, GardenPotKind kind});
 /// 계정에 저장하는 일만 한다. 식물은 자주 바뀌어서 저장은 잠깐 모아서 한 번만 한다.
 class PlantViewModel extends ChangeNotifier {
   PlantViewModel({
-    required RecordRepository<Plant> plantRepo,
-    required RecordRepository<DexEntry> dexRepo,
-    Duration saveDelay = const Duration(milliseconds: 500),
+    required this._plantRepo,
+    required this._dexRepo,
+    this._saveDelay = const Duration(milliseconds: 500),
     DateTime Function()? now,
-  }) : _plantRepo = plantRepo,
-       _dexRepo = dexRepo,
-       _saveDelay = saveDelay,
-       _now = now ?? DateTime.now;
+  }) : _now = now ?? DateTime.now;
 
   final RecordRepository<Plant> _plantRepo;
   final RecordRepository<DexEntry> _dexRepo;

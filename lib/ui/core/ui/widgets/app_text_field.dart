@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:diet_project/ui/core/ui/widgets/text_style.dart';
 
 /// 텍스트 직접 입력

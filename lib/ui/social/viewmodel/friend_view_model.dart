@@ -12,12 +12,10 @@ import 'package:diet_project/domain/repositories/friend_repository.dart';
 /// [nickname]으로 매번 물어본다.
 class FriendViewModel extends ChangeNotifier {
   FriendViewModel({
-    required FriendRepository friendRepo,
-    required ActivityFeedRepository activityFeedRepo,
+    required this._friendRepo,
+    required this._activityFeedRepo,
     DateTime Function()? now,
-  }) : _friendRepo = friendRepo,
-       _activityFeedRepo = activityFeedRepo,
-       _now = now ?? DateTime.now;
+  }) : _now = now ?? DateTime.now;
 
   final FriendRepository _friendRepo;
   final ActivityFeedRepository _activityFeedRepo;

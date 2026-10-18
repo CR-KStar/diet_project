@@ -5,9 +5,8 @@ import 'package:diet_project/domain/repositories/water_repository.dart';
 import 'package:diet_project/utils/date_format.dart';
 
 class WaterViewModel extends ChangeNotifier {
-  WaterViewModel({required WaterRepository waterRepo, DateTime Function()? now})
-    : _waterRepo = waterRepo,
-      _now = now ?? DateTime.now;
+  WaterViewModel({required this._waterRepo, DateTime Function()? now})
+    : _now = now ?? DateTime.now;
 
   final WaterRepository _waterRepo;
 

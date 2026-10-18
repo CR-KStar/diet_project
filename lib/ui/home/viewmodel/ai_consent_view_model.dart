@@ -5,7 +5,7 @@ import 'package:diet_project/data/services/ai_consent_store.dart';
 ///
 /// 동의 여부는 기기에 저장해 두었다가 앱을 켤 때 불러온다. 철회하면 다시 묻는다.
 class AiConsentViewModel extends ChangeNotifier {
-  AiConsentViewModel({required AiConsentStore store}) : _store = store;
+  AiConsentViewModel({required this._store});
 
   final AiConsentStore _store;
 

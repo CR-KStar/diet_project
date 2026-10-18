@@ -11,11 +11,8 @@ import 'package:diet_project/utils/date_format.dart';
 /// 어떤 날짜의 운동을 보여줄지(기록 탭의 달력)는 여러 기록이 함께 쓰는 값이라
 /// AppState가 갖고 있고, 여기서는 날짜를 매번 넘겨받는다.
 class ExerciseViewModel extends ChangeNotifier {
-  ExerciseViewModel({
-    required RecordRepository<ExerciseLog> exerciseRepo,
-    DateTime Function()? now,
-  }) : _exerciseRepo = exerciseRepo,
-       _now = now ?? DateTime.now;
+  ExerciseViewModel({required this._exerciseRepo, DateTime Function()? now})
+    : _now = now ?? DateTime.now;
 
   final RecordRepository<ExerciseLog> _exerciseRepo;
 

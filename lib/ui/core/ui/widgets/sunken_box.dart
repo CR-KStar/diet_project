@@ -1,6 +1,5 @@
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 /// 카드 안 옅은 서브 블록
 class SunkenBox extends StatelessWidget {

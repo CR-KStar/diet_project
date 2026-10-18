@@ -1,6 +1,5 @@
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class CheckDot extends StatelessWidget {
   const CheckDot({super.key, required this.on, this.size = 20, this.radius});

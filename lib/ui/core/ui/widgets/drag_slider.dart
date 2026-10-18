@@ -1,6 +1,5 @@
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:diet_project/ui/core/ui/widgets/progress_bar.dart';
 
 /// 드래그 가능한 슬라이더 (목표 체중 등). `onChanged`를 생략하면 드래그가 안 되는

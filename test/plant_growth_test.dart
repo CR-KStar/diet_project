@@ -38,7 +38,7 @@ void main() {
     });
 
     test('기록하면 그 기록에 맞는 돌보기가 1회씩 충전된다 (최대 횟수까지)', () {
-      final p = fresh()..cares.updateAll((_, __) => 0);
+      final p = fresh()..cares.updateAll((_, _) => 0);
 
       p.recharge(RecordKind.water);
       p.recharge(RecordKind.exercise);
@@ -54,7 +54,7 @@ void main() {
     });
 
     test('체중 기록은 돌보기를 충전하지 않는다', () {
-      final p = fresh()..cares.updateAll((_, __) => 0);
+      final p = fresh()..cares.updateAll((_, _) => 0);
 
       p.recharge(RecordKind.weight);
 
@@ -213,7 +213,7 @@ void main() {
 
     test('첫 기록으로 횟수가 세어지고, 돌보기가 충전되고, 새싹이 도감에 들어온다', () async {
       final vm = await started();
-      vm.plant.cares.updateAll((_, __) => 0);
+      vm.plant.cares.updateAll((_, _) => 0);
       expect(vm.dexOwned, 0);
 
       vm.onRecorded(RecordKind.meal, breakfast: true);
@@ -527,7 +527,7 @@ void main() {
     test('식단 · 운동 · 물 · 체중을 기록하면 식물에 반영된다', () {
       final s = AppState(now: () => DateTime(2026, 10, 18));
       final before = s.plantViewModel.plant.tally.totalRecords;
-      s.plantViewModel.plant.cares.updateAll((_, __) => 0);
+      s.plantViewModel.plant.cares.updateAll((_, _) => 0);
 
       s.logMeal();
       s.onWaterAdded(250);

@@ -10,8 +10,7 @@ import 'package:diet_project/domain/repositories/profile_repository.dart';
 /// 이 값들은 한 덩어리(SavedProfile)로 저장되므로, 하나라도 바뀌면 전체를 다시 저장한다.
 /// 로그인 · 로그아웃과 다른 기록들을 함께 불러오는 일(순서가 중요한 부분)은 AppState가 맡는다.
 class ProfileViewModel extends ChangeNotifier {
-  ProfileViewModel({required ProfileRepository profiles})
-    : _profiles = profiles;
+  ProfileViewModel({required this._profiles});
 
   final ProfileRepository _profiles;
 

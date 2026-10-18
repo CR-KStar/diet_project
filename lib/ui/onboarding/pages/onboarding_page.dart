@@ -7,7 +7,6 @@ import '../../core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/auth_view_model.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 import 'package:diet_project/domain/rules/diet_rules.dart';
-import 'package:diet_project/utils/app_state_format.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
 
@@ -213,8 +212,9 @@ class _AccountLinkStep extends StatelessWidget {
           label: '동의하고 시작하기',
           enabled: ok,
           onTap: () {
-            if (!profile.requiredTermsOk)
+            if (!profile.requiredTermsOk) {
               return toast(context, '필수 약관에 동의해 주세요');
+            }
             if (profile.nickname.trim().isEmpty) {
               return toast(context, '닉네임을 입력해 주세요');
             }

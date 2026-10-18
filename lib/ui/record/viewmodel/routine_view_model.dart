@@ -9,8 +9,7 @@ import 'package:diet_project/domain/repositories/record_repository.dart';
 /// 루틴을 불러와 운동 입력값에 채우는 일은 운동 ViewModel과 만나는 부분이라
 /// AppState가 맡고, 여기서는 루틴 목록과 저장·삭제만 다룬다.
 class RoutineViewModel extends ChangeNotifier {
-  RoutineViewModel({required RecordRepository<Routine> routineRepo})
-    : _routineRepo = routineRepo;
+  RoutineViewModel({required this._routineRepo});
 
   final RecordRepository<Routine> _routineRepo;
 

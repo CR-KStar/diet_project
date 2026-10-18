@@ -5,11 +5,8 @@ import 'package:diet_project/domain/repositories/record_repository.dart';
 import 'package:diet_project/utils/date_format.dart';
 
 class MealViewModel extends ChangeNotifier {
-  MealViewModel({
-    required RecordRepository<MealLog> mealRepo,
-    DateTime Function()? now,
-  }) : _mealRepo = mealRepo,
-       _now = now ?? DateTime.now;
+  MealViewModel({required this._mealRepo, DateTime Function()? now})
+    : _now = now ?? DateTime.now;
 
   final RecordRepository<MealLog> _mealRepo;
   final DateTime Function() _now;

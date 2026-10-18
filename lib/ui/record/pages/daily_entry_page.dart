@@ -14,7 +14,6 @@ import 'package:diet_project/ui/record/viewmodel/exercise_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/routine_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/today_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/records_view_model.dart';
-import 'package:diet_project/utils/app_state_format.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
 
@@ -1149,8 +1148,9 @@ class _BowlForm extends StatelessWidget {
                   label: isNew ? '그릇 저장' : '수정 저장',
                   enabled: d.name.trim().isNotEmpty,
                   onTap: () {
-                    if (!bowl.saveBowl())
+                    if (!bowl.saveBowl()) {
                       return toast(context, '그릇 이름을 입력해 주세요');
+                    }
                     toast(context, '“${d.name}” 그릇을 저장했어요');
                   },
                 ),

@@ -13,11 +13,8 @@ import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
 /// 참가자를 화면에 보여줄 때 필요한 "uid → 사람"은 친구 쪽 일이라 [userFor]로
 /// 넘겨받는다. 챌린지를 만든 뒤 어느 화면으로 이동할지는 AppState가 맡는다.
 class ChallengeViewModel extends ChangeNotifier {
-  ChallengeViewModel({
-    required ChallengeRepository challengeRepo,
-    DateTime Function()? now,
-  }) : _challengeRepo = challengeRepo,
-       _now = now ?? DateTime.now;
+  ChallengeViewModel({required this._challengeRepo, DateTime Function()? now})
+    : _now = now ?? DateTime.now;
 
   final ChallengeRepository _challengeRepo;
   final DateTime Function() _now;

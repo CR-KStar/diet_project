@@ -1,6 +1,5 @@
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:diet_project/ui/core/ui/widgets/text_style.dart';
 
 /// 가로 스크롤 칩 (알림 시간 선택 등)

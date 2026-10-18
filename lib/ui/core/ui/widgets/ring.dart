@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 /// 도넛 링 — 홈 칼로리, 영양소 비율, 식물 축
 class Ring extends StatelessWidget {

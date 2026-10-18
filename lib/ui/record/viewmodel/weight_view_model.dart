@@ -5,11 +5,8 @@ import 'package:diet_project/domain/repositories/record_repository.dart';
 import 'package:diet_project/utils/date_format.dart';
 
 class WeightViewModel extends ChangeNotifier {
-  WeightViewModel({
-    required RecordRepository<WeightEntry> weightRepo,
-    DateTime Function()? now,
-  }) : _weightRepo = weightRepo,
-       _now = now ?? DateTime.now;
+  WeightViewModel({required this._weightRepo, DateTime Function()? now})
+    : _now = now ?? DateTime.now;
 
   final RecordRepository<WeightEntry> _weightRepo;
   final DateTime Function() _now;
