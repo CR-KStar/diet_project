@@ -8,12 +8,15 @@ import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/common.dart';
 
 import 'plant_dex_page.dart';
+import 'package:diet_project/ui/growth/viewmodel/plant_view_model.dart';
+import 'package:diet_project/ui/social/viewmodel/friend_view_model.dart';
 
 class PlantScreen extends StatelessWidget {
   const PlantScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final plant = context.watch<PlantViewModel>();
     final s = context.watch<AppState>();
 
     return ScreenScroll(
@@ -30,8 +33,8 @@ class PlantScreen extends StatelessWidget {
             ),
             Text(
               s.plantTab == '도감'
-                  ? '${s.dexOwned} / ${s.dexTotal}종'
-                  : 'Lv.${s.plantLevel} · ${s.plantStage.name}',
+                  ? '${plant.dexOwned} / ${plant.dexTotal}종'
+                  : 'Lv.${plant.plantLevel} · ${plant.plantStage.name}',
               style: t(AppFontSize.f12, c: AppColor.textFaint),
             ),
           ],
@@ -147,13 +150,13 @@ class _PlantBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final plant = context.watch<PlantViewModel>();
 
     return Column(
       children: [
         const _StatusCard(),
         const SizedBox(height: AppSpace.cardGap),
-        if (s.wilting) ...[
+        if (plant.wilting) ...[
           const _RecoveryCard(),
           const SizedBox(height: AppSpace.cardGap),
         ],
@@ -190,8 +193,8 @@ class _StatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
-    final stage = s.plantStage;
+    final plant = context.watch<PlantViewModel>();
+    final stage = plant.plantStage;
 
     return AppCard(
       padding: 20,
@@ -202,15 +205,15 @@ class _StatusCard extends StatelessWidget {
             height: AppSpace.s126,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: s.wilting
+              color: plant.wilting
                   ? const Color(0xFFFBF7EC)
                   : const Color(0xFFF2F8F2),
               borderRadius: BorderRadius.circular(24),
             ),
             child: Transform.rotate(
-              angle: s.wilting ? -0.21 : 0,
+              angle: plant.wilting ? -0.21 : 0,
               child: Opacity(
-                opacity: s.wilting ? 0.72 : 1,
+                opacity: plant.wilting ? 0.72 : 1,
                 child: Text(
                   stage.emoji,
                   style: TextStyle(fontSize: stage.size),
@@ -224,15 +227,15 @@ class _StatusCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Pill(
-                  s.plantMood,
-                  bg: s.wilting
+                  plant.plantMood,
+                  bg: plant.wilting
                       ? const Color(0xFFFFF8E8)
-                      : s.balanced
+                      : plant.balanced
                       ? AppColor.primaryTint
                       : AppColor.surfaceSunken,
-                  fg: s.wilting
+                  fg: plant.wilting
                       ? const Color(0xFFA5811C)
-                      : s.balanced
+                      : plant.balanced
                       ? AppColor.primaryDark
                       : AppColor.textMuted,
                   fontSize: 11,
@@ -249,13 +252,15 @@ class _StatusCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpace.s6),
                 Text(
-                  s.plantMessage,
+                  plant.plantMessage,
                   style: t(AppFontSize.f12, c: AppColor.textMuted, h: 1.6),
                 ),
                 const SizedBox(height: AppSpace.s12),
                 ProgressBar(
-                  value: (s.plantExp % 100) / 100,
-                  color: s.wilting ? const Color(0xFFE8B33C) : AppColor.primary,
+                  value: (plant.plantExp % 100) / 100,
+                  color: plant.wilting
+                      ? const Color(0xFFE8B33C)
+                      : AppColor.primary,
                   height: AppSpace.s8,
                 ),
                 const SizedBox(height: AppSpace.s7),
@@ -263,11 +268,11 @@ class _StatusCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '${s.plantExp} EXP',
+                      '${plant.plantExp} EXP',
                       style: t(AppFontSize.f11, c: AppColor.textFaint),
                     ),
                     Text(
-                      s.plantExpLeft,
+                      plant.plantExpLeft,
                       style: t(AppFontSize.f11, c: AppColor.textFaint),
                     ),
                   ],
@@ -287,7 +292,7 @@ class _RecoveryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final plant = context.watch<PlantViewModel>();
     return AppCard(
       color: const Color(0xFFFFFCF3),
       border: const Color(0xFFFBE9BE),
@@ -310,7 +315,7 @@ class _RecoveryCard extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpace.s6),
                     Text(
-                      '기록을 ${s.missedDays}일 쉬었어요. ${s.graceLeft}일 안에 돌보면 지금 크기 그대로 회복돼요.',
+                      '기록을 ${plant.missedDays}일 쉬었어요. ${plant.graceLeft}일 안에 돌보면 지금 크기 그대로 회복돼요.',
                       style: t(
                         AppFontSize.f12,
                         c: const Color(0xFF9C8542),
@@ -326,7 +331,7 @@ class _RecoveryCard extends StatelessWidget {
                 bg: const Color(0xFFE8B33C),
                 fg: Colors.white,
                 onTap: () {
-                  s.revive();
+                  plant.revive();
                   toast(context, '잎이 다시 펴졌어요 · 오늘부터 이어서 자라요');
                 },
               ),
@@ -334,7 +339,7 @@ class _RecoveryCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpace.s12),
           ProgressBar(
-            value: s.graceLeft / 3,
+            value: plant.graceLeft / 3,
             color: const Color(0xFFE8B33C),
             height: AppSpace.s5,
             track: const Color(0xFFF5E7C4),
@@ -356,7 +361,7 @@ class _BalanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final plant = context.watch<PlantViewModel>();
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -366,9 +371,11 @@ class _BalanceCard extends StatelessWidget {
               Text('성장 균형', style: t(AppFontSize.f14, w: FontWeight.w700)),
               const Spacer(),
               Pill(
-                s.balanced ? '균형 좋음' : '조금 치우침',
-                bg: s.balanced ? AppColor.primaryTint : AppColor.surfaceSunken,
-                fg: s.balanced ? AppColor.primaryDark : AppColor.textFaint,
+                plant.balanced ? '균형 좋음' : '조금 치우침',
+                bg: plant.balanced
+                    ? AppColor.primaryTint
+                    : AppColor.surfaceSunken,
+                fg: plant.balanced ? AppColor.primaryDark : AppColor.textFaint,
               ),
             ],
           ),
@@ -389,7 +396,10 @@ class _BalanceCard extends StatelessWidget {
                         thickness: 8,
                         track: AppColor.divider,
                         segments: [
-                          (value: s.axisScore[a.key]! / 100, color: a.color),
+                          (
+                            value: plant.axisScore[a.key]! / 100,
+                            color: a.color,
+                          ),
                         ],
                         center: Container(
                           width: AppSpace.s52,
@@ -417,11 +427,11 @@ class _BalanceCard extends StatelessWidget {
                       ),
                       const SizedBox(height: AppSpace.s5),
                       Text(
-                        '${s.axisScore[a.key]}%',
+                        '${plant.axisScore[a.key]}%',
                         style: t(
                           AppFontSize.f12,
                           w: FontWeight.w700,
-                          c: s.weakestAxis == a.key && !s.balanced
+                          c: plant.weakestAxis == a.key && !plant.balanced
                               ? a.color
                               : AppColor.text,
                         ),
@@ -435,7 +445,7 @@ class _BalanceCard extends StatelessWidget {
           const Divider(height: AppSpace.s1),
           const SizedBox(height: AppSpace.s14),
           Text(
-            s.balanceHint,
+            plant.balanceHint,
             style: t(AppFontSize.f12, c: AppColor.textMuted, h: 1.6),
           ),
         ],
@@ -450,7 +460,6 @@ class _CareCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -462,7 +471,7 @@ class _CareCard extends StatelessWidget {
             style: t(AppFontSize.f11, c: AppColor.textGhost),
           ),
           const SizedBox(height: AppSpace.s14),
-          for (final c in _careItems) _CareRow(item: c, s: s),
+          for (final c in _careItems) _CareRow(item: c),
         ],
       ),
     );
@@ -470,14 +479,14 @@ class _CareCard extends StatelessWidget {
 }
 
 class _CareRow extends StatelessWidget {
-  const _CareRow({required this.item, required this.s});
+  const _CareRow({required this.item});
 
   final ({String name, String icon, Color tint, String desc}) item;
-  final AppState s;
 
   @override
   Widget build(BuildContext context) {
-    final left = s.cares[item.name]!;
+    final plant = context.watch<PlantViewModel>();
+    final left = plant.cares[item.name]!;
     final done = left == 0;
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpace.s9),
@@ -524,7 +533,7 @@ class _CareRow extends StatelessWidget {
               onTap: done
                   ? null
                   : () {
-                      s.care(item.name);
+                      plant.care(item.name);
                       toast(
                         context,
                         '${item.name} 완료 · +${DietRules.careExp[item.name]} EXP',
@@ -645,8 +654,9 @@ class _GardenCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final plant = context.watch<PlantViewModel>();
     final s = context.watch<AppState>();
-    final stage = s.plantStage;
+    final stage = plant.plantStage;
 
     return AppCard(
       child: Column(
@@ -659,7 +669,7 @@ class _GardenCard extends StatelessWidget {
               GestureDetector(
                 onTap: () => s.setSub(() => s.plantTab = '도감'),
                 child: Text(
-                  '도감 ${s.dexOwned} / ${s.dexTotal} ›',
+                  '도감 ${plant.dexOwned} / ${plant.dexTotal} ›',
                   style: t(
                     AppFontSize.f11,
                     w: FontWeight.w700,
@@ -783,7 +793,6 @@ class _InventoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -812,7 +821,7 @@ class _InventoryCard extends StatelessWidget {
             crossAxisSpacing: 10,
             childAspectRatio: 1.9,
             children: [
-              for (final it in _inventoryItems) _InventoryTile(item: it, s: s),
+              for (final it in _inventoryItems) _InventoryTile(item: it),
             ],
           ),
         ],
@@ -822,19 +831,19 @@ class _InventoryCard extends StatelessWidget {
 }
 
 class _InventoryTile extends StatelessWidget {
-  const _InventoryTile({required this.item, required this.s});
+  const _InventoryTile({required this.item});
 
   final ({String key, String icon, String desc, Color tint, Color color}) item;
-  final AppState s;
 
   @override
   Widget build(BuildContext context) {
-    final count = s.inventory[item.key] ?? 0;
+    final plant = context.watch<PlantViewModel>();
+    final count = plant.inventory[item.key] ?? 0;
     final active = count > 0;
     return GestureDetector(
       onTap: active
           ? () {
-              s.useInventoryItem(item.key);
+              plant.useInventoryItem(item.key);
               toast(context, '“${item.key}” 사용 · ${item.desc}');
             }
           : () => toast(context, '보유한 “${item.key}”이 없어요'),
@@ -903,7 +912,7 @@ class _GiftCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final plant = context.watch<PlantViewModel>();
     return AppCard(
       color: const Color(0xFFF5F1FC),
       child: Row(
@@ -928,7 +937,7 @@ class _GiftCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpace.s7),
                 Text(
-                  '챌린지를 완주해서 선물권 ${s.giftTickets}회가 열렸어요. 친구 정원에 꽃을 심어줄 수 있어요.',
+                  '챌린지를 완주해서 선물권 ${plant.giftTickets}회가 열렸어요. 친구 정원에 꽃을 심어줄 수 있어요.',
                   style: t(AppFontSize.f11, c: const Color(0xFF8578AD), h: 1.5),
                 ),
               ],
@@ -936,9 +945,9 @@ class _GiftCard extends StatelessWidget {
           ),
           const SizedBox(width: AppSpace.s12),
           GestureDetector(
-            onTap: s.giftTickets > 0
+            onTap: plant.giftTickets > 0
                 ? () {
-                    s.sendGiftFlower();
+                    plant.sendGiftFlower();
                     toast(context, '친구 정원에 꽃을 선물했어요 🌷');
                   }
                 : null,
@@ -948,7 +957,9 @@ class _GiftCard extends StatelessWidget {
                 vertical: AppSpace.s13,
               ),
               decoration: BoxDecoration(
-                color: s.giftTickets > 0 ? AppColor.purple : AppColor.disabled,
+                color: plant.giftTickets > 0
+                    ? AppColor.purple
+                    : AppColor.disabled,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text(
@@ -956,7 +967,7 @@ class _GiftCard extends StatelessWidget {
                 style: t(
                   AppFontSize.f13,
                   w: FontWeight.w700,
-                  c: s.giftTickets > 0 ? Colors.white : AppColor.textGhost,
+                  c: plant.giftTickets > 0 ? Colors.white : AppColor.textGhost,
                 ),
               ),
             ),
@@ -973,7 +984,8 @@ class _FriendGardenCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final friends = context.watch<FriendViewModel>();
+    final plant = context.watch<PlantViewModel>();
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -983,7 +995,7 @@ class _FriendGardenCard extends StatelessWidget {
               Text('친구 정원', style: t(AppFontSize.f14, w: FontWeight.w700)),
               const Spacer(),
               Text(
-                '오늘 물 주기 ${s.wateredFriends.length} / ${DietRules.dailyFriendWatering}',
+                '오늘 물 주기 ${plant.wateredFriends.length} / ${DietRules.dailyFriendWatering}',
                 style: t(AppFontSize.f11, c: AppColor.textFaint),
               ),
             ],
@@ -994,13 +1006,13 @@ class _FriendGardenCard extends StatelessWidget {
             style: t(AppFontSize.f11, c: AppColor.textGhost),
           ),
           const SizedBox(height: AppSpace.s14),
-          if (s.realFriends.isEmpty)
+          if (friends.realFriends.isEmpty)
             Text(
               '아직 친구가 없어요. 친구 탭에서 초대 코드로 친구를 추가하면 여기에서 물을 줄 수 있어요.',
               style: t(AppFontSize.f12, c: AppColor.textFaint, h: 1.6),
             )
           else
-            for (final f in s.realFriends) _FriendGardenRow(friend: f, s: s),
+            for (final f in friends.realFriends) _FriendGardenRow(friend: f),
         ],
       ),
     );
@@ -1008,14 +1020,14 @@ class _FriendGardenCard extends StatelessWidget {
 }
 
 class _FriendGardenRow extends StatelessWidget {
-  const _FriendGardenRow({required this.friend, required this.s});
+  const _FriendGardenRow({required this.friend});
 
   final PublicProfile friend;
-  final AppState s;
 
   @override
   Widget build(BuildContext context) {
-    final done = s.wateredFriends.contains(friend.uid);
+    final plant = context.watch<PlantViewModel>();
+    final done = plant.wateredFriends.contains(friend.uid);
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpace.s9),
       child: SunkenBox(
@@ -1054,7 +1066,7 @@ class _FriendGardenRow extends StatelessWidget {
               onTap: done
                   ? null
                   : () {
-                      s.waterFriend(friend.uid);
+                      plant.waterFriend(friend.uid);
                       toast(
                         context,
                         '${friend.nickname}님 정원에 물을 줬어요 · +${DietRules.friendWateringExp} EXP',

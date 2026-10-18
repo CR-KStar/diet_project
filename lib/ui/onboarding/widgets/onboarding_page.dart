@@ -5,21 +5,23 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart'
 import '../../../app_state.dart';
 import '../../../common.dart';
 import '../../core/ui/themes/theme_tokens.dart';
+import 'package:diet_project/ui/onboarding/viewmodel/auth_view_model.dart';
+import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 
 class OnboardingPage extends StatelessWidget {
   const OnboardingPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final profile = context.watch<ProfileViewModel>();
 
-    // s.step: 1(계정 연결), 2(목표), 3(신체), 4(알림)
+    // profile.step: 1(계정 연결), 2(목표), 3(신체), 4(알림)
     Widget body;
-    if (s.step == 2) {
+    if (profile.step == 2) {
       body = const _GoalStep();
-    } else if (s.step == 3) {
+    } else if (profile.step == 3) {
       body = const _BodyStep();
-    } else if (s.step == 4) {
+    } else if (profile.step == 4) {
       body = const _AlertStep();
     } else {
       body = const _AccountLinkStep();
@@ -39,9 +41,10 @@ class _AccountLinkStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final profile = context.watch<ProfileViewModel>();
     final s = context.watch<AppState>();
     final apple = s.provider == 'Apple';
-    final ok = s.requiredTermsOk && s.nickname.trim().isNotEmpty;
+    final ok = profile.requiredTermsOk && profile.nickname.trim().isNotEmpty;
 
     return ScreenScroll(
       horizontal: AppSpace.s20,
@@ -126,10 +129,10 @@ class _AccountLinkStep extends StatelessWidget {
               ),
               const SizedBox(height: AppSpace.s9),
               AppTextField(
-                value: s.nickname,
+                value: profile.nickname,
                 hint: '닉네임',
                 fontSize: 15,
-                onChanged: (v) => s.setSub(() => s.nickname = v),
+                onChanged: (v) => s.setSub(() => profile.nickname = v),
               ),
               const SizedBox(height: AppSpace.s9),
               Text(
@@ -145,14 +148,14 @@ class _AccountLinkStep extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               GestureDetector(
-                onTap: s.toggleAllTerms,
+                onTap: profile.toggleAllTerms,
                 behavior: HitTestBehavior.opaque,
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: AppSpace.s13),
                   child: Row(
                     children: [
                       CheckDot(
-                        on: s.terms.values.every((v) => v),
+                        on: profile.terms.values.every((v) => v),
                         size: 22,
                         radius: 7,
                       ),
@@ -167,14 +170,14 @@ class _AccountLinkStep extends StatelessWidget {
               ),
               const Divider(height: AppSpace.s1),
               const SizedBox(height: AppSpace.s13),
-              for (final k in s.terms.keys)
+              for (final k in profile.terms.keys)
                 Padding(
                   padding: const EdgeInsets.only(bottom: AppSpace.s12),
                   child: Row(
                     children: [
                       GestureDetector(
-                        onTap: () => s.toggleTerm(k),
-                        child: CheckDot(on: s.terms[k]!),
+                        onTap: () => profile.toggleTerm(k),
+                        child: CheckDot(on: profile.terms[k]!),
                       ),
                       const SizedBox(width: AppSpace.s10),
                       Expanded(
@@ -202,8 +205,9 @@ class _AccountLinkStep extends StatelessWidget {
           label: '동의하고 시작하기',
           enabled: ok,
           onTap: () {
-            if (!s.requiredTermsOk) return toast(context, '필수 약관에 동의해 주세요');
-            if (s.nickname.trim().isEmpty) {
+            if (!profile.requiredTermsOk)
+              return toast(context, '필수 약관에 동의해 주세요');
+            if (profile.nickname.trim().isEmpty) {
               return toast(context, '닉네임을 입력해 주세요');
             }
             s.goToStep(2);
@@ -304,6 +308,7 @@ class _GoalStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final profile = context.watch<ProfileViewModel>();
     final s = context.watch<AppState>();
 
     return ScreenScroll(
@@ -314,7 +319,7 @@ class _GoalStep extends StatelessWidget {
           stepNo: 1,
           title: '어떤 목표로 시작할까요?',
           desc: '목표와 평소 활동량에 맞춰 하루 권장 칼로리를 계산해요.',
-          onBack: () => s.setSub(() => s.step = 1),
+          onBack: () => s.setSub(() => profile.step = 1),
         ),
 
         AppCard(
@@ -325,11 +330,11 @@ class _GoalStep extends StatelessWidget {
               const SizedBox(height: AppSpace.s12),
               for (final g in _goals) ...[
                 GestureDetector(
-                  onTap: () => s.setSub(() => s.goal = g.$1),
+                  onTap: () => s.setSub(() => profile.goal = g.$1),
                   child: Container(
                     padding: const EdgeInsets.all(AppSpace.s14),
                     decoration: AppDeco.selectableCard(
-                      selected: s.goal == g.$1,
+                      selected: profile.goal == g.$1,
                     ),
                     child: Row(
                       children: [
@@ -352,7 +357,7 @@ class _GoalStep extends StatelessWidget {
                             ],
                           ),
                         ),
-                        CheckDot(on: s.goal == g.$1, size: 20),
+                        CheckDot(on: profile.goal == g.$1, size: 20),
                       ],
                     ),
                   ),
@@ -371,12 +376,12 @@ class _GoalStep extends StatelessWidget {
               const SizedBox(height: AppSpace.s12),
               SegmentedRow(
                 options: DietRules.activityFactor.keys.toList(),
-                value: s.activity,
-                onChanged: (v) => s.setSub(() => s.activity = v),
+                value: profile.activity,
+                onChanged: (v) => s.setSub(() => profile.activity = v),
               ),
               const SizedBox(height: AppSpace.s12),
               Text(
-                _activityDesc[s.activity] ?? '',
+                _activityDesc[profile.activity] ?? '',
                 style: t(AppFontSize.f11, c: AppColor.textGhost, h: 1.6),
               ),
             ],
@@ -404,6 +409,7 @@ class _BodyStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final profile = context.watch<ProfileViewModel>();
     final s = context.watch<AppState>();
 
     return ScreenScroll(
@@ -414,7 +420,7 @@ class _BodyStep extends StatelessWidget {
           stepNo: 2,
           title: '신체 정보를 알려주세요',
           desc: '기초대사량과 권장 칼로리를 정확히 계산하는 데 쓰여요.',
-          onBack: () => s.setSub(() => s.step = 2),
+          onBack: () => s.setSub(() => profile.step = 2),
         ),
 
         AppCard(
@@ -426,23 +432,23 @@ class _BodyStep extends StatelessWidget {
                   Expanded(
                     child: _UnderlineField(
                       label: '키',
-                      value: s.heightCm,
+                      value: profile.heightCm,
                       unit: 'cm',
                       decimal: true,
                       onChanged: (v) =>
-                          s.setSub(() => s.heightCm = v.toDouble()),
+                          s.setSub(() => profile.heightCm = v.toDouble()),
                     ),
                   ),
                   const SizedBox(width: AppSpace.s12),
                   Expanded(
                     child: _UnderlineField(
                       label: '현재 몸무게',
-                      value: s.weightKg,
+                      value: profile.weightKg,
                       unit: 'kg',
                       decimal: true,
                       onChanged: (v) => s.setSub(() {
-                        s.weightKg = v.toDouble();
-                        s.goalWeight = v.toDouble();
+                        profile.weightKg = v.toDouble();
+                        profile.goalWeight = v.toDouble();
                       }),
                     ),
                   ),
@@ -454,9 +460,9 @@ class _BodyStep extends StatelessWidget {
                   Expanded(
                     child: _UnderlineField(
                       label: '나이',
-                      value: s.age,
+                      value: profile.age,
                       unit: '세',
-                      onChanged: (v) => s.setSub(() => s.age = v.toInt()),
+                      onChanged: (v) => s.setSub(() => profile.age = v.toInt()),
                     ),
                   ),
                   const SizedBox(width: AppSpace.s12),
@@ -478,16 +484,18 @@ class _BodyStep extends StatelessWidget {
                             Expanded(
                               child: _GenderButton(
                                 label: '여성',
-                                selected: s.gender == '여성',
-                                onTap: () => s.setSub(() => s.gender = '여성'),
+                                selected: profile.gender == '여성',
+                                onTap: () =>
+                                    s.setSub(() => profile.gender = '여성'),
                               ),
                             ),
                             const SizedBox(width: AppSpace.s6),
                             Expanded(
                               child: _GenderButton(
                                 label: '남성',
-                                selected: s.gender == '남성',
-                                onTap: () => s.setSub(() => s.gender = '남성'),
+                                selected: profile.gender == '남성',
+                                onTap: () =>
+                                    s.setSub(() => profile.gender = '남성'),
                               ),
                             ),
                           ],
@@ -512,10 +520,10 @@ class _BodyStep extends StatelessWidget {
                   Expanded(
                     child: _CalcTile(
                       label: 'BMI',
-                      value: (s.bmi.isInfinite || s.bmi.isNaN)
+                      value: (profile.bmi.isInfinite || profile.bmi.isNaN)
                           ? '-'
-                          : s.bmi.toStringAsFixed(1),
-                      sub: _bmiLabel(s.bmi),
+                          : profile.bmi.toStringAsFixed(1),
+                      sub: _bmiLabel(profile.bmi),
                       highlight: true,
                     ),
                   ),
@@ -523,9 +531,9 @@ class _BodyStep extends StatelessWidget {
                   Expanded(
                     child: _CalcTile(
                       label: '기초대사량',
-                      value: (s.bmr.isInfinite || s.bmr.isNaN)
+                      value: (profile.bmr.isInfinite || profile.bmr.isNaN)
                           ? '-'
-                          : AppStateFormat.comma(s.bmr.round()),
+                          : AppStateFormat.comma(profile.bmr.round()),
                       sub: 'kcal',
                     ),
                   ),
@@ -533,7 +541,7 @@ class _BodyStep extends StatelessWidget {
                   Expanded(
                     child: _CalcTile(
                       label: '일일 권장',
-                      value: AppStateFormat.comma(s.dailyTarget),
+                      value: AppStateFormat.comma(profile.dailyTarget),
                       sub: 'kcal',
                     ),
                   ),
@@ -749,6 +757,8 @@ class _AlertStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthViewModel>();
+    final profile = context.watch<ProfileViewModel>();
     final s = context.watch<AppState>();
 
     return ScreenScroll(
@@ -759,7 +769,7 @@ class _AlertStep extends StatelessWidget {
           stepNo: 3,
           title: '목표 체중과 알림을 정해요',
           desc: '목표 체중을 입력하고, 필요한 알림만 켜세요.',
-          onBack: () => s.setSub(() => s.step = 3),
+          onBack: () => s.setSub(() => profile.step = 3),
         ),
 
         AppCard(
@@ -769,26 +779,27 @@ class _AlertStep extends StatelessWidget {
               Text('목표 체중', style: t(AppFontSize.f13, w: FontWeight.w700)),
               const SizedBox(height: AppSpace.s12),
               NumberField(
-                value: s.goalWeight,
+                value: profile.goalWeight,
                 unit: 'kg',
                 fontSize: 28,
                 decimal: true,
                 center: true,
                 min: 45,
                 max: 70,
-                onChanged: (v) => s.setSub(() => s.goalWeight = v.toDouble()),
+                onChanged: (v) =>
+                    s.setSub(() => profile.goalWeight = v.toDouble()),
               ),
               const SizedBox(height: AppSpace.s10),
               Center(
                 child: Text(
-                  '현재 ${s.weightKg.toStringAsFixed(1)}kg · 45~70kg 사이로 입력하세요',
+                  '현재 ${profile.weightKg.toStringAsFixed(1)}kg · 45~70kg 사이로 입력하세요',
                   style: t(AppFontSize.f11, c: AppColor.textGhost),
                 ),
               ),
               const SizedBox(height: AppSpace.s14),
               const Divider(height: AppSpace.s1),
               const SizedBox(height: AppSpace.s14),
-              RowBetween('감량 목표', s.goalDelta),
+              RowBetween('감량 목표', profile.goalDelta),
             ],
           ),
         ),
@@ -804,7 +815,7 @@ class _AlertStep extends StatelessWidget {
                 style: t(AppFontSize.f11, c: AppColor.textGhost),
               ),
               const SizedBox(height: AppSpace.s12),
-              for (final a in s.onboardAlerts.keys)
+              for (final a in profile.onboardAlerts.keys)
                 Padding(
                   padding: const EdgeInsets.only(bottom: AppSpace.s11),
                   child: Row(
@@ -812,8 +823,8 @@ class _AlertStep extends StatelessWidget {
                     children: [
                       Text(a, style: t(AppFontSize.f13, w: FontWeight.w500)),
                       AppToggle(
-                        value: s.onboardAlerts[a]!,
-                        onChanged: () => s.toggleOnboardAlert(a),
+                        value: profile.onboardAlerts[a]!,
+                        onChanged: () => profile.toggleOnboardAlert(a),
                       ),
                     ],
                   ),
@@ -852,7 +863,9 @@ class _AlertStep extends StatelessWidget {
             if (!context.mounted) return;
             toast(
               context,
-              saved ? '환영해요! 오늘 첫 기록을 시작해볼까요?' : (s.authError ?? '저장하지 못했어요'),
+              saved
+                  ? '환영해요! 오늘 첫 기록을 시작해볼까요?'
+                  : (auth.authError ?? '저장하지 못했어요'),
             );
           },
         ),

@@ -259,7 +259,7 @@ class NutritionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.read<AppState>();
+    final s = context.watch<AppState>();
 
     return ScreenScroll(
       children: [

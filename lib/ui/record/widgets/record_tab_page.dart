@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/common.dart';
+import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
+import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
 
 const _quickActions = [
   (label: '식단', icon: '🍽️', route: 'capture', sheet: false),
@@ -21,17 +23,14 @@ class RecordsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final profile = context.watch<ProfileViewModel>();
     final s = context.watch<AppState>();
 
     return ScreenScroll(
       children: [
-        TabHeader(
-          emoji: '📋',
-          title: '기록',
-          trailing: _MonthNavRow(s: s),
-        ),
-        _QuickRecordCard(s: s),
-        _CalendarCard(s: s),
+        TabHeader(emoji: '📋', title: '기록', trailing: _MonthNavRow()),
+        _QuickRecordCard(),
+        _CalendarCard(),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpace.s4),
           child: Row(
@@ -42,7 +41,7 @@ class RecordsScreen extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                '${AppStateFormat.comma(s.selectedDayKcal)} / ${AppStateFormat.comma(s.dailyTarget)} kcal',
+                '${AppStateFormat.comma(s.selectedDayKcal)} / ${AppStateFormat.comma(profile.dailyTarget)} kcal',
                 style: t(
                   AppFontSize.f12,
                   w: FontWeight.w700,
@@ -52,78 +51,78 @@ class RecordsScreen extends StatelessWidget {
             ],
           ),
         ),
-        for (final m in s.meals) _MealCard(m: m, s: s),
-        _DaySummaryCard(s: s),
+        for (final m in s.meals) _MealCard(m: m),
+        _DaySummaryCard(),
       ],
     );
   }
 }
 
 class _MonthNavRow extends StatelessWidget {
-  const _MonthNavRow({required this.s});
-
-  final AppState s;
+  const _MonthNavRow();
 
   @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      _MonthButton(icon: '‹', onTap: s.prevMonth),
-      const SizedBox(width: AppSpace.s10),
-      SizedBox(
-        width: AppSpace.s78,
-        child: Text(
-          '${s.year}. ${s.month.toString().padLeft(2, '0')}',
-          textAlign: TextAlign.center,
-          style: t(AppFontSize.f14, w: FontWeight.w700),
+  Widget build(BuildContext context) {
+    final s = context.watch<AppState>();
+    return Row(
+      children: [
+        _MonthButton(icon: '‹', onTap: s.prevMonth),
+        const SizedBox(width: AppSpace.s10),
+        SizedBox(
+          width: AppSpace.s78,
+          child: Text(
+            '${s.year}. ${s.month.toString().padLeft(2, '0')}',
+            textAlign: TextAlign.center,
+            style: t(AppFontSize.f14, w: FontWeight.w700),
+          ),
         ),
-      ),
-      const SizedBox(width: AppSpace.s10),
-      _MonthButton(
-        icon: '›',
-        enabled: s.canGoNextMonth,
-        onTap: () {
-          if (!s.nextMonth()) toast(context, '오늘 이후의 기록은 만들 수 없어요');
-        },
-      ),
-    ],
-  );
+        const SizedBox(width: AppSpace.s10),
+        _MonthButton(
+          icon: '›',
+          enabled: s.canGoNextMonth,
+          onTap: () {
+            if (!s.nextMonth()) toast(context, '오늘 이후의 기록은 만들 수 없어요');
+          },
+        ),
+      ],
+    );
+  }
 }
 
 /// 빠른 기록 — 눌러서 각 입력 화면으로
 class _QuickRecordCard extends StatelessWidget {
-  const _QuickRecordCard({required this.s});
-
-  final AppState s;
-
-  @override
-  Widget build(BuildContext context) => AppCard(
-    padding: 16,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '${s.month}월 ${s.day}일에 기록 추가',
-          style: t(AppFontSize.f13, w: FontWeight.w700),
-        ),
-        const SizedBox(height: AppSpace.s12),
-        Row(
-          children: [
-            for (final q in _quickActions) _QuickRecordButton(q: q, s: s),
-          ],
-        ),
-      ],
-    ),
-  );
-}
-
-class _QuickRecordButton extends StatelessWidget {
-  const _QuickRecordButton({required this.q, required this.s});
-
-  final ({String label, String icon, String route, bool sheet}) q;
-  final AppState s;
+  const _QuickRecordCard();
 
   @override
   Widget build(BuildContext context) {
+    final s = context.watch<AppState>();
+    return AppCard(
+      padding: 16,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${s.month}월 ${s.day}일에 기록 추가',
+            style: t(AppFontSize.f13, w: FontWeight.w700),
+          ),
+          const SizedBox(height: AppSpace.s12),
+          Row(
+            children: [for (final q in _quickActions) _QuickRecordButton(q: q)],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuickRecordButton extends StatelessWidget {
+  const _QuickRecordButton({required this.q});
+
+  final ({String label, String icon, String route, bool sheet}) q;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = context.watch<AppState>();
     final done = s.logged[q.label] ?? false;
     return Expanded(
       child: Padding(
@@ -161,12 +160,11 @@ class _QuickRecordButton extends StatelessWidget {
 
 /// 달력
 class _CalendarCard extends StatelessWidget {
-  const _CalendarCard({required this.s});
-
-  final AppState s;
+  const _CalendarCard();
 
   @override
   Widget build(BuildContext context) {
+    final s = context.watch<AppState>();
     final offset = DateTime(s.year, s.month, 1).weekday % 7; // 일요일 시작
     final total = DateTime(s.year, s.month + 1, 0).day;
     final cells = ((offset + total) / 7).ceil() * 7;
@@ -203,7 +201,7 @@ class _CalendarCard extends StatelessWidget {
             childAspectRatio: 1.05,
             children: [
               for (var i = 0; i < cells; i++)
-                _CalendarDayCell(s: s, i: i, offset: offset, total: total),
+                _CalendarDayCell(i: i, offset: offset, total: total),
             ],
           ),
         ],
@@ -214,19 +212,18 @@ class _CalendarCard extends StatelessWidget {
 
 class _CalendarDayCell extends StatelessWidget {
   const _CalendarDayCell({
-    required this.s,
     required this.i,
     required this.offset,
     required this.total,
   });
 
-  final AppState s;
   final int i;
   final int offset;
   final int total;
 
   @override
   Widget build(BuildContext context) {
+    final s = context.watch<AppState>();
     final n = i - offset + 1;
     final valid = n >= 1 && n <= total;
     final sel = valid && n == s.day;
@@ -275,111 +272,115 @@ class _CalendarDayCell extends StatelessWidget {
 
 /// 끼니 목록 — 탭하면 상세로
 class _MealCard extends StatelessWidget {
-  const _MealCard({required this.m, required this.s});
+  const _MealCard({required this.m});
 
   final MealLog m;
-  final AppState s;
 
   @override
-  Widget build(BuildContext context) => AppCard(
-    padding: 13,
-    onTap: () => s.openMeal(m),
-    child: Row(
-      children: [
-        const SizedBox(
-          width: AppSpace.s58,
-          height: AppSpace.s58,
-          child: PhotoPlaceholder(height: AppSpace.s58, radius: 18),
-        ),
-        const SizedBox(width: AppSpace.s12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    m.type,
-                    style: t(
-                      AppFontSize.f11,
-                      w: FontWeight.w700,
-                      c: AppColor.textFaint,
-                    ),
-                  ),
-                  if (m.needsReview) ...[
-                    const SizedBox(width: AppSpace.s7),
-                    Pill(
-                      '확인 필요',
-                      bg: const Color(0xFFFFF3EF),
-                      fg: AppColor.alertText,
-                      fontSize: 9,
-                    ),
-                  ],
-                ],
-              ),
-              const SizedBox(height: AppSpace.s4),
-              Text(
-                m.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: t(AppFontSize.f14, w: FontWeight.w700),
-              ),
-              const SizedBox(height: AppSpace.s3),
-              Text(
-                m.meta,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: t(AppFontSize.f11, c: AppColor.textGhost),
-              ),
-            ],
+  Widget build(BuildContext context) {
+    final s = context.watch<AppState>();
+    return AppCard(
+      padding: 13,
+      onTap: () => s.openMeal(m),
+      child: Row(
+        children: [
+          const SizedBox(
+            width: AppSpace.s58,
+            height: AppSpace.s58,
+            child: PhotoPlaceholder(height: AppSpace.s58, radius: 18),
           ),
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text('${m.kcal}', style: t(AppFontSize.f15, w: FontWeight.w900)),
-            Text('kcal', style: t(AppFontSize.f10, c: AppColor.textGhost)),
-          ],
-        ),
-      ],
-    ),
-  );
-}
-
-class _DaySummaryCard extends StatelessWidget {
-  const _DaySummaryCard({required this.s});
-
-  final AppState s;
-
-  @override
-  Widget build(BuildContext context) => AppCard(
-    padding: 16,
-    child: Row(
-      children: [
-        for (final r in [
-          ('물', '${AppStateFormat.comma(s.waterTotal)}ml'),
-          ('운동', '${s.todayExerciseMinutes}분'),
-          ('체중', '${s.latestWeightKg.toStringAsFixed(1)}kg'),
-        ]) ...[
+          const SizedBox(width: AppSpace.s12),
           Expanded(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(r.$1, style: t(AppFontSize.f11, c: AppColor.textFaint)),
-                const SizedBox(height: AppSpace.s5),
-                Text(r.$2, style: t(AppFontSize.f14, w: FontWeight.w700)),
+                Row(
+                  children: [
+                    Text(
+                      m.type,
+                      style: t(
+                        AppFontSize.f11,
+                        w: FontWeight.w700,
+                        c: AppColor.textFaint,
+                      ),
+                    ),
+                    if (m.needsReview) ...[
+                      const SizedBox(width: AppSpace.s7),
+                      Pill(
+                        '확인 필요',
+                        bg: const Color(0xFFFFF3EF),
+                        fg: AppColor.alertText,
+                        fontSize: 9,
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: AppSpace.s4),
+                Text(
+                  m.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: t(AppFontSize.f14, w: FontWeight.w700),
+                ),
+                const SizedBox(height: AppSpace.s3),
+                Text(
+                  m.meta,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: t(AppFontSize.f11, c: AppColor.textGhost),
+                ),
               ],
             ),
           ),
-          if (r.$1 != '체중')
-            Container(
-              width: AppSpace.s1,
-              height: AppSpace.s30,
-              color: AppColor.divider,
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text('${m.kcal}', style: t(AppFontSize.f15, w: FontWeight.w900)),
+              Text('kcal', style: t(AppFontSize.f10, c: AppColor.textGhost)),
+            ],
+          ),
         ],
-      ],
-    ),
-  );
+      ),
+    );
+  }
+}
+
+class _DaySummaryCard extends StatelessWidget {
+  const _DaySummaryCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final s = context.watch<AppState>();
+    final water = context.watch<WaterViewModel>();
+    return AppCard(
+      padding: 16,
+      child: Row(
+        children: [
+          for (final r in [
+            ('물', '${AppStateFormat.comma(water.waterTotal)}ml'),
+            ('운동', '${s.todayExerciseMinutes}분'),
+            ('체중', '${s.latestWeightKg.toStringAsFixed(1)}kg'),
+          ]) ...[
+            Expanded(
+              child: Column(
+                children: [
+                  Text(r.$1, style: t(AppFontSize.f11, c: AppColor.textFaint)),
+                  const SizedBox(height: AppSpace.s5),
+                  Text(r.$2, style: t(AppFontSize.f14, w: FontWeight.w700)),
+                ],
+              ),
+            ),
+            if (r.$1 != '체중')
+              Container(
+                width: AppSpace.s1,
+                height: AppSpace.s30,
+                color: AppColor.divider,
+              ),
+          ],
+        ],
+      ),
+    );
+  }
 }
 
 class _MonthButton extends StatelessWidget {

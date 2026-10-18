@@ -8,6 +8,10 @@ import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/common.dart';
 import '../viewmodel/water_view_model.dart';
 import '../viewmodel/weight_view_model.dart';
+import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
+import 'package:diet_project/ui/record/viewmodel/bowl_view_model.dart';
+import 'package:diet_project/ui/record/viewmodel/exercise_view_model.dart';
+import 'package:diet_project/ui/record/viewmodel/routine_view_model.dart';
 
 // 운동 기록 (루틴 통합)
 
@@ -16,6 +20,7 @@ class ExerciseScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final exercise = context.watch<ExerciseViewModel>();
     final s = context.watch<AppState>();
 
     return ScreenScroll(
@@ -45,7 +50,7 @@ class ExerciseScreen extends StatelessWidget {
           onTap: () {
             s.logExercise();
             s.go('home');
-            toast(context, '운동 ${s.exMinutes}분 기록 저장 · 홈에 반영됐어요');
+            toast(context, '운동 ${exercise.exMinutes}분 기록 저장 · 홈에 반영됐어요');
           },
         ),
         TextLink(
@@ -65,6 +70,7 @@ class _ExerciseTypeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final exercise = context.watch<ExerciseViewModel>();
     final s = context.watch<AppState>();
 
     return AppCard(
@@ -75,10 +81,10 @@ class _ExerciseTypeCard extends StatelessWidget {
           Text('운동 종류', style: t(AppFontSize.f13, w: FontWeight.w700)),
           const SizedBox(height: AppSpace.s11),
           AppTextField(
-            value: s.exType,
+            value: exercise.exType,
             hint: '예: 달리기',
             fontSize: 15,
-            onChanged: (v) => s.setSub(() => s.exType = v),
+            onChanged: (v) => s.setSub(() => exercise.exType = v),
           ),
           const SizedBox(height: AppSpace.s10),
           Text(
@@ -88,8 +94,8 @@ class _ExerciseTypeCard extends StatelessWidget {
           const SizedBox(height: AppSpace.s10),
           ChipWrap(
             options: DietRules.exerciseTypeFactor.keys.toList(),
-            isSelected: (o) => s.exType == o,
-            onPick: (o) => s.setSub(() => s.exType = o),
+            isSelected: (o) => exercise.exType == o,
+            onPick: (o) => s.setSub(() => exercise.exType = o),
           ),
         ],
       ),
@@ -102,6 +108,7 @@ class _ExerciseDurationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final exercise = context.watch<ExerciseViewModel>();
     final s = context.watch<AppState>();
     return AppCard(
       child: Column(
@@ -110,19 +117,19 @@ class _ExerciseDurationCard extends StatelessWidget {
           Text('운동 시간', style: t(AppFontSize.f13, w: FontWeight.w700)),
           const SizedBox(height: AppSpace.s11),
           NumberField(
-            value: s.exMinutes,
+            value: exercise.exMinutes,
             unit: '분',
             fontSize: 26,
             max: 600,
-            onChanged: (v) => s.setSub(() => s.exMinutes = v.toInt()),
+            onChanged: (v) => s.setSub(() => exercise.exMinutes = v.toInt()),
           ),
           const SizedBox(height: AppSpace.s16),
           Text('강도', style: t(AppFontSize.f13, w: FontWeight.w700)),
           const SizedBox(height: AppSpace.s11),
           SegmentedRow(
             options: const ['낮음', '보통', '높음'],
-            value: s.exIntensity,
-            onChanged: (v) => s.setSub(() => s.exIntensity = v),
+            value: exercise.exIntensity,
+            onChanged: (v) => s.setSub(() => exercise.exIntensity = v),
           ),
         ],
       ),
@@ -135,7 +142,7 @@ class _ExerciseBurnCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final exercise = context.watch<ExerciseViewModel>();
     return AppCard(
       color: AppColor.primaryTint,
       child: Column(
@@ -153,7 +160,7 @@ class _ExerciseBurnCard extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                '${s.exKcal}',
+                '${exercise.exKcal}',
                 style: t(
                   AppFontSize.f24,
                   w: FontWeight.w900,
@@ -168,7 +175,7 @@ class _ExerciseBurnCard extends StatelessWidget {
               ),
             ],
           ),
-          if (!s.exTypeKnown) ...[
+          if (!exercise.exTypeKnown) ...[
             const SizedBox(height: AppSpace.s7),
             Text(
               '등록되지 않은 종류라 기본 계수로 추정했어요',
@@ -187,7 +194,7 @@ class _RoutinesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final routine = context.watch<RoutineViewModel>();
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,14 +202,14 @@ class _RoutinesCard extends StatelessWidget {
           Row(
             children: [
               Text(
-                '내 루틴 ${s.routines.length}개',
+                '내 루틴 ${routine.routines.length}개',
                 style: t(AppFontSize.f14, w: FontWeight.w700),
               ),
               const Spacer(),
               GestureDetector(
-                onTap: s.toggleRoutineEditMode,
+                onTap: routine.toggleRoutineEditMode,
                 child: Text(
-                  s.routineEditMode ? '완료' : '추가・삭제',
+                  routine.routineEditMode ? '완료' : '추가・삭제',
                   style: t(
                     AppFontSize.f12,
                     w: FontWeight.w700,
@@ -218,13 +225,13 @@ class _RoutinesCard extends StatelessWidget {
             style: t(AppFontSize.f11, c: AppColor.textGhost),
           ),
           const SizedBox(height: AppSpace.s14),
-          for (final r in s.routines) _RoutineRow(r: r, s: s),
+          for (final r in routine.routines) _RoutineRow(r: r),
           const SizedBox(height: AppSpace.s6),
           const Divider(height: AppSpace.s1),
           const SizedBox(height: AppSpace.s16),
           Text('이번 주 루틴 수행', style: t(AppFontSize.f14, w: FontWeight.w700)),
           const SizedBox(height: AppSpace.s12),
-          for (final r in s.routines) _RoutineWeeklyRow(r: r, s: s),
+          for (final r in routine.routines) _RoutineWeeklyRow(r: r),
         ],
       ),
     );
@@ -232,21 +239,23 @@ class _RoutinesCard extends StatelessWidget {
 }
 
 class _RoutineRow extends StatelessWidget {
-  const _RoutineRow({required this.r, required this.s});
+  const _RoutineRow({required this.r});
 
   final Routine r;
-  final AppState s;
 
   @override
   Widget build(BuildContext context) {
+    final exercise = context.watch<ExerciseViewModel>();
+    final routine = context.watch<RoutineViewModel>();
+    final s = context.watch<AppState>();
     final loaded =
-        s.exType == r.type &&
-        s.exMinutes == r.minutes &&
-        s.exIntensity == r.intensity.label;
+        exercise.exType == r.type &&
+        exercise.exMinutes == r.minutes &&
+        exercise.exIntensity == r.intensity.label;
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpace.s10),
       child: GestureDetector(
-        onTap: s.routineEditMode
+        onTap: routine.routineEditMode
             ? null
             : () {
                 s.loadRoutine(r);
@@ -278,10 +287,10 @@ class _RoutineRow extends StatelessWidget {
                   ],
                 ),
               ),
-              if (s.routineEditMode)
+              if (routine.routineEditMode)
                 GestureDetector(
                   onTap: () {
-                    s.removeRoutine(r);
+                    routine.removeRoutine(r);
                     toast(context, '루틴을 삭제했어요');
                   },
                   child: Container(
@@ -307,47 +316,49 @@ class _RoutineRow extends StatelessWidget {
 }
 
 class _RoutineWeeklyRow extends StatelessWidget {
-  const _RoutineWeeklyRow({required this.r, required this.s});
+  const _RoutineWeeklyRow({required this.r});
 
   final Routine r;
-  final AppState s;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: AppSpace.s10),
-    child: Row(
-      children: [
-        SizedBox(
-          width: AppSpace.s64,
-          child: Text(
-            r.name,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: t(AppFontSize.f12, c: AppColor.textMuted),
+  Widget build(BuildContext context) {
+    final routine = context.watch<RoutineViewModel>();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpace.s10),
+      child: Row(
+        children: [
+          SizedBox(
+            width: AppSpace.s64,
+            child: Text(
+              r.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: t(AppFontSize.f12, c: AppColor.textMuted),
+            ),
           ),
-        ),
-        Expanded(
-          child: ProgressBar(
-            value:
-                r.weeklyUsed /
-                s.routines
-                    .map((x) => x.weeklyUsed)
-                    .reduce((a, b) => a > b ? a : b)
-                    .clamp(1, 999),
+          Expanded(
+            child: ProgressBar(
+              value:
+                  r.weeklyUsed /
+                  routine.routines
+                      .map((x) => x.weeklyUsed)
+                      .reduce((a, b) => a > b ? a : b)
+                      .clamp(1, 999),
+            ),
           ),
-        ),
-        const SizedBox(width: AppSpace.s8),
-        SizedBox(
-          width: AppSpace.s24,
-          child: Text(
-            '${r.weeklyUsed}회',
-            textAlign: TextAlign.right,
-            style: t(AppFontSize.f12, c: AppColor.textFaint),
+          const SizedBox(width: AppSpace.s8),
+          SizedBox(
+            width: AppSpace.s24,
+            child: Text(
+              '${r.weeklyUsed}회',
+              textAlign: TextAlign.right,
+              style: t(AppFontSize.f12, c: AppColor.textFaint),
+            ),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }
 
 // 체중 기록
@@ -405,7 +416,7 @@ class _WeightInputCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final profileVm = context.watch<ProfileViewModel>();
     final weight = context.watch<WeightViewModel>();
     return AppCard(
       padding: 22,
@@ -424,19 +435,19 @@ class _WeightInputCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpace.s8),
           Text(
-            '어제보다 ${weight.weightDiffFrom(s.profile.weightKg)}',
+            '어제보다 ${weight.weightDiffFrom(profileVm.profile.weightKg)}',
             style: t(AppFontSize.f12, w: FontWeight.w700, c: AppColor.primary),
           ),
           const SizedBox(height: AppSpace.s20),
           // 읽기 전용 — 목표 체중 위치에 고정. 드래그해서 바뀌지 않아요.
-          DragSlider(value: s.goalWeight, min: 45, max: 70),
+          DragSlider(value: profileVm.goalWeight, min: 45, max: 70),
           const SizedBox(height: AppSpace.s4),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('45kg', style: t(AppFontSize.f10, c: AppColor.textGhost)),
               Text(
-                '목표 ${s.goalWeight.toStringAsFixed(1)}kg',
+                '목표 ${profileVm.goalWeight.toStringAsFixed(1)}kg',
                 style: t(AppFontSize.f10, c: AppColor.textGhost),
               ),
               Text('70kg', style: t(AppFontSize.f10, c: AppColor.textGhost)),
@@ -751,6 +762,7 @@ class BowlsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bowlVm = context.watch<BowlViewModel>();
     final s = context.watch<AppState>();
 
     return ScreenScroll(
@@ -760,7 +772,7 @@ class BowlsScreen extends StatelessWidget {
           title: '내 그릇 관리',
           onBack: () => s.go('my'),
           trailing: Text(
-            '${s.bowls.length} / ${DietRules.maxBowls}',
+            '${bowlVm.bowls.length} / ${DietRules.maxBowls}',
             style: t(AppFontSize.f12, c: AppColor.textFaint),
           ),
         ),
@@ -772,13 +784,13 @@ class BowlsScreen extends StatelessWidget {
           ),
         ),
         // 신규 추가 폼 (인라인)
-        if (s.bowlEditing == -1) const _BowlForm(),
-        for (final (i, b) in s.bowls.indexed)
-          if (s.bowlEditing == i)
+        if (bowlVm.bowlEditing == -1) const _BowlForm(),
+        for (final (i, b) in bowlVm.bowls.indexed)
+          if (bowlVm.bowlEditing == i)
             const _BowlForm()
           else
-            _BowlCard(index: i, bowl: b, s: s),
-        if (s.bowlEditing == -1) _AddBowlButton(s: s),
+            _BowlCard(index: i, bowl: b),
+        if (bowlVm.bowlEditing == -1) _AddBowlButton(),
         const _BowlRulesCard(),
       ],
     );
@@ -786,113 +798,119 @@ class BowlsScreen extends StatelessWidget {
 }
 
 class _BowlCard extends StatelessWidget {
-  const _BowlCard({required this.index, required this.bowl, required this.s});
+  const _BowlCard({required this.index, required this.bowl});
 
   final int index;
   final Bowl bowl;
-  final AppState s;
 
   @override
-  Widget build(BuildContext context) => AppCard(
-    padding: 14,
-    child: Row(
-      children: [
-        IconTile(
-          bowl.icon,
-          size: 54,
-          radius: 18,
-          bg: AppColor.surfaceSunken,
-          fontSize: 22,
-        ),
-        const SizedBox(width: AppSpace.s13),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Flexible(
-                    child: Text(
-                      bowl.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: t(AppFontSize.f14, w: FontWeight.w700),
+  Widget build(BuildContext context) {
+    final bowlVm = context.watch<BowlViewModel>();
+    return AppCard(
+      padding: 14,
+      child: Row(
+        children: [
+          IconTile(
+            bowl.icon,
+            size: 54,
+            radius: 18,
+            bg: AppColor.surfaceSunken,
+            fontSize: 22,
+          ),
+          const SizedBox(width: AppSpace.s13),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        bowl.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: t(AppFontSize.f14, w: FontWeight.w700),
+                      ),
                     ),
-                  ),
-                  if (bowl.isDefault) ...[
-                    const SizedBox(width: AppSpace.s7),
-                    Pill('기본', fontSize: 9),
+                    if (bowl.isDefault) ...[
+                      const SizedBox(width: AppSpace.s7),
+                      Pill('기본', fontSize: 9),
+                    ],
                   ],
-                ],
-              ),
-              const SizedBox(height: AppSpace.s4),
-              Text(
-                bowl.meta,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: t(AppFontSize.f11, c: AppColor.textFaint),
-              ),
-              if (bowl.memo.isNotEmpty) ...[
-                const SizedBox(height: AppSpace.s3),
-                Text(
-                  bowl.memo,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: t(AppFontSize.f11, c: AppColor.textGhost),
                 ),
+                const SizedBox(height: AppSpace.s4),
+                Text(
+                  bowl.meta,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: t(AppFontSize.f11, c: AppColor.textFaint),
+                ),
+                if (bowl.memo.isNotEmpty) ...[
+                  const SizedBox(height: AppSpace.s3),
+                  Text(
+                    bowl.memo,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: t(AppFontSize.f11, c: AppColor.textGhost),
+                  ),
+                ],
               ],
+            ),
+          ),
+          Column(
+            children: [
+              SmallButton(
+                label: '수정',
+                onTap: () => bowlVm.startEditBowl(index),
+              ),
+              const SizedBox(height: AppSpace.s6),
+              GestureDetector(
+                onTap: () {
+                  bowlVm.removeBowl(index);
+                  toast(context, '그릇을 삭제했어요');
+                },
+                child: Text(
+                  '삭제',
+                  style: t(AppFontSize.f11, c: const Color(0xFFC0C6CB)),
+                ),
+              ),
             ],
           ),
-        ),
-        Column(
-          children: [
-            SmallButton(label: '수정', onTap: () => s.startEditBowl(index)),
-            const SizedBox(height: AppSpace.s6),
-            GestureDetector(
-              onTap: () {
-                s.removeBowl(index);
-                toast(context, '그릇을 삭제했어요');
-              },
-              child: Text(
-                '삭제',
-                style: t(AppFontSize.f11, c: const Color(0xFFC0C6CB)),
-              ),
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }
 
 class _AddBowlButton extends StatelessWidget {
-  const _AddBowlButton({required this.s});
-
-  final AppState s;
+  const _AddBowlButton();
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
-    onTap: () {
-      if (s.bowls.length >= DietRules.maxBowls) {
-        return toast(context, '그릇은 최대 ${DietRules.maxBowls}개까지 등록할 수 있어요');
-      }
-      s.startAddBowl();
-    },
-    child: Container(
-      width: double.infinity,
-      alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(vertical: AppSpace.s18),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFAFCFA),
-        borderRadius: BorderRadius.circular(AppRadius.card),
-        border: Border.all(color: const Color(0xFFC9D2CB), width: 1.5),
+  Widget build(BuildContext context) {
+    final bowl = context.watch<BowlViewModel>();
+    return GestureDetector(
+      onTap: () {
+        if (bowl.bowls.length >= DietRules.maxBowls) {
+          return toast(context, '그릇은 최대 ${DietRules.maxBowls}개까지 등록할 수 있어요');
+        }
+        bowl.startAddBowl();
+      },
+      child: Container(
+        width: double.infinity,
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(vertical: AppSpace.s18),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFAFCFA),
+          borderRadius: BorderRadius.circular(AppRadius.card),
+          border: Border.all(color: const Color(0xFFC9D2CB), width: 1.5),
+        ),
+        child: Text(
+          '+ 그릇 추가',
+          style: t(AppFontSize.f14, w: FontWeight.w700, c: AppColor.primary),
+        ),
       ),
-      child: Text(
-        '+ 그릇 추가',
-        style: t(AppFontSize.f14, w: FontWeight.w700, c: AppColor.primary),
-      ),
-    ),
-  );
+    );
+  }
 }
 
 class _BowlRulesCard extends StatelessWidget {
@@ -919,9 +937,10 @@ class _BowlForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bowl = context.watch<BowlViewModel>();
     final s = context.watch<AppState>();
-    final d = s.draftBowl;
-    final isNew = s.bowlEditing == -1;
+    final d = bowl.draftBowl;
+    final isNew = bowl.bowlEditing == -1;
 
     return AppCard(
       border: AppColor.primary,
@@ -1093,7 +1112,7 @@ class _BowlForm extends StatelessWidget {
             children: [
               Expanded(
                 child: GestureDetector(
-                  onTap: s.cancelBowlEdit,
+                  onTap: bowl.cancelBowlEdit,
                   child: Container(
                     alignment: Alignment.center,
                     padding: const EdgeInsets.symmetric(vertical: AppSpace.s16),
@@ -1119,7 +1138,8 @@ class _BowlForm extends StatelessWidget {
                   label: isNew ? '그릇 저장' : '수정 저장',
                   enabled: d.name.trim().isNotEmpty,
                   onTap: () {
-                    if (!s.saveBowl()) return toast(context, '그릇 이름을 입력해 주세요');
+                    if (!bowl.saveBowl())
+                      return toast(context, '그릇 이름을 입력해 주세요');
                     toast(context, '“${d.name}” 그릇을 저장했어요');
                   },
                 ),

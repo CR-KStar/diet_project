@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../../app_state.dart';
 import '../../../common.dart';
 import '../../core/ui/themes/theme_tokens.dart';
+import 'package:diet_project/ui/record/viewmodel/bowl_view_model.dart';
+import 'package:diet_project/ui/record/viewmodel/photo_analysis_view_model.dart';
 
 /// 식단 촬영/기록 화면 — 사진(자리표시자) + AI 분석 결과 + 저장
 class CaptureScreen extends StatelessWidget {
@@ -17,8 +19,8 @@ class CaptureScreen extends StatelessWidget {
     return ScreenScroll(
       children: [
         SubHeader(emoji: '📷', title: '식단 기록', onBack: () => s.go('home')),
-        _PhotoCard(s: s),
-        _AiAnalysisCard(s: s),
+        _PhotoCard(),
+        _AiAnalysisCard(),
         PrimaryButton(
           label: '저장하기',
           onTap: () {
@@ -37,12 +39,11 @@ class CaptureScreen extends StatelessWidget {
 }
 
 class _PhotoCard extends StatelessWidget {
-  const _PhotoCard({required this.s});
-
-  final AppState s;
+  const _PhotoCard();
 
   /// 동의를 받은 뒤에만 사진을 고르고 AI 분석을 요청한다.
   Future<void> _start(BuildContext context, ImageSource source) async {
+    final s = context.read<AppState>();
     Navigator.pop(context);
     if (!await ensureAiConsent(context, s)) return;
     await s.pickAndAnalyzeMealPhoto(source);
@@ -73,10 +74,11 @@ class _PhotoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final photo = s.pickedPhotoBytes;
+    final photoVm = context.watch<PhotoAnalysisViewModel>();
+    final photo = photoVm.pickedPhotoBytes;
 
     return GestureDetector(
-      onTap: s.analyzingPhoto ? null : () => _pickPhoto(context),
+      onTap: photoVm.analyzingPhoto ? null : () => _pickPhoto(context),
       child: Container(
         height: AppSpace.s260,
         width: double.infinity,
@@ -92,8 +94,8 @@ class _PhotoCard extends StatelessWidget {
               Image.memory(photo, fit: BoxFit.cover)
             else
               const _EmptyPhotoState(),
-            if (s.analyzingPhoto) const _AnalyzingOverlay(),
-            if (photo != null && !s.analyzingPhoto)
+            if (photoVm.analyzingPhoto) const _AnalyzingOverlay(),
+            if (photo != null && !photoVm.analyzingPhoto)
               Positioned(
                 right: AppSpace.s12,
                 bottom: AppSpace.s12,
@@ -214,15 +216,15 @@ class _RetakeChip extends StatelessWidget {
 }
 
 class _AiAnalysisCard extends StatelessWidget {
-  const _AiAnalysisCard({required this.s});
-
-  final AppState s;
+  const _AiAnalysisCard();
 
   @override
   Widget build(BuildContext context) {
-    if (s.analyzingPhoto) return const SizedBox.shrink();
+    final s = context.watch<AppState>();
+    final photo = context.watch<PhotoAnalysisViewModel>();
+    if (photo.analyzingPhoto) return const SizedBox.shrink();
 
-    if (s.photoAnalysisError != null) {
+    if (photo.photoAnalysisError != null) {
       return AppCard(
         child: Row(
           children: [
@@ -230,7 +232,7 @@ class _AiAnalysisCard extends StatelessWidget {
             const SizedBox(width: AppSpace.s10),
             Expanded(
               child: Text(
-                s.photoAnalysisError!,
+                photo.photoAnalysisError!,
                 style: t(AppFontSize.f12, c: AppColor.alertText),
               ),
             ),
@@ -239,14 +241,14 @@ class _AiAnalysisCard extends StatelessWidget {
       );
     }
 
-    if (s.aiMealName == null) return const SizedBox.shrink();
+    if (photo.aiMealName == null) return const SizedBox.shrink();
 
     final nutrients = [
-      ('단백질', '${s.aiProteinG?.round() ?? 0} g'),
-      ('탄수화물', '${s.aiCarbG?.round() ?? 0} g'),
-      ('지방', '${s.aiFatG?.round() ?? 0} g'),
-      ('식이섬유', '${s.aiFiberG?.round() ?? 0} g'),
-      ('나트륨', '${s.aiSodiumMg?.round() ?? 0} mg'),
+      ('단백질', '${photo.aiProteinG?.round() ?? 0} g'),
+      ('탄수화물', '${photo.aiCarbG?.round() ?? 0} g'),
+      ('지방', '${photo.aiFatG?.round() ?? 0} g'),
+      ('식이섬유', '${photo.aiFiberG?.round() ?? 0} g'),
+      ('나트륨', '${photo.aiSodiumMg?.round() ?? 0} mg'),
     ];
 
     return AppCard(
@@ -265,7 +267,7 @@ class _AiAnalysisCard extends StatelessWidget {
                   c: AppColor.textMuted,
                 ),
               ),
-              if (s.needsPhotoReview) ...[
+              if (photo.needsPhotoReview) ...[
                 const Spacer(),
                 Pill(
                   '확인 필요',
@@ -278,7 +280,7 @@ class _AiAnalysisCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpace.s12),
           Text(
-            s.aiMealName!,
+            photo.aiMealName!,
             style: t(AppFontSize.f17, w: FontWeight.w800),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -340,8 +342,9 @@ class _ExtraInfoBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bowlVm = context.watch<BowlViewModel>();
     final s = context.watch<AppState>();
-    final bowl = s.currentBowl;
+    final bowl = bowlVm.currentBowl;
 
     return ScreenScroll(
       children: [
@@ -355,49 +358,43 @@ class _ExtraInfoBody extends StatelessWidget {
           ),
         ),
 
-        _AdjustedKcalCard(s: s, bowl: bowl),
+        _AdjustedKcalCard(bowl: bowl),
 
         _ExtraFieldCard(
-          s: s,
           fieldKey: 'meat',
           label: '고기 / 단백질 종류',
           options: DietRules.proteinFactor.keys.toList(),
         ),
         _ExtraFieldCard(
-          s: s,
           fieldKey: 'sauce',
           label: '소스 / 양념',
           options: DietRules.sauceFactor.keys.toList(),
         ),
         _ExtraFieldCard(
-          s: s,
           fieldKey: 'cook',
           label: '조리법',
           options: DietRules.cookFactor.keys.toList(),
         ),
         _ExtraFieldCard(
-          s: s,
           fieldKey: 'carb',
           label: '탄수화물 종류',
           options: _ExtraFieldCard._carbOptions,
         ),
         _ExtraFieldCard(
-          s: s,
           fieldKey: 'meal',
           label: '식사 시간',
           options: _ExtraFieldCard._mealOptions,
         ),
         _ExtraFieldCard(
-          s: s,
           fieldKey: 'context',
           label: '식사 상황',
           options: _ExtraFieldCard._contextOptions,
         ),
 
-        _PortionCard(s: s),
-        _BowlCard(s: s, bowl: bowl),
-        _MemoCard(s: s),
-        _TagCard(s: s),
+        _PortionCard(),
+        _BowlCard(bowl: bowl),
+        _MemoCard(),
+        _TagCard(),
 
         PrimaryButton(
           label: '저장하기',
@@ -420,80 +417,84 @@ class _ExtraInfoBody extends StatelessWidget {
 }
 
 class _AdjustedKcalCard extends StatelessWidget {
-  const _AdjustedKcalCard({required this.s, required this.bowl});
+  const _AdjustedKcalCard({required this.bowl});
 
-  final AppState s;
   final Bowl? bowl;
 
   @override
-  Widget build(BuildContext context) => AppCard(
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('보정된 칼로리', style: t(AppFontSize.f12, c: AppColor.textFaint)),
-              const SizedBox(height: AppSpace.s6),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(
-                    '${s.adjustedKcal}',
-                    style: t(
-                      26,
-                      w: FontWeight.w900,
-                      c: AppColor.primary,
-                      sp: -0.6,
+  Widget build(BuildContext context) {
+    final s = context.watch<AppState>();
+    final photo = context.watch<PhotoAnalysisViewModel>();
+    return AppCard(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '보정된 칼로리',
+                  style: t(AppFontSize.f12, c: AppColor.textFaint),
+                ),
+                const SizedBox(height: AppSpace.s6),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      '${s.adjustedKcal}',
+                      style: t(
+                        26,
+                        w: FontWeight.w900,
+                        c: AppColor.primary,
+                        sp: -0.6,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: AppSpace.s3),
-                  Text(
-                    'kcal',
-                    style: t(AppFontSize.f12, c: AppColor.textFaint),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpace.s6),
+                    const SizedBox(width: AppSpace.s3),
+                    Text(
+                      'kcal',
+                      style: t(AppFontSize.f12, c: AppColor.textFaint),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpace.s6),
+                Text(
+                  bowl == null
+                      ? '${s.portion} · ${s.fill}'
+                      : '${s.portion} · ${bowl!.name} ${s.fill}',
+                  style: t(AppFontSize.f11, c: AppColor.textFaint),
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
               Text(
-                bowl == null
-                    ? '${s.portion} · ${s.fill}'
-                    : '${s.portion} · ${bowl!.name} ${s.fill}',
+                'AI 추정 ${photo.baseKcal}kcal',
+                style: t(AppFontSize.f11, c: AppColor.textFaint),
+              ),
+              const SizedBox(height: AppSpace.s2),
+              Text(
+                '부가 정보 반영 후',
                 style: t(AppFontSize.f11, c: AppColor.textFaint),
               ),
             ],
           ),
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              'AI 추정 ${s.baseKcal}kcal',
-              style: t(AppFontSize.f11, c: AppColor.textFaint),
-            ),
-            const SizedBox(height: AppSpace.s2),
-            Text(
-              '부가 정보 반영 후',
-              style: t(AppFontSize.f11, c: AppColor.textFaint),
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }
 
 class _ExtraFieldCard extends StatelessWidget {
   const _ExtraFieldCard({
-    required this.s,
     required this.fieldKey,
     required this.label,
     required this.options,
   });
 
-  final AppState s;
   final String fieldKey;
   final String label;
   final List<String> options;
@@ -513,6 +514,7 @@ class _ExtraFieldCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = context.watch<AppState>();
     final current = s.extras[fieldKey] ?? '';
     final input = s.customInputs[fieldKey] ?? '';
     final canApply = input.trim().isNotEmpty;
@@ -561,188 +563,194 @@ class _ExtraFieldCard extends StatelessWidget {
 }
 
 class _PortionCard extends StatelessWidget {
-  const _PortionCard({required this.s});
-
-  final AppState s;
+  const _PortionCard();
 
   @override
-  Widget build(BuildContext context) => AppCard(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('섭취 분량', style: t(AppFontSize.f13, w: FontWeight.w700)),
-        const SizedBox(height: AppSpace.s11),
-        SegmentedRow(
-          options: const ['전체', '반절', '1/3', '직접'],
-          value: s.portion,
-          onChanged: s.setPortion,
-        ),
-        if (s.portion == '직접') ...[
-          const SizedBox(height: AppSpace.s12),
-          Text('직접 비율 입력', style: t(AppFontSize.f12, c: AppColor.textFaint)),
-          const SizedBox(height: AppSpace.s8),
-          NumberField(
-            value: s.portionPct,
-            unit: '%',
-            fontSize: 22,
-            max: 300,
-            onChanged: (v) => s.setPortionPct(v.toInt()),
+  Widget build(BuildContext context) {
+    final s = context.watch<AppState>();
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('섭취 분량', style: t(AppFontSize.f13, w: FontWeight.w700)),
+          const SizedBox(height: AppSpace.s11),
+          SegmentedRow(
+            options: const ['전체', '반절', '1/3', '직접'],
+            value: s.portion,
+            onChanged: s.setPortion,
+          ),
+          if (s.portion == '직접') ...[
+            const SizedBox(height: AppSpace.s12),
+            Text('직접 비율 입력', style: t(AppFontSize.f12, c: AppColor.textFaint)),
+            const SizedBox(height: AppSpace.s8),
+            NumberField(
+              value: s.portionPct,
+              unit: '%',
+              fontSize: 22,
+              max: 300,
+              onChanged: (v) => s.setPortionPct(v.toInt()),
+            ),
+          ],
+          const SizedBox(height: AppSpace.s16),
+          Text('그릇에 담긴 정도', style: t(AppFontSize.f13, w: FontWeight.w700)),
+          const SizedBox(height: AppSpace.s11),
+          SegmentedRow(
+            options: const ['가득', '반', '1/3'],
+            value: s.fill,
+            onChanged: s.setFill,
           ),
         ],
-        const SizedBox(height: AppSpace.s16),
-        Text('그릇에 담긴 정도', style: t(AppFontSize.f13, w: FontWeight.w700)),
-        const SizedBox(height: AppSpace.s11),
-        SegmentedRow(
-          options: const ['가득', '반', '1/3'],
-          value: s.fill,
-          onChanged: s.setFill,
-        ),
-      ],
-    ),
-  );
+      ),
+    );
+  }
 }
 
 class _BowlCard extends StatelessWidget {
-  const _BowlCard({required this.s, required this.bowl});
+  const _BowlCard({required this.bowl});
 
-  final AppState s;
   final Bowl? bowl;
 
   @override
-  Widget build(BuildContext context) => AppCard(
-    padding: 16,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text('그릇 선택', style: t(AppFontSize.f13, w: FontWeight.w700)),
-            const Spacer(),
-            GestureDetector(
-              onTap: () => s.setSub(() => s.bowlSheet = true),
-              behavior: HitTestBehavior.opaque,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: AppSpace.s6,
-                  horizontal: AppSpace.s4,
-                ),
-                child: Text(
-                  '변경 ›',
-                  style: t(AppFontSize.f12, c: AppColor.textFaint),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpace.s12),
-        Row(
-          children: [
-            if (bowl == null)
-              Expanded(
-                child: Text(
-                  '등록된 그릇이 없어요 · 그릇 없이도 기록할 수 있어요',
-                  style: t(AppFontSize.f12, c: AppColor.textFaint),
-                ),
-              )
-            else ...[
-              IconTile(
-                bowl!.icon,
-                size: 44,
-                radius: 22,
-                bg: AppColor.surfaceSunken,
-                fontSize: 20,
-              ),
-              const SizedBox(width: AppSpace.s12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      bowl!.name,
-                      style: t(AppFontSize.f15, w: FontWeight.w700),
-                    ),
-                    const SizedBox(height: AppSpace.s4),
-                    Text(
-                      '${bowl!.capacityMl}ml · ${bowl!.material} · ${s.fill}',
-                      style: t(AppFontSize.f12, c: AppColor.textFaint),
-                    ),
-                  ],
+  Widget build(BuildContext context) {
+    final bowlVm = context.watch<BowlViewModel>();
+    final s = context.watch<AppState>();
+    return AppCard(
+      padding: 16,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text('그릇 선택', style: t(AppFontSize.f13, w: FontWeight.w700)),
+              const Spacer(),
+              GestureDetector(
+                onTap: () => s.setSub(() => bowlVm.bowlSheet = true),
+                behavior: HitTestBehavior.opaque,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: AppSpace.s6,
+                    horizontal: AppSpace.s4,
+                  ),
+                  child: Text(
+                    '변경 ›',
+                    style: t(AppFontSize.f12, c: AppColor.textFaint),
+                  ),
                 ),
               ),
-              if (bowl!.isDefault) Pill('기본 그릇', fontSize: 10),
             ],
-          ],
-        ),
-      ],
-    ),
-  );
+          ),
+          const SizedBox(height: AppSpace.s12),
+          Row(
+            children: [
+              if (bowl == null)
+                Expanded(
+                  child: Text(
+                    '등록된 그릇이 없어요 · 그릇 없이도 기록할 수 있어요',
+                    style: t(AppFontSize.f12, c: AppColor.textFaint),
+                  ),
+                )
+              else ...[
+                IconTile(
+                  bowl!.icon,
+                  size: 44,
+                  radius: 22,
+                  bg: AppColor.surfaceSunken,
+                  fontSize: 20,
+                ),
+                const SizedBox(width: AppSpace.s12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        bowl!.name,
+                        style: t(AppFontSize.f15, w: FontWeight.w700),
+                      ),
+                      const SizedBox(height: AppSpace.s4),
+                      Text(
+                        '${bowl!.capacityMl}ml · ${bowl!.material} · ${s.fill}',
+                        style: t(AppFontSize.f12, c: AppColor.textFaint),
+                      ),
+                    ],
+                  ),
+                ),
+                if (bowl!.isDefault) Pill('기본 그릇', fontSize: 10),
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _MemoCard extends StatelessWidget {
-  const _MemoCard({required this.s});
-
-  final AppState s;
+  const _MemoCard();
 
   @override
-  Widget build(BuildContext context) => AppCard(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('자유 메모', style: t(AppFontSize.f13, w: FontWeight.w700)),
-        const SizedBox(height: AppSpace.s11),
-        AppTextField(
-          value: s.memo,
-          hint: '예: 기름기 좀 많음, 소스는 절반만 뿌렸어요.',
-          fontSize: 13,
-          maxLines: 3,
-          onChanged: (v) => s.setSub(() => s.memo = v),
-        ),
-      ],
-    ),
-  );
+  Widget build(BuildContext context) {
+    final s = context.watch<AppState>();
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('자유 메모', style: t(AppFontSize.f13, w: FontWeight.w700)),
+          const SizedBox(height: AppSpace.s11),
+          AppTextField(
+            value: s.memo,
+            hint: '예: 기름기 좀 많음, 소스는 절반만 뿌렸어요.',
+            fontSize: 13,
+            maxLines: 3,
+            onChanged: (v) => s.setSub(() => s.memo = v),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _TagCard extends StatelessWidget {
-  const _TagCard({required this.s});
-
-  final AppState s;
+  const _TagCard();
 
   static const _tagOptions = ['#저탄고지', '#비건', '#길거리음식', '#단백질보충', '#야식'];
 
   @override
-  Widget build(BuildContext context) => AppCard(
-    padding: 16,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('태그', style: t(AppFontSize.f13, w: FontWeight.w700)),
-        const SizedBox(height: AppSpace.s11),
-        ChipWrap(
-          options: {..._tagOptions, ...s.customTags, ...s.tags}.toList(),
-          isSelected: (o) => s.tags.contains(o),
-          onPick: s.toggleTag,
-        ),
-        const SizedBox(height: AppSpace.s10),
-        Row(
-          children: [
-            Expanded(
-              child: AppTextField(
-                value: s.tagInput,
-                hint: '새 태그 직접 입력',
-                fontSize: 13,
-                onChanged: (v) => s.setSub(() => s.tagInput = v),
+  Widget build(BuildContext context) {
+    final s = context.watch<AppState>();
+    return AppCard(
+      padding: 16,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('태그', style: t(AppFontSize.f13, w: FontWeight.w700)),
+          const SizedBox(height: AppSpace.s11),
+          ChipWrap(
+            options: {..._tagOptions, ...s.customTags, ...s.tags}.toList(),
+            isSelected: (o) => s.tags.contains(o),
+            onPick: s.toggleTag,
+          ),
+          const SizedBox(height: AppSpace.s10),
+          Row(
+            children: [
+              Expanded(
+                child: AppTextField(
+                  value: s.tagInput,
+                  hint: '새 태그 직접 입력',
+                  fontSize: 13,
+                  onChanged: (v) => s.setSub(() => s.tagInput = v),
+                ),
               ),
-            ),
-            const SizedBox(width: AppSpace.s8),
-            SmallButton(
-              label: '추가',
-              onTap: () {
-                if (s.addCustomTag()) toast(context, '태그를 추가했어요');
-              },
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
+              const SizedBox(width: AppSpace.s8),
+              SmallButton(
+                label: '추가',
+                onTap: () {
+                  if (s.addCustomTag()) toast(context, '태그를 추가했어요');
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }

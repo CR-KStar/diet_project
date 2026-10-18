@@ -8,6 +8,10 @@ import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/common.dart';
 
 import 'today_mission_page.dart';
+import 'package:diet_project/ui/growth/viewmodel/plant_view_model.dart';
+import 'package:diet_project/ui/home/viewmodel/mission_view_model.dart';
+import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
+import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -72,6 +76,7 @@ class _Greeting extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final profile = context.watch<ProfileViewModel>();
     final s = context.watch<AppState>();
 
     return Padding(
@@ -97,7 +102,7 @@ class _Greeting extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${s.nickname}님, 오늘도 잘하고 있어요',
+                  '${profile.nickname}님, 오늘도 잘하고 있어요',
                   style: t(
                     19,
                     w: FontWeight.w900,
@@ -187,6 +192,7 @@ class _CalorieRing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final profile = context.watch<ProfileViewModel>();
     final s = context.watch<AppState>();
 
     return AppCard(
@@ -223,7 +229,7 @@ class _CalorieRing extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '/ ${AppStateFormat.comma(s.dailyTarget)} kcal',
+                        '/ ${AppStateFormat.comma(profile.dailyTarget)} kcal',
                         style: t(AppFontSize.f10, c: AppColor.textFaint),
                       ),
                     ],
@@ -300,11 +306,11 @@ class _CalorieRing extends StatelessWidget {
                     children: [
                       RowBetween(
                         '권장 칼로리',
-                        '${AppStateFormat.comma(s.dailyTarget)} kcal',
+                        '${AppStateFormat.comma(profile.dailyTarget)} kcal',
                       ),
                       RowBetween(
                         '기초대사량',
-                        '${AppStateFormat.comma(s.bmr.round())} kcal',
+                        '${AppStateFormat.comma(profile.bmr.round())} kcal',
                       ),
                     ],
                   ),
@@ -430,17 +436,19 @@ class _TodayCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final profileVm = context.watch<ProfileViewModel>();
+    final waterVm = context.watch<WaterViewModel>();
     final s = context.watch<AppState>();
 
     final cards = <_TodayCardData>[
       (
         icon: '💧',
         label: '물 섭취량',
-        value: AppStateFormat.comma(s.waterTotal),
+        value: AppStateFormat.comma(waterVm.waterTotal),
         unit: 'ml',
         sub: '/ 2,000 ml',
         subColor: AppColor.textGhost,
-        pct: s.waterTotal / 2000,
+        pct: waterVm.waterTotal / 2000,
         tint: AppColor.tintWater,
         color: AppColor.info,
         sheet: true,
@@ -464,11 +472,11 @@ class _TodayCards extends StatelessWidget {
         label: '체중',
         value: s.latestWeightKg.toStringAsFixed(1),
         unit: 'kg',
-        sub: s.profile.goalDelta,
+        sub: profileVm.profile.goalDelta,
         subColor: AppColor.primary,
-        pct: s.profile.goalWeight <= 0
+        pct: profileVm.profile.goalWeight <= 0
             ? 0.0
-            : (s.profile.goalWeight / s.latestWeightKg).clamp(0.0, 1.0),
+            : (profileVm.profile.goalWeight / s.latestWeightKg).clamp(0.0, 1.0),
         tint: AppColor.tintWeight,
         color: AppColor.teal,
         sheet: false,
@@ -532,7 +540,7 @@ class _TodayCards extends StatelessWidget {
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
           childAspectRatio: 1.08,
-          children: cards.map((c) => _TodayCardTile(s: s, c: c)).toList(),
+          children: cards.map((c) => _TodayCardTile(c: c)).toList(),
         ),
       ],
     );
@@ -540,78 +548,81 @@ class _TodayCards extends StatelessWidget {
 }
 
 class _TodayCardTile extends StatelessWidget {
-  const _TodayCardTile({required this.s, required this.c});
+  const _TodayCardTile({required this.c});
 
-  final AppState s;
   final _TodayCardData c;
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
-    onTap: () => c.sheet ? s.setSub(() => s.waterSheet = true) : s.go(c.route),
-    child: Container(
-      padding: const EdgeInsets.all(AppSpace.s15),
-      decoration: BoxDecoration(
-        color: c.tint,
-        borderRadius: BorderRadius.circular(22),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              IconTile(
-                c.icon,
-                size: 36,
-                radius: 18,
-                bg: AppColor.surface,
-                fontSize: 16,
-              ),
-              const Spacer(),
-              Text(
-                '›',
-                style: TextStyle(fontSize: 13, color: AppColor.iconGhost),
-              ),
-            ],
-          ),
-          const Spacer(),
-          Text(
-            c.label,
-            style: t(
-              AppFontSize.f11,
-              w: FontWeight.w500,
-              c: AppColor.textMuted,
-            ),
-          ),
-          const SizedBox(height: AppSpace.s3),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                c.value,
-                style: t(
-                  21,
-                  w: FontWeight.w900,
-                  c: AppColor.textStrong,
-                  sp: -0.4,
+  Widget build(BuildContext context) {
+    final s = context.watch<AppState>();
+    return GestureDetector(
+      onTap: () =>
+          c.sheet ? s.setSub(() => s.waterSheet = true) : s.go(c.route),
+      child: Container(
+        padding: const EdgeInsets.all(AppSpace.s15),
+        decoration: BoxDecoration(
+          color: c.tint,
+          borderRadius: BorderRadius.circular(22),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                IconTile(
+                  c.icon,
+                  size: 36,
+                  radius: 18,
+                  bg: AppColor.surface,
+                  fontSize: 16,
                 ),
+                const Spacer(),
+                Text(
+                  '›',
+                  style: TextStyle(fontSize: 13, color: AppColor.iconGhost),
+                ),
+              ],
+            ),
+            const Spacer(),
+            Text(
+              c.label,
+              style: t(
+                AppFontSize.f11,
+                w: FontWeight.w500,
+                c: AppColor.textMuted,
               ),
-              const SizedBox(width: AppSpace.s3),
-              Text(c.unit, style: t(AppFontSize.f11, c: AppColor.textFaint)),
-            ],
-          ),
-          Text(c.sub, style: t(AppFontSize.f10, c: c.subColor)),
-          const SizedBox(height: AppSpace.s8),
-          ProgressBar(
-            value: c.pct,
-            color: c.color,
-            height: AppSize.barThin,
-            track: Colors.white,
-          ),
-        ],
+            ),
+            const SizedBox(height: AppSpace.s3),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Text(
+                  c.value,
+                  style: t(
+                    21,
+                    w: FontWeight.w900,
+                    c: AppColor.textStrong,
+                    sp: -0.4,
+                  ),
+                ),
+                const SizedBox(width: AppSpace.s3),
+                Text(c.unit, style: t(AppFontSize.f11, c: AppColor.textFaint)),
+              ],
+            ),
+            Text(c.sub, style: t(AppFontSize.f10, c: c.subColor)),
+            const SizedBox(height: AppSpace.s8),
+            ProgressBar(
+              value: c.pct,
+              color: c.color,
+              height: AppSize.barThin,
+              track: Colors.white,
+            ),
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 const _plantCareMeta = {
@@ -625,8 +636,9 @@ class _PlantCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final plantVm = context.watch<PlantViewModel>();
     final s = context.watch<AppState>();
-    final stage = s.plantStage;
+    final stage = plantVm.plantStage;
 
     return AppCard(
       gradient: AppColor.plantGradient,
@@ -656,7 +668,7 @@ class _PlantCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  'Lv.${s.plantLevel}',
+                  'Lv.${plantVm.plantLevel}',
                   style: t(
                     AppFontSize.f10,
                     w: FontWeight.w700,
@@ -700,7 +712,7 @@ class _PlantCard extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpace.s9),
                     ProgressBar(
-                      value: (s.plantExp % 100) / 100,
+                      value: (plantVm.plantExp % 100) / 100,
                       height: AppSize.barThick,
                       track: Colors.white,
                       gradient: const LinearGradient(
@@ -712,11 +724,11 @@ class _PlantCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '${s.plantExp} EXP',
+                          '${plantVm.plantExp} EXP',
                           style: t(AppFontSize.f11, c: const Color(0xFF7E9080)),
                         ),
                         Text(
-                          s.plantExpLeft,
+                          plantVm.plantExpLeft,
                           style: t(
                             AppFontSize.f11,
                             w: FontWeight.w700,
@@ -728,8 +740,8 @@ class _PlantCard extends StatelessWidget {
                     const SizedBox(height: AppSpace.s12),
                     Row(
                       children: [
-                        for (final c in s.cares.entries) ...[
-                          if (c.key != s.cares.keys.first)
+                        for (final c in plantVm.cares.entries) ...[
+                          if (c.key != plantVm.cares.keys.first)
                             const SizedBox(width: AppSpace.s6),
                           _PlantCareTile(c: c),
                         ],
@@ -782,6 +794,7 @@ class _MissionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mission = context.watch<MissionViewModel>();
     final s = context.watch<AppState>();
 
     return AppCard(
@@ -793,7 +806,10 @@ class _MissionCard extends StatelessWidget {
               const SizedBox(width: AppSpace.s8),
               Text('오늘의 미션', style: t(AppFontSize.f15, w: FontWeight.w900)),
               const SizedBox(width: AppSpace.s8),
-              Pill('${s.missionDone} / ${s.missions.length}', fontSize: 10),
+              Pill(
+                '${mission.missionDone} / ${mission.missions.length}',
+                fontSize: 10,
+              ),
               const Spacer(),
               GestureDetector(
                 onTap: () => s.setSub(() => s.missionOpen = true),
@@ -809,9 +825,9 @@ class _MissionCard extends StatelessWidget {
             height: AppSpace.s92,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              itemCount: s.missions.length,
+              itemCount: mission.missions.length,
               separatorBuilder: (_, _) => const SizedBox(width: AppSpace.s10),
-              itemBuilder: (_, i) => _MissionMiniCard(s: s, m: s.missions[i]),
+              itemBuilder: (_, i) => _MissionMiniCard(m: mission.missions[i]),
             ),
           ),
         ],
@@ -821,60 +837,62 @@ class _MissionCard extends StatelessWidget {
 }
 
 class _MissionMiniCard extends StatelessWidget {
-  const _MissionMiniCard({required this.s, required this.m});
+  const _MissionMiniCard({required this.m});
 
-  final AppState s;
   final Mission m;
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
-    onTap: () => s.go(m.route),
-    child: Container(
-      width: AppSpace.s150,
-      padding: const EdgeInsets.all(AppSpace.s13),
-      decoration: BoxDecoration(
-        color: AppColor.surfaceSunken,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            m.title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: t(AppFontSize.f12, w: FontWeight.w700),
-          ),
-          const SizedBox(height: AppSpace.s6),
-          Text(
-            '${AppStateFormat.comma(m.current.round())} / ${AppStateFormat.comma(m.target.round())}${m.unit}',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: t(AppFontSize.f11, c: AppColor.textFaint),
-          ),
-          const Spacer(),
-          Row(
-            children: [
-              Expanded(
-                child: ProgressBar(
-                  value: m.ratio,
-                  height: AppSize.barThin,
-                  track: Colors.white,
+  Widget build(BuildContext context) {
+    final s = context.watch<AppState>();
+    return GestureDetector(
+      onTap: () => s.go(m.route),
+      child: Container(
+        width: AppSpace.s150,
+        padding: const EdgeInsets.all(AppSpace.s13),
+        decoration: BoxDecoration(
+          color: AppColor.surfaceSunken,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              m.title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: t(AppFontSize.f12, w: FontWeight.w700),
+            ),
+            const SizedBox(height: AppSpace.s6),
+            Text(
+              '${AppStateFormat.comma(m.current.round())} / ${AppStateFormat.comma(m.target.round())}${m.unit}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: t(AppFontSize.f11, c: AppColor.textFaint),
+            ),
+            const Spacer(),
+            Row(
+              children: [
+                Expanded(
+                  child: ProgressBar(
+                    value: m.ratio,
+                    height: AppSize.barThin,
+                    track: Colors.white,
+                  ),
                 ),
-              ),
-              const SizedBox(width: AppSpace.s7),
-              Text(
-                '${(m.ratio * 100).round()}%',
-                style: t(
-                  AppFontSize.f10,
-                  w: FontWeight.w700,
-                  c: AppColor.primary,
+                const SizedBox(width: AppSpace.s7),
+                Text(
+                  '${(m.ratio * 100).round()}%',
+                  style: t(
+                    AppFontSize.f10,
+                    w: FontWeight.w700,
+                    c: AppColor.primary,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
