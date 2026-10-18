@@ -7,6 +7,7 @@ import 'package:diet_project/ui/growth/viewmodel/plant_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/mission_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/recommendation_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/today_summary.dart';
+import 'package:diet_project/ui/onboarding/viewmodel/auth_view_model.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/bowl_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/exercise_view_model.dart';
@@ -57,6 +58,7 @@ class AppState extends ChangeNotifier {
     BowlViewModel? bowlViewModel,
     RoutineViewModel? routineViewModel,
     PlantViewModel? plantViewModel,
+    AuthViewModel? authViewModel,
     ProfileViewModel? profileViewModel,
     PhotoAnalysisViewModel? photoAnalysisViewModel,
     RecommendationViewModel? recommendationViewModel,
@@ -76,7 +78,8 @@ class AppState extends ChangeNotifier {
     MealRecommendationService? mealRecommendationService,
     DateTime Function()? now,
   }) : _aiConsentStore = aiConsentStore ?? MemoryAiConsentStore(),
-       _auth = auth ?? MockAuthService(),
+       _authViewModel =
+           authViewModel ?? AuthViewModel(auth: auth ?? MockAuthService()),
        _profileViewModel =
            profileViewModel ??
            ProfileViewModel(profiles: profiles ?? MemoryProfileRepository()),
@@ -165,6 +168,7 @@ class AppState extends ChangeNotifier {
     _plantViewModel
       ..onSyncFailed = showNotice
       ..addListener(notifyListeners);
+    _authViewModel.addListener(notifyListeners);
     _profileViewModel
       ..onSyncFailed = showNotice
       ..addListener(notifyListeners);
@@ -181,7 +185,7 @@ class AppState extends ChangeNotifier {
       ..addListener(notifyListeners);
   }
 
-  final AuthService _auth;
+  final AuthViewModel _authViewModel;
   final ProfileViewModel _profileViewModel;
 
   /// 물 기록은 이제 이 화면 전용 ViewModel이 갖고 있다 — AppState는 연속
@@ -399,39 +403,25 @@ class AppState extends ChangeNotifier {
 
   AuthAccount? _account;
 
-  /// 로그인 버튼 중복 탭 방지.
-  bool signingIn = false;
+  // 로그인 · 로그아웃 · 계정 삭제의 진행 상태와 실패 문구는 AuthViewModel이 맡는다.
+  // 로그인한 뒤 무엇을 불러오고 로그아웃 · 삭제 뒤 무엇을 비우는지는 여기서 정한다.
+  bool get signingIn => _authViewModel.signingIn;
+
+  /// 계정 삭제가 진행 중인 동안 true — 버튼 중복 탭을 막는다.
+  bool get deleting => _authViewModel.deleting;
 
   /// 마지막 로그인 · 계정 삭제 실패 문구 (화면이 토스트로 보여주고 비운다)
-  String? authError;
+  String? get authError => _authViewModel.authError;
+  set authError(String? value) => _authViewModel.authError = value;
 
   /// 성공 true, 취소 false, 실패 false + authError.
-  Future<bool> signIn(LoginProvider p) async {
-    if (signingIn) return false;
-    signingIn = true;
-    authError = null;
-    notifyListeners();
-    try {
-      final result = await _auth.signIn(p);
-      if (result == null) return false;
-      return await _enter(result);
-    } on AuthFailure catch (e) {
-      authError = e.message;
-      return false;
-    } catch (e, stack) {
-      debugPrint('로그인 중 예상치 못한 오류: $e\n$stack');
-      authError = '로그인 중 문제가 생겼어요. 잠시 후 다시 시도해 주세요.';
-      return false;
-    } finally {
-      signingIn = false;
-      notifyListeners();
-    }
-  }
+  Future<bool> signIn(LoginProvider p) =>
+      _authViewModel.signIn(p, enter: _enter);
 
   /// 앱을 켤 때 호출 — 로그인 · 온보딩 완료 여부에 따라 알맞은 화면으로 보낸다.
   Future<bool> restoreSession() async {
     await loadAiConsent();
-    final current = await _auth.restoreAccount();
+    final current = await _authViewModel.restoreAccount();
     if (current == null) return false;
     if (!await _enter(current)) return false;
     goAfterLogin();
@@ -509,7 +499,7 @@ class AppState extends ChangeNotifier {
   }
 
   /// 가짜 로그인(Mock)일 때만 true — 이때는 예시 기록을 그대로 보여준다.
-  bool get _isDemo => _auth is MockAuthService;
+  bool get _isDemo => _authViewModel.isDemo;
 
   /// 예시 기록을 비운다. 실제 계정은 자기 기록만 보여야 한다.
   void _clearSampleRecords() {
@@ -537,42 +527,23 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> signOut() async {
-    await _auth.signOut();
+    await _authViewModel.signOut();
     _resetPersonal();
     _notice = '로그아웃했어요.';
     go('login');
   }
 
   /// 계정 삭제에 성공하면 true, 실패하면 false(authError에 사용자용 문구).
-  Future<bool> deleteAccount() async {
-    if (deleting) return false;
-    deleting = true;
-    authError = null;
-    notifyListeners();
-    final uid = account?.uid;
-    try {
-      await _auth.deleteAccount(
-        beforeDelete: uid == null ? null : () => _deleteAllUserData(uid),
-      );
+  Future<bool> deleteAccount() => _authViewModel.deleteAccount(
+    uid: account?.uid,
+    deleteUserData: _deleteAllUserData,
+    afterDelete: () {
       _resetPersonal();
       _notice = '계정과 저장된 정보를 모두 삭제했어요.';
       go('login');
-      return true;
-    } on AuthFailure catch (e) {
-      authError = e.message;
-      return false;
-    } catch (e, stack) {
-      debugPrint('계정 삭제 중 예상치 못한 오류: $e\n$stack');
-      authError = '계정을 삭제하지 못했어요. 네트워크를 확인하고 다시 시도해 주세요.';
-      return false;
-    } finally {
-      deleting = false;
-      notifyListeners();
-    }
-  }
+    },
+  );
 
-  /// 계정 삭제가 진행 중인 동안 true — 버튼 중복 탭을 막는다.
-  bool deleting = false;
   // 내 정보 — 닉네임 · 신체 정보와 목표 · 약관 · 알림 · 공개 범위 · 온보딩 진행 상황은
   // ProfileViewModel이 맡는다. 화면이 예전처럼 s.nickname 같은 이름으로 쓸 수 있게,
   // 같은 이름으로 전달만 한다.
