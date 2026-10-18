@@ -6,6 +6,7 @@
 import 'package:diet_project/ui/growth/viewmodel/plant_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/mission_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/recommendation_view_model.dart';
+import 'package:diet_project/ui/home/viewmodel/today_summary.dart';
 import 'package:diet_project/ui/record/viewmodel/bowl_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/exercise_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/meal_view_model.dart';
@@ -33,7 +34,7 @@ import 'package:diet_project/data/repositories/challenge_repository.dart';
 import 'package:diet_project/data/repositories/activity_feed_repository.dart';
 import 'package:diet_project/domain/models/models.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
-import 'package:flutter/material.dart' show Offset, Color;
+import 'package:flutter/material.dart' show Offset;
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -41,37 +42,8 @@ import 'package:flutter/foundation.dart';
 import 'data/auth/auth_service.dart';
 
 export 'package:diet_project/domain/models/models.dart';
-
-/// 영양소 하나의 오늘 합계 — 목표 대비 비율과 끼니별 분해까지 담는다.
-class NutrientStat {
-  const NutrientStat({
-    required this.name,
-    required this.unit,
-    required this.value,
-    required this.target,
-    required this.color,
-    required this.breakfast,
-    required this.lunch,
-    required this.dinner,
-    required this.snack,
-  });
-
-  final String name;
-  final String unit;
-  final double value;
-  final double target;
-  final Color color;
-  final double breakfast;
-  final double lunch;
-  final double dinner;
-  final double snack;
-
-  int get pct => target <= 0 ? 0 : (value / target * 100).round();
-
-  /// 80% 이상이면 "적정", 그 아래면 "부족"으로 본다 — 간단한 기준이라
-  /// 100%를 초과해도 "적정"으로 표시된다(초과 자체를 경고로 다루진 않는다).
-  bool get isLow => pct < 80;
-}
+export 'package:diet_project/ui/home/viewmodel/today_summary.dart'
+    show NutrientStat;
 
 class AppState extends ChangeNotifier {
   AppState({
@@ -767,66 +739,22 @@ class AppState extends ChangeNotifier {
     return null;
   }
 
-  int get intakeKcal => todayRegistry.totalIntakeKcal;
-  int get remainKcal => dailyTarget - intakeKcal;
-  double get intakeRatio =>
-      dailyTarget > 0 ? (intakeKcal / dailyTarget).clamp(0.0, 1.0) : 0.0;
+  /// 오늘 먹은 칼로리 · 남은 칼로리 · 권장량 대비 비율은 TodaySummary가 계산한다.
+  TodaySummary get _todaySummary =>
+      TodaySummary(meals: todayMeals, dailyTarget: dailyTarget);
 
-  // 영양소 — 오늘 기록한 식단의 AI 분석값을 그대로 더한 실제 합계.
-  //
-  // target(하루 권장치)은 성별 · 체중 등에 맞춘 개인화 목표가 아니라 일반
-  // 성인 기준 고정값이다 — 개인 맞춤 목표는 별도 기능으로 남겨둔다.
-  // 사진 분석 없이 저장한 식단(예: 분석 실패 후 대체값 450kcal로 저장)은
-  // 영양소가 전부 0으로 잡혀서, 그만큼 실제보다 적게 보일 수 있다.
-  static const _nutrientColors = <String, Color>{
-    '단백질': AppColor.primary,
-    '탄수화물': AppColor.warn,
-    '지방': AppColor.warnDeep,
-    '식이섬유': AppColor.teal,
-    '나트륨': AppColor.alert,
-    '당류': Color(0xFFF48FB1),
-    '칼슘': Color(0xFF90A4EE),
-    '철분': Color(0xFFB08BE0),
-  };
+  int get intakeKcal => _todaySummary.intakeKcal;
+  int get remainKcal => _todaySummary.remainKcal;
+  double get intakeRatio => _todaySummary.intakeRatio;
 
-  double _sumMeals(double Function(MealLog) pick, [MealType? type]) =>
-      todayMeals
-          .where((m) => type == null || m.mealType == type)
-          .fold(0.0, (a, m) => a + pick(m));
-
-  /// 8종 영양소 오늘 합계 — 홈 카드(위 5개)와 영양소 상세 화면(전체)에서 같이 쓴다.
-  List<NutrientStat> get todayNutrientStats => [
-    for (final (:name, :unit, :target) in Nutrients.all)
-      NutrientStat(
-        name: name,
-        unit: unit,
-        target: target,
-        color: _nutrientColors[name]!,
-        value: _sumMeals(Nutrients.pick(name)),
-        breakfast: _sumMeals(Nutrients.pick(name), MealType.breakfast),
-        lunch: _sumMeals(Nutrients.pick(name), MealType.lunch),
-        dinner: _sumMeals(Nutrients.pick(name), MealType.dinner),
-        snack: _sumMeals(Nutrients.pick(name), MealType.snack),
-      ),
-  ];
-
-  double get todayProteinG => _sumMeals(Nutrients.pick('단백질'));
-  double get todayCarbG => _sumMeals(Nutrients.pick('탄수화물'));
-  double get todayFatG => _sumMeals(Nutrients.pick('지방'));
-
-  /// 3대 영양소가 각각 오늘 칼로리에서 차지하는 비율(%). 기록이 없으면 0.
-  ({int proteinPct, int carbPct, int fatPct}) get macroRatio {
-    final proteinKcal = todayProteinG * 4;
-    final carbKcal = todayCarbG * 4;
-    final fatKcal = todayFatG * 9;
-    final total = proteinKcal + carbKcal + fatKcal;
-    if (total <= 0) return (proteinPct: 0, carbPct: 0, fatPct: 0);
-    return (
-      proteinPct: (proteinKcal / total * 100).round(),
-      carbPct: (carbKcal / total * 100).round(),
-      fatPct: (fatKcal / total * 100).round(),
-    );
-  }
+  // 영양소 — 오늘 기록한 식단의 AI 분석값을 그대로 더한 실제 합계는 TodaySummary가 계산한다.
+  // 화면이 예전처럼 s.todayNutrientStats 같은 이름으로 쓸 수 있게, 같은 이름으로 전달만 한다.
+  List<NutrientStat> get todayNutrientStats => _todaySummary.nutrientStats;
+  double get todayProteinG => _todaySummary.proteinG;
+  double get todayCarbG => _todaySummary.carbG;
+  double get todayFatG => _todaySummary.fatG;
+  ({int proteinPct, int carbPct, int fatPct}) get macroRatio =>
+      _todaySummary.macroRatio;
 
   // 미션 (자동 생성)
   //
