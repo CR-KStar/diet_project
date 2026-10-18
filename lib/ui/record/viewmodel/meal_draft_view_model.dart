@@ -1,5 +1,5 @@
 import 'package:diet_project/domain/models/models.dart';
-import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
+import 'package:diet_project/domain/rules/diet_rules.dart';
 import 'package:flutter/foundation.dart';
 
 /// 식단 기록 화면의 입력값 — 끼니 · 상황 · 단백질 · 소스 · 조리법 · 탄수화물 · 양 · 채운 정도 ·

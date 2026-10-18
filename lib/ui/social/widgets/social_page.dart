@@ -696,7 +696,7 @@ User _asRow(String uid, String nickname) => User(
   id: uid,
   nickname: nickname,
   emoji: '🙂',
-  tint: AppColor.surfaceSunken,
+  tint: AppColor.surfaceSunken.toARGB32(),
 );
 
 List<Widget> _addFriendTab(BuildContext context) {
@@ -922,7 +922,13 @@ class _FriendRow extends StatelessWidget {
   Widget build(BuildContext context) => AppCard(
     child: Row(
       children: [
-        IconTile(user.emoji, size: 44, radius: 16, bg: user.tint, fontSize: 20),
+        IconTile(
+          user.emoji,
+          size: 44,
+          radius: 16,
+          bg: Color(user.tint),
+          fontSize: 20,
+        ),
         const SizedBox(width: AppSpace.s12),
         Expanded(
           child: Column(

@@ -7,6 +7,7 @@ import '../../../common.dart';
 import '../../core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/auth_view_model.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
+import 'package:diet_project/domain/rules/diet_rules.dart';
 
 class OnboardingPage extends StatelessWidget {
   const OnboardingPage({super.key});

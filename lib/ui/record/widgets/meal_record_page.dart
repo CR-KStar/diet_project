@@ -8,6 +8,7 @@ import '../../core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/ui/record/viewmodel/bowl_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/photo_analysis_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/meal_draft_view_model.dart';
+import 'package:diet_project/domain/rules/diet_rules.dart';
 
 /// 식단 촬영/기록 화면 — 사진(자리표시자) + AI 분석 결과 + 저장
 class CaptureScreen extends StatelessWidget {

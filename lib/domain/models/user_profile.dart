@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart' show Color;
-import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
+import 'package:diet_project/domain/rules/diet_rules.dart';
 import 'enums.dart';
 
 /// 앱 사용자 기본 정보
@@ -16,7 +15,9 @@ class User {
   final String id;
   final String nickname;
   final String emoji;
-  final Color tint;
+
+  /// 프로필 배경색 (ARGB 값) — 실제 색으로 바꾸는 일은 화면이 한다.
+  final int tint;
 }
 
 /// 사용자의 신체 정보 및 다이어트 목표 (계산 로직 포함)

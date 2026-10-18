@@ -4,7 +4,6 @@ import 'package:diet_project/data/repositories/activity_feed_repository.dart';
 import 'package:diet_project/data/repositories/friend_repository.dart';
 import 'package:diet_project/domain/models/models.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' show Color;
 
 /// 친구 목록 · 친구 요청 · 초대 코드 검색 · 친구 활동 피드를 담당한다.
 ///
@@ -37,33 +36,25 @@ class FriendViewModel extends ChangeNotifier {
   // 사람은 이름 문자열이 아니라 User 모델(id로 구분)로 다룬다.
   // "나"는 currentUser로, 그 외 사람들은 아래 people 목록에서 가져온다.
   static const List<User> people = [
-    User(id: 'u_jihyun', nickname: '지현', emoji: '🏃', tint: Color(0xFFFFEDE3)),
-    User(id: 'u_minsu', nickname: '민수', emoji: '🪴', tint: Color(0xFFEAF5E7)),
-    User(id: 'u_seoyeon', nickname: '서연', emoji: '🌸', tint: Color(0xFFFCEAF1)),
-    User(id: 'u_taeho', nickname: '태호', emoji: '💧', tint: Color(0xFFEAF1FE)),
-    User(id: 'u_hyunwoo', nickname: '현우', emoji: '🙂', tint: Color(0xFFF7EFE7)),
-    User(id: 'u_minji', nickname: '민지', emoji: '🏃', tint: Color(0xFFFFEDE3)),
-    User(id: 'u_junho', nickname: '준호', emoji: '🥗', tint: Color(0xFFEAF5E7)),
-    User(id: 'u_yujin', nickname: '유진', emoji: '🌱', tint: Color(0xFFEAF5E7)),
+    User(id: 'u_jihyun', nickname: '지현', emoji: '🏃', tint: 0xFFFFEDE3),
+    User(id: 'u_minsu', nickname: '민수', emoji: '🪴', tint: 0xFFEAF5E7),
+    User(id: 'u_seoyeon', nickname: '서연', emoji: '🌸', tint: 0xFFFCEAF1),
+    User(id: 'u_taeho', nickname: '태호', emoji: '💧', tint: 0xFFEAF1FE),
+    User(id: 'u_hyunwoo', nickname: '현우', emoji: '🙂', tint: 0xFFF7EFE7),
+    User(id: 'u_minji', nickname: '민지', emoji: '🏃', tint: 0xFFFFEDE3),
+    User(id: 'u_junho', nickname: '준호', emoji: '🥗', tint: 0xFFEAF5E7),
+    User(id: 'u_yujin', nickname: '유진', emoji: '🌱', tint: 0xFFEAF5E7),
   ];
 
   /// 지금 로그인한 사용자.
-  User get currentUser => User(
-    id: _uid,
-    nickname: nickname(),
-    emoji: '🙂',
-    tint: const Color(0xFFEAF1FE),
-  );
+  User get currentUser =>
+      User(id: _uid, nickname: nickname(), emoji: '🙂', tint: 0xFFEAF1FE);
 
   /// id로 사람을 찾는다. 목록에 없는 id면(알 수 없는 사람) 안전한 대체 값을 준다.
   static User personById(String id) => people.firstWhere(
     (u) => u.id == id,
-    orElse: () => User(
-      id: id,
-      nickname: '알 수 없음',
-      emoji: '❓',
-      tint: const Color(0xFFEDEDED),
-    ),
+    orElse: () =>
+        User(id: id, nickname: '알 수 없음', emoji: '❓', tint: 0xFFEDEDED),
   );
 
   /// uid로 화면에 보여줄 User를 만든다 — 나 → 실제 친구 프로필 → 데모 인물 순으로 찾는다.
@@ -75,7 +66,7 @@ class FriendViewModel extends ChangeNotifier {
           id: f.uid,
           nickname: f.nickname,
           emoji: '🙂',
-          tint: const Color(0xFFEAF1FE),
+          tint: 0xFFEAF1FE,
         );
       }
     }

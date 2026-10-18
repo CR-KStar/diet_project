@@ -1,5 +1,5 @@
 import 'package:diet_project/app_state.dart';
-import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
+import 'package:diet_project/domain/rules/diet_rules.dart';
 import 'package:diet_project/ui/record/viewmodel/meal_draft_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 

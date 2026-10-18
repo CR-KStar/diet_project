@@ -298,7 +298,7 @@ class ChallengeViewModel extends ChangeNotifier {
           id: 'u_$nickname',
           nickname: nickname,
           emoji: '🙂',
-          tint: const Color(0xFFEDEDED),
+          tint: 0xFFEDEDED,
         ),
       )
       .id;

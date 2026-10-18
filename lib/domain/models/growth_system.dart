@@ -1,4 +1,4 @@
-import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
+import 'package:diet_project/domain/rules/diet_rules.dart';
 import 'enums.dart';
 
 /// 내 식물의 현재 상태

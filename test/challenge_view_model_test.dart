@@ -1,7 +1,6 @@
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/data/repositories/challenge_repository.dart';
 import 'package:diet_project/ui/social/viewmodel/challenge_view_model.dart';
-import 'package:flutter/material.dart' show Color;
 import 'package:flutter_test/flutter_test.dart';
 
 Challenge _challenge(
@@ -176,7 +175,7 @@ void main() {
         id: id,
         nickname: '닉네임-$id',
         emoji: '🙂',
-        tint: const Color(0xFFFFFFFF),
+        tint: 0xFFFFFFFF,
       );
       await vm.loadForUid('me');
 

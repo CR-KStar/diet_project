@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:diet_project/app_state.dart';
+import 'package:diet_project/domain/rules/diet_rules.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/common.dart';
 
