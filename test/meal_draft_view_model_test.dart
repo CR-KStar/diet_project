@@ -152,19 +152,19 @@ void main() {
     }
 
     test('처음 값에서는 조리법 · 소스 · 단백질 보정만 반영한다', () {
-      expect(vm.adjustedKcal(baseKcal: 450), expected(450));
+      expect(vm.adjustedKcalFor(baseKcal: 450), expected(450));
     });
 
     test('양이 절반이면 칼로리도 절반이다', () {
       vm.setPortion('반절');
 
-      expect(vm.adjustedKcal(baseKcal: 450), expected(450, portion: 0.5));
+      expect(vm.adjustedKcalFor(baseKcal: 450), expected(450, portion: 0.5));
     });
 
     test('직접 정한 퍼센트는 그 비율로 계산한다', () {
       vm.setPortionPct(150);
 
-      expect(vm.adjustedKcal(baseKcal: 400), expected(400, portion: 1.5));
+      expect(vm.adjustedKcalFor(baseKcal: 400), expected(400, portion: 1.5));
     });
 
     test('그릇 크기가 반영된다 (그릇이 없으면 1배)', () {
@@ -172,17 +172,17 @@ void main() {
       final small = _bowl(300);
 
       expect(
-        vm.adjustedKcal(baseKcal: 400, bowl: big),
-        greaterThan(vm.adjustedKcal(baseKcal: 400, bowl: small)),
+        vm.adjustedKcalFor(baseKcal: 400, bowl: big),
+        greaterThan(vm.adjustedKcalFor(baseKcal: 400, bowl: small)),
       );
-      expect(vm.adjustedKcal(baseKcal: 400), expected(400));
+      expect(vm.adjustedKcalFor(baseKcal: 400), expected(400));
     });
 
     test('채운 정도가 적으면 칼로리도 줄어든다', () {
-      final full = vm.adjustedKcal(baseKcal: 500);
+      final full = vm.adjustedKcalFor(baseKcal: 500);
       vm.setFill('반');
 
-      expect(vm.adjustedKcal(baseKcal: 500), lessThan(full));
+      expect(vm.adjustedKcalFor(baseKcal: 500), lessThan(full));
     });
   });
 

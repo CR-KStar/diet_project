@@ -17,6 +17,7 @@ import 'ui/report_settings/widgets/report_page.dart';
 import 'ui/social/widgets/social_page.dart';
 import 'ui/report_settings/widgets/my_page.dart';
 import 'ui/report_settings/widgets/settings_page.dart';
+import 'package:diet_project/ui/record/viewmodel/bowl_view_model.dart';
 
 /// FAB을 눌렀을 때 뜨는 빠른 기록 시트 — 식단/운동/체중/물 4가지 바로가기
 class QuickSheet extends StatelessWidget {
@@ -87,25 +88,26 @@ class BowllPickSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bowl = context.watch<BowlViewModel>();
     final s = context.read<AppState>();
 
     return SheetScaffold(
       title: '그릇 선택',
-      onClose: () => s.setSub(() => s.bowlSheet = false),
+      onClose: () => s.setSub(() => bowl.bowlSheet = false),
       child: Column(
         children: [
-          for (final entry in s.bowls.asMap().entries)
+          for (final entry in bowl.bowls.asMap().entries)
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: GestureDetector(
                 onTap: () {
                   s.selectBowl(entry.key);
-                  s.setSub(() => s.bowlSheet = false);
+                  s.setSub(() => bowl.bowlSheet = false);
                 },
                 child: Container(
                   padding: const EdgeInsets.all(14),
                   decoration: AppDeco.selectableCard(
-                    selected: entry.key == s.bowlIndex,
+                    selected: entry.key == bowl.bowlIndex,
                   ),
                   child: Row(
                     children: [
@@ -156,6 +158,7 @@ class AppShell extends StatelessWidget {
   const AppShell({super.key});
   @override
   Widget build(BuildContext context) {
+    final bowl = context.watch<BowlViewModel>();
     final s = context.watch<AppState>();
     return Scaffold(
       backgroundColor: AppColor.bg,
@@ -178,9 +181,9 @@ class AppShell extends StatelessWidget {
                 onClose: () => s.setSub(() => s.waterSheet = false),
                 child: const WaterSheet(),
               ),
-            if (s.bowlSheet)
+            if (bowl.bowlSheet)
               _SheetOverlay(
-                onClose: () => s.setSub(() => s.bowlSheet = false),
+                onClose: () => s.setSub(() => bowl.bowlSheet = false),
                 child: const BowllPickSheet(),
               ),
           ],

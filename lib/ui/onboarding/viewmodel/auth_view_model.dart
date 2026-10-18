@@ -16,6 +16,18 @@ class AuthViewModel extends ChangeNotifier {
   /// 가짜 로그인(Mock)일 때만 true — 이때는 예시 기록을 그대로 보여준다.
   bool get isDemo => _auth is MockAuthService;
 
+  /// 로그인한 계정 (로그인 전에는 null)
+  AuthAccount? get account => _account;
+  set account(AuthAccount? value) {
+    _account = value;
+    notifyListeners();
+  }
+
+  AuthAccount? _account;
+
+  /// 로그인 방식 이름 ('Google' · 'Apple') — 온보딩 첫 화면에 보여준다.
+  String provider = 'Google';
+
   /// 로그인 버튼 중복 탭 방지.
   bool signingIn = false;
 

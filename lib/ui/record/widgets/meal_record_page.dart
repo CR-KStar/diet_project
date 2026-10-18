@@ -224,7 +224,7 @@ class _AiAnalysisCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final draft = context.watch<MealDraftViewModel>();
     final photo = context.watch<PhotoAnalysisViewModel>();
     if (photo.analyzingPhoto) return const SizedBox.shrink();
 
@@ -295,7 +295,7 @@ class _AiAnalysisCard extends StatelessWidget {
             textBaseline: TextBaseline.alphabetic,
             children: [
               Text(
-                '${s.adjustedKcal}',
+                '${draft.adjustedKcal}',
                 style: t(
                   AppFontSize.f28,
                   w: FontWeight.w900,
@@ -429,7 +429,7 @@ class _AdjustedKcalCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final draft = context.watch<MealDraftViewModel>();
-    final s = context.watch<AppState>();
+    final draftVm = context.watch<MealDraftViewModel>();
     final photo = context.watch<PhotoAnalysisViewModel>();
     return AppCard(
       child: Row(
@@ -449,7 +449,7 @@ class _AdjustedKcalCard extends StatelessWidget {
                   textBaseline: TextBaseline.alphabetic,
                   children: [
                     Text(
-                      '${s.adjustedKcal}',
+                      '${draftVm.adjustedKcal}',
                       style: t(
                         26,
                         w: FontWeight.w900,

@@ -424,8 +424,9 @@ class MealDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final recordsVm = context.watch<RecordsViewModel>();
     final s = context.watch<AppState>();
-    final m = s.detailMeal;
+    final m = recordsVm.detailMeal;
     return ScreenScroll(
       children: [
         SubHeader(emoji: '🍱', title: '식단 상세', onBack: () => s.go('records')),

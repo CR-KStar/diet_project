@@ -176,7 +176,16 @@ class AppState extends ChangeNotifier {
       ..onSyncFailed = showNotice
       ..addListener(notifyListeners);
     _authViewModel.addListener(notifyListeners);
-    _mealDraftViewModel.addListener(notifyListeners);
+    _mealDraftViewModel
+      ..inputs = (() => MealDraftInputs(
+        baseKcal: _photoAnalysisViewModel.baseKcal,
+        bowl: _bowlViewModel.currentBowl,
+      ))
+      ..addListener(notifyListeners);
+    Listenable.merge([
+      _photoAnalysisViewModel,
+      _bowlViewModel,
+    ]).addListener(_mealDraftViewModel.refresh);
     _aiConsentViewModel.addListener(notifyListeners);
     _notificationInboxViewModel.addListener(notifyListeners);
     // 미션과 리포트는 여러 기록에서 값을 계산하므로, 그 기록이 바뀌면 다시 계산하게 알린다.
@@ -274,6 +283,7 @@ class AppState extends ChangeNotifier {
     dailyTarget: dailyTarget,
     profileWeightKg: profile.weightKg,
     latestLoggedWeightKg: _weightViewModel.latestWeightKg,
+    mealById: _mealViewModel.mealById,
   );
 
   /// 미션도 오늘의 기록을 읽어 계산하고, 수동 완료하면 식물 경험치를 올린다.
@@ -450,16 +460,15 @@ class AppState extends ChangeNotifier {
   String get todayLabel => _todayViewModel.todayLabel;
 
   // 인증 · 온보딩
-  String provider = 'Google';
+  String get provider => _authViewModel.provider;
+  set provider(String value) => _authViewModel.provider = value;
 
   /// 로그인한 계정 (로그인 전에는 null). 바뀌면 내 정보 저장 대상도 함께 바뀐다.
-  AuthAccount? get account => _account;
+  AuthAccount? get account => _authViewModel.account;
   set account(AuthAccount? value) {
-    _account = value;
+    _authViewModel.account = value;
     _profileViewModel.uid = value?.uid;
   }
-
-  AuthAccount? _account;
 
   // 로그인 · 로그아웃 · 계정 삭제의 진행 상태와 실패 문구는 AuthViewModel이 맡는다.
   // 로그인한 뒤 무엇을 불러오고 로그아웃 · 삭제 뒤 무엇을 비우는지는 여기서 정한다.
@@ -845,8 +854,7 @@ class AppState extends ChangeNotifier {
   Bowl? get currentBowl => _bowlViewModel.currentBowl;
 
   /// 부가 정보 반영 보정 칼로리 (입력값 + 사진 분석의 기본 칼로리 + 고른 그릇)
-  int get adjustedKcal =>
-      _mealDraftViewModel.adjustedKcal(baseKcal: baseKcal, bowl: currentBowl);
+  int get adjustedKcal => _mealDraftViewModel.adjustedKcal;
 
   void selectBowl(int i) {
     bowlIndex = i;
@@ -915,13 +923,11 @@ class AppState extends ChangeNotifier {
     unawaited(_appIconService.setFilled(true));
   }
 
-  /// 상세 화면에서 보여줄 식단 — id로 참조한다.
-  String? detailMealId;
-
-  MealLog? get detailMeal => _mealViewModel.mealById(detailMealId);
+  /// 상세 화면에서 보여줄 식단은 RecordsViewModel이 기억한다.
+  MealLog? get detailMeal => _recordsViewModel.detailMeal;
 
   void openMeal(MealLog m) {
-    detailMealId = m.id;
+    _recordsViewModel.selectDetailMeal(m);
     go('mealDetail');
   }
 

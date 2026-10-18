@@ -42,8 +42,9 @@ class _AccountLinkStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final profile = context.watch<ProfileViewModel>();
+    final auth = context.watch<AuthViewModel>();
     final s = context.watch<AppState>();
-    final apple = s.provider == 'Apple';
+    final apple = auth.provider == 'Apple';
     final ok = profile.requiredTermsOk && profile.nickname.trim().isNotEmpty;
 
     return ScreenScroll(
@@ -52,7 +53,7 @@ class _AccountLinkStep extends StatelessWidget {
       children: [
         SubHeader(emoji: '🔗', title: '계정 연결', onBack: () => s.go('login')),
         Text(
-          '${s.provider} 계정으로 처음 로그인했어요. 아래 정보만 확인하면 바로 시작할 수 있어요.',
+          '${auth.provider} 계정으로 처음 로그인했어요. 아래 정보만 확인하면 바로 시작할 수 있어요.',
           style: t(AppFontSize.f13, c: AppColor.textFaint, h: 1.6),
         ),
 
@@ -90,14 +91,14 @@ class _AccountLinkStep extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      s.account?.email ?? '${s.provider} 계정',
+                      auth.account?.email ?? '${auth.provider} 계정',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: t(AppFontSize.f14, w: FontWeight.w700),
                     ),
                     const SizedBox(height: AppSpace.s4),
                     Text(
-                      '${s.provider} 계정으로 연결됨',
+                      '${auth.provider} 계정으로 연결됨',
                       style: t(AppFontSize.f11, c: AppColor.textFaint),
                     ),
                   ],

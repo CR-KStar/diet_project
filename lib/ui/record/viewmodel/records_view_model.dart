@@ -14,6 +14,7 @@ class RecordsSnapshot {
     required this.dailyTarget,
     required this.profileWeightKg,
     required this.latestLoggedWeightKg,
+    required this.mealById,
   });
 
   /// 날짜 구분 없이 저장된 기록 전체 (기록한 날이 있는지 볼 때 쓴다).
@@ -33,6 +34,9 @@ class RecordsSnapshot {
 
   /// 가장 최근에 저장한 체중 (기록이 없으면 null).
   final double? latestLoggedWeightKg;
+
+  /// id로 식단 한 건을 찾고 없으면 null.
+  final MealLog? Function(String? id) mealById;
 }
 
 /// 기록 탭의 달력(보고 있는 달 · 날짜)과, "그날 기록이 있는가 · 며칠 연속인가" 같은
@@ -104,6 +108,17 @@ class RecordsViewModel extends ChangeNotifier {
   void selectDay(int d) {
     if (isFutureDay(d)) return;
     day = d;
+    notifyListeners();
+  }
+
+  /// 상세 화면에서 보여줄 식단 — id로 참조한다.
+  String? detailMealId;
+
+  MealLog? get detailMeal => snapshot().mealById(detailMealId);
+
+  /// 식단 하나를 상세 화면에서 볼 수 있게 골라 둔다 (화면 이동은 AppState가 한다).
+  void selectDetailMeal(MealLog m) {
+    detailMealId = m.id;
     notifyListeners();
   }
 

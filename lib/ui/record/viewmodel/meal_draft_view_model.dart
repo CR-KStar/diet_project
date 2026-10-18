@@ -7,7 +7,30 @@ import 'package:flutter/foundation.dart';
 ///
 /// 입력값은 저장 전까지만 유지되는 Draft 하나가 소유한다. 어느 그릇에 담았는지, 사진 분석으로
 /// 얻은 기본 칼로리가 얼마인지는 다른 ViewModel의 일이라, 보정 칼로리는 그 값을 넘겨받아 계산한다.
+/// 보정 칼로리 계산에 필요한 다른 ViewModel의 값 — AppState가 그때그때 최신 값으로 만들어 준다.
+class MealDraftInputs {
+  const MealDraftInputs({this.baseKcal = 450, this.bowl});
+
+  /// AI가 사진만 보고 추정한 기본 칼로리 (분석 전에는 450).
+  final int baseKcal;
+
+  /// 지금 고른 그릇 (없으면 null).
+  final Bowl? bowl;
+}
+
 class MealDraftViewModel extends ChangeNotifier {
+  /// 사진 분석과 고른 그릇이 바뀌면 보정 칼로리도 다시 계산하도록 알린다 (AppState가 연결한다).
+  void refresh() => notifyListeners();
+
+  /// 보정 칼로리에 쓸 최신 값을 돌려주는 함수 (AppState가 연결한다).
+  MealDraftInputs Function() inputs = MealDraftInputs.new;
+
+  /// 지금 입력값과 사진 분석 · 고른 그릇을 반영한 보정 칼로리.
+  int get adjustedKcal {
+    final i = inputs();
+    return adjustedKcalFor(baseKcal: i.baseKcal, bowl: i.bowl);
+  }
+
   /// 식단 화면의 입력값은 이 Draft 하나가 소유합니다.
   final MealDraft mealDraft = MealDraft(
     proteinType: '돼지고기',
@@ -63,7 +86,7 @@ class MealDraftViewModel extends ChangeNotifier {
 
   /// 부가 정보(조리법 · 소스 · 단백질) · 양 · 채운 정도 · 그릇 크기를 반영한 보정 칼로리.
   /// [baseKcal]은 AI가 사진만 보고 추정한 기본 칼로리다.
-  int adjustedKcal({required int baseKcal, Bowl? bowl}) {
+  int adjustedKcalFor({required int baseKcal, Bowl? bowl}) {
     var v =
         baseKcal *
         portionRatio *
