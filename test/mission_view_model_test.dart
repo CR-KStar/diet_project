@@ -178,6 +178,25 @@ void main() {
       expect(gained, [m.exp]);
     });
 
+    test('어제 달성 처리한 미션은 오늘 같은 미션이 나와도 완료로 보이지 않는다', () {
+      final yesterday = vm.missions.first;
+      vm.completeMissionManually(yesterday);
+
+      // 어제와 같은 미션이 나오는 날을 찾는다.
+      Mission? sameToday;
+      for (var d = 19; d <= 60 && sameToday == null; d++) {
+        todayKey = '2026-10-$d';
+        for (final m in vm.missions) {
+          if (m.id == yesterday.id) sameToday = m;
+        }
+      }
+
+      expect(sameToday, isNotNull);
+      expect(vm.missionEffectivelyDone(sameToday!), isFalse);
+      vm.completeMissionManually(sameToday); // 오늘은 오늘대로 달성 처리할 수 있다
+      expect(gained, [yesterday.exp, sameToday.exp]);
+    });
+
     test('이미 기록으로 완료된 미션은 달성 처리해도 경험치를 주지 않는다', () {
       meals = 10;
       exerciseMin = 500;

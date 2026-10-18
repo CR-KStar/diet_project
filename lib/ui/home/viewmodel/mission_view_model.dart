@@ -245,15 +245,18 @@ class MissionViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// "달성 처리" 버튼으로 수동 완료한 미션(제목 기준)
+  /// "달성 처리" 버튼으로 수동 완료한 미션 — 날짜까지 함께 기억한다. 미션 id만 기억하면
+  /// 어제 달성 처리한 미션이 오늘 같은 미션으로 다시 나왔을 때도 완료로 보인다.
   final Set<String> _manualMissionDone = {};
 
+  String _manualKey(Mission m) => '${inputs().todayKey}:${m.id}';
+
   bool missionEffectivelyDone(Mission m) =>
-      m.done || _manualMissionDone.contains(m.id);
+      m.done || _manualMissionDone.contains(_manualKey(m));
 
   void completeMissionManually(Mission m) {
     if (missionEffectivelyDone(m)) return;
-    _manualMissionDone.add(m.id);
+    _manualMissionDone.add(_manualKey(m));
     gainExp(m.exp);
     notifyListeners();
   }
