@@ -1,4 +1,4 @@
-import 'enums.dart';
+import 'package:diet_project/domain/models/challenge_type.dart';
 
 /// 챌린지 모델
 class Challenge {

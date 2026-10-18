@@ -1,4 +1,4 @@
-import 'activity_records.dart';
+import 'package:diet_project/domain/models/meal_log.dart';
 
 /// 추적하는 영양소 8종의 이름 · 단위 · 하루 권장치와, 식단 한 건에서 그 영양소의 양을 꺼내는 방법.
 ///

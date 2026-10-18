@@ -1,4 +1,4 @@
-import 'enums.dart';
+import 'package:diet_project/domain/models/login_provider.dart';
 
 /// 로그인에 성공한 계정.
 class AuthAccount {

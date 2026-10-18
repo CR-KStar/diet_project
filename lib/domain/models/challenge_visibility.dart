@@ -1,0 +1,1 @@
+enum ChallengeVisibility { private, public }

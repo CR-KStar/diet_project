@@ -1,24 +1,7 @@
 import 'package:diet_project/domain/rules/diet_rules.dart';
-import 'enums.dart';
-
-/// 앱 사용자 기본 정보
-class User {
-  const User({
-    required this.id,
-    required this.nickname,
-    required this.emoji,
-    required this.tint,
-  });
-
-  static const String meId = 'u_me';
-
-  final String id;
-  final String nickname;
-  final String emoji;
-
-  /// 프로필 배경색 (ARGB 값) — 실제 색으로 바꾸는 일은 화면이 한다.
-  final int tint;
-}
+import 'package:diet_project/domain/models/activity_level.dart';
+import 'package:diet_project/domain/models/diet_goal.dart';
+import 'package:diet_project/domain/models/gender.dart';
 
 /// 사용자의 신체 정보 및 다이어트 목표 (계산 로직 포함)
 ///
@@ -108,52 +91,4 @@ class UserProfile {
     '공개 안 함' => Gender.undisclosed,
     _ => Gender.female,
   };
-}
-
-/// 사용자 알림 설정
-class NotificationSettings {
-  NotificationSettings({
-    required this.userId,
-    this.mealReminder = true,
-    this.waterReminder = true,
-    this.exerciseReminder = false,
-    this.friendActivity = true,
-    this.morningAlertTime = '08:00',
-    this.eveningAlertTime = '21:00',
-    this.weeklyReportTime = '일요일 20:00',
-  });
-
-  /// 이 알림 설정의 주인 — User.id
-  final String userId;
-  bool mealReminder;
-  bool waterReminder;
-  bool exerciseReminder;
-  bool friendActivity;
-
-  /// 설정 화면의 "알림 시간" 3종 — 아침 기록 · 저녁 정리 · 주간 리포트.
-  String morningAlertTime;
-  String eveningAlertTime;
-  String weeklyReportTime;
-}
-
-/// 개인정보 및 공개 범위 설정
-class PrivacySettings {
-  PrivacySettings({
-    required this.userId,
-    this.scope = ShareScope.friends,
-    this.shareGarden = true,
-    this.shareStreak = true,
-    this.shareWeightTrend = false,
-    this.shareMealPhotos = true,
-    this.shareChallengeRank = true,
-  });
-
-  /// 이 공개 범위 설정의 주인 — User.id
-  final String userId;
-  ShareScope scope;
-  bool shareGarden;
-  bool shareStreak;
-  bool shareWeightTrend;
-  bool shareMealPhotos;
-  bool shareChallengeRank;
 }

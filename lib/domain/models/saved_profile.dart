@@ -1,4 +1,6 @@
 import 'package:diet_project/domain/models/user_profile.dart';
+import 'package:diet_project/domain/models/notification_settings.dart';
+import 'package:diet_project/domain/models/privacy_settings.dart';
 
 /// 계정 하나에 저장해 두는 프로필 묶음.
 class SavedProfile {
