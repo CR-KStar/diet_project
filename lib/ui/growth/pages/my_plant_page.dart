@@ -59,21 +59,21 @@ const _axisMeta = [
     key: PlantAxis.water,
     name: '물',
     icon: AppIcons.water,
-    source: '식단 기록',
+    source: '물 주기로 올라요',
     color: AppColor.info,
   ),
   (
     key: PlantAxis.sun,
     name: '햇빛',
     icon: AppIcons.sun,
-    source: '운동 기록',
+    source: '햇빛 받기로 올라요',
     color: Color(0xFFE8B33C),
   ),
   (
     key: PlantAxis.nutri,
     name: '영양',
     icon: AppIcons.nutrition,
-    source: '수면 · 물 기록',
+    source: '영양 주기로 올라요',
     color: AppColor.teal,
   ),
 ];
@@ -91,21 +91,21 @@ const _careItems = [
     icon: AppIcons.water,
     color: AppColor.info,
     tint: Color(0xFFF0F5FF),
-    desc: '누르면 경험치 +10',
+    desc: '물 기록으로 충전 · 누르면 경험치와 물 점수 +10',
   ),
   (
     name: '햇빛 받기',
     icon: AppIcons.sun,
     color: Color(0xFFE8B33C),
     tint: Color(0xFFFFF9E9),
-    desc: '누르면 경험치 +15',
+    desc: '운동 기록으로 충전 · 누르면 경험치와 햇빛 점수 +15',
   ),
   (
     name: '영양 주기',
     icon: AppIcons.nutrition,
     color: AppColor.teal,
     tint: Color(0xFFF2F8F2),
-    desc: '누르면 경험치 +20',
+    desc: '식단 기록으로 충전 · 누르면 경험치와 영양 점수 +20',
   ),
 ];
 
@@ -320,7 +320,9 @@ class _RecoveryCard extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpace.s6),
                     Text(
-                      '기록을 ${plant.missedDays}일 쉬었어요. ${plant.graceLeft}일 안에 돌보면 지금 크기 그대로 회복돼요.',
+                      plant.graceLeft > 0
+                          ? '기록을 ${plant.missedDays}일 쉬었어요. ${plant.graceLeft}일 안에 돌보면 지금 크기 그대로 회복돼요.'
+                          : '기록을 ${plant.missedDays}일 쉬었어요. 오늘 기록하면 다시 펴져요.',
                       style: t(
                         AppFontSize.f12,
                         c: const Color(0xFF9C8542),
@@ -469,7 +471,7 @@ class _CareCard extends StatelessWidget {
           Text('오늘 돌보기', style: t(AppFontSize.f14, w: FontWeight.w700)),
           const SizedBox(height: AppSpace.s5),
           Text(
-            '남은 횟수만큼 눌러서 식물을 돌볼 수 있어요',
+            '기록을 남기면 돌보기 횟수가 충전돼요',
             style: t(AppFontSize.f11, c: AppColor.textGhost),
           ),
           const SizedBox(height: AppSpace.s14),

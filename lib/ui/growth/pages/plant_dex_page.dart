@@ -360,7 +360,11 @@ class _SelectedSpeciesCard extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpace.s6),
                   Text(
-                    pick.owned ? '획득 완료' : '조건 진행 ${pick.progress}%',
+                    pick.owned
+                        ? '획득 완료'
+                        : pick.comingSoon
+                        ? '준비 중 · 아직 이 조건을 셀 수 없어요'
+                        : '조건 진행 ${pick.progress}%',
                     style: t(AppFontSize.f10, c: AppColor.textGhost),
                   ),
                 ],
