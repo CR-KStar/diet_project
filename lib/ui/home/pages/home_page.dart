@@ -49,29 +49,39 @@ class HomeScreen extends StatelessWidget {
             const _TodayCards(),
             const _PlantCard(),
             const _MissionCard(),
-            AppCard(
-              color: const Color(0xFFFFFCF3),
-              radius: 22,
-              child: Row(
-                children: [
-                  const Icon(AppIcons.sun, size: 24, color: Color(0xFFE0A21A)),
-                  const SizedBox(width: AppSpace.s12),
-                  Expanded(
-                    child: Text(
-                      '저녁까지 350kcal 남았어요. 가볍게 마무리해요!',
-                      style: t(
-                        AppFontSize.f12,
-                        c: const Color(0xFF8A6B12),
-                        h: 1.5,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            const _RemainTip(),
           ],
         ),
       ],
+    );
+  }
+}
+
+/// 오늘 남은 칼로리에 맞춘 한마디 — 실제로 먹은 양에서 계산한다.
+class _RemainTip extends StatelessWidget {
+  const _RemainTip();
+
+  @override
+  Widget build(BuildContext context) {
+    final remain = context.watch<TodayViewModel>().remainKcal;
+    final message = remain > 0
+        ? '오늘 ${AppStateFormat.comma(remain)}kcal 더 먹을 수 있어요. 가볍게 마무리해요!'
+        : '오늘 권장 칼로리를 모두 채웠어요. 내일도 기록해 봐요!';
+    return AppCard(
+      color: const Color(0xFFFFFCF3),
+      radius: 22,
+      child: Row(
+        children: [
+          const Icon(AppIcons.sun, size: 24, color: Color(0xFFE0A21A)),
+          const SizedBox(width: AppSpace.s12),
+          Expanded(
+            child: Text(
+              message,
+              style: t(AppFontSize.f12, c: const Color(0xFF8A6B12), h: 1.5),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -213,6 +223,13 @@ class _GreetingIconButton extends StatelessWidget {
   );
 }
 
+/// 남은 칼로리를 사과(약 95kcal) 개수로 풀어서 말해 준다.
+String _remainHint(int remain) {
+  if (remain < 0) return '권장보다 ${AppStateFormat.comma(-remain)}kcal 더 먹었어요';
+  final apples = (remain / 95).round();
+  return apples < 1 ? '거의 다 채웠어요' : '사과 $apples개 정도 남았어요';
+}
+
 class _CalorieRing extends StatelessWidget {
   const _CalorieRing();
 
@@ -324,7 +341,7 @@ class _CalorieRing extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpace.s6),
                 Text(
-                  '사과 두 개 정도 남았어요 🍎',
+                  _remainHint(today.remainKcal),
                   style: t(AppFontSize.f11, c: AppColor.textFaint),
                 ),
                 const SizedBox(height: AppSpace.s12),

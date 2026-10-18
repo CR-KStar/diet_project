@@ -113,4 +113,27 @@ void main() {
     // 예전에는 모든 계정에 "3"이 떠 있었다.
     expect(find.text('3'), findsNothing);
   });
+
+  testWidgets('홈의 남은 칼로리 안내는 실제 먹은 양에서 계산하고, 넘치면 문구가 바뀐다', (tester) async {
+    final state = await pumpAt(tester, 'home');
+    final remain = state.remainKcal;
+    expect(remain, greaterThan(0));
+    expect(
+      find.text(
+        '오늘 ${AppStateFormat.comma(remain)}kcal 더 먹을 수 있어요. 가볍게 마무리해요!',
+      ),
+      findsOneWidget,
+    );
+
+    state.logMeal(); // 450kcal 기록 → 권장량 초과
+    await tester.pump();
+
+    expect(state.remainKcal, lessThan(0));
+    expect(find.text('오늘 권장 칼로리를 모두 채웠어요. 내일도 기록해 봐요!'), findsOneWidget);
+    expect(
+      find.text('권장보다 ${AppStateFormat.comma(-state.remainKcal)}kcal 더 먹었어요'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('350kcal'), findsNothing);
+  });
 }
