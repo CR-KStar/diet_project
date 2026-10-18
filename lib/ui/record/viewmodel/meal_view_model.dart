@@ -181,6 +181,25 @@ class MealViewModel extends ChangeNotifier {
     );
   }
 
+  void clear() {
+    mealLogs.clear();
+    notifyListeners();
+  }
+
+  void mergeLoaded(List<MealLog> loaded) {
+    final have = {for (final m in mealLogs) m.id};
+    mealLogs.addAll(loaded.where((m) => !have.contains(m.id)));
+    notifyListeners();
+  }
+
+  /// id로 식단 한 건을 찾고 없으면 null
+  MealLog? mealById(String? id) {
+    for (final m in mealLogs) {
+      if (m.id == id) return m;
+    }
+    return null;
+  }
+
   bool analyzingPhoto = false;
   String? photoAnalysisError;
 
