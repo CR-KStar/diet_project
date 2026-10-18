@@ -5,40 +5,75 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('NotificationInboxViewModel', () {
-    test('처음에는 읽지 않은 알림이 3개이고 전체 탭이다', () {
+    InboxNotification n(String id, String category) => InboxNotification(
+      id: id,
+      category: category,
+      icon: '🔔',
+      title: '알림 $id',
+      body: '내용',
+      at: DateTime(2026, 10, 18, 9),
+      route: 'home',
+    );
+
+    test('처음에는 알림이 하나도 없고, 읽지 않은 알림도 없다 (가짜 알림을 보여주지 않는다)', () {
       final vm = NotificationInboxViewModel();
 
-      expect(vm.unread, 3);
+      expect(vm.items, isEmpty);
+      expect(vm.visibleItems, isEmpty);
+      expect(vm.unread, 0);
       expect(vm.notifTab, '전체');
     });
 
+    test('알림이 있으면 읽지 않은 수를 센다', () {
+      final vm = NotificationInboxViewModel(
+        items: [n('a', '기록'), n('b', '친구'), n('c', '식물')],
+      );
+
+      expect(vm.unread, 3);
+    });
+
     test('알림 하나를 읽으면 읽지 않은 수가 줄고, 같은 알림은 두 번 줄지 않는다', () {
-      final vm = NotificationInboxViewModel();
+      final vm = NotificationInboxViewModel(
+        items: [n('a', '기록'), n('b', '친구')],
+      );
       var notified = 0;
       vm.addListener(() => notified++);
 
-      vm.markNotifRead('식물이 물을 기다려요');
-      vm.markNotifRead('식물이 물을 기다려요');
+      vm.markNotifRead('a');
+      vm.markNotifRead('a');
 
-      expect(vm.unread, 2);
+      expect(vm.unread, 1);
+      expect(vm.isUnread(vm.items.first), isFalse);
       expect(notified, 1); // 이미 읽은 알림은 다시 알리지 않는다
     });
 
-    test('모두 읽음 처리하면 0이 된다', () {
-      final vm = NotificationInboxViewModel()..readAll();
-
-      expect(vm.unread, 0);
-    });
-
-    test('탭을 바꾸면 알린다', () {
-      final vm = NotificationInboxViewModel();
+    test('모두 읽음 처리하면 0이 되고, 읽을 게 없으면 알리지 않는다', () {
+      final vm = NotificationInboxViewModel(
+        items: [n('a', '기록'), n('b', '친구')],
+      );
       var notified = 0;
       vm.addListener(() => notified++);
 
-      vm.setNotifTab('활동');
+      vm.readAll();
+      vm.readAll();
 
-      expect(vm.notifTab, '활동');
+      expect(vm.unread, 0);
       expect(notified, 1);
+    });
+
+    test('탭을 고르면 그 분류의 알림만 보인다', () {
+      final vm = NotificationInboxViewModel(
+        items: [n('a', '기록'), n('b', '친구'), n('c', '기록')],
+      );
+      var notified = 0;
+      vm.addListener(() => notified++);
+
+      vm.setNotifTab('기록');
+
+      expect(vm.visibleItems.map((x) => x.id), ['a', 'c']);
+      expect(notified, 1);
+      vm.setNotifTab('전체');
+      expect(vm.visibleItems, hasLength(3));
     });
   });
 

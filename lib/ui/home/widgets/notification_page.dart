@@ -5,80 +5,33 @@ import 'package:provider/provider.dart';
 
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
+import 'package:diet_project/ui/home/viewmodel/notification_inbox_view_model.dart';
 import 'package:diet_project/common.dart';
+
+/// 알림이 온 시각을 "방금 · n분 전 · n시간 전 · 어제 · n일 전"으로 보여준다.
+String _timeLabel(DateTime at, DateTime now) {
+  final diff = now.difference(at);
+  if (diff.inMinutes < 1) return '방금';
+  if (diff.inMinutes < 60) return '${diff.inMinutes}분 전';
+  if (diff.inHours < 24) return '${diff.inHours}시간 전';
+  if (diff.inDays < 2) return '어제';
+  return '${diff.inDays}일 전';
+}
+
+Color _tintOf(String category) => switch (category) {
+  '식물' => const Color(0xFFF2F8F2),
+  '친구' => const Color(0xFFFFF3EF),
+  _ => AppColor.primaryTint,
+};
 
 class NotifScreen extends StatelessWidget {
   const NotifScreen({super.key});
 
-  static const _items = [
-    (
-      cat: '기록',
-      icon: '🍽️',
-      tint: AppColor.primaryTint,
-      title: '저녁 식단을 기록하지 않았어요',
-      body: '오늘 남은 칼로리는 350kcal예요. 지금 기록하면 미션도 함께 완료돼요.',
-      time: '10분 전',
-      unread: true,
-      to: 'capture',
-    ),
-    (
-      cat: '식물',
-      icon: '🌱',
-      tint: Color(0xFFF2F8F2),
-      title: '식물이 물을 기다려요',
-      body: '오늘 물 주기 3/3을 완료하면 +20 EXP를 받아요.',
-      time: '1시간 전',
-      unread: true,
-      to: 'plant',
-    ),
-    (
-      cat: '친구',
-      icon: '👏',
-      tint: Color(0xFFFFF3EF),
-      title: '지현님이 응원을 보냈어요',
-      body: '“오늘도 화이팅! 같이 챌린지 끝까지 가요.”',
-      time: '3시간 전',
-      unread: true,
-      to: 'friends',
-    ),
-    (
-      cat: '기록',
-      icon: '💧',
-      tint: Color(0xFFF0F5FF),
-      title: '물 마실 시간이에요',
-      body: '목표까지 550ml 남았어요.',
-      time: '5시간 전',
-      unread: false,
-      to: 'water',
-    ),
-    (
-      cat: '친구',
-      icon: '🏆',
-      tint: Color(0xFFFFF9E9),
-      title: '물 마시기 챌린지 3일 남음',
-      body: '현재 1위예요. 마지막까지 유지해 보세요.',
-      time: '어제',
-      unread: false,
-      to: 'challenge',
-    ),
-    (
-      cat: '기록',
-      icon: '📊',
-      tint: AppColor.surfaceSunken,
-      title: '주간 리포트가 준비됐어요',
-      body: '지난주보다 평균 120kcal 줄었어요.',
-      time: '어제',
-      unread: false,
-      to: 'report',
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final inbox = context.watch<NotificationInboxViewModel>();
     final s = context.watch<AppState>();
-    final list = s.notifTab == '전체'
-        ? _items
-        : _items.where((n) => n.cat == s.notifTab).toList();
+    final list = inbox.visibleItems;
 
     return ScreenScroll(
       children: [
@@ -92,115 +45,151 @@ class NotifScreen extends StatelessWidget {
                 onBack: () => s.go('home'),
               ),
             ),
-            GestureDetector(
-              onTap: () {
-                s.readAll();
-                toast(context, '모든 알림을 읽음으로 표시했어요');
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(top: AppSpace.s4),
-                child: Text(
-                  '모두 읽음',
-                  style: t(
-                    AppFontSize.f12,
-                    w: FontWeight.w700,
-                    c: AppColor.primary,
+            if (inbox.unread > 0)
+              GestureDetector(
+                onTap: () {
+                  inbox.readAll();
+                  toast(context, '모든 알림을 읽음으로 표시했어요');
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(top: AppSpace.s4),
+                  child: Text(
+                    '모두 읽음',
+                    style: t(
+                      AppFontSize.f12,
+                      w: FontWeight.w700,
+                      c: AppColor.primary,
+                    ),
                   ),
                 ),
               ),
-            ),
           ],
         ),
         FilterTabs(
           options: const ['전체', '기록', '친구', '식물'],
-          value: s.notifTab,
-          onChanged: s.setNotifTab,
+          value: inbox.notifTab,
+          onChanged: inbox.setNotifTab,
         ),
-        for (final n in list)
-          () {
-            final unread = n.unread && !s.readNotifIds.contains(n.title);
-            return Container(
-              padding: const EdgeInsets.all(AppSpace.s15),
-              decoration: BoxDecoration(
-                color: unread ? const Color(0xFFFBFDF9) : AppColor.surface,
-                borderRadius: BorderRadius.circular(AppRadius.card),
-                boxShadow: AppShadow.card,
-                border: Border(
-                  left: BorderSide(
-                    color: unread ? AppColor.primary : Colors.transparent,
-                    width: AppSpace.s3,
-                  ),
-                ),
-              ),
-              child: GestureDetector(
-                onTap: () {
-                  s.markNotifRead(n.title);
-                  s.go(n.to);
-                },
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    IconTile(
-                      n.icon,
-                      size: 40,
-                      radius: 14,
-                      bg: n.tint,
-                      fontSize: 18,
-                    ),
-                    const SizedBox(width: AppSpace.s12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  n.title,
-                                  style: t(AppFontSize.f13, w: FontWeight.w700),
-                                ),
-                              ),
-                              const SizedBox(width: AppSpace.s6),
-                              if (unread)
-                                Container(
-                                  width: AppSpace.s6,
-                                  height: AppSpace.s6,
-                                  decoration: const BoxDecoration(
-                                    color: AppColor.alert,
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                            ],
-                          ),
-                          const SizedBox(height: AppSpace.s4),
-                          Text(
-                            n.body,
-                            style: t(
-                              AppFontSize.f12,
-                              c: AppColor.textMuted,
-                              h: 1.55,
-                            ),
-                          ),
-                          const SizedBox(height: AppSpace.s5),
-                          Text(
-                            n.time,
-                            style: t(AppFontSize.f10, c: AppColor.textGhost),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }(),
-        Center(
-          child: Text(
-            '30일 이전 알림은 자동으로 삭제돼요',
-            style: t(AppFontSize.f11, c: const Color(0xFFB2B9BE)),
+        if (list.isEmpty)
+          const _EmptyInbox()
+        else
+          for (final n in list)
+            _NotifCard(
+              n: n,
+              unread: inbox.isUnread(n),
+              time: _timeLabel(n.at, s.today),
+            ),
+      ],
+    );
+  }
+}
+
+class _NotifCard extends StatelessWidget {
+  const _NotifCard({required this.n, required this.unread, required this.time});
+
+  final InboxNotification n;
+  final bool unread;
+  final String time;
+
+  @override
+  Widget build(BuildContext context) {
+    final inbox = context.read<NotificationInboxViewModel>();
+    final s = context.read<AppState>();
+    return Container(
+      padding: const EdgeInsets.all(AppSpace.s15),
+      decoration: BoxDecoration(
+        color: unread ? const Color(0xFFFBFDF9) : AppColor.surface,
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        boxShadow: AppShadow.card,
+        border: Border(
+          left: BorderSide(
+            color: unread ? AppColor.primary : Colors.transparent,
+            width: AppSpace.s3,
           ),
         ),
-      ],
+      ),
+      child: GestureDetector(
+        onTap: () {
+          inbox.markNotifRead(n.id);
+          s.go(n.route);
+        },
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            IconTile(
+              n.icon,
+              size: 40,
+              radius: 14,
+              bg: _tintOf(n.category),
+              fontSize: 18,
+            ),
+            const SizedBox(width: AppSpace.s12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          n.title,
+                          style: t(AppFontSize.f13, w: FontWeight.w700),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpace.s6),
+                      if (unread)
+                        Container(
+                          width: AppSpace.s6,
+                          height: AppSpace.s6,
+                          decoration: const BoxDecoration(
+                            color: AppColor.alert,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpace.s4),
+                  Text(
+                    n.body,
+                    style: t(AppFontSize.f12, c: AppColor.textMuted, h: 1.55),
+                  ),
+                  const SizedBox(height: AppSpace.s5),
+                  Text(time, style: t(AppFontSize.f10, c: AppColor.textGhost)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 알림이 하나도 없을 때 — 리마인드는 기기 알림으로 간다는 것과 설정으로 가는 길을 알려준다.
+class _EmptyInbox extends StatelessWidget {
+  const _EmptyInbox();
+
+  @override
+  Widget build(BuildContext context) {
+    final s = context.read<AppState>();
+    return AppCard(
+      padding: 24,
+      child: Column(
+        children: [
+          const Text('🔔', style: TextStyle(fontSize: 30)),
+          const SizedBox(height: AppSpace.s10),
+          Text('아직 알림이 없어요', style: t(AppFontSize.f14, w: FontWeight.w700)),
+          const SizedBox(height: AppSpace.s6),
+          Text(
+            '식단 · 물 · 운동 리마인드는 기기 알림으로 보내드려요.\n'
+            '설정에서 원하는 알림만 켜고 끌 수 있어요.',
+            textAlign: TextAlign.center,
+            style: t(AppFontSize.f12, c: AppColor.textMuted, h: 1.55),
+          ),
+          const SizedBox(height: AppSpace.s14),
+          SmallButton(label: '알림 설정', onTap: () => s.go('alerts')),
+        ],
+      ),
     );
   }
 }

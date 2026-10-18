@@ -95,4 +95,22 @@ void main() {
 
     expect(find.textContaining('비공개 · 공개 항목'), findsWidgets);
   });
+
+  testWidgets('알림함은 알림이 없으면 가짜 알림 대신 안내를 보여주고, 홈 배지도 없다', (tester) async {
+    final state = await pumpAt(tester, 'notif');
+
+    expect(find.text('아직 알림이 없어요'), findsOneWidget);
+    expect(find.text('알림 설정'), findsOneWidget);
+    expect(find.text('모두 읽음'), findsNothing);
+    expect(find.textContaining('지현님'), findsNothing);
+    expect(find.textContaining('식물이 물을 기다려요'), findsNothing);
+    expect(state.notificationInboxViewModel.unread, 0);
+  });
+
+  testWidgets('홈의 알림 종에는 읽지 않은 알림이 없으면 숫자가 보이지 않는다', (tester) async {
+    await pumpAt(tester, 'home');
+
+    // 예전에는 모든 계정에 "3"이 떠 있었다.
+    expect(find.text('3'), findsNothing);
+  });
 }

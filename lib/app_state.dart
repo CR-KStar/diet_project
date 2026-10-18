@@ -723,15 +723,6 @@ class AppState extends ChangeNotifier {
     streakDays: streakDays,
   );
 
-  // 알림함 — 탭과 읽음 표시는 NotificationInboxViewModel이 맡는다.
-  String get notifTab => _notificationInboxViewModel.notifTab;
-  Set<String> get readNotifIds => _notificationInboxViewModel.readNotifIds;
-  int get unread => _notificationInboxViewModel.unread;
-  void setNotifTab(String t) => _notificationInboxViewModel.setNotifTab(t);
-  void markNotifRead(String id) =>
-      _notificationInboxViewModel.markNotifRead(id);
-  void readAll() => _notificationInboxViewModel.readAll();
-
   // 식단 기록 · 부가 정보
   // 식단 기록 · 부가 정보 — 입력값(끼니 · 소스 · 양 · 태그 · 메모)은 MealDraftViewModel이 맡는다.
   // 화면이 예전처럼 s.extras 같은 이름으로 쓸 수 있게, 같은 이름으로 전달만 한다.
