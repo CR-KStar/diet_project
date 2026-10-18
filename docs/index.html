@@ -238,7 +238,7 @@
         <div class="stage"><div class="em">🌿</div><b>무성한 잎</b><small>Lv.15</small></div><div class="arrow">→</div>
         <div class="stage"><div class="em">🌸</div><b>꽃</b><small>Lv.20</small></div>
       </div>
-      <div class="axes"><span>💧 물 ← 식단 기록</span><span>☀️ 햇빛 ← 운동 기록</span><span>🧺 영양 ← 수면·물 기록</span><span>⚠️ 기록을 쉬면 시들고, 3일 안에 돌보면 회복</span></div>
+      <div class="axes"><span>💧 물 주기 ← 물 기록</span><span>☀️ 햇빛 ← 운동 기록</span><span>🧺 영양 ← 식단 기록</span><span>⚠️ 기록을 이틀 쉬면 시들고, 기록하면 회복</span></div>
     </div>
   </div>
 
@@ -249,7 +249,7 @@
         <div><b style="background:#FFD566"></b>#FFD566</div><div><b style="background:#FFB74D"></b>#FFB74D</div>
         <div><b style="background:#FF8A65"></b>#FF8A65</div><div><b style="background:#F5F8F5"></b>#F5F8F5</div>
       </div>
-      <p class="how" style="margin-top:8px">이모지 아이콘 · 색/간격/글자를 디자인 토큰으로 관리</p></div>
+      <p class="how" style="margin-top:8px">Flutter 아이콘 · 색/간격/글자를 디자인 토큰으로 관리</p></div>
     <div class="card"><h3 class="ttl">기술 스택</h3>
       <div class="tags"><span class="tag">Flutter / Dart</span><span class="tag">Provider</span><span class="tag">Firebase Auth</span><span class="tag">Firestore</span><span class="tag">Cloud Functions (TS)</span><span class="tag">Claude API</span><span class="tag">Sign in with Apple/Google</span></div></div>
 
@@ -262,7 +262,7 @@
         <div class="arch">
           <div class="layer"><b>UI</b><span>화면 위젯 (홈 · 기록 · 리포트 · 식물 · 친구) · 디자인 토큰</span></div>
           <div class="down">▼ 상태 구독 (Provider)</div>
-          <div class="layer"><b>상태</b><span>ViewModel(물 · 체중 분리 완료) + AppState(나머지는 분리 진행 중)</span></div>
+          <div class="layer"><b>상태</b><span>ViewModel 20개(식단 · 운동 · 식물 · 친구 …) — 화면이 각자 구독 + AppState(화면 이동 · 연결)</span></div>
           <div class="down">▼ 인터페이스 호출</div>
           <div class="layer"><b>Repository</b><span>저장소 인터페이스 → <b style="color:var(--ink)">Firestore 구현 / 메모리 구현</b> (테스트 · 웹 데모)</span></div>
           <div class="down">▼</div>
@@ -275,9 +275,9 @@
           <li><b>인터페이스 뒤에 저장소를 숨겨서</b> 서버 없이 테스트하고 웹 체험판을 만들 수 있어요</li>
           <li><b>시계를 주입</b>해 날짜가 걸린 기능도 테스트로 고정해요</li>
           <li>화면은 상태만 구독하고, <b>저장 · 서버 접근은 Repository 뒤</b>로 모았어요</li>
-          <li>3,400줄 상태 클래스를 영역별 ViewModel로 <b>한 단계씩 분리</b>하는 중이에요 <span class="wip">진행 중</span></li>
+          <li>3,400줄 상태 클래스를 영역별 <b>ViewModel 20개로 분리</b>했어요 (AppState는 약 1,400줄 · 화면 이동과 연결만)</li>
         </ul>
-        <p class="how"><b>Claude Code와 협업해 개발</b>했고, 기획 방향과 검증, <b>아키텍처 구조 분리(ViewModel·Repository)</b>, 스토어 배포, 심사 대응은 직접 진행했어요. 아키텍처는 지금도 공부하며 한 단계씩 분리하고 있어요. 앱 아이콘 캐릭터는 AI로 생성했어요.</p>
+        <p class="how"><b>Claude Code와 협업해 개발</b>했고, 기획 방향과 검증, <b>아키텍처 구조 분리(ViewModel·Repository)</b>, <b>DB·백엔드 설계(Firestore 데이터 모델링 · 보안 규칙 · Cloud Functions · 인증과 계정 삭제 흐름)</b>, 스토어 배포, 심사 대응은 직접 진행했어요. DB·백엔드는 지금 처음부터 다시 구현해 보며 더 깊이 공부하고 있어요. 앱 아이콘 캐릭터는 AI로 생성했어요.</p>
       </div>
     </div>
   </div>
@@ -310,7 +310,7 @@
     <div class="card">
       <h3 class="ttl">숫자로 보기</h3>
       <div class="nums">
-        <div class="num"><b>120</b><span>자동 테스트 (모두 통과)</span></div>
+        <div class="num"><b>402</b><span>자동 테스트 (모두 통과)</span></div>
         <div class="num"><b>2건</b><span>App Store 반려 → 수정 후 승인·출시</span></div>
         <div class="num"><b>12명</b><span>Google Play 비공개 테스트</span></div>
         <div class="num"><b>8개</b><span>컬렉션별 보안 규칙 (내 기록 + 공유 7)</span></div>
@@ -333,9 +333,9 @@
     <article class="cs"><h3><em>04</em>계정 수명주기와 데이터 삭제</h3>
       <ul><li>Apple 로그인 <b>nonce(SHA-256)</b>, 삭제 순서: 재인증 → 토큰 철회 → 데이터 삭제 → 계정 삭제</li>
       <li>빠뜨린 소셜 데이터를 찾아 저장소 · <b>보안 규칙</b> · 처방침 문구를 함께 수정하고 테스트로 보호</li></ul></article>
-    <article class="cs"><h3><em>05</em>Repository 추상화와 테스트 <span class="wip">구조 분리 진행 중</span></h3>
+    <article class="cs"><h3><em>05</em>Repository 추상화와 테스트</h3>
       <ul><li>저장소 인터페이스에 <b>Firestore · 메모리</b> 두 구현 → 서버 없이 테스트 · 웹 데모</li>
-      <li><b>시계 주입</b>으로 날짜를 고정하는 테스트, 3,400줄 상태 클래스를 영역별 ViewModel로 분리 중</li></ul></article>
+      <li><b>시계 주입</b>으로 날짜를 고정하는 테스트, 3,400줄 상태 클래스를 영역별 ViewModel로 분리 완료</li></ul></article>
     <article class="cs"><h3><em>06</em>사용자 경험의 세부 완성도</h3>
       <ul><li>기록 여부에 따라 바뀌는 <b>동적 앱 아이콘</b>(iOS 대체 아이콘 · Android activity-alias)</li>
       <li>글자 크기 배율 · 디자인 토큰 · 화면 오버플로 점검, 로그인 없는 <b>웹 체험판</b></li></ul></article>
@@ -346,7 +346,7 @@
       <h3 class="ttl">개발 · 배포 흐름</h3>
       <div class="tl">
         <div><b>설계·구현</b>Flutter + Firebase</div>
-        <div><b>테스트</b>120개 통과</div>
+        <div><b>테스트</b>402개 통과</div>
         <div><b>내부 배포</b>TestFlight · Play 내부</div>
         <div><b>App Store 출시</b>반려 2건 수정 후 승인</div>
         <div class="now"><b>Play</b>비공개 테스트 진행 중</div>
@@ -355,7 +355,7 @@
     <div class="card">
       <h3 class="ttl">다음 계획</h3>
       <ul class="road">
-        <li><b>식단 ViewModel</b> 분리 마무리</li>
+        <li><b>화면 이동 상태</b> 분리 · <b>테마(ThemeData)</b> 정리</li>
         <li><b>보안 규칙 테스트</b> (에뮬레이터)</li>
         <li><b>AI 함수 인증 · 호출 횟수 제한</b></li>
         <li>친구 삭제 · 신고 기능</li>
