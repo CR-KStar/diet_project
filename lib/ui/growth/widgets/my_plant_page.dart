@@ -6,11 +6,11 @@ import 'package:provider/provider.dart';
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/domain/rules/diet_rules.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
-import 'package:diet_project/common.dart';
 
 import 'plant_dex_page.dart';
 import 'package:diet_project/ui/growth/viewmodel/plant_view_model.dart';
 import 'package:diet_project/ui/social/viewmodel/friend_view_model.dart';
+import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 
 class PlantScreen extends StatelessWidget {
   const PlantScreen({super.key});

@@ -1,8 +1,8 @@
-import 'package:diet_project/common.dart';
 import 'package:diet_project/data/services/health_sources.dart';
 import 'package:diet_project/data/services/legal_links.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:flutter/material.dart';
+import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 
 /// "계산 방법과 참고 출처" 카드 — 칼로리·영양소·체중 수치가 어떤 근거로 나온 것인지
 /// 출처 링크와 함께 보여준다 (App Store 가이드라인 1.4.1).

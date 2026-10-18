@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/ui/home/viewmodel/notification_inbox_view_model.dart';
-import 'package:diet_project/common.dart';
+import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 
 /// 알림이 온 시각을 "방금 · n분 전 · n시간 전 · 어제 · n일 전"으로 보여준다.
 String _timeLabel(DateTime at, DateTime now) {

@@ -5,8 +5,8 @@ import 'package:provider/provider.dart';
 
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
-import 'package:diet_project/common.dart';
 import 'package:diet_project/ui/growth/viewmodel/plant_view_model.dart';
+import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 
 const _tierColor = {
   '일반': AppColor.textFaint,

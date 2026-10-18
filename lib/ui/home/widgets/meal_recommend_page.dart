@@ -6,8 +6,9 @@ import 'package:diet_project/ui/home/viewmodel/ai_consent_view_model.dart';
 
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
-import 'package:diet_project/common.dart';
 import 'package:diet_project/ui/home/viewmodel/recommendation_view_model.dart';
+import 'package:diet_project/utils/app_state_format.dart';
+import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 
 class RecommendScreen extends StatelessWidget {
   const RecommendScreen({super.key});

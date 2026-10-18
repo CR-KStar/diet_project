@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/domain/rules/diet_rules.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
-import 'package:diet_project/common.dart';
 import '../viewmodel/water_view_model.dart';
 import '../viewmodel/weight_view_model.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
@@ -15,6 +14,8 @@ import 'package:diet_project/ui/record/viewmodel/exercise_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/routine_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/today_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/records_view_model.dart';
+import 'package:diet_project/utils/app_state_format.dart';
+import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 
 // 운동 기록 (루틴 통합)
 

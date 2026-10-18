@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../app_state.dart';
-import '../../../common.dart';
 import '../../core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 import 'package:diet_project/ui/social/viewmodel/challenge_view_model.dart';
 import 'package:diet_project/ui/social/viewmodel/friend_view_model.dart';
+import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 
 /// 친구 및 챌린지 메인 화면
 class FriendsScreen extends StatelessWidget {

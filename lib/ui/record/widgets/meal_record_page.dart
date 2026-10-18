@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:diet_project/ui/home/viewmodel/ai_consent_view_model.dart';
 import '../../../app_state.dart';
-import '../../../common.dart';
 import '../../core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/ui/record/viewmodel/bowl_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/photo_analysis_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/meal_draft_view_model.dart';
 import 'package:diet_project/domain/rules/diet_rules.dart';
+import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 
 /// 식단 촬영/기록 화면 — 사진(자리표시자) + AI 분석 결과 + 저장
 class CaptureScreen extends StatelessWidget {

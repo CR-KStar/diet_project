@@ -1,10 +1,10 @@
 import 'package:diet_project/app_providers.dart';
 import 'package:diet_project/app_shell.dart';
 import 'package:diet_project/app_state.dart';
-import 'package:diet_project/common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:diet_project/utils/app_state_format.dart';
 
 /// 화면이 AppState 하나가 아니라 자기 ViewModel을 직접 구독한다 — AppState가 변경을 대신
 /// 알려주지 않아도, ViewModel이 바뀌면 그 값을 보여주는 화면이 다시 그려져야 한다.

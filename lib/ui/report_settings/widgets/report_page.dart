@@ -2,12 +2,12 @@ import 'package:diet_project/ui/core/ui/health_sources_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../app_state.dart';
-import '../../../common.dart';
 import '../../core/ui/themes/theme_tokens.dart';
 import '../../home/widgets/nutrient_detail_page.dart';
 import 'package:diet_project/ui/report_settings/viewmodel/report_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/today_view_model.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
+import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 
 /// 리포트 화면
 class ReportScreen extends StatelessWidget {

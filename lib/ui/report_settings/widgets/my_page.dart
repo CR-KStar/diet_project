@@ -7,12 +7,13 @@ import 'package:diet_project/data/services/legal_links.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../app_state.dart';
-import '../../../common.dart';
 import '../../core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/ui/growth/viewmodel/plant_view_model.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/auth_view_model.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/bowl_view_model.dart';
+import 'package:diet_project/utils/app_state_format.dart';
+import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 
 const _plantStages = [
   ('🌰', '씨앗', 1),

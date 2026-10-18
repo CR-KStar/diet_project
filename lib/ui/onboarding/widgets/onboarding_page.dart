@@ -3,11 +3,12 @@ import 'package:provider/provider.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart'
     show AppleLogoPainter;
 import '../../../app_state.dart';
-import '../../../common.dart';
 import '../../core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/auth_view_model.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 import 'package:diet_project/domain/rules/diet_rules.dart';
+import 'package:diet_project/utils/app_state_format.dart';
+import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 
 class OnboardingPage extends StatelessWidget {
   const OnboardingPage({super.key});

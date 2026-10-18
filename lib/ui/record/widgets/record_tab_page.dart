@@ -5,11 +5,12 @@ import 'package:provider/provider.dart';
 
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
-import 'package:diet_project/common.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/today_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/records_view_model.dart';
+import 'package:diet_project/utils/app_state_format.dart';
+import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 
 const _quickActions = [
   (label: '식단', icon: '🍽️', route: 'capture', sheet: false),

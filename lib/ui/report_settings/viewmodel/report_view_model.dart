@@ -1,7 +1,7 @@
-import 'package:diet_project/common.dart' show AppStateFormat;
 import 'package:diet_project/domain/models/models.dart';
 import 'package:flutter/foundation.dart';
 import 'package:diet_project/utils/date_format.dart';
+import 'package:diet_project/utils/app_state_format.dart';
 
 /// 리포트가 집계에 쓰는 기록 모음 — AppState가 그때그때 최신 값으로 만들어 준다.
 class ReportInputs {

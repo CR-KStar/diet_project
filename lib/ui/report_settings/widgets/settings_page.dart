@@ -3,9 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../app_state.dart';
-import '../../../common.dart';
 import '../../core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
+import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 
 /// 알림별 관련 시간대만 노출 — 스테퍼 대신 시간 칩
 const _slots = [

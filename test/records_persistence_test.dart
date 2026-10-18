@@ -1,7 +1,6 @@
 import 'package:diet_project/app_shell.dart';
 import 'package:diet_project/app_providers.dart';
 import 'package:diet_project/app_state.dart';
-import 'package:diet_project/common.dart';
 import 'package:diet_project/data/repositories/record_codecs.dart';
 import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/weight_view_model.dart';
@@ -12,6 +11,7 @@ import 'package:diet_project/data/repositories/impl/memory_profile_repository.da
 import 'package:diet_project/data/repositories/impl/memory_record_repository.dart';
 import 'package:diet_project/data/repositories/impl/memory_water_repository.dart';
 import 'package:diet_project/data/auth/auth_service.dart';
+import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 
 const _account = AuthAccount(
   uid: 'uid_1',

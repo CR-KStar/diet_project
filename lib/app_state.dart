@@ -24,7 +24,6 @@ import 'package:diet_project/ui/record/viewmodel/weight_view_model.dart';
 import 'package:diet_project/ui/social/viewmodel/challenge_view_model.dart';
 import 'package:diet_project/ui/social/viewmodel/friend_view_model.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:diet_project/common.dart' show AppStateFormat;
 import 'package:diet_project/data/repositories/record_codecs.dart';
 import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
 import 'package:diet_project/domain/models/models.dart';
@@ -57,6 +56,7 @@ import 'package:diet_project/data/services/impl/cloud_meal_recommendation_servic
 import 'package:diet_project/data/services/impl/local_notification_service.dart';
 import 'package:diet_project/data/services/impl/platform_app_icon_service.dart';
 import 'package:diet_project/utils/date_format.dart';
+import 'package:diet_project/utils/app_state_format.dart';
 
 export 'package:diet_project/domain/models/models.dart';
 export 'package:diet_project/ui/home/viewmodel/today_summary.dart'

@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
-import 'package:diet_project/common.dart';
 
 import 'today_mission_page.dart';
 import 'package:diet_project/ui/growth/viewmodel/plant_view_model.dart';
@@ -15,6 +14,8 @@ import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/notification_inbox_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/today_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/records_view_model.dart';
+import 'package:diet_project/utils/app_state_format.dart';
+import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

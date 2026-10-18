@@ -2,7 +2,6 @@ import 'package:diet_project/app_state.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'common.dart';
 import 'ui/onboarding/widgets/login_page.dart';
 import 'ui/onboarding/widgets/onboarding_page.dart';
 import 'ui/home/widgets/home_page.dart';
@@ -18,6 +17,7 @@ import 'ui/social/widgets/social_page.dart';
 import 'ui/report_settings/widgets/my_page.dart';
 import 'ui/report_settings/widgets/settings_page.dart';
 import 'package:diet_project/ui/record/viewmodel/bowl_view_model.dart';
+import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 
 /// FAB을 눌렀을 때 뜨는 빠른 기록 시트 — 식단/운동/체중/물 4가지 바로가기
 class QuickSheet extends StatelessWidget {

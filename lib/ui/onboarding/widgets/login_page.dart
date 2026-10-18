@@ -4,9 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart'
     show AppleLogoPainter;
 import '../../../app_state.dart';
-import '../../../common.dart';
 import '../../core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/auth_view_model.dart';
+import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});

@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:diet_project/common.dart' show AppStateFormat;
 import 'package:diet_project/domain/models/models.dart';
 import 'package:diet_project/ui/social/viewmodel/friend_view_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show Color;
 import 'package:diet_project/domain/repositories/challenge_repository.dart';
+import 'package:diet_project/utils/app_state_format.dart';
 
 /// 챌린지 목록 · 참여 · 순위 · 진행 상황 보고와, 챌린지 만들기 화면의 입력값을 담당한다.
 ///
