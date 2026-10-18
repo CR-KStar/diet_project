@@ -1,6 +1,8 @@
 import 'package:diet_project/domain/rules/diet_rules.dart';
 import 'package:diet_project/domain/models/plant_axis.dart';
 import 'package:diet_project/domain/models/plant_species.dart';
+import 'package:diet_project/domain/models/record_kind.dart';
+import 'package:diet_project/domain/models/record_tally.dart';
 
 /// 내 식물의 현재 상태
 class Plant {
@@ -15,7 +17,11 @@ class Plant {
     this.wateredFriendIds = const [],
     this.inventory = const {},
     this.giftTickets = 0,
-  });
+    this.startedKey = '',
+    this.revivedKey = '',
+    this.friendWaterKey = '',
+    RecordTally? tally,
+  }) : tally = tally ?? RecordTally();
 
   /// 새 계정의 시작 식물 — 경험치 0, 세 축 0점.
   factory Plant.starter(String userId) => Plant(
@@ -38,6 +44,18 @@ class Plant {
   Map<String, int> inventory;
   int giftTickets;
 
+  /// 이 식물을 처음 키우기 시작한 날(yyyy-MM-dd) — 이 날 전의 날은 "기록을 쉰 날"로 세지 않는다.
+  String startedKey;
+
+  /// "회복 돌보기"를 누른 날 — 그날 하루만 시들지 않은 것으로 본다.
+  String revivedKey;
+
+  /// 친구 정원에 물을 준 날 — 날짜가 바뀌면 하루 한도(물 주기 횟수)를 새로 시작한다.
+  String friendWaterKey;
+
+  /// 지금까지 남긴 기록의 누적 횟수 (도감 조건 계산용).
+  RecordTally tally;
+
   int get level => (exp / 100).floor() + 1;
   bool get wilting => missedDays >= DietRules.wiltAfterDays && !revived;
   int get graceLeft =>
@@ -49,7 +67,10 @@ class Plant {
         values.reduce((a, b) => a < b ? a : b);
   }
 
-  bool get balanced => axisSpread <= DietRules.balanceSpreadThreshold;
+  /// 세 축이 비슷하게 자랐는지 — 아직 아무 축도 자라지 않았으면(모두 0점) 균형이라 부르지 않는다.
+  bool get balanced =>
+      axisSpread <= DietRules.balanceSpreadThreshold &&
+      axisScore.values.any((v) => v > 0);
 
   PlantAxis get weakestAxis =>
       axisScore.entries.reduce((a, b) => a.value < b.value ? a : b).key;
@@ -70,18 +91,40 @@ class Plant {
   String get mood => wilting ? '목말라요' : (balanced ? '행복함' : '균형 필요');
   String get message =>
       wilting ? '기록을 잊으셨나요? 다시 물을 주세요!' : '정성껏 돌봐주셔서 잘 자라고 있어요.';
-  String get balanceHint =>
-      balanced ? '모든 기록을 골고루 남기고 계시네요!' : '부족한 ${weakestAxis.label} 기록을 채워볼까요?';
+  String get balanceHint => axisScore.values.every((v) => v == 0)
+      ? '돌보기를 눌러서 식물을 키워 보세요.'
+      : balanced
+      ? '세 가지를 골고루 돌보고 계시네요!'
+      : '부족한 ${weakestAxis.label} 쪽을 돌봐볼까요?';
 
+  /// 돌보기 한 번 — 남은 횟수가 있으면 EXP와 그 축 점수(최대 100)가 같은 만큼 오른다.
   void care(String name) {
     if ((cares[name] ?? 0) > 0) {
       cares[name] = cares[name]! - 1;
-      exp += DietRules.careExp[name] ?? 10;
+      final gain = DietRules.careExp[name] ?? 10;
+      exp += gain;
+      final axis = DietRules.careAxis[name];
+      if (axis != null) {
+        axisScore[axis] = ((axisScore[axis] ?? 0) + gain).clamp(
+          0,
+          DietRules.axisMax,
+        );
+      }
     }
   }
 
-  void revive() {
+  /// 기록을 남기면 그 기록에 맞는 돌보기가 1회 충전된다 (쌓아 둘 수 있는 최대 횟수까지).
+  void recharge(RecordKind kind) {
+    final name = DietRules.careRechargedBy[kind];
+    if (name == null) return;
+    final cap = DietRules.careCapacity[name] ?? 0;
+    cares[name] = ((cares[name] ?? 0) + 1).clamp(0, cap);
+  }
+
+  /// 오늘([todayKey])은 시들지 않은 것으로 한다.
+  void revive(String todayKey) {
     revived = true;
+    revivedKey = todayKey;
     missedDays = 0;
   }
 

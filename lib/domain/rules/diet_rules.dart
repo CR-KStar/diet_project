@@ -1,3 +1,6 @@
+import 'package:diet_project/domain/models/plant_axis.dart';
+import 'package:diet_project/domain/models/record_kind.dart';
+
 // 다이어트 앱의 계산 규칙(칼로리 보정 계수 · 식물 성장 규칙 등) — 화면과 상관없는 값들이다.
 
 abstract final class DietRules {
@@ -66,6 +69,26 @@ abstract final class DietRules {
 
   /// 식물 성장 축 — 돌보기 1회당 EXP
   static const careExp = <String, int>{'물 주기': 10, '햇빛 받기': 15, '영양 주기': 20};
+
+  /// 돌보기가 올려주는 식물 성장 축 — 돌보기 1회에 EXP와 같은 만큼 그 축 점수가 오른다(최대 100).
+  static const careAxis = <String, PlantAxis>{
+    '물 주기': PlantAxis.water,
+    '햇빛 받기': PlantAxis.sun,
+    '영양 주기': PlantAxis.nutri,
+  };
+
+  /// 돌보기를 쌓아 둘 수 있는 최대 횟수.
+  static const careCapacity = <String, int>{'물 주기': 3, '햇빛 받기': 2, '영양 주기': 2};
+
+  /// 기록하면 충전되는 돌보기 — 물을 기록하면 물 주기, 운동하면 햇빛 받기, 식단을 기록하면 영양 주기가 1회씩 채워진다.
+  static const careRechargedBy = <RecordKind, String>{
+    RecordKind.water: '물 주기',
+    RecordKind.exercise: '햇빛 받기',
+    RecordKind.meal: '영양 주기',
+  };
+
+  /// 축 점수 상한
+  static const axisMax = 100;
 
   /// 식물 단계 (레벨 하한)
   static const plantStages = <String, int>{

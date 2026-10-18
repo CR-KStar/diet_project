@@ -474,13 +474,14 @@ void main() {
     test('돌보기 · 아이템 사용이 잠깐 뒤에 한 번 저장되고, 다시 켜면 이어진다', () async {
       final server = _Server();
       final first = await _start(server);
+      final savesAtStart = server.plant.saves; // 키우기 시작한 날을 처음 한 번 저장한다
 
       first.care('물 주기');
       first.care('물 주기');
       first.useInventoryItem('물방울');
       await _settle();
 
-      expect(server.plant.saves, 1); // 연달아 해도 한 번만 저장
+      expect(server.plant.saves - savesAtStart, 1); // 연달아 해도 한 번만 저장
       final second = await _start(server);
       expect(second.plantExp, first.plantExp);
       expect(second.plantExp, greaterThan(0));

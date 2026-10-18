@@ -1,8 +1,30 @@
 import 'dart:async';
 
 import 'package:diet_project/domain/models/models.dart';
+import 'package:diet_project/domain/rules/dex_rules.dart';
+import 'package:diet_project/utils/date_format.dart';
 import 'package:flutter/foundation.dart';
 import 'package:diet_project/domain/repositories/record_repository.dart';
+
+/// 하루가 바뀌었거나 기록이 바뀌었을 때, 식물 상태를 맞추는 데 필요한 값 — AppState가 만들어 준다.
+class PlantSyncInput {
+  const PlantSyncInput({
+    required this.today,
+    required this.hasRecordOn,
+    required this.streakDays,
+    required this.onboardingDone,
+  });
+
+  /// 오늘 (시간은 버리고 날짜만)
+  final DateTime today;
+
+  /// 그 날짜에 식단 · 운동 · 체중 · 물 중 하나라도 기록했는지.
+  final bool Function(DateTime date) hasRecordOn;
+
+  /// 지금 이어지고 있는 연속 기록 일수.
+  final int streakDays;
+  final bool onboardingDone;
+}
 
 /// 정원 화분 한 칸의 종류.
 enum GardenPotKind { growing, collected, empty }
@@ -20,13 +42,18 @@ class PlantViewModel extends ChangeNotifier {
     required RecordRepository<Plant> plantRepo,
     required RecordRepository<DexEntry> dexRepo,
     Duration saveDelay = const Duration(milliseconds: 500),
+    DateTime Function()? now,
   }) : _plantRepo = plantRepo,
        _dexRepo = dexRepo,
-       _saveDelay = saveDelay;
+       _saveDelay = saveDelay,
+       _now = now ?? DateTime.now;
 
   final RecordRepository<Plant> _plantRepo;
   final RecordRepository<DexEntry> _dexRepo;
   final Duration _saveDelay;
+  final DateTime Function() _now;
+
+  String get _todayKey => formatDateKey(_now());
 
   String? uid;
   String get _uid => uid ?? User.meId;
@@ -56,14 +83,19 @@ class PlantViewModel extends ChangeNotifier {
     _scheduleSave();
   }
 
+  /// "회복 돌보기" — 오늘 하루는 시들지 않은 것으로 한다.
   void revive() {
-    plant.revive();
+    plant.revive(_todayKey);
     notifyListeners();
     _scheduleSave();
   }
 
-  /// friendUserId(친구의 User.id)의 정원에 물을 준다.
+  /// friendUserId(친구의 User.id)의 정원에 물을 준다. 하루 한도는 날짜가 바뀌면 새로 시작한다.
   void waterFriend(String friendUserId) {
+    if (plant.friendWaterKey != _todayKey) {
+      plant.wateredFriendIds = [];
+      plant.friendWaterKey = _todayKey;
+    }
     if (!plant.waterFriend(friendUserId)) return;
     notifyListeners();
     _scheduleSave();
@@ -87,6 +119,146 @@ class PlantViewModel extends ChangeNotifier {
     plant.exp += amount;
     notifyListeners();
     _scheduleSave();
+  }
+
+  // ── 기록과 이어지는 성장 ─────────────────────────────────────────────
+
+  /// 마지막으로 알게 된 "시작 안내(온보딩)를 마쳤는지" — 도감 조건에 쓴다.
+  bool _onboardingDone = false;
+
+  /// 기록을 하나 남겼을 때 — 누적 횟수를 세고, 그 기록에 맞는 돌보기를 1회 충전하고,
+  /// 새로 열린 도감이 있는지 확인한다.
+  void onRecorded(
+    RecordKind kind, {
+    int minutes = 0,
+    int ml = 0,
+    bool breakfast = false,
+  }) {
+    final t = plant.tally;
+    switch (kind) {
+      case RecordKind.meal:
+        t.meals++;
+        if (breakfast) t.breakfasts++;
+      case RecordKind.exercise:
+        t.exercises++;
+        t.exerciseMinutes += minutes;
+      case RecordKind.water:
+        t.waterEntries++;
+        t.waterMl += ml;
+      case RecordKind.weight:
+        t.weights++;
+    }
+    plant.recharge(kind);
+    _evaluateDex();
+    notifyListeners();
+    _saveNow();
+  }
+
+  /// 하루가 바뀌었거나 기록이 바뀌었을 때 식물 상태를 맞춘다 — 기록을 쉰 날 수(시듦),
+  /// 친구 물주기 하루 한도, 가장 긴 연속 기록, 도감 조건.
+  void syncDay(PlantSyncInput input) {
+    var changed = false;
+    final todayKey = formatDateKey(input.today);
+
+    if (plant.startedKey.isEmpty) {
+      plant.startedKey = todayKey;
+      changed = true;
+    }
+    if (plant.friendWaterKey != todayKey) {
+      plant.wateredFriendIds = [];
+      plant.friendWaterKey = todayKey;
+      changed = true;
+    }
+    final revivedToday = plant.revivedKey == todayKey;
+    if (plant.revived != revivedToday) {
+      plant.revived = revivedToday;
+      changed = true;
+    }
+    final missed = _missedDays(input);
+    if (plant.missedDays != missed) {
+      plant.missedDays = missed;
+      changed = true;
+    }
+    if (input.streakDays > plant.tally.bestStreakDays) {
+      plant.tally.bestStreakDays = input.streakDays;
+      changed = true;
+    }
+    _onboardingDone = input.onboardingDone;
+    if (_evaluateDex()) changed = true;
+
+    if (changed) {
+      notifyListeners();
+      _saveNow();
+    }
+  }
+
+  /// 기록을 쉰 날 수 — 오늘 기록이 있으면 0, 없으면 어제부터 거꾸로 기록 없는 날을 센다.
+  /// 식물을 키우기 시작한 날보다 앞은 세지 않는다.
+  int _missedDays(PlantSyncInput input) {
+    if (input.hasRecordOn(input.today)) return 0;
+    final start = DateTime.tryParse(plant.startedKey);
+    var d = DateTime(input.today.year, input.today.month, input.today.day - 1);
+    var missed = 0;
+    while (missed < 30 &&
+        (start == null || !d.isBefore(start)) &&
+        !input.hasRecordOn(d)) {
+      missed++;
+      d = DateTime(d.year, d.month, d.day - 1);
+    }
+    return missed;
+  }
+
+  /// 도감 조건을 확인해, 새로 모았거나 진행도가 오른 식물을 반영한다. 바뀐 게 있으면 true.
+  /// 한 번 모은 식물은 줄어들지 않는다.
+  bool _evaluateDex() {
+    var anyChanged = false;
+    for (var pass = 0; pass < 3; pass++) {
+      final owned = dexEntries.where((e) => e.owned).length;
+      final ctx = DexContext(
+        tally: plant.tally,
+        axisScore: plant.axisScore,
+        onboardingDone: _onboardingDone,
+        ownedCount: owned,
+        totalCount: PlantSpecies.catalog.length,
+      );
+      var changedThisPass = false;
+      for (final sp in PlantSpecies.catalog) {
+        final old = _dexEntryFor(sp.id);
+        final result = DexRules.evaluate(sp.id, ctx);
+        final nowOwned = old.owned || result.done;
+        final progress = nowOwned
+            ? 100
+            : (result.progress > old.progress ? result.progress : old.progress);
+        if (nowOwned == old.owned && progress == old.progress) continue;
+        final updated = DexEntry(
+          userId: old.userId,
+          speciesId: sp.id,
+          owned: nowOwned,
+          progress: progress,
+        );
+        final i = dexEntries.indexWhere((e) => e.speciesId == sp.id);
+        if (i >= 0) {
+          dexEntries[i] = updated;
+        } else {
+          dexEntries.add(updated);
+        }
+        _saveDexEntry(updated);
+        changedThisPass = true;
+      }
+      if (!changedThisPass) break;
+      anyChanged = true;
+    }
+    return anyChanged;
+  }
+
+  void _saveDexEntry(DexEntry entry) {
+    if (uid == null) return;
+    unawaited(
+      _dexRepo.save(uid!, entry).catchError((Object e, StackTrace stack) {
+        debugPrint('도감 저장 실패: $e\n$stack');
+        onSyncFailed?.call('도감을 저장하지 못했어요. 네트워크를 확인해 주세요.');
+      }),
+    );
   }
 
   // 화면이 바로 쓰는 값들 — 계산은 Plant 모델이 하고, 여기서는 이름만 붙여 내놓는다.
@@ -140,13 +312,22 @@ class PlantViewModel extends ChangeNotifier {
     _saveTimer?.cancel();
     _saveTimer = Timer(_saveDelay, () {
       _saveTimer = null;
-      unawaited(
-        _plantRepo.save(uid!, plant).catchError((Object e, StackTrace stack) {
-          debugPrint('식물 상태 저장 실패: $e\n$stack');
-          onSyncFailed?.call('식물 상태 저장에 실패했어요. 네트워크를 확인해 주세요.');
-        }),
-      );
+      _saveNow();
     });
+  }
+
+  /// 기다리지 않고 바로 저장한다 — 기록을 남기거나 하루가 바뀌어 상태가 맞춰질 때처럼
+  /// 자주 일어나지 않는 변화에 쓴다(돌보기를 연달아 누르는 경우는 [_scheduleSave]로 모아서 저장한다).
+  void _saveNow() {
+    if (uid == null || !_syncOk) return;
+    _saveTimer?.cancel();
+    _saveTimer = null;
+    unawaited(
+      _plantRepo.save(uid!, plant).catchError((Object e, StackTrace stack) {
+        debugPrint('식물 상태 저장 실패: $e\n$stack');
+        onSyncFailed?.call('식물 상태 저장에 실패했어요. 네트워크를 확인해 주세요.');
+      }),
+    );
   }
 
   // ── 도감 ────────────────────────────────────────────────────────────
@@ -255,6 +436,7 @@ class PlantViewModel extends ChangeNotifier {
     try {
       final saved = await _plantRepo.loadAll(uid);
       plant = saved.isEmpty ? Plant.starter(uid) : saved.first;
+      if (plant.startedKey.isEmpty) plant.startedKey = _todayKey;
     } catch (e, stack) {
       debugPrint('식물 정보를 불러오지 못했어요: $e\n$stack');
       plant = Plant.starter(uid);

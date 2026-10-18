@@ -158,6 +158,20 @@ Map<String, int> _intMap(Object? v) => {
     if (e.value is num) e.key: (e.value as num).toInt(),
 };
 
+RecordTally _tally(Object? value) {
+  final m = _intMap(value);
+  return RecordTally(
+    meals: m['meals'] ?? 0,
+    breakfasts: m['breakfasts'] ?? 0,
+    exercises: m['exercises'] ?? 0,
+    exerciseMinutes: m['exerciseMinutes'] ?? 0,
+    waterEntries: m['waterEntries'] ?? 0,
+    waterMl: m['waterMl'] ?? 0,
+    weights: m['weights'] ?? 0,
+    bestStreakDays: m['bestStreakDays'] ?? 0,
+  );
+}
+
 final plantCodec = RecordCodec<Plant>(
   idOf: (_) => plantDocId,
   dateKeyOf: (_) => '',
@@ -167,10 +181,22 @@ final plantCodec = RecordCodec<Plant>(
     'axisScore': {for (final e in p.axisScore.entries) e.key.name: e.value},
     'cares': p.cares,
     'missedDays': p.missedDays,
-    'revived': p.revived,
+    'revivedKey': p.revivedKey,
     'wateredFriendIds': p.wateredFriendIds,
     'inventory': p.inventory,
     'giftTickets': p.giftTickets,
+    'startedKey': p.startedKey,
+    'friendWaterKey': p.friendWaterKey,
+    'tally': {
+      'meals': p.tally.meals,
+      'breakfasts': p.tally.breakfasts,
+      'exercises': p.tally.exercises,
+      'exerciseMinutes': p.tally.exerciseMinutes,
+      'waterEntries': p.tally.waterEntries,
+      'waterMl': p.tally.waterMl,
+      'weights': p.tally.weights,
+      'bestStreakDays': p.tally.bestStreakDays,
+    },
   },
   fromMap: (id, m, uid) {
     final starter = Plant.starter(uid);
@@ -183,7 +209,11 @@ final plantCodec = RecordCodec<Plant>(
       axisScore: {for (final a in PlantAxis.values) a: axis[a.name] ?? 0},
       cares: {...starter.cares, ..._intMap(m['cares'])},
       missedDays: _int(m['missedDays']),
-      revived: _bool(m['revived']),
+      // 예전에 저장된 'revived'(true/false)는 날짜가 없어서 쓰지 않는다 — 회복은 하루 단위다.
+      revivedKey: _str(m['revivedKey'], ''),
+      startedKey: _str(m['startedKey'], ''),
+      friendWaterKey: _str(m['friendWaterKey'], ''),
+      tally: _tally(m['tally']),
       wateredFriendIds: friends is List
           ? [
               for (final f in friends)

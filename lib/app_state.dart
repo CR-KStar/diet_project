@@ -144,6 +144,7 @@ class AppState extends ChangeNotifier {
            PlantViewModel(
              plantRepo: plantRepo ?? MemoryRecordRepository(plantCodec),
              dexRepo: dexRepo ?? MemoryRecordRepository(dexEntryCodec),
+             now: now,
            ),
        _photoAnalysisViewModel =
            photoAnalysisViewModel ??
@@ -362,6 +363,7 @@ class AppState extends ChangeNotifier {
     } else {
       screen = id;
       if (id == 'report') period = '주간';
+      if (id == 'home' || id == 'plant') _syncPlant(); // 자정을 넘겨 앱을 켜 둔 경우
       if (id == 'onboard') step = 2;
       // AI 추천은 동의한 뒤에만 자동으로 불러온다 (동의 전에는 화면의 버튼으로 요청).
       if (id == 'recommend' &&
@@ -537,6 +539,7 @@ class AppState extends ChangeNotifier {
       provider = a.provider.label;
       if (!_isDemo) _clearSampleRecords();
       if (!_isDemo) await _loadAccountData(a.uid);
+      _syncPlant();
       unawaited(_applyNotificationSchedule());
       unawaited(_appIconService.setFilled(todayMeals.isNotEmpty));
       return true;
@@ -556,6 +559,7 @@ class AppState extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+    _syncPlant(); // 시작 안내를 마치면 튤립이 도감에 들어온다
     go('home');
     return true;
   }
@@ -915,6 +919,11 @@ class AppState extends ChangeNotifier {
     );
     _challengeViewModel.reportProgress(ChallengeType.protein, todayProteinG);
     unawaited(_appIconService.setFilled(true));
+    _plantViewModel.onRecorded(
+      RecordKind.meal,
+      breakfast: log.mealType == MealType.breakfast,
+    );
+    _syncPlant();
   }
 
   /// 상세 화면에서 보여줄 식단은 RecordsViewModel이 기억한다.
@@ -953,6 +962,8 @@ class AppState extends ChangeNotifier {
       ChallengeType.exercise,
       todayExerciseMinutes,
     );
+    _plantViewModel.onRecorded(RecordKind.exercise, minutes: log.minutes);
+    _syncPlant();
   }
 
   // 내 루틴 — 목록 · 저장은 RoutineViewModel이 맡는다.
@@ -985,7 +996,20 @@ class AppState extends ChangeNotifier {
 
   void onWeightLogged(double kg) {
     _profileViewModel.onWeightLogged(kg);
+    _plantViewModel.onRecorded(RecordKind.weight);
+    _syncPlant();
   }
+
+  /// 식물 상태를 오늘 기록에 맞춘다 — 기록을 쉰 날 수(시듦), 친구 물주기 하루 한도,
+  /// 연속 기록, 도감 조건. 하루가 바뀌었거나 기록이 바뀔 때마다 부른다.
+  void _syncPlant() => _plantViewModel.syncDay(
+    PlantSyncInput(
+      today: today,
+      hasRecordOn: hasRecordOn,
+      streakDays: streakDays,
+      onboardingDone: onboardingDone,
+    ),
+  );
 
   // 물
   bool waterSheet = false;
@@ -1005,6 +1029,8 @@ class AppState extends ChangeNotifier {
       ChallengeType.water,
       _waterViewModel.waterTotal,
     );
+    _plantViewModel.onRecorded(RecordKind.water, ml: ml);
+    _syncPlant();
   }
 
   // 계정에 저장되는 기록들 (체중 · 운동 · 식단 · 그릇 · 루틴 · 식물)

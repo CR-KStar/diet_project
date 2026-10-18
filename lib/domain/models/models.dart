@@ -41,6 +41,8 @@ export 'plant_species.dart';
 export 'portion_size.dart';
 export 'privacy_settings.dart';
 export 'public_profile.dart';
+export 'record_kind.dart';
+export 'record_tally.dart';
 export 'routine.dart';
 export 'saved_profile.dart';
 export 'share_scope.dart';
