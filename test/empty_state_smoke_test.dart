@@ -1,15 +1,13 @@
 import 'package:diet_project/app_shell.dart';
+import 'package:diet_project/app_providers.dart';
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/data/auth/auth_service.dart';
 import 'package:diet_project/data/repositories/record_codecs.dart';
 import 'package:diet_project/data/repositories/record_repository.dart';
-import 'package:diet_project/data/repositories/water_repository.dart';
-import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/weight_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 
 /// 로그인된 실제 계정 — 프로토타입 예시 기록이 비워져서 "기록이 하나도 없는" 상태가 된다.
 class _RealAuth implements AuthService {
@@ -72,11 +70,8 @@ void main() {
       state.go(screen);
 
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [
-            ChangeNotifierProvider<AppState>.value(value: state),
-            ChangeNotifierProvider<WeightViewModel>.value(value: weight),
-          ],
+        AppProviders(
+          state: state,
           child: const MaterialApp(home: AppShell()),
         ),
       );
@@ -99,14 +94,10 @@ void main() {
     final state = AppState(auth: _RealAuth(), now: () => DateTime(2026, 9, 21));
     await state.restoreSession();
     state.waterSheet = true;
-    final water = WaterViewModel(waterRepo: MemoryWaterRepository());
 
     await tester.pumpWidget(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider<AppState>.value(value: state),
-          ChangeNotifierProvider<WaterViewModel>.value(value: water),
-        ],
+      AppProviders(
+        state: state,
         child: const MaterialApp(home: AppShell()),
       ),
     );
@@ -125,8 +116,8 @@ void main() {
     state.bowlSheet = true;
 
     await tester.pumpWidget(
-      ChangeNotifierProvider<AppState>.value(
-        value: state,
+      AppProviders(
+        state: state,
         child: const MaterialApp(home: AppShell()),
       ),
     );

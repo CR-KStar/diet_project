@@ -1,4 +1,5 @@
 import 'package:diet_project/app_shell.dart';
+import 'package:diet_project/app_providers.dart';
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/data/auth/auth_service.dart';
 import 'package:diet_project/data/repositories/profile_repository.dart';
@@ -7,7 +8,6 @@ import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 
 const _account = AuthAccount(
   uid: 'uid_1',
@@ -295,18 +295,11 @@ void main() {
     final repo = MemoryWaterRepository();
     final state = await _start(repo);
     state.waterSheet = true;
-    final water = WaterViewModel(
-      waterRepo: repo,
-      now: () => DateTime(2026, 9, 21, 14, 5),
-    );
-    await water.loadForUid('uid_1');
+    final water = state.waterViewModel;
 
     await tester.pumpWidget(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider<AppState>.value(value: state),
-          ChangeNotifierProvider<WaterViewModel>.value(value: water),
-        ],
+      AppProviders(
+        state: state,
         child: const MaterialApp(home: AppShell()),
       ),
     );

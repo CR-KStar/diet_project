@@ -1,3 +1,4 @@
+import 'package:diet_project/app_providers.dart';
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/data/auth/auth_service.dart';
 import 'package:diet_project/data/repositories/profile_repository.dart';
@@ -5,7 +6,6 @@ import 'package:diet_project/ui/onboarding/widgets/onboarding_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 
 const _account = AuthAccount(
   uid: 'uid_1',
@@ -44,8 +44,8 @@ void main() {
     state.step = 4;
 
     await tester.pumpWidget(
-      ChangeNotifierProvider<AppState>.value(
-        value: state,
+      AppProviders(
+        state: state,
         child: const MaterialApp(home: Scaffold(body: OnboardingPage())),
       ),
     );

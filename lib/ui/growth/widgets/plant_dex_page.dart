@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/common.dart';
+import 'package:diet_project/ui/growth/viewmodel/plant_view_model.dart';
 
 const _tierColor = {
   '일반': AppColor.textFaint,
@@ -31,22 +32,22 @@ class PlantDexTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
-    final pick = s.dexSelected;
+    final plant = context.watch<PlantViewModel>();
+    final pick = plant.dexSelected;
 
     return Column(
       children: [
-        _ProgressCard(s: s),
+        _ProgressCard(),
         const SizedBox(height: AppSpace.cardGap),
 
         PillTabs(
           options: const ['전체', '일반', '희귀', '전설'],
-          value: s.dexTab,
-          onChanged: s.setDexTab,
+          value: plant.dexTab,
+          onChanged: plant.setDexTab,
         ),
         const SizedBox(height: AppSpace.cardGap),
 
-        _DexGrid(s: s, pick: pick),
+        _DexGrid(pick: pick),
         const SizedBox(height: AppSpace.cardGap),
 
         _SelectedSpeciesCard(pick: pick),
@@ -63,89 +64,90 @@ class PlantDexTab extends StatelessWidget {
 
 /// 수집 진행률 카드
 class _ProgressCard extends StatelessWidget {
-  const _ProgressCard({required this.s});
-
-  final AppState s;
+  const _ProgressCard();
 
   @override
-  Widget build(BuildContext context) => AppCard(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            Text('수집 진행률 ', style: t(AppFontSize.f14, w: FontWeight.w700)),
-            Text(
-              '변이 포함',
-              style: t(
-                AppFontSize.f11,
-                w: FontWeight.w500,
-                c: AppColor.textGhost,
+  Widget build(BuildContext context) {
+    final plant = context.watch<PlantViewModel>();
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text('수집 진행률 ', style: t(AppFontSize.f14, w: FontWeight.w700)),
+              Text(
+                '변이 포함',
+                style: t(
+                  AppFontSize.f11,
+                  w: FontWeight.w500,
+                  c: AppColor.textGhost,
+                ),
               ),
-            ),
-            const Spacer(),
-            Text(
-              '${s.dexPct}',
-              style: t(
-                AppFontSize.f22,
-                w: FontWeight.w900,
-                c: AppColor.primary,
+              const Spacer(),
+              Text(
+                '${plant.dexPct}',
+                style: t(
+                  AppFontSize.f22,
+                  w: FontWeight.w900,
+                  c: AppColor.primary,
+                ),
               ),
-            ),
-            Text('%', style: t(AppFontSize.f12, c: AppColor.textFaint)),
-          ],
-        ),
-        const SizedBox(height: AppSpace.s12),
-        Row(
-          children: [
-            for (final tier in const ['일반', '희귀', '전설'])
+              Text('%', style: t(AppFontSize.f12, c: AppColor.textFaint)),
+            ],
+          ),
+          const SizedBox(height: AppSpace.s12),
+          Row(
+            children: [
+              for (final tier in const ['일반', '희귀', '전설'])
+                Expanded(
+                  flex: plant.dexTierCount(tier).own,
+                  child: Container(
+                    height: AppSpace.s9,
+                    margin: const EdgeInsets.only(right: AppSpace.s3),
+                    decoration: BoxDecoration(
+                      color: _tierColor[tier],
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  ),
+                ),
               Expanded(
-                flex: s.dexTierCount(tier).own,
+                flex: plant.dexTotal - plant.dexOwned,
                 child: Container(
                   height: AppSpace.s9,
-                  margin: const EdgeInsets.only(right: AppSpace.s3),
                   decoration: BoxDecoration(
-                    color: _tierColor[tier],
+                    color: AppColor.divider,
                     borderRadius: BorderRadius.circular(3),
                   ),
                 ),
               ),
-            Expanded(
-              flex: s.dexTotal - s.dexOwned,
-              child: Container(
-                height: AppSpace.s9,
-                decoration: BoxDecoration(
-                  color: AppColor.divider,
-                  borderRadius: BorderRadius.circular(3),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpace.s14),
-        for (final tier in const ['일반', '희귀', '전설']) _TierRow(s: s, tier: tier),
-        const Divider(height: AppSpace.s1),
-        const SizedBox(height: AppSpace.s12),
-        Text(
-          '베이스 ${AppState.dexBase.length}종 × 색상 변이를 합쳐 총 ${s.dexTotal}종. 시즌 업데이트로 계속 늘어나요.',
-          style: t(AppFontSize.f11, c: AppColor.textFaint, h: 1.6),
-        ),
-      ],
-    ),
-  );
+            ],
+          ),
+          const SizedBox(height: AppSpace.s14),
+          for (final tier in const ['일반', '희귀', '전설']) _TierRow(tier: tier),
+          const Divider(height: AppSpace.s1),
+          const SizedBox(height: AppSpace.s12),
+          Text(
+            '베이스 ${AppState.dexBase.length}종 × 색상 변이를 합쳐 총 ${plant.dexTotal}종. 시즌 업데이트로 계속 늘어나요.',
+            style: t(AppFontSize.f11, c: AppColor.textFaint, h: 1.6),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _TierRow extends StatelessWidget {
-  const _TierRow({required this.s, required this.tier});
+  const _TierRow({required this.tier});
 
-  final AppState s;
   final String tier;
 
   @override
   Widget build(BuildContext context) {
-    final g = s.dexTierCount(tier);
+    final plant = context.watch<PlantViewModel>();
+    final g = plant.dexTierCount(tier);
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpace.s11),
       child: Row(
@@ -195,102 +197,106 @@ class _TierRow extends StatelessWidget {
 
 /// 도감 카드 그리드
 class _DexGrid extends StatelessWidget {
-  const _DexGrid({required this.s, required this.pick});
+  const _DexGrid({required this.pick});
 
-  final AppState s;
   final DexCard pick;
 
   @override
-  Widget build(BuildContext context) => GridView.count(
-    crossAxisCount: 3,
-    shrinkWrap: true,
-    physics: const NeverScrollableScrollPhysics(),
-    mainAxisSpacing: 10,
-    crossAxisSpacing: 10,
-    childAspectRatio: 0.92,
-    children: s.dexFiltered
-        .map((d) => _DexGridTile(s: s, d: d, sel: d == pick))
-        .toList(),
-  );
+  Widget build(BuildContext context) {
+    final plant = context.watch<PlantViewModel>();
+    return GridView.count(
+      crossAxisCount: 3,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      mainAxisSpacing: 10,
+      crossAxisSpacing: 10,
+      childAspectRatio: 0.92,
+      children: plant.dexFiltered
+          .map((d) => _DexGridTile(d: d, sel: d == pick))
+          .toList(),
+    );
+  }
 }
 
 class _DexGridTile extends StatelessWidget {
-  const _DexGridTile({required this.s, required this.d, required this.sel});
+  const _DexGridTile({required this.d, required this.sel});
 
-  final AppState s;
   final DexCard d;
   final bool sel;
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
-    onTap: () => s.setDexPick(d),
-    child: Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpace.s8,
-        vertical: AppSpace.s14,
-      ),
-      decoration: BoxDecoration(
-        color: AppColor.surface,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: AppShadow.card,
-        border: Border.all(
-          color: sel ? AppColor.primary : Colors.transparent,
-          width: 1.5,
+  Widget build(BuildContext context) {
+    final plant = context.watch<PlantViewModel>();
+    return GestureDetector(
+      onTap: () => plant.setDexPick(d),
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpace.s8,
+          vertical: AppSpace.s14,
+        ),
+        decoration: BoxDecoration(
+          color: AppColor.surface,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: AppShadow.card,
+          border: Border.all(
+            color: sel ? AppColor.primary : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Opacity(
+              opacity: d.owned ? 1 : 0.3,
+              child: ColorFiltered(
+                colorFilter: d.owned
+                    ? const ColorFilter.mode(Colors.transparent, BlendMode.dst)
+                    : const ColorFilter.matrix([
+                        0.2126,
+                        0.7152,
+                        0.0722,
+                        0,
+                        0,
+                        0.2126,
+                        0.7152,
+                        0.0722,
+                        0,
+                        0,
+                        0.2126,
+                        0.7152,
+                        0.0722,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                      ]),
+                child: Text(d.emoji, style: const TextStyle(fontSize: 30)),
+              ),
+            ),
+            const SizedBox(height: AppSpace.s8),
+            Text(
+              d.owned ? d.name : '???',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: t(
+                AppFontSize.f11,
+                w: FontWeight.w700,
+                c: d.owned ? AppColor.text : const Color(0xFFB2B9BE),
+              ),
+            ),
+            const SizedBox(height: AppSpace.s4),
+            Text(
+              d.tier + (d.variants.length > 1 ? ' ·${d.variants.length}' : ''),
+              style: t(AppFontSize.f9, c: _tierColor[d.tier]!),
+            ),
+          ],
         ),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Opacity(
-            opacity: d.owned ? 1 : 0.3,
-            child: ColorFiltered(
-              colorFilter: d.owned
-                  ? const ColorFilter.mode(Colors.transparent, BlendMode.dst)
-                  : const ColorFilter.matrix([
-                      0.2126,
-                      0.7152,
-                      0.0722,
-                      0,
-                      0,
-                      0.2126,
-                      0.7152,
-                      0.0722,
-                      0,
-                      0,
-                      0.2126,
-                      0.7152,
-                      0.0722,
-                      0,
-                      0,
-                      0,
-                      0,
-                      0,
-                      1,
-                      0,
-                    ]),
-              child: Text(d.emoji, style: const TextStyle(fontSize: 30)),
-            ),
-          ),
-          const SizedBox(height: AppSpace.s8),
-          Text(
-            d.owned ? d.name : '???',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: t(
-              AppFontSize.f11,
-              w: FontWeight.w700,
-              c: d.owned ? AppColor.text : const Color(0xFFB2B9BE),
-            ),
-          ),
-          const SizedBox(height: AppSpace.s4),
-          Text(
-            d.tier + (d.variants.length > 1 ? ' ·${d.variants.length}' : ''),
-            style: t(AppFontSize.f9, c: _tierColor[d.tier]!),
-          ),
-        ],
-      ),
-    ),
-  );
+    );
+  }
 }
 
 /// 선택 종 상세

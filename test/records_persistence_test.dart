@@ -1,4 +1,5 @@
 import 'package:diet_project/app_shell.dart';
+import 'package:diet_project/app_providers.dart';
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/common.dart';
 import 'package:diet_project/data/auth/auth_service.dart';
@@ -11,7 +12,6 @@ import 'package:diet_project/ui/record/viewmodel/weight_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 
 const _account = AuthAccount(
   uid: 'uid_1',
@@ -123,13 +123,8 @@ Future<void> _pumpScreen(
   addTearDown(tester.view.reset);
   state.go(screen);
   await tester.pumpWidget(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider<AppState>.value(value: state),
-        ChangeNotifierProvider<WeightViewModel>.value(
-          value: server.weightViewModel,
-        ),
-      ],
+    AppProviders(
+      state: state,
       child: const MaterialApp(home: AppShell()),
     ),
   );

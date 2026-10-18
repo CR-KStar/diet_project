@@ -1,3 +1,4 @@
+import 'package:diet_project/app_providers.dart';
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/data/auth/auth_service.dart';
 import 'package:diet_project/data/repositories/profile_repository.dart';
@@ -6,7 +7,6 @@ import 'package:diet_project/ui/report_settings/widgets/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 
 const _account = AuthAccount(
   uid: 'uid_1',
@@ -54,8 +54,8 @@ Future<void> _pump(WidgetTester tester, AppState state, Widget screen) async {
   tester.view.devicePixelRatio = 2.0;
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
-    ChangeNotifierProvider<AppState>.value(
-      value: state,
+    AppProviders(
+      state: state,
       child: MaterialApp(home: Scaffold(body: screen)),
     ),
   );

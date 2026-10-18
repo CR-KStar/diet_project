@@ -1,10 +1,10 @@
+import 'package:diet_project/app_providers.dart';
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/data/auth/auth_service.dart';
 import 'package:diet_project/ui/record/widgets/record_tab_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 
 /// 로그인된 실제 계정처럼 동작하는 가짜 인증 (Mock이 아니라서 예시 기록이 비워진다).
 class _RealAuth implements AuthService {
@@ -151,8 +151,8 @@ void main() {
 
     final state = _at(DateTime(2026, 9, 21));
     await tester.pumpWidget(
-      ChangeNotifierProvider<AppState>.value(
-        value: state,
+      AppProviders(
+        state: state,
         child: const MaterialApp(home: Scaffold(body: RecordsScreen())),
       ),
     );
