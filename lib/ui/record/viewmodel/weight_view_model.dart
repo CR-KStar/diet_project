@@ -2,6 +2,7 @@ import 'package:diet_project/domain/models/models.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'package:diet_project/domain/repositories/record_repository.dart';
+import 'package:diet_project/utils/date_format.dart';
 
 class WeightViewModel extends ChangeNotifier {
   WeightViewModel({
@@ -13,10 +14,7 @@ class WeightViewModel extends ChangeNotifier {
   final RecordRepository<WeightEntry> _weightRepo;
   final DateTime Function() _now;
 
-  String get _todayKey {
-    final n = _now();
-    return '${n.year}-${n.month.toString().padLeft(2, '0')}-${n.day.toString().padLeft(2, '0')}';
-  }
+  String get _todayKey => formatDateKey(_now());
 
   double weightInput = 56.7;
   void setWeightInput(double v) {
@@ -26,8 +24,7 @@ class WeightViewModel extends ChangeNotifier {
 
   String _keyDaysAgo(int days) {
     final n = _now();
-    final y = DateTime(n.year, n.month, n.day - days);
-    return '${y.year}-${y.month.toString().padLeft(2, '0')}-${y.day.toString().padLeft(2, '0')}';
+    return formatDateKey(DateTime(n.year, n.month, n.day - days));
   }
 
   String get _yesterdayKey => _keyDaysAgo(1);
@@ -77,10 +74,7 @@ class WeightViewModel extends ChangeNotifier {
   String? uid;
   String get _uid => uid ?? User.meId;
 
-  String get _clockTime {
-    final n = _now();
-    return '${n.hour.toString().padLeft(2, '0')}:${n.minute.toString().padLeft(2, '0')}';
-  }
+  String get _clockTime => formatClockTime(_now());
 
   void logWeight() {
     final entry = WeightEntry(

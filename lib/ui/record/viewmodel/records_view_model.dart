@@ -1,5 +1,6 @@
 import 'package:diet_project/domain/models/models.dart';
 import 'package:flutter/foundation.dart';
+import 'package:diet_project/utils/date_format.dart';
 
 /// 기록 탭과 홈이 오늘/선택한 날의 값을 계산하는 데 쓰는 기록 모음 —
 /// AppState가 그때그때 최신 값으로 만들어 준다.
@@ -60,8 +61,7 @@ class RecordsViewModel extends ChangeNotifier {
   /// 계산에 쓰는 기록이 바뀌었을 때 화면이 다시 계산하도록 알린다 (AppState가 연결한다).
   void refresh() => notifyListeners();
 
-  static String dateKeyOf(DateTime d) =>
-      '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+  static String dateKeyOf(DateTime d) => formatDateKey(d);
 
   /// 오늘 (시간은 버리고 날짜만)
   DateTime get today {

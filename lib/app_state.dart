@@ -56,6 +56,7 @@ import 'package:diet_project/data/services/impl/cloud_meal_analysis_service.dart
 import 'package:diet_project/data/services/impl/cloud_meal_recommendation_service.dart';
 import 'package:diet_project/data/services/impl/local_notification_service.dart';
 import 'package:diet_project/data/services/impl/platform_app_icon_service.dart';
+import 'package:diet_project/utils/date_format.dart';
 
 export 'package:diet_project/domain/models/models.dart';
 export 'package:diet_project/ui/home/viewmodel/today_summary.dart'
@@ -1042,7 +1043,7 @@ class AppState extends ChangeNotifier {
   Future<void> _loadMonth(int year, int month) async {
     final a = account;
     if (a == null || _isDemo) return;
-    final key = '$year-${month.toString().padLeft(2, '0')}';
+    final key = formatMonthKey(year, month);
     if (_loadedMonths.contains(key)) return;
     try {
       final meals = await _mealRepo.loadRange(a.uid, '$key-01', '$key-31');

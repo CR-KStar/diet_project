@@ -2,6 +2,7 @@ import 'package:diet_project/domain/models/models.dart';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:diet_project/domain/repositories/water_repository.dart';
+import 'package:diet_project/utils/date_format.dart';
 
 class WaterViewModel extends ChangeNotifier {
   WaterViewModel({required WaterRepository waterRepo, DateTime Function()? now})
@@ -13,10 +14,7 @@ class WaterViewModel extends ChangeNotifier {
   /// 테스트에서 날짜를 고정할 수 있도록 시계를 주입받는다 (AppState와 같은 패턴).
   final DateTime Function() _now;
 
-  String get _todayKey {
-    final n = _now();
-    return '${n.year}-${n.month.toString().padLeft(2, '0')}-${n.day.toString().padLeft(2, '0')}';
-  }
+  String get _todayKey => formatDateKey(_now());
 
   bool waterSheet = false;
   int waterInput = 250;
@@ -76,10 +74,7 @@ class WaterViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  String get _clockTime {
-    final n = _now();
-    return '${n.hour.toString().padLeft(2, '0')}:${n.minute.toString().padLeft(2, '0')}';
-  }
+  String get _clockTime => formatClockTime(_now());
 
   int _waterSeq = 0;
 

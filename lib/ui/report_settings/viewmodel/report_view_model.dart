@@ -1,6 +1,7 @@
 import 'package:diet_project/common.dart' show AppStateFormat;
 import 'package:diet_project/domain/models/models.dart';
 import 'package:flutter/foundation.dart';
+import 'package:diet_project/utils/date_format.dart';
 
 /// 리포트가 집계에 쓰는 기록 모음 — AppState가 그때그때 최신 값으로 만들어 준다.
 class ReportInputs {
@@ -29,9 +30,6 @@ class ReportInputs {
   /// 그 날짜에 식단 · 운동 · 체중 · 물 중 하나라도 기록했는지.
   final bool Function(DateTime date) hasRecordOn;
 }
-
-String _dateKeyOf(DateTime d) =>
-    '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
 /// 리포트 탭(주간 · 월간)에서 보여줄 값을 실제 기록으로 집계한다.
 ///
@@ -93,14 +91,14 @@ class ReportViewModel extends ChangeNotifier {
   }
 
   int _kcalOn(DateTime d) {
-    final key = _dateKeyOf(d);
+    final key = formatDateKey(d);
     return _in.meals
         .where((m) => m.dateKey == key)
         .fold(0, (a, m) => a + m.kcal);
   }
 
   int _exerciseMinOn(DateTime d) {
-    final key = _dateKeyOf(d);
+    final key = formatDateKey(d);
     return _in.exercises
         .where((e) => e.dateKey == key)
         .fold(0, (a, e) => a + e.minutes);
@@ -156,7 +154,7 @@ class ReportViewModel extends ChangeNotifier {
           label: period == '주간'
               ? '${buckets[i].first.month}/${buckets[i].first.day}'
               : '${i + 1}주',
-          kg: _weightAsOf(_dateKeyOf(buckets[i].last)),
+          kg: _weightAsOf(formatDateKey(buckets[i].last)),
         ),
     ];
   }
@@ -218,7 +216,7 @@ class ReportViewModel extends ChangeNotifier {
   int get recordGoalDays => period == '주간' ? 5 : 20;
 
   List<MealLog> get _periodMeals {
-    final keys = _periodDays.map(_dateKeyOf).toSet();
+    final keys = _periodDays.map(formatDateKey).toSet();
     return _in.meals.where((m) => keys.contains(m.dateKey)).toList();
   }
 

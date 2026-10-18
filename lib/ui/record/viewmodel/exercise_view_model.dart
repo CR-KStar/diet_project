@@ -4,6 +4,7 @@ import 'package:diet_project/domain/models/models.dart';
 import 'package:diet_project/domain/rules/diet_rules.dart';
 import 'package:flutter/foundation.dart';
 import 'package:diet_project/domain/repositories/record_repository.dart';
+import 'package:diet_project/utils/date_format.dart';
 
 /// 운동 화면의 입력값(Draft)과 저장된 운동 기록을 담당한다.
 ///
@@ -27,10 +28,7 @@ class ExerciseViewModel extends ChangeNotifier {
   /// 서버 저장이 실패했을 때 불린다. AppState가 사용자에게 알림을 띄우는 데 쓴다.
   void Function()? onSaveFailed;
 
-  String get _clockTime {
-    final n = _now();
-    return '${n.hour.toString().padLeft(2, '0')}:${n.minute.toString().padLeft(2, '0')}';
-  }
+  String get _clockTime => formatClockTime(_now());
 
   // ── 입력값 (저장 전까지만 유지되는 Draft) ─────────────────────────────
   final ExerciseDraft exerciseDraft = ExerciseDraft();

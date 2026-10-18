@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:diet_project/domain/models/models.dart';
 import 'package:flutter/foundation.dart';
 import 'package:diet_project/domain/repositories/record_repository.dart';
+import 'package:diet_project/utils/date_format.dart';
 
 class MealViewModel extends ChangeNotifier {
   MealViewModel({
@@ -13,15 +14,11 @@ class MealViewModel extends ChangeNotifier {
   final RecordRepository<MealLog> _mealRepo;
   final DateTime Function() _now;
 
-  String get _todayKey {
-    final n = _now();
-    return '${n.year}-${n.month.toString().padLeft(2, '0')}-${n.day.toString().padLeft(2, '0')}';
-  }
+  String get _todayKey => formatDateKey(_now());
 
   String _keyDaysAgo(int days) {
     final n = _now();
-    final d = DateTime(n.year, n.month, n.day - days);
-    return '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+    return formatDateKey(DateTime(n.year, n.month, n.day - days));
   }
 
   String? uid;
