@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' show IconData;
 
 /// 앱 안 알림함에 쌓이는 알림 하나.
 class InboxNotification {
@@ -16,7 +17,7 @@ class InboxNotification {
 
   /// 탭 분류 — '기록' · '친구' · '식물'
   final String category;
-  final String icon;
+  final IconData icon;
   final String title;
   final String body;
   final DateTime at;

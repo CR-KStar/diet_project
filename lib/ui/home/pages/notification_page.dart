@@ -7,6 +7,7 @@ import 'package:diet_project/app_state.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/ui/home/viewmodel/notification_inbox_view_model.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
+import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
 
 /// 알림이 온 시각을 "방금 · n분 전 · n시간 전 · 어제 · n일 전"으로 보여준다.
 String _timeLabel(DateTime at, DateTime now) {
@@ -40,7 +41,7 @@ class NotifScreen extends StatelessWidget {
           children: [
             Expanded(
               child: SubHeader(
-                emoji: '🔔',
+                icon: AppIcons.notifications,
                 title: '알림',
                 onBack: () => s.go('home'),
               ),
@@ -116,12 +117,12 @@ class _NotifCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            IconTile(
+            IconTile.icon(
               n.icon,
               size: 40,
               radius: 14,
               bg: _tintOf(n.category),
-              fontSize: 18,
+              iconSize: 22,
             ),
             const SizedBox(width: AppSpace.s12),
             Expanded(
@@ -176,7 +177,7 @@ class _EmptyInbox extends StatelessWidget {
       padding: 24,
       child: Column(
         children: [
-          const Text('🔔', style: TextStyle(fontSize: 30)),
+          const Icon(AppIcons.notifications, size: 34, color: AppColor.primary),
           const SizedBox(height: AppSpace.s10),
           Text('아직 알림이 없어요', style: t(AppFontSize.f14, w: FontWeight.w700)),
           const SizedBox(height: AppSpace.s6),

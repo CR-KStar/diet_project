@@ -2,6 +2,7 @@ import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:diet_project/ui/core/ui/widgets/text_style.dart';
+import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
 
 /// 바텀 시트용 커스텀 스캐폴드
 class SheetScaffold extends StatelessWidget {
@@ -90,9 +91,10 @@ class SheetScaffold extends StatelessWidget {
                     color: AppColor.surfaceSunken,
                     shape: BoxShape.circle,
                   ),
-                  child: const Text(
-                    '✕',
-                    style: TextStyle(fontSize: 16, color: AppColor.textGhost),
+                  child: const Icon(
+                    AppIcons.close,
+                    size: 18,
+                    color: AppColor.textGhost,
                   ),
                 ),
               ),

@@ -11,12 +11,37 @@ import 'package:diet_project/ui/home/viewmodel/today_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/records_view_model.dart';
 import 'package:diet_project/utils/app_state_format.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
+import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
 
 const _quickActions = [
-  (label: '식단', icon: '🍽️', route: 'capture', sheet: false),
-  (label: '운동', icon: '🏃', route: 'exercise', sheet: false),
-  (label: '체중', icon: '⚖️', route: 'weight', sheet: false),
-  (label: '물', icon: '💧', route: 'water', sheet: true),
+  (
+    label: '식단',
+    icon: AppIcons.meal,
+    color: AppIconColors.meal,
+    route: 'capture',
+    sheet: false,
+  ),
+  (
+    label: '운동',
+    icon: AppIcons.exercise,
+    color: AppIconColors.exercise,
+    route: 'exercise',
+    sheet: false,
+  ),
+  (
+    label: '체중',
+    icon: AppIcons.weight,
+    color: AppIconColors.weight,
+    route: 'weight',
+    sheet: false,
+  ),
+  (
+    label: '물',
+    icon: AppIcons.water,
+    color: AppIconColors.water,
+    route: 'water',
+    sheet: true,
+  ),
 ];
 
 const _weekdayLabels = ['일', '월', '화', '수', '목', '금', '토'];
@@ -31,7 +56,11 @@ class RecordsScreen extends StatelessWidget {
 
     return ScreenScroll(
       children: [
-        TabHeader(emoji: '📋', title: '기록', trailing: _MonthNavRow()),
+        TabHeader(
+          icon: AppIcons.records,
+          title: '기록',
+          trailing: _MonthNavRow(),
+        ),
         _QuickRecordCard(),
         _CalendarCard(),
         Padding(
@@ -121,7 +150,8 @@ class _QuickRecordCard extends StatelessWidget {
 class _QuickRecordButton extends StatelessWidget {
   const _QuickRecordButton({required this.q});
 
-  final ({String label, String icon, String route, bool sheet}) q;
+  final ({String label, IconData icon, Color color, String route, bool sheet})
+  q;
 
   @override
   Widget build(BuildContext context) {
@@ -142,7 +172,7 @@ class _QuickRecordButton extends StatelessWidget {
             decoration: AppDeco.selectableCard(selected: done),
             child: Column(
               children: [
-                Text(q.icon, style: const TextStyle(fontSize: 20)),
+                Icon(q.icon, size: 24, color: q.color),
                 const SizedBox(height: AppSpace.s6),
                 Text(q.label, style: t(AppFontSize.f11, w: FontWeight.w700)),
                 const SizedBox(height: AppSpace.s4),
@@ -430,7 +460,11 @@ class MealDetailScreen extends StatelessWidget {
     final m = recordsVm.detailMeal;
     return ScreenScroll(
       children: [
-        SubHeader(emoji: '🍱', title: '식단 상세', onBack: () => s.go('records')),
+        SubHeader(
+          icon: AppIcons.meal,
+          title: '식단 상세',
+          onBack: () => s.go('records'),
+        ),
         if (m == null)
           const AppCard(child: Text('식단 정보를 찾을 수 없어요.'))
         else

@@ -16,6 +16,7 @@ import 'package:diet_project/ui/home/viewmodel/today_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/records_view_model.dart';
 import 'package:diet_project/utils/app_state_format.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
+import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -53,7 +54,7 @@ class HomeScreen extends StatelessWidget {
               radius: 22,
               child: Row(
                 children: [
-                  const Text('🌤️', style: TextStyle(fontSize: 22)),
+                  const Icon(AppIcons.sun, size: 24, color: Color(0xFFE0A21A)),
                   const SizedBox(width: AppSpace.s12),
                   Expanded(
                     child: Text(
@@ -95,12 +96,12 @@ class _Greeting extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          IconTile(
-            '🌱',
+          IconTile.icon(
+            AppIcons.plant,
             size: 44,
             radius: 16,
             bg: AppColor.surface,
-            fontSize: 20,
+            iconSize: 24,
             shadow: true,
           ),
           const SizedBox(width: AppSpace.s11),
@@ -118,22 +119,40 @@ class _Greeting extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: AppSpace.s4),
-                Text(
-                  recordsVm.streakDays > 0
-                      ? '${today.todayLabel} · ${recordsVm.streakDays}일 연속 기록 🔥'
-                      : today.todayLabel,
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: recordsVm.streakDays > 0
+                            ? '${today.todayLabel} · ${recordsVm.streakDays}일 연속 기록 '
+                            : today.todayLabel,
+                      ),
+                      if (recordsVm.streakDays > 0)
+                        const WidgetSpan(
+                          alignment: PlaceholderAlignment.middle,
+                          child: Icon(
+                            AppIcons.fire,
+                            size: 14,
+                            color: AppColor.alert,
+                          ),
+                        ),
+                    ],
+                  ),
                   style: t(AppFontSize.f12, c: const Color(0xFF7E9080)),
                 ),
               ],
             ),
           ),
           _GreetingIconButton(
-            emoji: '🔔',
+            icon: AppIcons.notifications,
             onTap: () => s.go('notif'),
             badge: inbox.unread,
           ),
           const SizedBox(width: AppSpace.s8),
-          _GreetingIconButton(emoji: '🗓️', onTap: () => s.go('records')),
+          _GreetingIconButton(
+            icon: AppIcons.calendar,
+            onTap: () => s.go('records'),
+          ),
         ],
       ),
     );
@@ -142,12 +161,12 @@ class _Greeting extends StatelessWidget {
 
 class _GreetingIconButton extends StatelessWidget {
   const _GreetingIconButton({
-    required this.emoji,
+    required this.icon,
     required this.onTap,
     this.badge = 0,
   });
 
-  final String emoji;
+  final IconData icon;
   final VoidCallback onTap;
   final int badge;
 
@@ -166,7 +185,7 @@ class _GreetingIconButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             boxShadow: AppShadow.card,
           ),
-          child: Text(emoji, style: const TextStyle(fontSize: 16)),
+          child: Icon(icon, size: 19, color: AppColor.textMuted),
         ),
         if (badge > 0)
           Positioned(
@@ -224,7 +243,11 @@ class _CalorieRing extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('🍽️', style: TextStyle(fontSize: 15)),
+                      const Icon(
+                        AppIcons.meal,
+                        size: 18,
+                        color: AppIconColors.meal,
+                      ),
                       const SizedBox(height: AppSpace.s2),
                       Text(
                         AppStateFormat.comma(today.intakeKcal),
@@ -334,12 +357,12 @@ class _CalorieRing extends StatelessWidget {
 class _NutritionCard extends StatelessWidget {
   const _NutritionCard();
 
-  static const _emoji = {
-    '단백질': '🍗',
-    '탄수화물': '🍚',
-    '지방': '🧈',
-    '식이섬유': '🥬',
-    '나트륨': '🧂',
+  static const _icons = {
+    '단백질': AppIcons.protein,
+    '탄수화물': AppIcons.carb,
+    '지방': AppIcons.fat,
+    '식이섬유': AppIcons.fiber,
+    '나트륨': AppIcons.sodium,
   };
 
   @override
@@ -353,13 +376,13 @@ class _NutritionCard extends StatelessWidget {
       child: Column(
         children: [
           CardHeader(
-            emoji: '🥗',
+            icon: AppIcons.meal,
             title: '영양소 섭취 현황',
             action: '자세히 ›',
             onAction: () => s.go('nutrition'),
           ),
           const SizedBox(height: AppSpace.s14),
-          for (final r in rows) _NutritionRow(stat: r, emoji: _emoji[r.name]!),
+          for (final r in rows) _NutritionRow(stat: r, icon: _icons[r.name]!),
         ],
       ),
     );
@@ -367,10 +390,10 @@ class _NutritionCard extends StatelessWidget {
 }
 
 class _NutritionRow extends StatelessWidget {
-  const _NutritionRow({required this.stat, required this.emoji});
+  const _NutritionRow({required this.stat, required this.icon});
 
   final NutrientStat stat;
-  final String emoji;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -379,7 +402,7 @@ class _NutritionRow extends StatelessWidget {
       children: [
         SizedBox(
           width: AppSpace.s19,
-          child: Text(emoji, style: const TextStyle(fontSize: 13)),
+          child: Icon(icon, size: 15, color: stat.color),
         ),
         SizedBox(
           width: AppSpace.s52,
@@ -426,7 +449,7 @@ class _NutritionRow extends StatelessWidget {
 }
 
 typedef _TodayCardData = ({
-  String icon,
+  IconData icon,
   String label,
   String value,
   String unit,
@@ -451,7 +474,7 @@ class _TodayCards extends StatelessWidget {
 
     final cards = <_TodayCardData>[
       (
-        icon: '💧',
+        icon: AppIcons.water,
         label: '물 섭취량',
         value: AppStateFormat.comma(waterVm.waterTotal),
         unit: 'ml',
@@ -464,7 +487,7 @@ class _TodayCards extends StatelessWidget {
         route: 'water',
       ),
       (
-        icon: '🏃',
+        icon: AppIcons.exercise,
         label: '운동 시간',
         value: '${today.todayExerciseMinutes}',
         unit: '분',
@@ -477,7 +500,7 @@ class _TodayCards extends StatelessWidget {
         route: 'exercise',
       ),
       (
-        icon: '⚖️',
+        icon: AppIcons.weight,
         label: '체중',
         value: today.latestWeightKg.toStringAsFixed(1),
         unit: 'kg',
@@ -495,7 +518,7 @@ class _TodayCards extends StatelessWidget {
         route: 'weight',
       ),
       (
-        icon: '🍽️',
+        icon: AppIcons.meal,
         label: '식단',
         value: '${today.todayMeals.length}',
         unit: '끼',
@@ -581,12 +604,13 @@ class _TodayCardTile extends StatelessWidget {
           children: [
             Row(
               children: [
-                IconTile(
+                IconTile.icon(
                   c.icon,
                   size: 36,
                   radius: 18,
                   bg: AppColor.surface,
-                  fontSize: 16,
+                  color: c.color,
+                  iconSize: 20,
                 ),
                 const Spacer(),
                 Text(
@@ -638,9 +662,9 @@ class _TodayCardTile extends StatelessWidget {
 }
 
 const _plantCareMeta = {
-  '물 주기': ('💧', Color(0xFF4CAF50)),
-  '햇빛 받기': ('☀️', Color(0xFFE0A21A)),
-  '영양 주기': ('🧺', Color(0xFFFF8A65)),
+  '물 주기': (AppIcons.water, Color(0xFF4CAF50)),
+  '햇빛 받기': (AppIcons.sun, Color(0xFFE0A21A)),
+  '영양 주기': (AppIcons.nutrition, Color(0xFFFF8A65)),
 };
 
 class _PlantCard extends StatelessWidget {
@@ -785,7 +809,11 @@ class _PlantCareTile extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(_plantCareMeta[c.key]!.$1, style: const TextStyle(fontSize: 13)),
+          Icon(
+            _plantCareMeta[c.key]!.$1,
+            size: 16,
+            color: _plantCareMeta[c.key]!.$2,
+          ),
           const SizedBox(height: AppSpace.s3),
           Text(
             '${c.value}/3',
@@ -814,7 +842,7 @@ class _MissionCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              IconTile('🎯', size: 26, fontSize: 13),
+              IconTile.icon(AppIcons.target, size: 26),
               const SizedBox(width: AppSpace.s8),
               Text('오늘의 미션', style: t(AppFontSize.f15, w: FontWeight.w900)),
               const SizedBox(width: AppSpace.s8),

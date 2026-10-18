@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show Color;
 import 'package:diet_project/domain/repositories/challenge_repository.dart';
 import 'package:diet_project/utils/app_state_format.dart';
+import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
 
 /// 챌린지 목록 · 참여 · 순위 · 진행 상황 보고와, 챌린지 만들기 화면의 입력값을 담당한다.
 ///
@@ -174,21 +175,24 @@ class ChallengeViewModel extends ChangeNotifier {
 
   static const challengeRewardTiers = [
     (
-      icon: '💧',
+      icon: AppIcons.water,
+      color: AppIconColors.water,
       tint: Color(0xFFEAF1FE),
       title: '데일리 챌린지 (1일)',
       confirmed: '확정 · 물방울 1개',
       bonus: '보너스 15% · 희귀 씨앗',
     ),
     (
-      icon: '🌰',
+      icon: AppIcons.seed,
+      color: Color(0xFFC0694A),
       tint: Color(0xFFF7EFE7),
       title: '위클리 챌린지 (2~7일)',
       confirmed: '확정 · 희귀 씨앗 1개',
       bonus: '보너스 15% · 전설 씨앗',
     ),
     (
-      icon: '🏺',
+      icon: AppIcons.gardenDecor,
+      color: Color(0xFF9C7BE0),
       tint: Color(0xFFF1ECFF),
       title: '장기 챌린지 (8일~)',
       confirmed: '확정 · 전설 씨앗 + 정원 장식',

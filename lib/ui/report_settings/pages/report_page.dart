@@ -8,6 +8,7 @@ import 'package:diet_project/ui/report_settings/viewmodel/report_view_model.dart
 import 'package:diet_project/ui/home/viewmodel/today_view_model.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
+import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
 
 /// 리포트 화면
 class ReportScreen extends StatelessWidget {
@@ -24,7 +25,7 @@ class ReportScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Expanded(
-              child: TabHeader(emoji: '📊', title: '리포트'),
+              child: TabHeader(icon: AppIcons.report, title: '리포트'),
             ),
             Text(
               today.todayDateLabel,

@@ -18,6 +18,7 @@ import 'ui/report_settings/pages/my_page.dart';
 import 'ui/report_settings/pages/settings_page.dart';
 import 'package:diet_project/ui/record/viewmodel/bowl_view_model.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
+import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
 
 /// FAB을 눌렀을 때 뜨는 빠른 기록 시트 — 식단/운동/체중/물 4가지 바로가기
 class QuickSheet extends StatelessWidget {
@@ -27,29 +28,34 @@ class QuickSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = context.read<AppState>();
 
-    Widget tile(String emoji, String title, String desc, VoidCallback onTap) =>
-        Expanded(
-          child: GestureDetector(
-            onTap: onTap,
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColor.primaryTint,
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(emoji, style: const TextStyle(fontSize: 22)),
-                  const SizedBox(height: 10),
-                  Text(title, style: t(14, w: FontWeight.w700)),
-                  const SizedBox(height: 3),
-                  Text(desc, style: t(11, c: AppColor.textFaint)),
-                ],
-              ),
-            ),
+    Widget tile(
+      IconData icon,
+      Color color,
+      String title,
+      String desc,
+      VoidCallback onTap,
+    ) => Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColor.primaryTint,
+            borderRadius: BorderRadius.circular(18),
           ),
-        );
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, size: 26, color: color),
+              const SizedBox(height: 10),
+              Text(title, style: t(14, w: FontWeight.w700)),
+              const SizedBox(height: 3),
+              Text(desc, style: t(11, c: AppColor.textFaint)),
+            ],
+          ),
+        ),
+      ),
+    );
 
     return SheetScaffold(
       title: '빠른 기록',
@@ -58,22 +64,46 @@ class QuickSheet extends StatelessWidget {
         children: [
           Row(
             children: [
-              tile('🍽️', '식단 기록', '사진 + 부가 정보', () => s.go('capture')),
+              tile(
+                AppIcons.meal,
+                AppIconColors.meal,
+                '식단 기록',
+                '사진 + 부가 정보',
+                () => s.go('capture'),
+              ),
               const SizedBox(width: 12),
-              tile('🏃', '운동 기록', '루틴 불러오기', () => s.go('exercise')),
+              tile(
+                AppIcons.exercise,
+                AppIconColors.exercise,
+                '운동 기록',
+                '루틴 불러오기',
+                () => s.go('exercise'),
+              ),
             ],
           ),
           const SizedBox(height: 12),
           Row(
             children: [
-              tile('⚖️', '체중 기록', '오늘 체중 입력', () => s.go('weight')),
+              tile(
+                AppIcons.weight,
+                AppIconColors.weight,
+                '체중 기록',
+                '오늘 체중 입력',
+                () => s.go('weight'),
+              ),
               const SizedBox(width: 12),
-              tile('💧', '물 기록', '컵 단위로 빠르게', () {
-                s.setSub(() {
-                  s.fabOpen = false;
-                  s.waterSheet = true;
-                });
-              }),
+              tile(
+                AppIcons.water,
+                AppIconColors.water,
+                '물 기록',
+                '컵 단위로 빠르게',
+                () {
+                  s.setSub(() {
+                    s.fabOpen = false;
+                    s.waterSheet = true;
+                  });
+                },
+              ),
             ],
           ),
         ],
@@ -327,11 +357,11 @@ class _ScreenBody extends StatelessWidget {
 class _TabBar extends StatelessWidget {
   const _TabBar();
   static const _tabs = [
-    ('home', '🏠', '홈'),
-    ('records', '📋', '기록'),
-    ('report', '📊', '리포트'),
-    ('friends', '👥', '친구'),
-    ('my', '👤', '마이'),
+    ('home', AppIcons.home, '홈'),
+    ('records', AppIcons.records, '기록'),
+    ('report', AppIcons.report, '리포트'),
+    ('friends', AppIcons.friends, '친구'),
+    ('my', AppIcons.my, '마이'),
   ];
   @override
   Widget build(BuildContext context) {
@@ -352,39 +382,37 @@ class _TabBar extends StatelessWidget {
             child: GestureDetector(
               onTap: () => s.go(tab.$1),
               behavior: HitTestBehavior.opaque,
-              child: Opacity(
-                opacity: active ? 1 : 0.5,
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 22,
-                      child: Center(
-                        child: Text(
-                          tab.$2,
-                          style: const TextStyle(fontSize: 19),
-                        ),
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 22,
+                    child: Center(
+                      child: Icon(
+                        tab.$2,
+                        size: 24,
+                        color: active ? AppColor.primary : AppColor.textFaint,
                       ),
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      tab.$3,
-                      style: t(
-                        10,
-                        w: active ? FontWeight.w700 : FontWeight.w500,
-                        c: active ? AppColor.primary : AppColor.textFaint,
-                      ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    tab.$3,
+                    style: t(
+                      10,
+                      w: active ? FontWeight.w700 : FontWeight.w500,
+                      c: active ? AppColor.primary : AppColor.textFaint,
                     ),
-                    const SizedBox(height: 6),
-                    Container(
-                      width: 4,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: active ? AppColor.primary : Colors.transparent,
-                        shape: BoxShape.circle,
-                      ),
+                  ),
+                  const SizedBox(height: 6),
+                  Container(
+                    width: 4,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: active ? AppColor.primary : Colors.transparent,
+                      shape: BoxShape.circle,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           );

@@ -16,6 +16,7 @@ import 'package:diet_project/ui/home/viewmodel/today_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/records_view_model.dart';
 import 'package:diet_project/utils/app_state_format.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
+import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
 
 // 운동 기록 (루틴 통합)
 
@@ -35,7 +36,8 @@ class ExerciseScreen extends StatelessWidget {
           children: [
             Expanded(
               child: SubHeader(
-                emoji: '🏃',
+                icon: AppIcons.exercise,
+                iconColor: AppIconColors.exercise,
                 title: '운동 기록',
                 onBack: () => s.go('records'),
               ),
@@ -306,9 +308,10 @@ class _RoutineRow extends StatelessWidget {
                       color: Color(0xFFEDEFF1),
                       shape: BoxShape.circle,
                     ),
-                    child: Text(
-                      '✕',
-                      style: t(AppFontSize.f11, c: AppColor.textFaint),
+                    child: const Icon(
+                      AppIcons.close,
+                      size: 13,
+                      color: AppColor.textFaint,
                     ),
                   ),
                 ),
@@ -384,7 +387,8 @@ class WeightScreen extends StatelessWidget {
           children: [
             Expanded(
               child: SubHeader(
-                emoji: '⚖️',
+                icon: AppIcons.weight,
+                iconColor: AppIconColors.weight,
                 title: '체중 기록',
                 onBack: () => s.go('records'),
               ),
@@ -568,12 +572,12 @@ class WaterSheet extends StatelessWidget {
       title: '물 기록',
       subtitle:
           '오늘 ${AppStateFormat.comma(water.waterTotal)} / 2,000ml · ${AppStateFormat.comma(water.waterLeft)}ml 남음',
-      leading: const IconTile(
-        '💧',
+      leading: const IconTile.icon(
+        AppIcons.water,
         size: 40,
         radius: 20,
         bg: Color(0xFFEAF1FE),
-        fontSize: 18,
+        color: AppIconColors.water,
       ),
       trailing: Text(
         '${water.waterPct}%',
@@ -687,7 +691,7 @@ class _WaterEntryList extends StatelessWidget {
         ),
         const SizedBox(height: AppSpace.s4),
         Text(
-          '숫자를 눌러 수정하거나 ✕로 삭제할 수 있어요',
+          '숫자를 눌러 수정하거나 × 버튼으로 삭제할 수 있어요',
           style: t(AppFontSize.f10, c: AppColor.textGhost),
         ),
         const SizedBox(height: AppSpace.s10),
@@ -748,9 +752,10 @@ class _WaterEntryRow extends StatelessWidget {
                 color: Color(0xFFEDEFF1),
                 shape: BoxShape.circle,
               ),
-              child: Text(
-                '✕',
-                style: t(AppFontSize.f11, c: AppColor.textFaint),
+              child: const Icon(
+                AppIcons.close,
+                size: 13,
+                color: AppColor.textFaint,
               ),
             ),
           ),
@@ -774,7 +779,7 @@ class BowlsScreen extends StatelessWidget {
     return ScreenScroll(
       children: [
         SubHeader(
-          emoji: '🥣',
+          icon: AppIcons.bowl,
           title: '내 그릇 관리',
           onBack: () => s.go('my'),
           trailing: Text(

@@ -9,6 +9,7 @@ import 'package:diet_project/ui/record/viewmodel/photo_analysis_view_model.dart'
 import 'package:diet_project/ui/record/viewmodel/meal_draft_view_model.dart';
 import 'package:diet_project/domain/rules/diet_rules.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
+import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
 
 /// 식단 촬영/기록 화면 — 사진(자리표시자) + AI 분석 결과 + 저장
 class CaptureScreen extends StatelessWidget {
@@ -22,7 +23,11 @@ class CaptureScreen extends StatelessWidget {
 
     return ScreenScroll(
       children: [
-        SubHeader(emoji: '📷', title: '식단 기록', onBack: () => s.go('home')),
+        SubHeader(
+          icon: AppIcons.camera,
+          title: '식단 기록',
+          onBack: () => s.go('home'),
+        ),
         _PhotoCard(),
         _AiAnalysisCard(),
         PrimaryButton(
@@ -133,7 +138,11 @@ class _EmptyPhotoState extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: AppShadow.tile,
             ),
-            child: const Text('📷', style: TextStyle(fontSize: 28)),
+            child: const Icon(
+              AppIcons.camera,
+              size: 30,
+              color: AppColor.primary,
+            ),
           ),
           const SizedBox(height: AppSpace.s14),
           Text('오늘 뭐 드셨나요?', style: AppText.cardTitle),
@@ -154,7 +163,7 @@ class _EmptyPhotoState extends StatelessWidget {
               boxShadow: AppShadow.primaryButton,
             ),
             child: Text(
-              '📸 사진 추가하기',
+              '사진 추가하기',
               style: t(AppFontSize.f13, w: FontWeight.w800, c: Colors.white),
             ),
           ),
@@ -208,13 +217,20 @@ class _RetakeChip extends StatelessWidget {
         color: Colors.black.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: const Text(
-        '📷 다시 촬영',
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w700,
-          fontSize: 12,
-        ),
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(AppIcons.camera, size: 14, color: Colors.white),
+          SizedBox(width: AppSpace.s6),
+          Text(
+            '다시 촬영',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+              fontSize: 12,
+            ),
+          ),
+        ],
       ),
     ),
   );
@@ -233,7 +249,7 @@ class _AiAnalysisCard extends StatelessWidget {
       return AppCard(
         child: Row(
           children: [
-            const Text('⚠️', style: TextStyle(fontSize: 18)),
+            const Icon(AppIcons.warning, size: 20, color: AppColor.alertText),
             const SizedBox(width: AppSpace.s10),
             Expanded(
               child: Text(
@@ -262,7 +278,7 @@ class _AiAnalysisCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Text('✨', style: TextStyle(fontSize: 13)),
+              const Icon(AppIcons.sparkle, size: 15, color: AppColor.primary),
               const SizedBox(width: AppSpace.s6),
               Text(
                 'AI 분석 결과',
@@ -355,7 +371,7 @@ class _ExtraInfoBody extends StatelessWidget {
     return ScreenScroll(
       children: [
         SubHeader(
-          emoji: '📝',
+          icon: AppIcons.edit,
           title: '부가 정보',
           onBack: () => s.setSub(() => s.extraOpen = false),
           trailing: Text(

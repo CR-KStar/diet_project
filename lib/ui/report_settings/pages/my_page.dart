@@ -14,6 +14,7 @@ import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/bowl_view_model.dart';
 import 'package:diet_project/utils/app_state_format.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
+import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
 
 const _plantStages = [
   ('🌰', '씨앗', 1),
@@ -34,7 +35,7 @@ class MyScreen extends StatelessWidget {
 
     return ScreenScroll(
       children: [
-        const TabHeader(emoji: '👤', title: '마이'),
+        const TabHeader(icon: AppIcons.my, title: '마이'),
         _ProfileSummaryCard(),
         _PlantSummaryCard(),
         const SizedBox(height: AppSpace.s10),
@@ -71,7 +72,12 @@ class _ProfileSummaryCard extends StatelessWidget {
       onTap: () => s.go('profile'),
       child: Row(
         children: [
-          const IconTile('🌱', size: 56, radius: 28, fontSize: 22),
+          const IconTile.icon(
+            AppIcons.plant,
+            size: 56,
+            radius: 28,
+            iconSize: 28,
+          ),
           const SizedBox(width: AppSpace.s14),
           Expanded(
             child: Column(
@@ -181,14 +187,14 @@ class _MenuCard extends StatelessWidget {
       child: Column(
         children: [
           _MenuRow(
-            emoji: '🥣',
+            icon: AppIcons.bowl,
             title: '내 그릇 관리',
             desc: '${bowl.bowls.length}개 등록 · 기본 그릇 1개',
             onTap: () => s.go('bowls'),
           ),
           const Divider(height: AppSpace.s1, indent: 18, endIndent: 18),
           _MenuRow(
-            emoji: '🔔',
+            icon: AppIcons.notifications,
             title: '알림 설정',
             desc: '식단 미기록, 물, 운동, 친구 응원',
             onTap: () {
@@ -198,7 +204,7 @@ class _MenuCard extends StatelessWidget {
           ),
           const Divider(height: AppSpace.s1, indent: 18, endIndent: 18),
           _MenuRow(
-            emoji: '🔒',
+            icon: AppIcons.lock,
             title: '데이터 및 개인정보',
             desc: '공개 범위, 기록 삭제, 계정 삭제',
             onTap: () {
@@ -208,21 +214,21 @@ class _MenuCard extends StatelessWidget {
           ),
           const Divider(height: AppSpace.s1, indent: 18, endIndent: 18),
           _MenuRow(
-            emoji: '📚',
+            icon: AppIcons.sourceBook,
             title: '건강 정보 출처',
             desc: '칼로리·영양소 계산 방법과 참고 자료',
             onTap: () => LegalLinks.open(HealthSources.fullPage),
           ),
           const Divider(height: AppSpace.s1, indent: 18, endIndent: 18),
           _MenuRow(
-            emoji: '📄',
+            icon: AppIcons.document,
             title: '개인정보 처리방침',
             desc: '수집하는 정보와 이용 방법',
             onTap: () => openLegalDoc(context, '개인정보 처리방침'),
           ),
           const Divider(height: AppSpace.s1, indent: 18, endIndent: 18),
           _MenuRow(
-            emoji: '📜',
+            icon: AppIcons.terms,
             title: '서비스 이용약관',
             desc: '서비스 이용 규칙',
             onTap: () => openLegalDoc(context, '서비스 이용약관'),
@@ -235,13 +241,13 @@ class _MenuCard extends StatelessWidget {
 
 class _MenuRow extends StatelessWidget {
   const _MenuRow({
-    required this.emoji,
+    required this.icon,
     required this.title,
     required this.desc,
     this.onTap,
   });
 
-  final String emoji;
+  final IconData icon;
   final String title;
   final String desc;
   final VoidCallback? onTap;
@@ -257,7 +263,7 @@ class _MenuRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          IconTile(emoji, size: 34, radius: 12, fontSize: 16),
+          IconTile.icon(icon, size: 34, radius: 12, iconSize: 19),
           const SizedBox(width: AppSpace.s12),
           Expanded(
             child: Column(
@@ -290,7 +296,11 @@ class _ProfileEdit extends StatelessWidget {
 
     return ScreenScroll(
       children: [
-        SubHeader(emoji: '✏️', title: '내 정보 수정', onBack: () => s.go('my')),
+        SubHeader(
+          icon: AppIcons.edit,
+          title: '내 정보 수정',
+          onBack: () => s.go('my'),
+        ),
         _BasicInfoCard(),
         _GoalWeightCard(),
         _GoalActivityCard(),

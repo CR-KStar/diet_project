@@ -7,6 +7,7 @@ import '../../../app_state.dart';
 import '../../core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/auth_view_model.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
+import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -33,7 +34,14 @@ class LoginPage extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(24, 56, 24, 24),
           children: [
-            Center(child: IconTile('🌱', size: 72, radius: 24, fontSize: 34)),
+            Center(
+              child: IconTile.icon(
+                AppIcons.plant,
+                size: 72,
+                radius: 24,
+                iconSize: 38,
+              ),
+            ),
             const SizedBox(height: AppSpace.s26),
             Text(
               '오늘의 한 끼, 기록부터',

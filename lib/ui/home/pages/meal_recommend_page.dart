@@ -9,6 +9,7 @@ import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/ui/home/viewmodel/recommendation_view_model.dart';
 import 'package:diet_project/utils/app_state_format.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
+import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
 
 class RecommendScreen extends StatelessWidget {
   const RecommendScreen({super.key});
@@ -22,7 +23,11 @@ class RecommendScreen extends StatelessWidget {
 
     return ScreenScroll(
       children: [
-        SubHeader(emoji: '✨', title: '식단 추천', onBack: () => s.go('nutrition')),
+        SubHeader(
+          icon: AppIcons.sparkle,
+          title: '식단 추천',
+          onBack: () => s.go('nutrition'),
+        ),
         const _RemainingAllowanceCard(),
         const _NeedsCard(),
         const _ConditionsCard(),

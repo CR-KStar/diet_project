@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart' show Icons;
 import 'package:diet_project/ui/home/viewmodel/ai_consent_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/notification_inbox_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,7 +9,7 @@ void main() {
     InboxNotification n(String id, String category) => InboxNotification(
       id: id,
       category: category,
-      icon: '🔔',
+      icon: Icons.notifications_rounded,
       title: '알림 $id',
       body: '내용',
       at: DateTime(2026, 10, 18, 9),

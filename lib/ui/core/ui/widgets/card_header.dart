@@ -7,14 +7,16 @@ import 'package:diet_project/ui/core/ui/widgets/text_style.dart';
 class CardHeader extends StatelessWidget {
   const CardHeader({
     super.key,
-    required this.emoji,
+    required this.icon,
+    this.iconColor = AppColor.primary,
     required this.title,
     this.action,
     this.onAction,
     this.subtitle,
   });
 
-  final String emoji;
+  final IconData icon;
+  final Color iconColor;
   final String title;
   final String? action;
   final VoidCallback? onAction;
@@ -26,7 +28,7 @@ class CardHeader extends StatelessWidget {
     children: [
       Row(
         children: [
-          IconTile(emoji, size: 26, fontSize: 13),
+          IconTile.icon(icon, size: 26, color: iconColor),
           const SizedBox(width: AppSpace.s8),
           Expanded(
             child: Text(title, style: t(AppFontSize.f15, w: FontWeight.w900)),

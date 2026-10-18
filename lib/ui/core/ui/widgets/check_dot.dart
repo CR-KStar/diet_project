@@ -18,12 +18,10 @@ class CheckDot extends StatelessWidget {
       color: on ? AppColor.primary : const Color(0xFFEDEFF1),
       borderRadius: BorderRadius.circular(radius ?? size / 2),
     ),
-    child: Text(
-      '✓',
-      style: TextStyle(
-        fontSize: size * 0.55,
-        color: on ? Colors.white : AppColor.iconGhost,
-      ),
+    child: Icon(
+      Icons.check_rounded,
+      size: size * 0.66,
+      color: on ? Colors.white : AppColor.iconGhost,
     ),
   );
 }

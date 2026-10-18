@@ -11,6 +11,7 @@ import 'plant_dex_page.dart';
 import 'package:diet_project/ui/growth/viewmodel/plant_view_model.dart';
 import 'package:diet_project/ui/social/viewmodel/friend_view_model.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
+import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
 
 class PlantScreen extends StatelessWidget {
   const PlantScreen({super.key});
@@ -27,7 +28,7 @@ class PlantScreen extends StatelessWidget {
           children: [
             Expanded(
               child: SubHeader(
-                emoji: s.plantTab == '도감' ? '📖' : '🌱',
+                icon: s.plantTab == '도감' ? AppIcons.dex : AppIcons.plant,
                 title: s.plantTab == '도감' ? '식물 도감' : '나의 식물',
                 onBack: () => s.go('home'),
               ),
@@ -57,21 +58,21 @@ const _axisMeta = [
   (
     key: PlantAxis.water,
     name: '물',
-    icon: '💧',
+    icon: AppIcons.water,
     source: '식단 기록',
     color: AppColor.info,
   ),
   (
     key: PlantAxis.sun,
     name: '햇빛',
-    icon: '☀️',
+    icon: AppIcons.sun,
     source: '운동 기록',
     color: Color(0xFFE8B33C),
   ),
   (
     key: PlantAxis.nutri,
     name: '영양',
-    icon: '🧺',
+    icon: AppIcons.nutrition,
     source: '수면 · 물 기록',
     color: AppColor.teal,
   ),
@@ -87,19 +88,22 @@ const _branches = [
 const _careItems = [
   (
     name: '물 주기',
-    icon: '💧',
+    icon: AppIcons.water,
+    color: AppColor.info,
     tint: Color(0xFFF0F5FF),
     desc: '식단 기록으로 충전 · 물 축 +10',
   ),
   (
     name: '햇빛 받기',
-    icon: '☀️',
+    icon: AppIcons.sun,
+    color: Color(0xFFE8B33C),
     tint: Color(0xFFFFF9E9),
     desc: '운동 기록으로 충전 · 햇빛 축 +15',
   ),
   (
     name: '영양 주기',
-    icon: '🧺',
+    icon: AppIcons.nutrition,
+    color: AppColor.teal,
     tint: Color(0xFFF2F8F2),
     desc: '수면·물 기록으로 충전 · 영양 축 +20',
   ),
@@ -109,28 +113,28 @@ const _careItems = [
 const _inventoryItems = [
   (
     key: '물방울',
-    icon: '💧',
+    icon: AppIcons.water,
     desc: '물 축 +8',
     tint: Color(0xFFEAF1FE),
     color: AppColor.info,
   ),
   (
     key: '희귀 씨앗',
-    icon: '🌰',
+    icon: AppIcons.seed,
     desc: '새 품종 심기',
     tint: Color(0xFFFBEDEA),
     color: Color(0xFFC0694A),
   ),
   (
     key: '전설 씨앗',
-    icon: '✨',
+    icon: AppIcons.sparkle,
     desc: '전설 품종 심기',
     tint: Color(0xFFF2F3F4),
     color: AppColor.textGhost,
   ),
   (
     key: '정원 장식',
-    icon: '🏺',
+    icon: AppIcons.gardenDecor,
     desc: '정원 화분 슬롯 +1',
     tint: Color(0xFFF7EFE3),
     color: Color(0xFF9C7B4E),
@@ -410,10 +414,7 @@ class _BalanceCard extends StatelessWidget {
                             color: AppColor.surface,
                             shape: BoxShape.circle,
                           ),
-                          child: Text(
-                            a.icon,
-                            style: const TextStyle(fontSize: 20),
-                          ),
+                          child: Icon(a.icon, size: 22, color: a.color),
                         ),
                       ),
                       const SizedBox(height: AppSpace.s9),
@@ -482,7 +483,8 @@ class _CareCard extends StatelessWidget {
 class _CareRow extends StatelessWidget {
   const _CareRow({required this.item});
 
-  final ({String name, String icon, Color tint, String desc}) item;
+  final ({String name, IconData icon, Color color, Color tint, String desc})
+  item;
 
   @override
   Widget build(BuildContext context) {
@@ -503,12 +505,13 @@ class _CareRow extends StatelessWidget {
         ),
         child: Row(
           children: [
-            IconTile(
+            IconTile.icon(
               item.icon,
               size: 42,
               radius: 14,
               bg: item.tint,
-              fontSize: 19,
+              color: item.color,
+              iconSize: 22,
             ),
             const SizedBox(width: AppSpace.s12),
             Expanded(
@@ -834,7 +837,8 @@ class _InventoryCard extends StatelessWidget {
 class _InventoryTile extends StatelessWidget {
   const _InventoryTile({required this.item});
 
-  final ({String key, String icon, String desc, Color tint, Color color}) item;
+  final ({String key, IconData icon, String desc, Color tint, Color color})
+  item;
 
   @override
   Widget build(BuildContext context) {
@@ -862,12 +866,13 @@ class _InventoryTile extends StatelessWidget {
           children: [
             Opacity(
               opacity: active ? 1 : 0.5,
-              child: IconTile(
+              child: IconTile.icon(
                 item.icon,
                 size: 36,
                 radius: 18,
                 bg: item.tint,
-                fontSize: 16,
+                color: item.color,
+                iconSize: 20,
               ),
             ),
             const SizedBox(width: AppSpace.s10),
@@ -949,7 +954,7 @@ class _GiftCard extends StatelessWidget {
             onTap: plant.giftTickets > 0
                 ? () {
                     plant.sendGiftFlower();
-                    toast(context, '친구 정원에 꽃을 선물했어요 🌷');
+                    toast(context, '친구 정원에 꽃을 선물했어요');
                   }
                 : null,
             child: Container(

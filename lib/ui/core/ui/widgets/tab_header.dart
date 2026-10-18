@@ -8,12 +8,14 @@ import 'package:diet_project/ui/core/ui/widgets/text_style.dart';
 class TabHeader extends StatelessWidget {
   const TabHeader({
     super.key,
-    required this.emoji,
+    required this.icon,
+    this.iconColor = AppColor.primary,
     required this.title,
     this.trailing,
   });
 
-  final String emoji;
+  final IconData icon;
+  final Color iconColor;
   final String title;
   final Widget? trailing;
 
@@ -26,7 +28,7 @@ class TabHeader extends StatelessWidget {
     ),
     child: Row(
       children: [
-        IconTile(emoji, size: 30, radius: 11, fontSize: 15),
+        IconTile.icon(icon, size: 30, radius: 11, color: iconColor),
         const SizedBox(width: AppSpace.s9),
         Text(
           title,

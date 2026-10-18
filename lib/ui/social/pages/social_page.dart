@@ -7,6 +7,7 @@ import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 import 'package:diet_project/ui/social/viewmodel/challenge_view_model.dart';
 import 'package:diet_project/ui/social/viewmodel/friend_view_model.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
+import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
 
 /// 친구 및 챌린지 메인 화면
 class FriendsScreen extends StatelessWidget {
@@ -18,7 +19,7 @@ class FriendsScreen extends StatelessWidget {
 
     return ScreenScroll(
       children: [
-        const TabHeader(emoji: '👥', title: '친구'),
+        const TabHeader(icon: AppIcons.friends, title: '친구'),
         PillTabs(
           options: const ['활동', '챌린지', '친구 추가'],
           value: s.friendTab,
@@ -67,15 +68,13 @@ List<Widget> _activityTab(BuildContext context) {
           user: f.user,
           subtitle: '${f.activity} · ${f.time}',
           trailing: _PillButton(
-            label: friends.cheeredFriends.contains(f.user.id)
-                ? '응원 완료'
-                : '응원 👏',
+            label: friends.cheeredFriends.contains(f.user.id) ? '응원 완료' : '응원',
             active: !friends.cheeredFriends.contains(f.user.id),
             onTap: friends.cheeredFriends.contains(f.user.id)
                 ? null
                 : () {
                     friends.cheerFriend(f.user.id);
-                    toast(context, '${f.user.nickname}님을 응원했어요 👏');
+                    toast(context, '${f.user.nickname}님을 응원했어요');
                   },
           ),
         ),
@@ -482,12 +481,13 @@ class _RewardTiersCard extends StatelessWidget {
             ),
             child: Row(
               children: [
-                IconTile(
+                IconTile.icon(
                   tier.icon,
                   size: 40,
                   radius: 14,
                   bg: tier.tint,
-                  fontSize: 18,
+                  color: tier.color,
+                  iconSize: 22,
                 ),
                 const SizedBox(width: AppSpace.s12),
                 Expanded(
@@ -1017,7 +1017,11 @@ class ChallengeNewScreen extends StatelessWidget {
     final s = context.watch<AppState>();
     return ScreenScroll(
       children: [
-        SubHeader(emoji: '🏆', title: '챌린지 만들기', onBack: () => s.go('friends')),
+        SubHeader(
+          icon: AppIcons.trophy,
+          title: '챌린지 만들기',
+          onBack: () => s.go('friends'),
+        ),
         const AppCard(child: Text('목표 기간과 내용을 설정하여 새로운 챌린지를 만드세요.')),
         const SizedBox(height: AppSpace.s20),
         PrimaryButton(

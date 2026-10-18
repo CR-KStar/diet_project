@@ -9,6 +9,7 @@ import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 import 'package:diet_project/domain/rules/diet_rules.dart';
 import 'package:diet_project/utils/app_state_format.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
+import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
 
 class OnboardingPage extends StatelessWidget {
   const OnboardingPage({super.key});
@@ -53,7 +54,11 @@ class _AccountLinkStep extends StatelessWidget {
       horizontal: AppSpace.s20,
       top: AppSpace.s8,
       children: [
-        SubHeader(emoji: '🔗', title: '계정 연결', onBack: () => s.go('login')),
+        SubHeader(
+          icon: AppIcons.link,
+          title: '계정 연결',
+          onBack: () => s.go('login'),
+        ),
         Text(
           '${auth.provider} 계정으로 처음 로그인했어요. 아래 정보만 확인하면 바로 시작할 수 있어요.',
           style: t(AppFontSize.f13, c: AppColor.textFaint, h: 1.6),
@@ -843,7 +848,7 @@ class _AlertStep extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '🌱 식물이 함께 자라요',
+                '식물이 함께 자라요',
                 style: t(
                   AppFontSize.f13,
                   w: FontWeight.w700,

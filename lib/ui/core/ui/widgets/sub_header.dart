@@ -8,13 +8,15 @@ import 'package:diet_project/ui/core/ui/widgets/text_style.dart';
 class SubHeader extends StatelessWidget {
   const SubHeader({
     super.key,
-    required this.emoji,
+    required this.icon,
+    this.iconColor = AppColor.primary,
     required this.title,
     this.onBack,
     this.trailing,
   });
 
-  final String emoji;
+  final IconData icon;
+  final Color iconColor;
   final String title;
   final VoidCallback? onBack;
   final Widget? trailing;
@@ -39,7 +41,7 @@ class SubHeader extends StatelessWidget {
               child: Text('‹', style: t(AppFontSize.f20, c: AppColor.text)),
             ),
           ),
-        IconTile(emoji),
+        IconTile.icon(icon, color: iconColor),
         const SizedBox(width: AppSpace.s8),
         Flexible(
           child: Text(

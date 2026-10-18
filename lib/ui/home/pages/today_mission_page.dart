@@ -8,14 +8,16 @@ import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/ui/home/viewmodel/mission_view_model.dart';
 import 'package:diet_project/utils/app_state_format.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
+import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
 
 const _categories = ['전체', '식단', '운동', '생활', '꾸준함'];
 
+/// 카테고리별 (아이콘, 바탕색, 아이콘색)
 const _categoryMeta = {
-  '식단': ('🍚', Color(0xFFF7F5F2)),
-  '생활': ('💧', Color(0xFFEAF1FE)),
-  '운동': ('🏃', Color(0xFFEFF7EF)),
-  '꾸준함': ('🔥', Color(0xFFFFF3E6)),
+  '식단': (AppIcons.meal, Color(0xFFF7F5F2), AppIconColors.meal),
+  '생활': (AppIcons.water, Color(0xFFEAF1FE), AppIconColors.water),
+  '운동': (AppIcons.exercise, Color(0xFFEFF7EF), AppIconColors.exercise),
+  '꾸준함': (AppIcons.fire, Color(0xFFFFF3E6), AppColor.alert),
 };
 
 class TodayMissionScreen extends StatelessWidget {
@@ -38,7 +40,7 @@ class TodayMissionScreen extends StatelessWidget {
           children: [
             Expanded(
               child: SubHeader(
-                emoji: '🎯',
+                icon: AppIcons.target,
                 title: '오늘의 미션',
                 onBack: () => s.setSub(() => s.missionOpen = false),
               ),
@@ -146,7 +148,11 @@ class _AchievementCard extends StatelessWidget {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: const Text('🌿', style: TextStyle(fontSize: 24)),
+                    child: const Icon(
+                      AppIcons.plant,
+                      size: 28,
+                      color: AppColor.primary,
+                    ),
                   ),
                   const SizedBox(height: AppSpace.s8),
                   Text(
@@ -185,7 +191,9 @@ class _MissionCard extends StatelessWidget {
     final mission = context.watch<MissionViewModel>();
     final s = context.watch<AppState>();
     final done = mission.missionEffectivelyDone(m);
-    final meta = _categoryMeta[m.category] ?? ('🎯', AppColor.surfaceSunken);
+    final meta =
+        _categoryMeta[m.category] ??
+        (AppIcons.target, AppColor.surfaceSunken, AppColor.textMuted);
 
     return AppCard(
       border: done ? AppColor.primary : null,
@@ -195,12 +203,13 @@ class _MissionCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              IconTile(
+              IconTile.icon(
                 meta.$1,
                 size: 40,
                 radius: 20,
                 bg: meta.$2,
-                fontSize: 18,
+                color: meta.$3,
+                iconSize: 22,
               ),
               const SizedBox(width: AppSpace.s12),
               Expanded(
@@ -334,10 +343,10 @@ class _RewardStructureCard extends StatelessWidget {
         ),
         const SizedBox(height: AppSpace.s18),
         for (final row in const [
-          ('일반', AppColor.text, '🌱', '식물 성장 게이지 +'),
-          ('특정', AppColor.text, '📖', '새로운 식물 발견 기회'),
-          ('연속', Color(0xFFE8B33C), '✨', '변이 발생 기회'),
-          ('어려움', Color(0xFF5B8DEF), '💎', '희귀 식물 · 희귀 변이'),
+          ('일반', AppColor.text, AppIcons.plant, '식물 성장 게이지 +'),
+          ('특정', AppColor.text, AppIcons.dex, '새로운 식물 발견 기회'),
+          ('연속', Color(0xFFE8B33C), AppIcons.sparkle, '변이 발생 기회'),
+          ('어려움', Color(0xFF5B8DEF), AppIcons.gem, '희귀 식물 · 희귀 변이'),
         ])
           Padding(
             padding: const EdgeInsets.only(bottom: AppSpace.s14),
@@ -350,7 +359,11 @@ class _RewardStructureCard extends StatelessWidget {
                     style: t(AppFontSize.f13, w: FontWeight.w800, c: row.$2),
                   ),
                 ),
-                Text(row.$3, style: const TextStyle(fontSize: 14)),
+                Icon(
+                  row.$3,
+                  size: 18,
+                  color: row.$2 == AppColor.text ? AppColor.primary : row.$2,
+                ),
                 const SizedBox(width: AppSpace.s8),
                 Text(row.$4, style: t(AppFontSize.f13, c: AppColor.textMuted)),
               ],
