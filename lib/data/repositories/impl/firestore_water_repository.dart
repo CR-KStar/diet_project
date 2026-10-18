@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:diet_project/domain/models/models.dart';
 import 'package:diet_project/domain/repositories/water_repository.dart';
 import 'package:diet_project/data/repositories/water_codec.dart';
+import 'package:diet_project/config/firestore_collections.dart';
 
 /// Firestore의 `users/{uid}/water/{기록 id}` 문서에 물 기록을 저장하는 저장소.
 class FirestoreWaterRepository implements WaterRepository {
@@ -10,8 +11,10 @@ class FirestoreWaterRepository implements WaterRepository {
 
   final FirebaseFirestore _db;
 
-  CollectionReference<Map<String, dynamic>> _col(String uid) =>
-      _db.collection('users').doc(uid).collection('water');
+  CollectionReference<Map<String, dynamic>> _col(String uid) => _db
+      .collection(FirestoreCollections.users)
+      .doc(uid)
+      .collection(FirestoreCollections.water);
 
   @override
   Future<List<WaterEntry>> loadDay(String uid, String dateKey) async {

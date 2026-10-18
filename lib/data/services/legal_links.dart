@@ -1,10 +1,11 @@
 import 'package:url_launcher/url_launcher.dart';
+import 'package:diet_project/config/app_config.dart';
 
 /// 약관 · 개인정보 처리방침 전문(GitHub Pages로 공개) 열기.
 class LegalLinks {
   LegalLinks._();
 
-  static const _base = 'https://cr-kstar.github.io/diet_project';
+  static const _base = AppConfig.siteBaseUrl;
   static final privacy = Uri.parse('$_base/privacy/');
   static final terms = Uri.parse('$_base/terms/');
 

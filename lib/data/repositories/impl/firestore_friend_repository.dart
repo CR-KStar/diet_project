@@ -5,6 +5,7 @@ import 'package:diet_project/domain/models/models.dart';
 
 import 'firestore_delete_where.dart';
 import 'package:diet_project/domain/repositories/friend_repository.dart';
+import 'package:diet_project/config/firestore_collections.dart';
 
 /// 초대 코드 · 친구 요청 · 친구 관계를 Firestore에 저장하고 불러오는 저장소.
 ///
@@ -33,7 +34,9 @@ class FirestoreFriendRepository implements FriendRepository {
 
   @override
   Future<String> ensureInviteCode(String uid, String nickname) async {
-    final profileDoc = _db.collection('publicProfiles').doc(uid);
+    final profileDoc = _db
+        .collection(FirestoreCollections.publicProfiles)
+        .doc(uid);
     final existing = await profileDoc.get();
     final data = existing.data();
     if (data != null && data['inviteCode'] is String) {
@@ -44,7 +47,9 @@ class FirestoreFriendRepository implements FriendRepository {
     // 아주 드물게 코드가 겹칠 수 있어서 몇 번 다시 시도한다.
     for (var i = 0; i < 5; i++) {
       final code = _randomCode();
-      final codeDoc = _db.collection('inviteCodes').doc(code);
+      final codeDoc = _db
+          .collection(FirestoreCollections.inviteCodes)
+          .doc(code);
       if ((await codeDoc.get()).exists) continue;
       await codeDoc.set({'uid': uid});
       await profileDoc.set({'nickname': nickname, 'inviteCode': code});
@@ -56,7 +61,7 @@ class FirestoreFriendRepository implements FriendRepository {
   @override
   Future<String?> findUidByCode(String code) async {
     final doc = await _db
-        .collection('inviteCodes')
+        .collection(FirestoreCollections.inviteCodes)
         .doc(code.trim().toUpperCase())
         .get();
     final uid = doc.data()?['uid'];
@@ -65,7 +70,10 @@ class FirestoreFriendRepository implements FriendRepository {
 
   @override
   Future<PublicProfile?> loadPublicProfile(String uid) async {
-    final doc = await _db.collection('publicProfiles').doc(uid).get();
+    final doc = await _db
+        .collection(FirestoreCollections.publicProfiles)
+        .doc(uid)
+        .get();
     final data = doc.data();
     if (data == null) return null;
     return PublicProfile(
@@ -76,7 +84,7 @@ class FirestoreFriendRepository implements FriendRepository {
 
   @override
   Future<void> sendFriendRequest(String fromUid, String toUid) {
-    return _db.collection('friendRequests').add({
+    return _db.collection(FirestoreCollections.friendRequests).add({
       'fromUid': fromUid,
       'toUid': toUid,
       'status': 'pending',
@@ -87,7 +95,7 @@ class FirestoreFriendRepository implements FriendRepository {
   @override
   Future<List<FriendRequest>> loadIncomingRequests(String uid) async {
     final snap = await _db
-        .collection('friendRequests')
+        .collection(FirestoreCollections.friendRequests)
         .where('toUid', isEqualTo: uid)
         .where('status', isEqualTo: 'pending')
         .get();
@@ -106,27 +114,29 @@ class FirestoreFriendRepository implements FriendRepository {
   Future<void> acceptFriendRequest(FriendRequest request) async {
     final pairId = ([request.fromUid, request.toUid]..sort()).join('_');
     final batch = _db.batch();
-    batch.set(_db.collection('friendships').doc(pairId), {
+    batch.set(_db.collection(FirestoreCollections.friendships).doc(pairId), {
       'users': [request.fromUid, request.toUid],
       'createdAt': FieldValue.serverTimestamp(),
     });
-    batch.update(_db.collection('friendRequests').doc(request.id), {
-      'status': 'accepted',
-    });
+    batch.update(
+      _db.collection(FirestoreCollections.friendRequests).doc(request.id),
+      {'status': 'accepted'},
+    );
     await batch.commit();
   }
 
   @override
   Future<void> declineFriendRequest(String requestId) {
-    return _db.collection('friendRequests').doc(requestId).update({
-      'status': 'declined',
-    });
+    return _db
+        .collection(FirestoreCollections.friendRequests)
+        .doc(requestId)
+        .update({'status': 'declined'});
   }
 
   @override
   Future<List<String>> loadFriendUids(String uid) async {
     final snap = await _db
-        .collection('friendships')
+        .collection(FirestoreCollections.friendships)
         .where('users', arrayContains: uid)
         .get();
     return [
@@ -139,20 +149,28 @@ class FirestoreFriendRepository implements FriendRepository {
     // 관계 → 초대 코드 → 공개 프로필 순으로 지운다.
     await deleteWhere(
       _db,
-      _db.collection('friendships').where('users', arrayContains: uid),
+      _db
+          .collection(FirestoreCollections.friendships)
+          .where('users', arrayContains: uid),
     );
     await deleteWhere(
       _db,
-      _db.collection('friendRequests').where('fromUid', isEqualTo: uid),
+      _db
+          .collection(FirestoreCollections.friendRequests)
+          .where('fromUid', isEqualTo: uid),
     );
     await deleteWhere(
       _db,
-      _db.collection('friendRequests').where('toUid', isEqualTo: uid),
+      _db
+          .collection(FirestoreCollections.friendRequests)
+          .where('toUid', isEqualTo: uid),
     );
     await deleteWhere(
       _db,
-      _db.collection('inviteCodes').where('uid', isEqualTo: uid),
+      _db
+          .collection(FirestoreCollections.inviteCodes)
+          .where('uid', isEqualTo: uid),
     );
-    await _db.collection('publicProfiles').doc(uid).delete();
+    await _db.collection(FirestoreCollections.publicProfiles).doc(uid).delete();
   }
 }

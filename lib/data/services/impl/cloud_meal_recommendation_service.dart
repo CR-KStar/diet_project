@@ -1,6 +1,7 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:diet_project/domain/models/models.dart';
 import 'package:diet_project/data/services/meal_recommendation_service.dart';
+import 'package:diet_project/config/app_config.dart';
 
 /// Cloud Functions의 recommendMeals를 호출하는 서비스.
 class CloudMealRecommendationService implements MealRecommendationService {
@@ -20,7 +21,7 @@ class CloudMealRecommendationService implements MealRecommendationService {
     required List<String> prefs,
     required int maxKcal,
   }) async {
-    final callable = _functions.httpsCallable('recommendMeals');
+    final callable = _functions.httpsCallable(AppConfig.recommendMealsFunction);
     final result = await callable.call<Map<String, dynamic>>({
       'needs': needs,
       'recMeal': meal,

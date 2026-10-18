@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:diet_project/data/services/app_icon_service.dart';
+import 'package:diet_project/config/app_config.dart';
 
 /// 오늘 식단을 기록했는지에 따라 홈 화면 앱 아이콘을 바꾼다 (빈 그릇 ↔ 채운 그릇).
 ///
@@ -9,7 +10,7 @@ import 'package:diet_project/data/services/app_icon_service.dart';
 /// 반영 속도가 다를 수 있다. 둘 다 "틀렸다고 실패하면 조용히 넘어간다"
 /// — 아이콘 꾸밈 기능이라 실패해도 앱 사용에는 지장이 없어야 한다.
 class PlatformAppIconService implements AppIconService {
-  static const _channel = MethodChannel('kr.chaerin.dietapp/app_icon');
+  static const _channel = MethodChannel(AppConfig.appIconChannel);
 
   bool? _lastFilled;
 

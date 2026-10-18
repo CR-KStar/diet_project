@@ -2,6 +2,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:diet_project/data/services/notification_service.dart';
+import 'package:diet_project/config/app_config.dart';
 
 /// 아침 기록 · 저녁 정리 · 주간 리포트 알림을 기기에 직접 예약하는 서비스.
 ///
@@ -30,7 +31,7 @@ class LocalNotificationService implements NotificationService {
   Future<void> init() async {
     if (_initialized) return;
     tz_data.initializeTimeZones();
-    tz.setLocalLocation(tz.getLocation('Asia/Seoul'));
+    tz.setLocalLocation(tz.getLocation(AppConfig.timeZone));
     await _plugin.initialize(
       settings: const InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),

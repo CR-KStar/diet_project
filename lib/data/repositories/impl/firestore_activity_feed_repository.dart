@@ -3,6 +3,7 @@ import 'package:diet_project/domain/models/models.dart';
 
 import 'firestore_delete_where.dart';
 import 'package:diet_project/domain/repositories/activity_feed_repository.dart';
+import 'package:diet_project/config/firestore_collections.dart';
 
 /// 활동 피드를 Firestore 최상위 `activityFeed` 컬렉션에 저장하는 저장소.
 class FirestoreActivityFeedRepository implements ActivityFeedRepository {
@@ -13,7 +14,7 @@ class FirestoreActivityFeedRepository implements ActivityFeedRepository {
   FirebaseFirestore get _db => _injected ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> get _col =>
-      _db.collection('activityFeed');
+      _db.collection(FirestoreCollections.activityFeed);
 
   @override
   Future<void> post(String uid, String message) {

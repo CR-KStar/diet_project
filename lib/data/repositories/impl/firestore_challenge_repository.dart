@@ -3,6 +3,7 @@ import 'package:diet_project/domain/models/models.dart';
 
 import 'firestore_delete_where.dart';
 import 'package:diet_project/domain/repositories/challenge_repository.dart';
+import 'package:diet_project/config/firestore_collections.dart';
 
 /// 챌린지를 Firestore 최상위 `challenges` 컬렉션에 저장하는 저장소.
 ///
@@ -19,10 +20,10 @@ class FirestoreChallengeRepository implements ChallengeRepository {
   FirebaseFirestore get _db => _injected ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> get _col =>
-      _db.collection('challenges');
+      _db.collection(FirestoreCollections.challenges);
 
   CollectionReference<Map<String, dynamic>> get _progressCol =>
-      _db.collection('challengeProgress');
+      _db.collection(FirestoreCollections.challengeProgress);
 
   @override
   Future<List<Challenge>> loadAll() async {

@@ -1,6 +1,7 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:diet_project/domain/models/models.dart';
 import 'package:diet_project/data/services/meal_analysis_service.dart';
+import 'package:diet_project/config/app_config.dart';
 
 /// Cloud Functions의 analyzeMealPhoto를 호출하는 서비스.
 class CloudMealAnalysisService implements MealAnalysisService {
@@ -20,7 +21,9 @@ class CloudMealAnalysisService implements MealAnalysisService {
     required String mediaType,
     ({String name, int capacityMl})? bowl,
   }) async {
-    final callable = _functions.httpsCallable('analyzeMealPhoto');
+    final callable = _functions.httpsCallable(
+      AppConfig.analyzeMealPhotoFunction,
+    );
     final result = await callable.call<Map<String, dynamic>>({
       'imageBase64': imageBase64,
       'mediaType': mediaType,

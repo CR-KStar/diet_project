@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:diet_project/data/repositories/record_codec.dart';
 import 'package:diet_project/domain/repositories/record_repository.dart';
+import 'package:diet_project/config/firestore_collections.dart';
 
 /// Firestore의 `users/{uid}/{collection}/{문서 id}`에 기록을 저장하는 공통 저장소.
 class FirestoreRecordRepository<T> implements RecordRepository<T> {
@@ -14,8 +15,10 @@ class FirestoreRecordRepository<T> implements RecordRepository<T> {
   final RecordCodec<T> codec;
   final FirebaseFirestore _db;
 
-  CollectionReference<Map<String, dynamic>> _col(String uid) =>
-      _db.collection('users').doc(uid).collection(collection);
+  CollectionReference<Map<String, dynamic>> _col(String uid) => _db
+      .collection(FirestoreCollections.users)
+      .doc(uid)
+      .collection(collection);
 
   List<T> _decode(String uid, QuerySnapshot<Map<String, dynamic>> snap) =>
       sortedRecords([

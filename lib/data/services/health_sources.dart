@@ -1,3 +1,5 @@
+import 'package:diet_project/config/app_config.dart';
+
 /// 앱이 보여주는 건강 수치(칼로리 · 영양소 · 체중)의 계산 방법과 참고 출처.
 ///
 /// 리포트·영양소 화면의 "계산 방법과 참고 출처" 카드가 이 목록을 그대로 보여준다.
@@ -23,7 +25,7 @@ class HealthSource {
 }
 
 abstract final class HealthSources {
-  static const baseUrl = 'https://cr-kstar.github.io/diet_project';
+  static const baseUrl = AppConfig.siteBaseUrl;
 
   /// 전체 출처 안내 페이지
   static final fullPage = Uri.parse('$baseUrl/sources/');
