@@ -5,8 +5,10 @@
 
 import 'dart:convert';
 import 'dart:math';
+import 'package:diet_project/ui/record/viewmodel/bowl_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/exercise_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/meal_view_model.dart';
+import 'package:diet_project/ui/record/viewmodel/routine_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/weight_view_model.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:diet_project/data/services/app_icon_service.dart';
@@ -100,6 +102,8 @@ class AppState extends ChangeNotifier {
     WeightViewModel? weightViewModel,
     MealViewModel? mealViewModel,
     ExerciseViewModel? exerciseViewModel,
+    BowlViewModel? bowlViewModel,
+    RoutineViewModel? routineViewModel,
     RecordRepository<ExerciseLog>? exerciseRepo,
     RecordRepository<MealLog>? mealRepo,
     RecordRepository<Bowl>? bowlRepo,
@@ -138,8 +142,16 @@ class AppState extends ChangeNotifier {
            ),
        _exerciseRepo = exerciseRepo ?? MemoryRecordRepository(exerciseCodec),
        _mealRepo = mealRepo ?? MemoryRecordRepository(mealCodec),
-       _bowlRepo = bowlRepo ?? MemoryRecordRepository(bowlCodec),
-       _routineRepo = routineRepo ?? MemoryRecordRepository(routineCodec),
+       _bowlViewModel =
+           bowlViewModel ??
+           BowlViewModel(
+             bowlRepo: bowlRepo ?? MemoryRecordRepository(bowlCodec),
+           ),
+       _routineViewModel =
+           routineViewModel ??
+           RoutineViewModel(
+             routineRepo: routineRepo ?? MemoryRecordRepository(routineCodec),
+           ),
        _plantRepo = plantRepo ?? MemoryRecordRepository(plantCodec),
        _dexRepo = dexRepo ?? MemoryRecordRepository(dexEntryCodec),
        _friendRepo = friendRepo ?? MemoryFriendRepository(),
@@ -155,6 +167,18 @@ class AppState extends ChangeNotifier {
       _notice = '식단 기록 저장에 실패했어요. 네트워크를 확인해 주세요.';
       notifyListeners();
     };
+    // 그릇 · 루틴은 화면이 AppState를 통해 구독하므로, ViewModel의 변경을 그대로 전달한다.
+    void showNotice(String message) {
+      _notice = message;
+      notifyListeners();
+    }
+
+    _bowlViewModel
+      ..onSyncFailed = showNotice
+      ..addListener(notifyListeners);
+    _routineViewModel
+      ..onSyncFailed = showNotice
+      ..addListener(notifyListeners);
   }
 
   final AuthService _auth;
@@ -169,8 +193,8 @@ class AppState extends ChangeNotifier {
   final MealViewModel _mealViewModel;
   final RecordRepository<ExerciseLog> _exerciseRepo;
   final RecordRepository<MealLog> _mealRepo;
-  final RecordRepository<Bowl> _bowlRepo;
-  final RecordRepository<Routine> _routineRepo;
+  final BowlViewModel _bowlViewModel;
+  final RoutineViewModel _routineViewModel;
   final RecordRepository<Plant> _plantRepo;
   final RecordRepository<DexEntry> _dexRepo;
   final FriendRepository _friendRepo;
@@ -535,9 +559,8 @@ class AppState extends ChangeNotifier {
     _exerciseViewModel.clear();
     _plantSaveTimer?.cancel();
     _plantSaveTimer = null;
-    bowls = [];
-    routines = [];
-    bowlIndex = 0;
+    _bowlViewModel.clear();
+    _routineViewModel.clear();
     plant = Plant.starter(_uid);
     _plantSyncOk = true;
     dexEntries = [
@@ -1045,7 +1068,6 @@ class AppState extends ChangeNotifier {
 
   String get portion => mealDraft.portion.label;
   int get portionPct => mealDraft.portionPercent;
-  int bowlIndex = 0;
   String get fill => mealDraft.fillLevel.label;
   List<String> get tags => mealDraft.tags;
   List<String> customTags = [];
@@ -1186,8 +1208,7 @@ class AppState extends ChangeNotifier {
   }
 
   /// 지금 선택된 그릇 — 등록한 그릇이 하나도 없으면 null (그릇 없이도 기록할 수 있다).
-  Bowl? get currentBowl =>
-      bowls.isEmpty ? null : bowls[bowlIndex.clamp(0, bowls.length - 1)];
+  Bowl? get currentBowl => _bowlViewModel.currentBowl;
 
   /// 부가 정보 반영 보정 칼로리
   int get adjustedKcal {
@@ -1445,60 +1466,12 @@ class AppState extends ChangeNotifier {
     _reportChallengeProgress(ChallengeType.exercise, todayExerciseMinutes);
   }
 
-  List<Routine> routines = [
-    Routine(
-      id: 'routine_morning_run',
-      userId: User.meId,
-      name: '아침 러닝',
-      type: '달리기',
-      minutes: 30,
-      intensity: ExerciseIntensity.moderate,
-      icon: '🏃',
-      used: 12,
-      weeklyUsed: 3,
-    ),
-    Routine(
-      id: 'routine_home_workout',
-      userId: User.meId,
-      name: '홈트 세트',
-      type: '근력',
-      minutes: 40,
-      intensity: ExerciseIntensity.high,
-      icon: '🏋️',
-      used: 8,
-      weeklyUsed: 2,
-    ),
-    Routine(
-      id: 'routine_evening_walk',
-      userId: User.meId,
-      name: '저녁 산책',
-      type: '걷기',
-      minutes: 25,
-      intensity: ExerciseIntensity.low,
-      icon: '🚶',
-      used: 5,
-      weeklyUsed: 1,
-    ),
-  ];
+  // 내 루틴 — 목록 · 저장은 RoutineViewModel이 맡는다.
+  List<Routine> get routines => _routineViewModel.routines;
+  bool get routineEditMode => _routineViewModel.routineEditMode;
+  void toggleRoutineEditMode() => _routineViewModel.toggleRoutineEditMode();
 
-  static const _routineIcons = {
-    '달리기': '🏃',
-    '걷기': '🚶',
-    '자전거': '🚴',
-    '근력': '🏋️',
-    '요가': '🧘',
-    '수영': '🏊',
-    '등산': '🥾',
-  };
-
-  /// "내 루틴" 카드에서 추가/삭제 컨트롤(✕)을 보여줄지 여부
-  bool routineEditMode = false;
-
-  void toggleRoutineEditMode() {
-    routineEditMode = !routineEditMode;
-    notifyListeners();
-  }
-
+  /// 루틴을 운동 입력값에 채운다 (운동 입력값은 ExerciseViewModel 소유).
   void loadRoutine(Routine r) {
     exType = r.type;
     exMinutes = r.minutes;
@@ -1506,26 +1479,14 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void saveCurrentAsRoutine() {
-    final routine = Routine(
-      id: 'routine_${DateTime.now().microsecondsSinceEpoch}',
-      userId: _uid,
-      name: '$exType $exMinutes분',
-      type: exType,
-      minutes: exMinutes,
-      intensity: exerciseDraft.intensity,
-      icon: _routineIcons[exType.trim()] ?? '💪',
-    );
-    routines.add(routine);
-    notifyListeners();
-    _saveRecord(_routineRepo, routine, '운동 루틴');
-  }
+  /// 지금 운동 입력값을 새 루틴으로 저장한다.
+  void saveCurrentAsRoutine() => _routineViewModel.addRoutine(
+    type: exType,
+    minutes: exMinutes,
+    intensity: exerciseDraft.intensity,
+  );
 
-  void removeRoutine(Routine r) {
-    routines.remove(r);
-    notifyListeners();
-    _deleteRecord(_routineRepo, r.id, '운동 루틴');
-  }
+  void removeRoutine(Routine r) => _routineViewModel.removeRoutine(r);
 
   // 체중
 
@@ -1585,18 +1546,6 @@ class AppState extends ChangeNotifier {
       repo.save(a.uid, entry).catchError((Object e, StackTrace stack) {
         debugPrint('$what 저장 실패: $e\n$stack');
         _notice = '$what 저장에 실패했어요. 네트워크를 확인해 주세요.';
-        notifyListeners();
-      }),
-    );
-  }
-
-  void _deleteRecord<T>(RecordRepository<T> repo, String id, String what) {
-    final a = account;
-    if (a == null) return;
-    unawaited(
-      repo.delete(a.uid, id).catchError((Object e, StackTrace stack) {
-        debugPrint('$what 삭제 실패: $e\n$stack');
-        _notice = '$what 삭제에 실패했어요. 네트워크를 확인해 주세요.';
         notifyListeners();
       }),
     );
@@ -1664,16 +1613,13 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> _loadTemplates(String uid) async {
-    try {
-      bowls = await _bowlRepo.loadAll(uid);
-      routines = await _routineRepo.loadAll(uid);
-    } catch (e, stack) {
-      debugPrint('그릇 · 루틴을 불러오지 못했어요: $e\n$stack');
-      bowls = [];
-      routines = [];
+    final results = await Future.wait([
+      _bowlViewModel.loadForUid(uid),
+      _routineViewModel.loadForUid(uid),
+    ]);
+    if (results.contains(false)) {
       _notice = '그릇과 운동 루틴을 불러오지 못했어요.';
     }
-    bowlIndex = 0;
   }
 
   Future<void> _loadPlant(String uid) async {
@@ -1720,8 +1666,8 @@ class AppState extends ChangeNotifier {
       _weightViewModel.deleteAll(uid),
       _exerciseRepo.deleteAll(uid),
       _mealRepo.deleteAll(uid),
-      _bowlRepo.deleteAll(uid),
-      _routineRepo.deleteAll(uid),
+      _bowlViewModel.deleteAll(uid),
+      _routineViewModel.deleteAll(uid),
       _plantRepo.deleteAll(uid),
       _dexRepo.deleteAll(uid),
       // 친구 · 챌린지 · 활동 피드는 다른 사용자와 함께 쓰는 공간이라 따로 지운다.
@@ -1733,150 +1679,26 @@ class AppState extends ChangeNotifier {
   }
 
   // 그릇
-  bool bowlSheet = false;
-  int? bowlEditing; // null = 편집 중 아님, -1 = 신규 추가
+  //
+  // 그릇 목록 · 입력 상태 · 저장은 BowlViewModel이 맡는다. 화면이 예전처럼
+  // s.bowls 같은 이름으로 쓸 수 있게, 같은 이름으로 전달만 한다.
+  bool get bowlSheet => _bowlViewModel.bowlSheet;
+  set bowlSheet(bool value) => _bowlViewModel.bowlSheet = value;
 
-  List<Bowl> bowls = [
-    Bowl(
-      id: 'bowl_lunchbox',
-      userId: User.meId,
-      name: '회사 도시락',
-      capacityMl: 500,
-      portion: '1인분',
-      material: '플라스틱',
-      shape: '도시락',
-      memo: '항상 가득 채워 먹음',
-      isDefault: true,
-      icon: '🍱',
-    ),
-    Bowl(
-      id: 'bowl_home',
-      userId: User.meId,
-      name: '집 밥그릇',
-      capacityMl: 300,
-      portion: '소',
-      material: '도자기',
-      shape: '원형',
-      memo: '반만 채움',
-      icon: '🍚',
-    ),
-    Bowl(
-      id: 'bowl_salad',
-      userId: User.meId,
-      name: '샐러드 볼',
-      capacityMl: 900,
-      portion: '대',
-      material: '유리',
-      shape: '원형',
-      memo: '드레싱 따로',
-      icon: '🥗',
-    ),
-    Bowl(
-      id: 'bowl_tumbler',
-      userId: User.meId,
-      name: '텀블러',
-      capacityMl: 450,
-      portion: '중',
-      material: '스테인리스',
-      shape: '컵',
-      memo: '물 기록용',
-      icon: '☕',
-    ),
-  ];
+  int? get bowlEditing => _bowlViewModel.bowlEditing;
+  set bowlEditing(int? value) => _bowlViewModel.bowlEditing = value;
 
-  Bowl draftBowl = Bowl(
-    id: '',
-    userId: User.meId,
-    name: '',
-    capacityMl: 400,
-    portion: '1인분',
-    material: '플라스틱',
-    shape: '원형',
-  );
+  int get bowlIndex => _bowlViewModel.bowlIndex;
+  set bowlIndex(int value) => _bowlViewModel.bowlIndex = value;
 
-  void startAddBowl() {
-    draftBowl = Bowl(
-      id: '',
-      userId: User.meId,
-      name: '',
-      capacityMl: 400,
-      portion: '1인분',
-      material: '플라스틱',
-      shape: '원형',
-    );
-    bowlEditing = -1;
-    notifyListeners();
-  }
+  List<Bowl> get bowls => _bowlViewModel.bowls;
+  Bowl get draftBowl => _bowlViewModel.draftBowl;
 
-  void startEditBowl(int i) {
-    final b = bowls[i];
-    draftBowl = Bowl(
-      id: b.id,
-      userId: b.userId,
-      name: b.name,
-      capacityMl: b.capacityMl,
-      portion: b.portion,
-      material: b.material,
-      shape: b.shape,
-      memo: b.memo,
-      isDefault: b.isDefault,
-      icon: b.icon,
-    );
-    bowlEditing = i;
-    notifyListeners();
-  }
-
-  void cancelBowlEdit() {
-    bowlEditing = null;
-    notifyListeners();
-  }
-
-  bool saveBowl() {
-    if (draftBowl.name.trim().isEmpty) return false;
-    final changed = <Bowl>[];
-    if (draftBowl.isDefault) {
-      for (final b in bowls) {
-        if (b.isDefault) {
-          b.isDefault = false;
-          changed.add(b);
-        }
-      }
-    }
-    if (bowlEditing == -1) {
-      if (bowls.length >= DietRules.maxBowls) return false;
-      final created = Bowl(
-        id: 'bowl_${DateTime.now().microsecondsSinceEpoch}',
-        userId: _uid,
-        name: draftBowl.name,
-        capacityMl: draftBowl.capacityMl,
-        portion: draftBowl.portion,
-        material: draftBowl.material,
-        shape: draftBowl.shape,
-        memo: draftBowl.memo,
-        isDefault: draftBowl.isDefault,
-        icon: draftBowl.icon,
-      );
-      bowls.add(created);
-      changed.add(created);
-    } else if (bowlEditing != null) {
-      bowls[bowlEditing!] = draftBowl;
-      changed.add(draftBowl);
-    }
-    bowlEditing = null;
-    notifyListeners();
-    for (final b in {for (final b in changed) b.id: b}.values) {
-      _saveRecord(_bowlRepo, b, '그릇');
-    }
-    return true;
-  }
-
-  void removeBowl(int i) {
-    final removed = bowls.removeAt(i);
-    if (bowlIndex >= bowls.length) bowlIndex = 0;
-    bowlEditing = null;
-    notifyListeners();
-    _deleteRecord(_bowlRepo, removed.id, '그릇');
-  }
+  void startAddBowl() => _bowlViewModel.startAddBowl();
+  void startEditBowl(int i) => _bowlViewModel.startEditBowl(i);
+  void cancelBowlEdit() => _bowlViewModel.cancelBowlEdit();
+  bool saveBowl() => _bowlViewModel.saveBowl();
+  void removeBowl(int i) => _bowlViewModel.removeBowl(i);
 
   void selectBowl(int i) {
     bowlIndex = i;
