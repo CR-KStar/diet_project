@@ -136,7 +136,13 @@ class AppState extends ChangeNotifier {
        _friendRepo = friendRepo ?? MemoryFriendRepository(),
        _challengeRepo = challengeRepo ?? MemoryChallengeRepository(),
        _activityFeedRepo = activityFeedRepo ?? MemoryActivityFeedRepository(),
-       _now = now ?? DateTime.now;
+       _now = now ?? DateTime.now {
+    // 식단 저장이 실패하면 예전처럼 화면에 알림을 띄운다.
+    _mealViewModel.onSaveFailed = () {
+      _notice = '식단 기록 저장에 실패했어요. 네트워크를 확인해 주세요.';
+      notifyListeners();
+    };
+  }
 
   final AuthService _auth;
   final ProfileRepository _profiles;
@@ -511,7 +517,7 @@ class AppState extends ChangeNotifier {
 
   /// 예시 기록을 비운다. 실제 계정은 자기 기록만 보여야 한다.
   void _clearSampleRecords() {
-    _mealLogs.clear();
+    _mealViewModel.clear();
     _exerciseLogs.clear();
     _plantSaveTimer?.cancel();
     _plantSaveTimer = null;
@@ -1313,7 +1319,7 @@ class AppState extends ChangeNotifier {
   /// [date]에 남긴 기록(식단 · 운동 · 체중, 그리고 오늘의 물)이 하나라도 있는가.
   bool hasRecordOn(DateTime date) {
     final key = dateKeyOf(date);
-    return _mealLogs.any((m) => m.dateKey == key) ||
+    return _mealViewModel.mealLogs.any((m) => m.dateKey == key) ||
         _exerciseLogs.any((e) => e.dateKey == key) ||
         _weightViewModel.weightEntries.any((w) => w.dateKey == key) ||
         _waterViewModel.waterEntries.any((w) => w.dateKey == key);
@@ -1461,17 +1467,13 @@ class AppState extends ChangeNotifier {
   }
 
   /// 기록 탭에서 지금 보고 있는 날짜(month/day)의 식단.
-  List<MealLog> get meals => _mealLogs
-      .where((m) => m.userId == _uid && m.dateKey == _selectedKey)
-      .toList();
+  List<MealLog> get meals => _mealViewModel.mealsOn(_selectedKey);
 
   /// 지금 보고 있는 날짜의 총 섭취 칼로리.
   int get selectedDayKcal => meals.fold(0, (a, m) => a + m.kcal);
 
   /// 홈 화면 "오늘 섭취" 계산에 쓰는, 고정된 오늘 날짜의 식단.
-  List<MealLog> get todayMeals => _mealLogs
-      .where((m) => m.userId == _uid && m.dateKey == _todayKey)
-      .toList();
+  List<MealLog> get todayMeals => _mealViewModel.mealsOn(_todayKey);
 
   /// 촬영/기록 화면에서 저장한 값으로 실제 MealLog를 만들어 저장한다.
   void logMeal() {
@@ -1498,7 +1500,7 @@ class AppState extends ChangeNotifier {
       calciumMg: aiCalciumMg ?? 0,
       ironMg: aiIronMg ?? 0,
     );
-    _mealLogs.add(log);
+    _mealViewModel.addMeal(log); // 목록 추가 + 서버 저장은 ViewModel이 한다
     // 이번 분석 결과는 이 기록에 다 썼다 — 다음 끼니를 새 사진 없이 저장하면
     // 방금 분석값을 재사용하지 않고 0(분석 안 함)으로 시작하게 비워준다.
     pickedPhotoBytes = null;
@@ -1514,7 +1516,6 @@ class AppState extends ChangeNotifier {
     aiIronMg = null;
     needsPhotoReview = false;
     notifyListeners();
-    _saveRecord(_mealRepo, log, '식단 기록');
     _postActivity('${log.mealType.label} 식단을 기록했어요');
     _reportChallengeProgress(ChallengeType.mealRecord, todayMeals.length);
     _reportChallengeProgress(ChallengeType.protein, todayProteinG);
@@ -1524,12 +1525,7 @@ class AppState extends ChangeNotifier {
   /// 상세 화면에서 보여줄 식단 — id로 참조한다.
   String? detailMealId;
 
-  MealLog? get detailMeal {
-    for (final m in _mealLogs) {
-      if (m.id == detailMealId) return m;
-    }
-    return null;
-  }
+  MealLog? get detailMeal => _mealViewModel.mealById(detailMealId);
 
   void openMeal(MealLog m) {
     detailMealId = m.id;
@@ -1769,6 +1765,7 @@ class AppState extends ChangeNotifier {
   final Set<String> _loadedMonths = {};
 
   Future<void> _loadAccountData(String uid) async {
+    _mealViewModel.uid = uid;
     final prev = DateTime(today.year, today.month - 1, 1);
     await Future.wait([
       _waterViewModel.loadForUid(uid),
@@ -1848,9 +1845,8 @@ class AppState extends ChangeNotifier {
         '$key-01',
         '$key-31',
       );
-      final haveMeals = {for (final m in _mealLogs) m.id};
       final haveWorkouts = {for (final e in _exerciseLogs) e.id};
-      _mealLogs.addAll(meals.where((m) => !haveMeals.contains(m.id)));
+      _mealViewModel.mergeLoaded(meals);
       _exerciseLogs.addAll(workouts.where((e) => !haveWorkouts.contains(e.id)));
       _loadedMonths.add(key);
     } catch (e, stack) {
@@ -2535,7 +2531,7 @@ class AppState extends ChangeNotifier {
 
   int _kcalOn(DateTime d) {
     final key = dateKeyOf(d);
-    return _mealLogs
+    return _mealViewModel.mealLogs
         .where((m) => m.dateKey == key)
         .fold(0, (a, m) => a + m.kcal);
   }
@@ -2660,7 +2656,9 @@ class AppState extends ChangeNotifier {
 
   List<MealLog> get _periodMeals {
     final keys = _periodDays.map(dateKeyOf).toSet();
-    return _mealLogs.where((m) => keys.contains(m.dateKey)).toList();
+    return _mealViewModel.mealLogs
+        .where((m) => keys.contains(m.dateKey))
+        .toList();
   }
 
   String get mostEatenFood {

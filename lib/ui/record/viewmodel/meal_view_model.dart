@@ -36,6 +36,10 @@ class MealViewModel extends ChangeNotifier {
 
   String? uid;
   String get _uid => uid ?? User.meId;
+
+  /// 서버 저장이 실패했을 때 불린다. AppState가 사용자에게 알림을 띄우는 데 쓴다.
+  void Function()? onSaveFailed;
+
   /// 전체 식단 기록 저장소. bowlId로 Bowl을, dateKey로 날짜를 참조한다.
   late final List<MealLog> mealLogs = [
     MealLog(
@@ -107,7 +111,7 @@ class MealViewModel extends ChangeNotifier {
       sugarG: 9,
       calciumMg: 180,
     ),
-    ..._demoPastMeals()
+    ..._demoPastMeals(),
   ];
 
   List<MealLog> mealsOn(String dateKey) =>
@@ -144,7 +148,7 @@ class MealViewModel extends ChangeNotifier {
     const types = [MealType.breakfast, MealType.lunch, MealType.dinner];
     final out = <MealLog>[];
     for (var i = 0; i < kcals.length; i++) {
-      final key = _keyDaysAgo(i+1);
+      final key = _keyDaysAgo(i + 1);
       final k = [kcals[i].$1, kcals[i].$2, kcals[i].$3];
       final n = [names[i].$1, names[i].$2, names[i].$3];
       for (var m = 0; m < 3; m++) {
@@ -176,7 +180,8 @@ class MealViewModel extends ChangeNotifier {
     if (uid == null) return;
     unawaited(
       _mealRepo.save(uid!, log).catchError((Object e, StackTrace stack) {
-        debugPrint('식단 기록 저장 실패 : $e\n$stack');
+        debugPrint('식단 기록 저장 실패: $e\n$stack');
+        onSaveFailed?.call();
       }),
     );
   }
