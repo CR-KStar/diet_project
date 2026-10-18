@@ -526,8 +526,8 @@ class _RecalculatedCard extends StatelessWidget {
           children: [
             for (final r in [
               ('BMI', s.bmi.toStringAsFixed(1)),
-              ('기초대사량', AppState.comma(s.bmr.round())),
-              ('일일 권장', AppState.comma(s.dailyTarget)),
+              ('기초대사량', AppStateFormat.comma(s.bmr.round())),
+              ('일일 권장', AppStateFormat.comma(s.dailyTarget)),
             ])
               _RecalcTile(r: r),
           ],

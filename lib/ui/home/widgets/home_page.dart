@@ -214,7 +214,7 @@ class _CalorieRing extends StatelessWidget {
                       const Text('🍽️', style: TextStyle(fontSize: 15)),
                       const SizedBox(height: AppSpace.s2),
                       Text(
-                        AppState.comma(s.intakeKcal),
+                        AppStateFormat.comma(s.intakeKcal),
                         style: t(
                           AppFontSize.f24,
                           w: FontWeight.w900,
@@ -223,7 +223,7 @@ class _CalorieRing extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '/ ${AppState.comma(s.dailyTarget)} kcal',
+                        '/ ${AppStateFormat.comma(s.dailyTarget)} kcal',
                         style: t(AppFontSize.f10, c: AppColor.textFaint),
                       ),
                     ],
@@ -300,11 +300,11 @@ class _CalorieRing extends StatelessWidget {
                     children: [
                       RowBetween(
                         '권장 칼로리',
-                        '${AppState.comma(s.dailyTarget)} kcal',
+                        '${AppStateFormat.comma(s.dailyTarget)} kcal',
                       ),
                       RowBetween(
                         '기초대사량',
-                        '${AppState.comma(s.bmr.round())} kcal',
+                        '${AppStateFormat.comma(s.bmr.round())} kcal',
                       ),
                     ],
                   ),
@@ -390,8 +390,8 @@ class _NutritionRow extends StatelessWidget {
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerRight,
             child: Text(
-              '${AppState.comma(stat.value.round())} / '
-              '${AppState.comma(stat.target.round())}${stat.unit}',
+              '${AppStateFormat.comma(stat.value.round())} / '
+              '${AppStateFormat.comma(stat.target.round())}${stat.unit}',
               maxLines: 1,
               textAlign: TextAlign.right,
               style: t(AppFontSize.f11, c: AppColor.textMuted),
@@ -436,7 +436,7 @@ class _TodayCards extends StatelessWidget {
       (
         icon: '💧',
         label: '물 섭취량',
-        value: AppState.comma(s.waterTotal),
+        value: AppStateFormat.comma(s.waterTotal),
         unit: 'ml',
         sub: '/ 2,000 ml',
         subColor: AppColor.textGhost,
@@ -479,7 +479,7 @@ class _TodayCards extends StatelessWidget {
         label: '식단',
         value: '${s.todayMeals.length}',
         unit: '끼',
-        sub: '${AppState.comma(s.intakeKcal)} kcal 기록',
+        sub: '${AppStateFormat.comma(s.intakeKcal)} kcal 기록',
         subColor: AppColor.textGhost,
         pct: s.intakeRatio,
         tint: AppColor.tintMeal,
@@ -847,7 +847,7 @@ class _MissionMiniCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpace.s6),
           Text(
-            '${AppState.comma(m.current.round())} / ${AppState.comma(m.target.round())}${m.unit}',
+            '${AppStateFormat.comma(m.current.round())} / ${AppStateFormat.comma(m.target.round())}${m.unit}',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: t(AppFontSize.f11, c: AppColor.textFaint),

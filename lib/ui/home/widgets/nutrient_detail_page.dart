@@ -59,7 +59,7 @@ List<Widget> nutrientDetailCards(BuildContext context) {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        AppState.comma(s.intakeKcal),
+                        AppStateFormat.comma(s.intakeKcal),
                         style: t(AppFontSize.f18, w: FontWeight.w900),
                       ),
                       Text(
@@ -140,7 +140,7 @@ List<Widget> nutrientDetailCards(BuildContext context) {
                   ),
                 ),
                 Text(
-                  AppState.comma(n.value.round()),
+                  AppStateFormat.comma(n.value.round()),
                   style: t(
                     19,
                     w: FontWeight.w900,
@@ -149,7 +149,7 @@ List<Widget> nutrientDetailCards(BuildContext context) {
                 ),
                 const SizedBox(width: AppSpace.s4),
                 Text(
-                  '/ ${AppState.comma(n.target.round())} ${n.unit}',
+                  '/ ${AppStateFormat.comma(n.target.round())} ${n.unit}',
                   style: t(AppFontSize.f11, c: AppColor.textFaint),
                 ),
               ],
@@ -197,7 +197,7 @@ List<Widget> nutrientDetailCards(BuildContext context) {
                         ),
                         const SizedBox(height: AppSpace.s3),
                         Text(
-                          '${AppState.comma(m.$2.round())}${n.unit}',
+                          '${AppStateFormat.comma(m.$2.round())}${n.unit}',
                           style: t(AppFontSize.f11, w: FontWeight.w700),
                         ),
                       ],

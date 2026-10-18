@@ -525,7 +525,7 @@ class _BodyStep extends StatelessWidget {
                       label: '기초대사량',
                       value: (s.bmr.isInfinite || s.bmr.isNaN)
                           ? '-'
-                          : AppState.comma(s.bmr.round()),
+                          : AppStateFormat.comma(s.bmr.round()),
                       sub: 'kcal',
                     ),
                   ),
@@ -533,7 +533,7 @@ class _BodyStep extends StatelessWidget {
                   Expanded(
                     child: _CalcTile(
                       label: '일일 권장',
-                      value: AppState.comma(s.dailyTarget),
+                      value: AppStateFormat.comma(s.dailyTarget),
                       sub: 'kcal',
                     ),
                   ),

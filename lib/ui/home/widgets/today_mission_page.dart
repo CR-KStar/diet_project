@@ -228,7 +228,7 @@ class _MissionCard extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpace.s4),
                     Text(
-                      '${meta.$1} ${m.category} · ${done ? '달성 완료' : '${AppState.comma(m.current.round())} / ${AppState.comma(m.target.round())}${m.unit}'}',
+                      '${meta.$1} ${m.category} · ${done ? '달성 완료' : '${AppStateFormat.comma(m.current.round())} / ${AppStateFormat.comma(m.target.round())}${m.unit}'}',
                       style: t(AppFontSize.f11, c: AppColor.textFaint),
                     ),
                   ],

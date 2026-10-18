@@ -4,6 +4,9 @@ import 'package:provider/provider.dart';
 import '../../../app_state.dart';
 import '../../../common.dart';
 import '../../core/ui/themes/theme_tokens.dart';
+import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
+import 'package:diet_project/ui/social/viewmodel/challenge_view_model.dart';
+import 'package:diet_project/ui/social/viewmodel/friend_view_model.dart';
 
 /// 친구 및 챌린지 메인 화면
 class FriendsScreen extends StatelessWidget {
@@ -22,10 +25,10 @@ class FriendsScreen extends StatelessWidget {
           onChanged: s.setFriendTab,
         ),
         ...s.friendTab == '활동'
-            ? _activityTab(context, s)
+            ? _activityTab(context)
             : s.friendTab == '챌린지'
-            ? _challengeTab(context, s)
-            : _addFriendTab(context, s),
+            ? _challengeTab(context)
+            : _addFriendTab(context),
       ],
     );
   }
@@ -41,400 +44,419 @@ Color _progressBarColor(double r) => r >= 0.8
     ? const Color(0xFFC3D6BC)
     : const Color(0xFFDCE2DC);
 
-List<Widget> _activityTab(BuildContext context, AppState s) => [
-  if (s.myChallenges.isNotEmpty) _ActiveChallengeCard(s: s),
-  _PrivacyCard(context: context, s: s),
-  const Padding(
-    padding: EdgeInsets.only(left: AppSpace.s4, bottom: AppSpace.s2),
-    child: Text('친구 활동', style: TextStyle(fontWeight: FontWeight.w800)),
-  ),
-  if (s.friendActivity.isEmpty)
-    AppCard(
-      child: Text(
-        '아직 친구 활동이 없어요',
-        style: t(AppFontSize.f12, c: AppColor.textFaint),
-      ),
-    )
-  else
-    for (final f in s.friendActivity)
-      _FriendRow(
-        user: f.user,
-        subtitle: '${f.activity} · ${f.time}',
-        trailing: _PillButton(
-          label: s.cheeredFriends.contains(f.user.id) ? '응원 완료' : '응원 👏',
-          active: !s.cheeredFriends.contains(f.user.id),
-          onTap: s.cheeredFriends.contains(f.user.id)
-              ? null
-              : () {
-                  s.cheerFriend(f.user.id);
-                  toast(context, '${f.user.nickname}님을 응원했어요 👏');
-                },
-        ),
-      ),
-];
-
-class _ActiveChallengeCard extends StatelessWidget {
-  const _ActiveChallengeCard({required this.s});
-
-  final AppState s;
-
-  @override
-  Widget build(BuildContext context) => AppCard(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    s.activeChallengeName,
-                    style: t(AppFontSize.f15, w: FontWeight.w800),
-                  ),
-                  const SizedBox(height: AppSpace.s4),
-                  Text(
-                    '참여 ${s.activeChallengeProgress.length}명 · ${s.activeChallengePeriod}',
-                    style: t(AppFontSize.f11, c: AppColor.textFaint),
-                  ),
-                ],
-              ),
-            ),
-            GestureDetector(
-              onTap: () => s.setFriendTab('챌린지'),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpace.s14,
-                  vertical: AppSpace.s10,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColor.primary,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  '챌린지 보기',
-                  style: t(
-                    AppFontSize.f12,
-                    w: FontWeight.w700,
-                    c: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpace.s18),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            for (final f in s.activeChallengeProgress)
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpace.s4),
-                  child: Column(
-                    children: [
-                      Container(
-                        height: 24 + 40 * f.ratio,
-                        decoration: BoxDecoration(
-                          color: _progressBarColor(f.ratio),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      const SizedBox(height: AppSpace.s8),
-                      Text(
-                        f.user.nickname,
-                        style: t(AppFontSize.f11, c: AppColor.textFaint),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ],
+List<Widget> _activityTab(BuildContext context) {
+  final challenges = context.watch<ChallengeViewModel>();
+  final friends = context.watch<FriendViewModel>();
+  return [
+    if (challenges.myChallenges.isNotEmpty) _ActiveChallengeCard(),
+    _PrivacyCard(),
+    const Padding(
+      padding: EdgeInsets.only(left: AppSpace.s4, bottom: AppSpace.s2),
+      child: Text('친구 활동', style: TextStyle(fontWeight: FontWeight.w800)),
     ),
-  );
+    if (friends.friendActivity.isEmpty)
+      AppCard(
+        child: Text(
+          '아직 친구 활동이 없어요',
+          style: t(AppFontSize.f12, c: AppColor.textFaint),
+        ),
+      )
+    else
+      for (final f in friends.friendActivity)
+        _FriendRow(
+          user: f.user,
+          subtitle: '${f.activity} · ${f.time}',
+          trailing: _PillButton(
+            label: friends.cheeredFriends.contains(f.user.id)
+                ? '응원 완료'
+                : '응원 👏',
+            active: !friends.cheeredFriends.contains(f.user.id),
+            onTap: friends.cheeredFriends.contains(f.user.id)
+                ? null
+                : () {
+                    friends.cheerFriend(f.user.id);
+                    toast(context, '${f.user.nickname}님을 응원했어요 👏');
+                  },
+          ),
+        ),
+  ];
 }
 
-class _PrivacyCard extends StatelessWidget {
-  const _PrivacyCard({required this.context, required this.s});
-
-  final BuildContext context;
-  final AppState s;
+class _ActiveChallengeCard extends StatelessWidget {
+  const _ActiveChallengeCard();
 
   @override
-  Widget build(BuildContext _) => AppCard(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text('공개 설정', style: t(AppFontSize.f14, w: FontWeight.w700)),
-            const Spacer(),
-            Pill(
-              s.shareScope,
-              bg: s.shareScope == '비공개'
-                  ? AppColor.surfaceSunken
-                  : AppColor.info.withValues(alpha: 0.15),
-              fg: s.shareScope == '비공개' ? AppColor.textFaint : AppColor.info,
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpace.s4),
-        Text(
-          '친구에게 보여줄 범위를 직접 고를 수 있어요',
-          style: t(AppFontSize.f11, c: AppColor.textFaint),
-        ),
-        const SizedBox(height: AppSpace.s14),
-        SegmentedRow(
-          options: const ['비공개', '친구만', '전체 공개'],
-          value: s.shareScope,
-          onChanged: s.setShareScope,
-        ),
-        const SizedBox(height: AppSpace.s18),
-        for (final k in AppState.friendVisibilityDesc.keys)
-          Padding(
-            padding: const EdgeInsets.only(bottom: AppSpace.s14),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(k, style: t(AppFontSize.f13, w: FontWeight.w700)),
-                      const SizedBox(height: AppSpace.s3),
-                      Text(
-                        AppState.friendVisibilityDesc[k]!,
-                        style: t(AppFontSize.f11, c: AppColor.textFaint),
-                      ),
-                    ],
-                  ),
-                ),
-                AppToggle(
-                  value: s.friendVisibility[k] ?? false,
-                  onChanged: () => s.toggleFriendVisibility(k),
-                ),
-              ],
-            ),
-          ),
-        SunkenBox(
-          child: Text(
-            s.friendVisibilitySummary,
-            style: t(AppFontSize.f11, c: AppColor.textMuted, h: 1.5),
-          ),
-        ),
-        const SizedBox(height: AppSpace.s14),
-        Row(
-          children: [
-            Expanded(
-              child: GestureDetector(
-                onTap: () async {
-                  try {
-                    await Clipboard.setData(
-                      ClipboardData(text: s.nickname),
-                    ).timeout(const Duration(seconds: 1));
-                  } catch (_) {
-                    // 클립보드 접근이 막혔거나 응답이 없는 환경에서도 조용히 무시
-                  }
-                  if (context.mounted) {
-                    toast(context, '닉네임을 복사했어요. 친구가 검색으로 찾을 수 있어요');
-                  }
-                },
-                child: Container(
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(vertical: AppSpace.s14),
-                  decoration: BoxDecoration(
-                    color: AppColor.surface,
-                    borderRadius: BorderRadius.circular(14),
-                    boxShadow: AppShadow.card,
-                  ),
-                  child: Text(
-                    '내 닉네임 복사',
-                    style: t(
-                      AppFontSize.f13,
-                      w: FontWeight.w700,
-                      c: AppColor.text,
+  Widget build(BuildContext context) {
+    final challenges = context.watch<ChallengeViewModel>();
+    final s = context.watch<AppState>();
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      challenges.activeChallengeName,
+                      style: t(AppFontSize.f15, w: FontWeight.w800),
                     ),
-                  ),
+                    const SizedBox(height: AppSpace.s4),
+                    Text(
+                      '참여 ${challenges.activeChallengeProgress.length}명 · ${challenges.activeChallengePeriod}',
+                      style: t(AppFontSize.f11, c: AppColor.textFaint),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            const SizedBox(width: AppSpace.s12),
-            Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  s.toggleGardenPublic();
-                  toast(
-                    context,
-                    s.gardenPublic ? '정원을 공개했어요' : '정원을 비공개로 전환했어요',
-                  );
-                },
+              GestureDetector(
+                onTap: () => s.setFriendTab('챌린지'),
                 child: Container(
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(vertical: AppSpace.s14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpace.s14,
+                    vertical: AppSpace.s10,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColor.primary,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    '정원 공개하기',
+                    '챌린지 보기',
                     style: t(
-                      AppFontSize.f13,
+                      AppFontSize.f12,
                       w: FontWeight.w700,
                       c: Colors.white,
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
+            ],
+          ),
+          const SizedBox(height: AppSpace.s18),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              for (final f in challenges.activeChallengeProgress)
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpace.s4,
+                    ),
+                    child: Column(
+                      children: [
+                        Container(
+                          height: 24 + 40 * f.ratio,
+                          decoration: BoxDecoration(
+                            color: _progressBarColor(f.ratio),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        const SizedBox(height: AppSpace.s8),
+                        Text(
+                          f.user.nickname,
+                          style: t(AppFontSize.f11, c: AppColor.textFaint),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-// 챌린지 탭
-
-List<Widget> _challengeTab(BuildContext context, AppState s) => [
-  if (s.myChallenges.isNotEmpty) _ChallengeLeaderboardCard(s: s),
-  _RewardTiersCard(),
-  AppCard(
-    color: AppColor.primaryTint,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '→ 정원 · 식물 성장 시스템으로 수렴',
-          style: t(
-            AppFontSize.f14,
-            w: FontWeight.w800,
-            c: AppColor.primaryDark,
-          ),
-        ),
-        const SizedBox(height: AppSpace.s8),
-        Text(
-          '받은 아이템은 물 · 햇빛 · 영양 축에 그대로 쓰여요. 완주하면 친구에게 꽃 1회 선물이 열립니다.',
-          style: t(AppFontSize.f12, c: AppColor.primaryDark, h: 1.5),
-        ),
-      ],
-    ),
-  ),
-  AppCard(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('챌린지 보상', style: t(AppFontSize.f14, w: FontWeight.w800)),
-        const SizedBox(height: AppSpace.s8),
-        Text(
-          '챌린지를 달성하면 보너스 보상을 받아요.',
-          style: t(AppFontSize.f12, c: AppColor.textMuted, h: 1.5),
-        ),
-      ],
-    ),
-  ),
-  if (s.myChallenges.isNotEmpty) ...[
-    Padding(
-      padding: const EdgeInsets.only(left: AppSpace.s4, bottom: AppSpace.s2),
-      child: Text(
-        '내 챌린지 ${s.myChallenges.length}',
-        style: t(AppFontSize.f15, w: FontWeight.w800),
-      ),
-    ),
-    for (final c in s.myChallenges) _MyChallengeCard(c: c, s: s),
-  ],
-  const Padding(
-    padding: EdgeInsets.only(left: AppSpace.s4, bottom: AppSpace.s2),
-    child: Text('참여할 수 있는 챌린지', style: TextStyle(fontWeight: FontWeight.w800)),
-  ),
-  for (final c in s.joinableChallenges)
-    _JoinableChallengeCard(c: c, context: context, s: s),
-  PrimaryButton(label: '챌린지 만들기', onTap: () => s.go('chNew')),
-];
-
-class _ChallengeLeaderboardCard extends StatelessWidget {
-  const _ChallengeLeaderboardCard({required this.s});
-
-  final AppState s;
+class _PrivacyCard extends StatelessWidget {
+  const _PrivacyCard();
 
   @override
-  Widget build(BuildContext context) => AppCard(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+  Widget build(BuildContext context) {
+    final profile = context.watch<ProfileViewModel>();
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text('공개 설정', style: t(AppFontSize.f14, w: FontWeight.w700)),
+              const Spacer(),
+              Pill(
+                profile.shareScope,
+                bg: profile.shareScope == '비공개'
+                    ? AppColor.surfaceSunken
+                    : AppColor.info.withValues(alpha: 0.15),
+                fg: profile.shareScope == '비공개'
+                    ? AppColor.textFaint
+                    : AppColor.info,
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpace.s4),
+          Text(
+            '친구에게 보여줄 범위를 직접 고를 수 있어요',
+            style: t(AppFontSize.f11, c: AppColor.textFaint),
+          ),
+          const SizedBox(height: AppSpace.s14),
+          SegmentedRow(
+            options: const ['비공개', '친구만', '전체 공개'],
+            value: profile.shareScope,
+            onChanged: profile.setShareScope,
+          ),
+          const SizedBox(height: AppSpace.s18),
+          for (final k in ProfileViewModel.friendVisibilityDesc.keys)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSpace.s14),
+              child: Row(
                 children: [
-                  Text(
-                    s.activeChallengeName,
-                    style: t(AppFontSize.f15, w: FontWeight.w800),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(k, style: t(AppFontSize.f13, w: FontWeight.w700)),
+                        const SizedBox(height: AppSpace.s3),
+                        Text(
+                          ProfileViewModel.friendVisibilityDesc[k]!,
+                          style: t(AppFontSize.f11, c: AppColor.textFaint),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: AppSpace.s4),
-                  Text(
-                    '참여 ${s.activeChallengeProgress.length}명 · ${s.activeChallengePeriod} · 내 순위 ${s.myChallengeRank}위',
-                    style: t(AppFontSize.f11, c: AppColor.textFaint),
+                  AppToggle(
+                    value: profile.friendVisibility[k] ?? false,
+                    onChanged: () => profile.toggleFriendVisibility(k),
                   ),
                 ],
               ),
             ),
-            Pill('참여 중', bg: AppColor.primaryTint, fg: AppColor.primaryDark),
-          ],
-        ),
-        const SizedBox(height: AppSpace.s18),
-        for (final r in s.challengeLeaderboard)
-          Padding(
-            padding: const EdgeInsets.only(bottom: AppSpace.s14),
-            child: Row(
-              children: [
-                Container(
-                  width: AppSpace.s22,
-                  height: AppSpace.s22,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: r.rank == 1
-                        ? AppColor.primary
-                        : AppColor.surfaceSunken,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    '${r.rank}',
-                    style: t(
-                      AppFontSize.f11,
-                      w: FontWeight.w700,
-                      c: r.rank == 1 ? Colors.white : AppColor.textFaint,
+          SunkenBox(
+            child: Text(
+              profile.friendVisibilitySummary,
+              style: t(AppFontSize.f11, c: AppColor.textMuted, h: 1.5),
+            ),
+          ),
+          const SizedBox(height: AppSpace.s14),
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () async {
+                    try {
+                      await Clipboard.setData(
+                        ClipboardData(text: profile.nickname),
+                      ).timeout(const Duration(seconds: 1));
+                    } catch (_) {
+                      // 클립보드 접근이 막혔거나 응답이 없는 환경에서도 조용히 무시
+                    }
+                    if (context.mounted) {
+                      toast(context, '닉네임을 복사했어요. 친구가 검색으로 찾을 수 있어요');
+                    }
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(vertical: AppSpace.s14),
+                    decoration: BoxDecoration(
+                      color: AppColor.surface,
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: AppShadow.card,
+                    ),
+                    child: Text(
+                      '내 닉네임 복사',
+                      style: t(
+                        AppFontSize.f13,
+                        w: FontWeight.w700,
+                        c: AppColor.text,
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(width: AppSpace.s10),
-                SizedBox(
-                  width: AppSpace.s40,
-                  child: Text(
-                    r.user.nickname,
-                    style: t(AppFontSize.f13, w: FontWeight.w700),
+              ),
+              const SizedBox(width: AppSpace.s12),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    profile.toggleGardenPublic();
+                    toast(
+                      context,
+                      profile.gardenPublic ? '정원을 공개했어요' : '정원을 비공개로 전환했어요',
+                    );
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(vertical: AppSpace.s14),
+                    decoration: BoxDecoration(
+                      color: AppColor.primary,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Text(
+                      '정원 공개하기',
+                      style: t(
+                        AppFontSize.f13,
+                        w: FontWeight.w700,
+                        c: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
-                Expanded(child: ProgressBar(value: r.pct / 100)),
-                const SizedBox(width: AppSpace.s10),
-                SizedBox(
-                  width: AppSpace.s36,
-                  child: Text(
-                    '${r.pct}%',
-                    textAlign: TextAlign.right,
-                    style: t(AppFontSize.f12, c: AppColor.textFaint),
-                  ),
-                ),
-              ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// 챌린지 탭
+
+List<Widget> _challengeTab(BuildContext context) {
+  final challenges = context.watch<ChallengeViewModel>();
+  final s = context.watch<AppState>();
+  return [
+    if (challenges.myChallenges.isNotEmpty) _ChallengeLeaderboardCard(),
+    _RewardTiersCard(),
+    AppCard(
+      color: AppColor.primaryTint,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '→ 정원 · 식물 성장 시스템으로 수렴',
+            style: t(
+              AppFontSize.f14,
+              w: FontWeight.w800,
+              c: AppColor.primaryDark,
             ),
           ),
-      ],
+          const SizedBox(height: AppSpace.s8),
+          Text(
+            '받은 아이템은 물 · 햇빛 · 영양 축에 그대로 쓰여요. 완주하면 친구에게 꽃 1회 선물이 열립니다.',
+            style: t(AppFontSize.f12, c: AppColor.primaryDark, h: 1.5),
+          ),
+        ],
+      ),
     ),
-  );
+    AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('챌린지 보상', style: t(AppFontSize.f14, w: FontWeight.w800)),
+          const SizedBox(height: AppSpace.s8),
+          Text(
+            '챌린지를 달성하면 보너스 보상을 받아요.',
+            style: t(AppFontSize.f12, c: AppColor.textMuted, h: 1.5),
+          ),
+        ],
+      ),
+    ),
+    if (challenges.myChallenges.isNotEmpty) ...[
+      Padding(
+        padding: const EdgeInsets.only(left: AppSpace.s4, bottom: AppSpace.s2),
+        child: Text(
+          '내 챌린지 ${challenges.myChallenges.length}',
+          style: t(AppFontSize.f15, w: FontWeight.w800),
+        ),
+      ),
+      for (final c in challenges.myChallenges) _MyChallengeCard(c: c),
+    ],
+    const Padding(
+      padding: EdgeInsets.only(left: AppSpace.s4, bottom: AppSpace.s2),
+      child: Text(
+        '참여할 수 있는 챌린지',
+        style: TextStyle(fontWeight: FontWeight.w800),
+      ),
+    ),
+    for (final c in challenges.joinableChallenges) _JoinableChallengeCard(c: c),
+    PrimaryButton(label: '챌린지 만들기', onTap: () => s.go('chNew')),
+  ];
+}
+
+class _ChallengeLeaderboardCard extends StatelessWidget {
+  const _ChallengeLeaderboardCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final challenges = context.watch<ChallengeViewModel>();
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      challenges.activeChallengeName,
+                      style: t(AppFontSize.f15, w: FontWeight.w800),
+                    ),
+                    const SizedBox(height: AppSpace.s4),
+                    Text(
+                      '참여 ${challenges.activeChallengeProgress.length}명 · ${challenges.activeChallengePeriod} · 내 순위 ${challenges.myChallengeRank}위',
+                      style: t(AppFontSize.f11, c: AppColor.textFaint),
+                    ),
+                  ],
+                ),
+              ),
+              Pill('참여 중', bg: AppColor.primaryTint, fg: AppColor.primaryDark),
+            ],
+          ),
+          const SizedBox(height: AppSpace.s18),
+          for (final r in challenges.challengeLeaderboard)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSpace.s14),
+              child: Row(
+                children: [
+                  Container(
+                    width: AppSpace.s22,
+                    height: AppSpace.s22,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: r.rank == 1
+                          ? AppColor.primary
+                          : AppColor.surfaceSunken,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      '${r.rank}',
+                      style: t(
+                        AppFontSize.f11,
+                        w: FontWeight.w700,
+                        c: r.rank == 1 ? Colors.white : AppColor.textFaint,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpace.s10),
+                  SizedBox(
+                    width: AppSpace.s40,
+                    child: Text(
+                      r.user.nickname,
+                      style: t(AppFontSize.f13, w: FontWeight.w700),
+                    ),
+                  ),
+                  Expanded(child: ProgressBar(value: r.pct / 100)),
+                  const SizedBox(width: AppSpace.s10),
+                  SizedBox(
+                    width: AppSpace.s36,
+                    child: Text(
+                      '${r.pct}%',
+                      textAlign: TextAlign.right,
+                      style: t(AppFontSize.f12, c: AppColor.textFaint),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }
 
 class _RewardTiersCard extends StatelessWidget {
@@ -450,7 +472,7 @@ class _RewardTiersCard extends StatelessWidget {
           style: t(AppFontSize.f11, c: AppColor.textFaint),
         ),
         const SizedBox(height: AppSpace.s16),
-        for (final tier in AppState.challengeRewardTiers)
+        for (final tier in ChallengeViewModel.challengeRewardTiers)
           Container(
             margin: const EdgeInsets.only(bottom: AppSpace.s10),
             padding: const EdgeInsets.all(AppSpace.s14),
@@ -497,71 +519,69 @@ class _RewardTiersCard extends StatelessWidget {
 }
 
 class _MyChallengeCard extends StatelessWidget {
-  const _MyChallengeCard({required this.c, required this.s});
+  const _MyChallengeCard({required this.c});
 
   final Challenge c;
-  final AppState s;
 
   @override
-  Widget build(BuildContext context) => AppCard(
-    child: Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Flexible(
-                    child: Text(
-                      c.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: t(AppFontSize.f14, w: FontWeight.w800),
+  Widget build(BuildContext context) {
+    final friends = context.watch<FriendViewModel>();
+    return AppCard(
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        c.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: t(AppFontSize.f14, w: FontWeight.w800),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: AppSpace.s8),
-                  if (c.isCreatedBy(s.currentUser.id))
-                    Pill(
-                      '내가 만듦',
-                      bg: AppColor.primaryTint,
-                      fg: AppColor.primaryDark,
-                    ),
-                ],
-              ),
-              const SizedBox(height: AppSpace.s4),
-              Text(
-                c.description,
-                style: t(AppFontSize.f12, c: AppColor.textFaint),
-              ),
-              const SizedBox(height: AppSpace.s8),
-              Text(
-                '만든 사람 ${AppState.personById(c.creatorId).nickname} · ${c.peopleLabel} · ${c.period}',
-                style: t(AppFontSize.f11, c: AppColor.textFaint),
-              ),
-            ],
+                    const SizedBox(width: AppSpace.s8),
+                    if (c.isCreatedBy(friends.currentUser.id))
+                      Pill(
+                        '내가 만듦',
+                        bg: AppColor.primaryTint,
+                        fg: AppColor.primaryDark,
+                      ),
+                  ],
+                ),
+                const SizedBox(height: AppSpace.s4),
+                Text(
+                  c.description,
+                  style: t(AppFontSize.f12, c: AppColor.textFaint),
+                ),
+                const SizedBox(height: AppSpace.s8),
+                Text(
+                  '만든 사람 ${FriendViewModel.personById(c.creatorId).nickname} · ${c.peopleLabel} · ${c.period}',
+                  style: t(AppFontSize.f11, c: AppColor.textFaint),
+                ),
+              ],
+            ),
           ),
-        ),
-        Text(c.icon, style: const TextStyle(fontSize: 24)),
-      ],
-    ),
-  );
+          Text(c.icon, style: const TextStyle(fontSize: 24)),
+        ],
+      ),
+    );
+  }
 }
 
 class _JoinableChallengeCard extends StatelessWidget {
-  const _JoinableChallengeCard({
-    required this.c,
-    required this.context,
-    required this.s,
-  });
+  const _JoinableChallengeCard({required this.c});
 
   final Challenge c;
-  final BuildContext context;
-  final AppState s;
 
   @override
-  Widget build(BuildContext _) {
-    final joined = c.isParticipant(s.currentUser.id);
+  Widget build(BuildContext context) {
+    final challenges = context.watch<ChallengeViewModel>();
+    final friends = context.watch<FriendViewModel>();
+    final joined = c.isParticipant(friends.currentUser.id);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -638,7 +658,7 @@ class _JoinableChallengeCard extends StatelessWidget {
             onTap: joined
                 ? null
                 : () {
-                    s.joinChallenge(c.id);
+                    challenges.joinChallenge(c.id);
                     toast(context, '"${c.title}"에 참여했어요');
                   },
             child: Container(
@@ -679,200 +699,209 @@ User _asRow(String uid, String nickname) => User(
   tint: AppColor.surfaceSunken,
 );
 
-List<Widget> _addFriendTab(BuildContext context, AppState s) => [
-  AppCard(
-    child: Row(
-      children: [
-        const Icon(Icons.search, color: AppColor.textFaint, size: 20),
-        const SizedBox(width: AppSpace.s10),
-        Expanded(
-          child: AppTextField(
-            value: s.friendSearchQuery,
-            onChanged: s.setFriendSearchQuery,
-            hint: '초대 코드 입력',
-          ),
-        ),
-        GestureDetector(
-          onTap: () {
-            if (s.friendSearchQuery.trim().isEmpty) {
-              toast(context, '초대 코드를 입력해 주세요');
-              return;
-            }
-            s.searchFriendByCode();
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpace.s16,
-              vertical: AppSpace.s10,
-            ),
-            decoration: BoxDecoration(
-              color: AppColor.primary,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              '검색',
-              style: t(AppFontSize.f12, w: FontWeight.w700, c: Colors.white),
-            ),
-          ),
-        ),
-      ],
-    ),
-  ),
-  if (s.friendSearchResult != null)
-    _FriendRow(
-      user: _asRow(s.friendSearchResult!.uid, s.friendSearchResult!.nickname),
-      subtitle: '초대 코드로 찾음',
-      trailing: _OutlineButton(
-        label: '요청 보내기',
-        onTap: () {
-          final nickname = s.friendSearchResult!.nickname;
-          s.sendFriendRequestToSearchResult();
-          toast(context, '$nickname님에게 친구 요청을 보냈어요');
-        },
-      ),
-    ),
-  if (s.friendSearchNotFound)
+List<Widget> _addFriendTab(BuildContext context) {
+  final friends = context.watch<FriendViewModel>();
+  return [
     AppCard(
-      child: Text(
-        '이 코드로 찾은 사람이 없어요',
-        style: t(AppFontSize.f12, c: AppColor.textFaint),
+      child: Row(
+        children: [
+          const Icon(Icons.search, color: AppColor.textFaint, size: 20),
+          const SizedBox(width: AppSpace.s10),
+          Expanded(
+            child: AppTextField(
+              value: friends.friendSearchQuery,
+              onChanged: friends.setFriendSearchQuery,
+              hint: '초대 코드 입력',
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              if (friends.friendSearchQuery.trim().isEmpty) {
+                toast(context, '초대 코드를 입력해 주세요');
+                return;
+              }
+              friends.searchFriendByCode();
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpace.s16,
+                vertical: AppSpace.s10,
+              ),
+              decoration: BoxDecoration(
+                color: AppColor.primary,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '검색',
+                style: t(AppFontSize.f12, w: FontWeight.w700, c: Colors.white),
+              ),
+            ),
+          ),
+        ],
       ),
     ),
-  _InviteCodeCard(context: context, s: s),
-  if (s.incomingFriendRequests.isNotEmpty) ...[
-    Padding(
-      padding: const EdgeInsets.only(left: AppSpace.s4, bottom: AppSpace.s2),
-      child: Text(
-        '받은 요청 ${s.incomingFriendRequests.length}',
-        style: t(AppFontSize.f15, w: FontWeight.w800),
-      ),
-    ),
-    for (final r in s.incomingFriendRequests)
+    if (friends.friendSearchResult != null)
       _FriendRow(
         user: _asRow(
-          r.fromUid,
-          s.requesterProfiles[r.fromUid]?.nickname ?? '알 수 없음',
+          friends.friendSearchResult!.uid,
+          friends.friendSearchResult!.nickname,
         ),
-        subtitle: '친구 요청',
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _OutlineButton(label: '거절', onTap: () => s.declineFriendRequest(r)),
-            const SizedBox(width: AppSpace.s8),
-            _PillButton(
-              label: '수락',
-              active: true,
-              onTap: () {
-                final nickname =
-                    s.requesterProfiles[r.fromUid]?.nickname ?? '친구';
-                s.acceptFriendRequest(r);
-                toast(context, '$nickname님의 친구 요청을 수락했어요');
-              },
-            ),
-          ],
-        ),
-      ),
-  ],
-  if (s.realFriends.isNotEmpty) ...[
-    Padding(
-      padding: const EdgeInsets.only(left: AppSpace.s4, bottom: AppSpace.s2),
-      child: Text(
-        '내 친구 ${s.realFriends.length}',
-        style: t(AppFontSize.f15, w: FontWeight.w800),
-      ),
-    ),
-    for (final f in s.realFriends)
-      _FriendRow(
-        user: _asRow(f.uid, f.nickname),
-        subtitle: '초대 코드로 추가된 친구',
-        trailing: const SizedBox.shrink(),
-      ),
-  ],
-  if (s.suggestedFriends.isNotEmpty) ...[
-    const Padding(
-      padding: EdgeInsets.only(left: AppSpace.s4, bottom: AppSpace.s2),
-      child: Text('추천 친구', style: TextStyle(fontWeight: FontWeight.w800)),
-    ),
-    for (final f in s.suggestedFriends)
-      _FriendRow(
-        user: f.user,
-        subtitle: f.desc,
+        subtitle: '초대 코드로 찾음',
         trailing: _OutlineButton(
-          label: '+ 추가',
+          label: '요청 보내기',
           onTap: () {
-            s.addFriend(f.user.id);
-            toast(context, '${f.user.nickname}님에게 친구 요청을 보냈어요');
+            final nickname = friends.friendSearchResult!.nickname;
+            friends.sendFriendRequestToSearchResult();
+            toast(context, '$nickname님에게 친구 요청을 보냈어요');
           },
         ),
       ),
-  ],
-];
-
-class _InviteCodeCard extends StatelessWidget {
-  const _InviteCodeCard({required this.context, required this.s});
-
-  final BuildContext context;
-  final AppState s;
-
-  @override
-  Widget build(BuildContext _) => AppCard(
-    color: AppColor.primaryTint,
-    child: Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    if (friends.friendSearchNotFound)
+      AppCard(
+        child: Text(
+          '이 코드로 찾은 사람이 없어요',
+          style: t(AppFontSize.f12, c: AppColor.textFaint),
+        ),
+      ),
+    _InviteCodeCard(),
+    if (friends.incomingFriendRequests.isNotEmpty) ...[
+      Padding(
+        padding: const EdgeInsets.only(left: AppSpace.s4, bottom: AppSpace.s2),
+        child: Text(
+          '받은 요청 ${friends.incomingFriendRequests.length}',
+          style: t(AppFontSize.f15, w: FontWeight.w800),
+        ),
+      ),
+      for (final r in friends.incomingFriendRequests)
+        _FriendRow(
+          user: _asRow(
+            r.fromUid,
+            friends.requesterProfiles[r.fromUid]?.nickname ?? '알 수 없음',
+          ),
+          subtitle: '친구 요청',
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                '내 초대 코드',
-                style: t(AppFontSize.f12, c: AppColor.primaryDark),
+              _OutlineButton(
+                label: '거절',
+                onTap: () => friends.declineFriendRequest(r),
               ),
-              const SizedBox(height: AppSpace.s6),
-              Text(
-                s.inviteCode,
-                style: t(
-                  AppFontSize.f20,
-                  w: FontWeight.w900,
-                  c: AppColor.primaryDark,
-                  sp: 1.2,
-                ),
+              const SizedBox(width: AppSpace.s8),
+              _PillButton(
+                label: '수락',
+                active: true,
+                onTap: () {
+                  final nickname =
+                      friends.requesterProfiles[r.fromUid]?.nickname ?? '친구';
+                  friends.acceptFriendRequest(r);
+                  toast(context, '$nickname님의 친구 요청을 수락했어요');
+                },
               ),
             ],
           ),
         ),
-        GestureDetector(
-          onTap: () async {
-            try {
-              await Clipboard.setData(
-                ClipboardData(text: s.inviteCode),
-              ).timeout(const Duration(seconds: 1));
-            } catch (_) {
-              // 클립보드 접근이 막혔거나 응답이 없는 환경에서도 조용히 무시
-            }
-            if (context.mounted) toast(context, '초대 코드를 복사했어요');
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpace.s16,
-              vertical: AppSpace.s10,
+    ],
+    if (friends.realFriends.isNotEmpty) ...[
+      Padding(
+        padding: const EdgeInsets.only(left: AppSpace.s4, bottom: AppSpace.s2),
+        child: Text(
+          '내 친구 ${friends.realFriends.length}',
+          style: t(AppFontSize.f15, w: FontWeight.w800),
+        ),
+      ),
+      for (final f in friends.realFriends)
+        _FriendRow(
+          user: _asRow(f.uid, f.nickname),
+          subtitle: '초대 코드로 추가된 친구',
+          trailing: const SizedBox.shrink(),
+        ),
+    ],
+    if (friends.suggestedFriends.isNotEmpty) ...[
+      const Padding(
+        padding: EdgeInsets.only(left: AppSpace.s4, bottom: AppSpace.s2),
+        child: Text('추천 친구', style: TextStyle(fontWeight: FontWeight.w800)),
+      ),
+      for (final f in friends.suggestedFriends)
+        _FriendRow(
+          user: f.user,
+          subtitle: f.desc,
+          trailing: _OutlineButton(
+            label: '+ 추가',
+            onTap: () {
+              friends.addFriend(f.user.id);
+              toast(context, '${f.user.nickname}님에게 친구 요청을 보냈어요');
+            },
+          ),
+        ),
+    ],
+  ];
+}
+
+class _InviteCodeCard extends StatelessWidget {
+  const _InviteCodeCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final friends = context.watch<FriendViewModel>();
+    return AppCard(
+      color: AppColor.primaryTint,
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '내 초대 코드',
+                  style: t(AppFontSize.f12, c: AppColor.primaryDark),
+                ),
+                const SizedBox(height: AppSpace.s6),
+                Text(
+                  friends.inviteCode,
+                  style: t(
+                    AppFontSize.f20,
+                    w: FontWeight.w900,
+                    c: AppColor.primaryDark,
+                    sp: 1.2,
+                  ),
+                ),
+              ],
             ),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              '복사',
-              style: t(
-                AppFontSize.f12,
-                w: FontWeight.w700,
-                c: AppColor.primaryDark,
+          ),
+          GestureDetector(
+            onTap: () async {
+              try {
+                await Clipboard.setData(
+                  ClipboardData(text: friends.inviteCode),
+                ).timeout(const Duration(seconds: 1));
+              } catch (_) {
+                // 클립보드 접근이 막혔거나 응답이 없는 환경에서도 조용히 무시
+              }
+              if (context.mounted) toast(context, '초대 코드를 복사했어요');
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpace.s16,
+                vertical: AppSpace.s10,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '복사',
+                style: t(
+                  AppFontSize.f12,
+                  w: FontWeight.w700,
+                  c: AppColor.primaryDark,
+                ),
               ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }
 
 // 공용 조각 — 세 탭에서 반복되는 "친구 한 명" 행과 버튼 모양

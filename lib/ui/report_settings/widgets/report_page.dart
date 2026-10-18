@@ -5,6 +5,7 @@ import '../../../app_state.dart';
 import '../../../common.dart';
 import '../../core/ui/themes/theme_tokens.dart';
 import '../../home/widgets/nutrient_detail_page.dart';
+import 'package:diet_project/ui/report_settings/viewmodel/report_view_model.dart';
 
 /// 리포트 화면
 class ReportScreen extends StatelessWidget {
@@ -12,6 +13,7 @@ class ReportScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final report = context.watch<ReportViewModel>();
     final s = context.watch<AppState>();
 
     return ScreenScroll(
@@ -30,10 +32,10 @@ class ReportScreen extends StatelessWidget {
         ),
         SegmentedRow(
           options: const ['오늘', '주간', '월간'],
-          value: s.period,
-          onChanged: s.setPeriod,
+          value: report.period,
+          onChanged: report.setPeriod,
         ),
-        if (s.period == '오늘')
+        if (report.period == '오늘')
           ...nutrientDetailCards(context)
         else ...[
           const _CalorieBarCard(),
@@ -60,6 +62,7 @@ class _CalorieBarCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final report = context.watch<ReportViewModel>();
     final s = context.watch<AppState>();
     return AppCard(
       child: Column(
@@ -73,7 +76,7 @@ class _CalorieBarCard extends StatelessWidget {
                 style: t(AppFontSize.f15, w: FontWeight.w800),
               ),
               Text(
-                s.periodDelta,
+                report.periodDelta,
                 style: t(
                   AppFontSize.f12,
                   w: FontWeight.w700,
@@ -83,9 +86,9 @@ class _CalorieBarCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpace.s18),
-          BarChart(bars: s.kcalBars),
+          BarChart(bars: report.kcalBars),
           const SizedBox(height: AppSpace.s16),
-          RowBetween('평균 섭취', '${s.avgKcal} kcal / 일'),
+          RowBetween('평균 섭취', '${report.avgKcal} kcal / 일'),
         ],
       ),
     );
@@ -97,11 +100,12 @@ class _WeightChangeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final report = context.watch<ReportViewModel>();
     final s = context.watch<AppState>();
-    final weights = s.weightSeries.map((w) => w.kg).toList();
+    final weights = report.weightSeries.map((w) => w.kg).toList();
     final highKg = weights.reduce((a, b) => a > b ? a : b);
     final lowKg = weights.reduce((a, b) => a < b ? a : b);
-    final delta = s.weightKg - s.weightSeries.first.kg;
+    final delta = s.weightKg - report.weightSeries.first.kg;
     final remainKg = (s.weightKg - s.goalWeight).abs();
 
     return AppCard(
@@ -161,7 +165,7 @@ class _WeightChangeCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpace.s16),
-          WeightLineChart(series: s.weightSeries, goal: s.goalWeight),
+          WeightLineChart(series: report.weightSeries, goal: s.goalWeight),
           const SizedBox(height: AppSpace.s18),
           Row(
             children: [
@@ -231,8 +235,9 @@ class _ExerciseAndDeltaRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final report = context.watch<ReportViewModel>();
     final s = context.watch<AppState>();
-    final delta = s.weightKg - s.weightSeries.first.kg;
+    final delta = s.weightKg - report.weightSeries.first.kg;
     final remainKg = (s.weightKg - s.goalWeight).abs();
 
     return IntrinsicHeight(
@@ -254,7 +259,7 @@ class _ExerciseAndDeltaRow extends StatelessWidget {
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
-                        '${s.avgExerciseMin}',
+                        '${report.avgExerciseMin}',
                         style: t(
                           AppFontSize.f24,
                           w: FontWeight.w900,
@@ -270,15 +275,15 @@ class _ExerciseAndDeltaRow extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpace.s6),
                   Text(
-                    s.exerciseMinDelta == 0
-                        ? (s.period == '주간' ? '지난주와 비슷해요' : '지난달과 비슷해요')
-                        : '${s.exerciseMinDelta > 0 ? '+' : '-'}'
-                              '${s.exerciseMinDelta.abs()}분 '
-                              '${s.exerciseMinDelta > 0 ? '↑' : '↓'}',
+                    report.exerciseMinDelta == 0
+                        ? (report.period == '주간' ? '지난주와 비슷해요' : '지난달과 비슷해요')
+                        : '${report.exerciseMinDelta > 0 ? '+' : '-'}'
+                              '${report.exerciseMinDelta.abs()}분 '
+                              '${report.exerciseMinDelta > 0 ? '↑' : '↓'}',
                     style: t(
                       AppFontSize.f12,
                       w: FontWeight.w700,
-                      c: s.exerciseMinDelta >= 0
+                      c: report.exerciseMinDelta >= 0
                           ? AppColor.primaryDark
                           : AppColor.alertText,
                     ),
@@ -338,7 +343,7 @@ class _GoalAndRecordDaysRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final report = context.watch<ReportViewModel>();
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -358,7 +363,7 @@ class _GoalAndRecordDaysRow extends StatelessWidget {
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
-                        '${s.achieveRate}',
+                        '${report.achieveRate}',
                         style: t(
                           AppFontSize.f24,
                           w: FontWeight.w900,
@@ -373,7 +378,7 @@ class _GoalAndRecordDaysRow extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: AppSpace.s10),
-                  ProgressBar(value: s.achieveRate / 100),
+                  ProgressBar(value: report.achieveRate / 100),
                 ],
               ),
             ),
@@ -394,7 +399,7 @@ class _GoalAndRecordDaysRow extends StatelessWidget {
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
-                        '${s.recordDays}',
+                        '${report.recordDays}',
                         style: t(
                           AppFontSize.f24,
                           w: FontWeight.w900,
@@ -410,7 +415,7 @@ class _GoalAndRecordDaysRow extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpace.s6),
                   Text(
-                    '목표 ${s.recordGoalDays}일 달성',
+                    '목표 ${report.recordGoalDays}일 달성',
                     style: t(
                       AppFontSize.f12,
                       w: FontWeight.w700,
@@ -432,19 +437,19 @@ class _PatternCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final report = context.watch<ReportViewModel>();
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('패턴 분석', style: t(AppFontSize.f15, w: FontWeight.w800)),
           const SizedBox(height: AppSpace.s6),
-          RowBetween('가장 많이 먹은 음식', s.mostEatenFood),
-          RowBetween('자주 쓴 그릇', s.mostUsedBowl),
-          RowBetween('자주 쓴 소스', s.mostUsedSauce),
+          RowBetween('가장 많이 먹은 음식', report.mostEatenFood),
+          RowBetween('자주 쓴 그릇', report.mostUsedBowl),
+          RowBetween('자주 쓴 소스', report.mostUsedSauce),
           RowBetween(
             '부족한 영양소',
-            s.lackingNutrient,
+            report.lackingNutrient,
             valueColor: AppColor.alertText,
           ),
         ],
@@ -458,7 +463,7 @@ class _RecommendCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final report = context.watch<ReportViewModel>();
     return AppCard(
       color: AppColor.primaryTint,
       child: Column(
@@ -474,7 +479,7 @@ class _RecommendCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpace.s8),
           Text(
-            s.recommendedMeal,
+            report.recommendedMeal,
             style: t(AppFontSize.f13, c: AppColor.primaryDark, h: 1.5),
           ),
         ],

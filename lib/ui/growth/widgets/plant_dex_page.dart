@@ -130,7 +130,7 @@ class _ProgressCard extends StatelessWidget {
           const Divider(height: AppSpace.s1),
           const SizedBox(height: AppSpace.s12),
           Text(
-            '베이스 ${AppState.dexBase.length}종 × 색상 변이를 합쳐 총 ${plant.dexTotal}종. 시즌 업데이트로 계속 늘어나요.',
+            '베이스 ${PlantSpecies.catalog.length}종 × 색상 변이를 합쳐 총 ${plant.dexTotal}종. 시즌 업데이트로 계속 늘어나요.',
             style: t(AppFontSize.f11, c: AppColor.textFaint, h: 1.6),
           ),
         ],

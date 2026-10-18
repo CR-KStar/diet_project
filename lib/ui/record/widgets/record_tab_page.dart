@@ -42,7 +42,7 @@ class RecordsScreen extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                '${AppState.comma(s.selectedDayKcal)} / ${AppState.comma(s.dailyTarget)} kcal',
+                '${AppStateFormat.comma(s.selectedDayKcal)} / ${AppStateFormat.comma(s.dailyTarget)} kcal',
                 style: t(
                   AppFontSize.f12,
                   w: FontWeight.w700,
@@ -357,7 +357,7 @@ class _DaySummaryCard extends StatelessWidget {
     child: Row(
       children: [
         for (final r in [
-          ('물', '${AppState.comma(s.waterTotal)}ml'),
+          ('물', '${AppStateFormat.comma(s.waterTotal)}ml'),
           ('운동', '${s.todayExerciseMinutes}분'),
           ('체중', '${s.latestWeightKg.toStringAsFixed(1)}kg'),
         ]) ...[

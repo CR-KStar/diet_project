@@ -57,7 +57,7 @@ class RecommendScreen extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpace.s4),
           child: Text(
-            '${recommendation.recMeal} · ${AppState.comma(recommendation.recMaxKcal)}kcal 이하',
+            '${recommendation.recMeal} · ${AppStateFormat.comma(recommendation.recMaxKcal)}kcal 이하',
             style: t(AppFontSize.f11, c: AppColor.textFaint),
           ),
         ),
@@ -174,7 +174,7 @@ class _NeedsCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpace.s12),
           ChipWrap(
-            options: AppState.needOptions,
+            options: RecommendationViewModel.needOptions,
             isSelected: recommendation.needs.contains,
             onPick: recommendation.toggleNeed,
           ),
@@ -214,7 +214,7 @@ class _ConditionsCard extends StatelessWidget {
               Text('칼로리 상한', style: t(AppFontSize.f12, c: AppColor.textFaint)),
               const Spacer(),
               Text(
-                '${AppState.comma(recommendation.recMaxKcal)} kcal',
+                '${AppStateFormat.comma(recommendation.recMaxKcal)} kcal',
                 style: t(
                   AppFontSize.f13,
                   w: FontWeight.w900,

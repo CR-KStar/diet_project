@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../app_state.dart';
 import '../../../common.dart';
 import '../../core/ui/themes/theme_tokens.dart';
+import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 
 /// 알림별 관련 시간대만 노출 — 스테퍼 대신 시간 칩
 const _slots = [
@@ -70,13 +71,11 @@ class _AlertsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
-
     return Column(
       children: [
-        _NotifyTogglesCard(s: s),
+        _NotifyTogglesCard(),
         const SizedBox(height: AppSpace.cardGap),
-        _AlertTimeCard(s: s),
+        _AlertTimeCard(),
         const SizedBox(height: AppSpace.cardGap),
         const _DoNotDisturbCard(),
       ],
@@ -85,67 +84,70 @@ class _AlertsTab extends StatelessWidget {
 }
 
 class _NotifyTogglesCard extends StatelessWidget {
-  const _NotifyTogglesCard({required this.s});
-
-  final AppState s;
+  const _NotifyTogglesCard();
 
   @override
-  Widget build(BuildContext context) => AppCard(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('받을 알림', style: t(AppFontSize.f14, w: FontWeight.w700)),
-        const SizedBox(height: AppSpace.s5),
-        Text('필요한 알림만 켜세요', style: t(AppFontSize.f11, c: AppColor.textGhost)),
-        const SizedBox(height: AppSpace.s10),
-        for (final k in s.notifyToggles.keys)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(k, style: t(AppFontSize.f13, w: FontWeight.w500)),
-              AppToggle(
-                value: s.notifyToggles[k]!,
-                onChanged: () => s.toggleNotify(k),
-              ),
-            ],
-          ),
-      ],
-    ),
-  );
+  Widget build(BuildContext context) {
+    final profile = context.watch<ProfileViewModel>();
+    final s = context.watch<AppState>();
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('받을 알림', style: t(AppFontSize.f14, w: FontWeight.w700)),
+          const SizedBox(height: AppSpace.s5),
+          Text('필요한 알림만 켜세요', style: t(AppFontSize.f11, c: AppColor.textGhost)),
+          const SizedBox(height: AppSpace.s10),
+          for (final k in profile.notifyToggles.keys)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(k, style: t(AppFontSize.f13, w: FontWeight.w500)),
+                AppToggle(
+                  value: profile.notifyToggles[k]!,
+                  onChanged: () => s.toggleNotify(k),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
 }
 
 class _AlertTimeCard extends StatelessWidget {
-  const _AlertTimeCard({required this.s});
-
-  final AppState s;
+  const _AlertTimeCard();
 
   @override
-  Widget build(BuildContext context) => AppCard(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('알림 시간', style: t(AppFontSize.f14, w: FontWeight.w700)),
-        const SizedBox(height: AppSpace.s5),
-        Text(
-          '시간을 좌우로 넘겨 골라주세요',
-          style: t(AppFontSize.f11, c: AppColor.textGhost),
-        ),
-        const SizedBox(height: AppSpace.s16),
-        for (final slot in _slots) _AlertTimeSlot(s: s, slot: slot),
-      ],
-    ),
-  );
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('알림 시간', style: t(AppFontSize.f14, w: FontWeight.w700)),
+          const SizedBox(height: AppSpace.s5),
+          Text(
+            '시간을 좌우로 넘겨 골라주세요',
+            style: t(AppFontSize.f11, c: AppColor.textGhost),
+          ),
+          const SizedBox(height: AppSpace.s16),
+          for (final slot in _slots) _AlertTimeSlot(slot: slot),
+        ],
+      ),
+    );
+  }
 }
 
 class _AlertTimeSlot extends StatelessWidget {
-  const _AlertTimeSlot({required this.s, required this.slot});
+  const _AlertTimeSlot({required this.slot});
 
-  final AppState s;
   final ({String key, String hint, int from, int to, bool weekly}) slot;
 
   @override
   Widget build(BuildContext context) {
-    final cur = s.alertTime[slot.key]!;
+    final profile = context.watch<ProfileViewModel>();
+    final s = context.watch<AppState>();
+    final cur = profile.alertTime[slot.key]!;
     final curDay =
         RegExp(r'^(일|월|화|수|목|금|토)요일').firstMatch(cur)?.group(1) ?? '일';
     final curHour = int.parse(RegExp(r'(\d{1,2}):').firstMatch(cur)!.group(1)!);
@@ -286,13 +288,11 @@ class _PrivacyTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
-
     return Column(
       children: [
-        _ShareScopeCard(s: s),
+        _ShareScopeCard(),
         const SizedBox(height: AppSpace.cardGap),
-        _ConsentCard(s: s),
+        _ConsentCard(),
         const SizedBox(height: AppSpace.cardGap),
         const _DangerActionsCard(),
         const SizedBox(height: AppSpace.s8),
@@ -311,133 +311,144 @@ class _PrivacyTab extends StatelessWidget {
 
 /// 공개 범위
 class _ShareScopeCard extends StatelessWidget {
-  const _ShareScopeCard({required this.s});
-
-  final AppState s;
+  const _ShareScopeCard();
 
   @override
-  Widget build(BuildContext context) => AppCard(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text('공개 설정', style: t(AppFontSize.f14, w: FontWeight.w700)),
-            const Spacer(),
-            Pill(
-              s.shareScope,
-              bg: s.shareScope == '비공개'
-                  ? AppColor.surfaceSunken
-                  : AppColor.primaryTint,
-              fg: s.shareScope == '비공개'
-                  ? AppColor.textFaint
-                  : AppColor.primaryDark,
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpace.s12),
-        SegmentedRow(
-          options: const ['비공개', '친구만', '전체 공개'],
-          value: s.shareScope,
-          onChanged: s.setShareScope,
-        ),
-        const SizedBox(height: AppSpace.s11),
-        Text(
-          '공개 설정은 친구에게 보이는 정보의 범위에만 적용돼요.',
-          style: t(AppFontSize.f11, c: AppColor.textFaint, h: 1.6),
-        ),
-      ],
-    ),
-  );
+  Widget build(BuildContext context) {
+    final profile = context.watch<ProfileViewModel>();
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text('공개 설정', style: t(AppFontSize.f14, w: FontWeight.w700)),
+              const Spacer(),
+              Pill(
+                profile.shareScope,
+                bg: profile.shareScope == '비공개'
+                    ? AppColor.surfaceSunken
+                    : AppColor.primaryTint,
+                fg: profile.shareScope == '비공개'
+                    ? AppColor.textFaint
+                    : AppColor.primaryDark,
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpace.s12),
+          SegmentedRow(
+            options: const ['비공개', '친구만', '전체 공개'],
+            value: profile.shareScope,
+            onChanged: profile.setShareScope,
+          ),
+          const SizedBox(height: AppSpace.s11),
+          Text(
+            '공개 설정은 친구에게 보이는 정보의 범위에만 적용돼요.',
+            style: t(AppFontSize.f11, c: AppColor.textFaint, h: 1.6),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 /// 동의 관리
 class _ConsentCard extends StatelessWidget {
-  const _ConsentCard({required this.s});
-
-  final AppState s;
+  const _ConsentCard();
 
   @override
-  Widget build(BuildContext context) => AppCard(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('동의 관리', style: t(AppFontSize.f14, w: FontWeight.w700)),
-        const SizedBox(height: AppSpace.s12),
-        for (final k in s.terms.keys) _ConsentRow(s: s, k: k),
-        _AiConsentRow(s: s),
-      ],
-    ),
-  );
+  Widget build(BuildContext context) {
+    final profile = context.watch<ProfileViewModel>();
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('동의 관리', style: t(AppFontSize.f14, w: FontWeight.w700)),
+          const SizedBox(height: AppSpace.s12),
+          for (final k in profile.terms.keys) _ConsentRow(k: k),
+          _AiConsentRow(),
+        ],
+      ),
+    );
+  }
 }
 
 /// 식사 사진 · 식단 정보를 외부 AI로 보내 분석하는 것에 대한 동의 — 켜고 끌 수 있다.
 class _AiConsentRow extends StatelessWidget {
-  const _AiConsentRow({required this.s});
-
-  final AppState s;
+  const _AiConsentRow();
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: AppSpace.s12),
-    child: Row(
-      children: [
-        Expanded(
-          child: Text(
-            '(선택) 외부 AI로 사진·식단 정보 전송',
-            style: t(AppFontSize.f12, c: AppColor.textMuted),
+  Widget build(BuildContext context) {
+    final s = context.watch<AppState>();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpace.s12),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              '(선택) 외부 AI로 사진·식단 정보 전송',
+              style: t(AppFontSize.f12, c: AppColor.textMuted),
+            ),
           ),
-        ),
-        GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => openLegalDoc(context, '개인정보 처리방침'),
-          child: Text('보기 ›', style: t(AppFontSize.f11, c: AppColor.textGhost)),
-        ),
-        const SizedBox(width: AppSpace.s10),
-        AppToggle(
-          value: s.aiConsent,
-          width: AppSpace.s40,
-          onChanged: () => s.setAiConsent(!s.aiConsent),
-        ),
-      ],
-    ),
-  );
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => openLegalDoc(context, '개인정보 처리방침'),
+            child: Text(
+              '보기 ›',
+              style: t(AppFontSize.f11, c: AppColor.textGhost),
+            ),
+          ),
+          const SizedBox(width: AppSpace.s10),
+          AppToggle(
+            value: s.aiConsent,
+            width: AppSpace.s40,
+            onChanged: () => s.setAiConsent(!s.aiConsent),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _ConsentRow extends StatelessWidget {
-  const _ConsentRow({required this.s, required this.k});
+  const _ConsentRow({required this.k});
 
-  final AppState s;
   final String k;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: AppSpace.s12),
-    child: Row(
-      children: [
-        Expanded(
-          child: Text(k, style: t(AppFontSize.f12, c: AppColor.textMuted)),
-        ),
-        GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => openLegalDoc(context, k),
-          child: Text('보기 ›', style: t(AppFontSize.f11, c: AppColor.textGhost)),
-        ),
-        const SizedBox(width: AppSpace.s10),
-        AppToggle(
-          value: s.terms[k]!,
-          width: AppSpace.s40,
-          onChanged: () {
-            if (k.contains('필수')) {
-              toast(context, '필수 항목은 해제할 수 없어요 · 계정 삭제로 철회됩니다');
-              return;
-            }
-            s.toggleTerm(k);
-          },
-        ),
-      ],
-    ),
-  );
+  Widget build(BuildContext context) {
+    final profile = context.watch<ProfileViewModel>();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpace.s12),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(k, style: t(AppFontSize.f12, c: AppColor.textMuted)),
+          ),
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => openLegalDoc(context, k),
+            child: Text(
+              '보기 ›',
+              style: t(AppFontSize.f11, c: AppColor.textGhost),
+            ),
+          ),
+          const SizedBox(width: AppSpace.s10),
+          AppToggle(
+            value: profile.terms[k]!,
+            width: AppSpace.s40,
+            onChanged: () {
+              if (k.contains('필수')) {
+                toast(context, '필수 항목은 해제할 수 없어요 · 계정 삭제로 철회됩니다');
+                return;
+              }
+              profile.toggleTerm(k);
+            },
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 /// 위험 액션

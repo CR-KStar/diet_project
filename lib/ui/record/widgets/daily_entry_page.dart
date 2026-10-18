@@ -550,7 +550,7 @@ class WaterSheet extends StatelessWidget {
     return SheetScaffold(
       title: '물 기록',
       subtitle:
-          '오늘 ${AppState.comma(water.waterTotal)} / 2,000ml · ${AppState.comma(water.waterLeft)}ml 남음',
+          '오늘 ${AppStateFormat.comma(water.waterTotal)} / 2,000ml · ${AppStateFormat.comma(water.waterLeft)}ml 남음',
       leading: const IconTile(
         '💧',
         size: 40,
