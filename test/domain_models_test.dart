@@ -106,8 +106,7 @@ void main() {
       final s = AppState(now: () => DateTime(2026, 9, 21));
       final before = s.todayRegistry;
 
-      s.month = 9;
-      s.day = 20;
+      s.selectDay(20);
       final after = s.todayRegistry;
 
       expect(after.dateKey, before.dateKey);

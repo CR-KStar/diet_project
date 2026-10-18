@@ -12,6 +12,9 @@ import 'package:diet_project/ui/growth/viewmodel/plant_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/mission_view_model.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
+import 'package:diet_project/ui/home/viewmodel/notification_inbox_view_model.dart';
+import 'package:diet_project/ui/home/viewmodel/today_view_model.dart';
+import 'package:diet_project/ui/record/viewmodel/records_view_model.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -77,6 +80,9 @@ class _Greeting extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final profile = context.watch<ProfileViewModel>();
+    final inbox = context.watch<NotificationInboxViewModel>();
+    final recordsVm = context.watch<RecordsViewModel>();
+    final today = context.watch<TodayViewModel>();
     final s = context.watch<AppState>();
 
     return Padding(
@@ -112,9 +118,9 @@ class _Greeting extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpace.s4),
                 Text(
-                  s.streakDays > 0
-                      ? '${s.todayLabel} · ${s.streakDays}일 연속 기록 🔥'
-                      : s.todayLabel,
+                  recordsVm.streakDays > 0
+                      ? '${today.todayLabel} · ${recordsVm.streakDays}일 연속 기록 🔥'
+                      : today.todayLabel,
                   style: t(AppFontSize.f12, c: const Color(0xFF7E9080)),
                 ),
               ],
@@ -123,7 +129,7 @@ class _Greeting extends StatelessWidget {
           _GreetingIconButton(
             emoji: '🔔',
             onTap: () => s.go('notif'),
-            badge: s.unread,
+            badge: inbox.unread,
           ),
           const SizedBox(width: AppSpace.s8),
           _GreetingIconButton(emoji: '🗓️', onTap: () => s.go('records')),
@@ -193,7 +199,7 @@ class _CalorieRing extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final profile = context.watch<ProfileViewModel>();
-    final s = context.watch<AppState>();
+    final today = context.watch<TodayViewModel>();
 
     return AppCard(
       padding: 20,
@@ -205,7 +211,7 @@ class _CalorieRing extends StatelessWidget {
               Ring(
                 size: 134,
                 thickness: 11,
-                segments: [(value: s.intakeRatio, color: AppColor.primary)],
+                segments: [(value: today.intakeRatio, color: AppColor.primary)],
                 center: Container(
                   width: AppSpace.s112,
                   height: AppSpace.s112,
@@ -220,7 +226,7 @@ class _CalorieRing extends StatelessWidget {
                       const Text('🍽️', style: TextStyle(fontSize: 15)),
                       const SizedBox(height: AppSpace.s2),
                       Text(
-                        AppStateFormat.comma(s.intakeKcal),
+                        AppStateFormat.comma(today.intakeKcal),
                         style: t(
                           AppFontSize.f24,
                           w: FontWeight.w900,
@@ -250,7 +256,7 @@ class _CalorieRing extends StatelessWidget {
                     border: Border.all(color: Colors.white, width: 2.5),
                   ),
                   child: Text(
-                    '${(s.intakeRatio * 100).round()}%',
+                    '${(today.intakeRatio * 100).round()}%',
                     style: t(
                       AppFontSize.f11,
                       w: FontWeight.w900,
@@ -273,7 +279,7 @@ class _CalorieRing extends StatelessWidget {
                   textBaseline: TextBaseline.alphabetic,
                   children: [
                     Text(
-                      '${s.remainKcal}',
+                      '${today.remainKcal}',
                       style: t(
                         27,
                         w: FontWeight.w900,
@@ -337,9 +343,10 @@ class _NutritionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final today = context.watch<TodayViewModel>();
     final s = context.watch<AppState>();
     // 홈 카드에는 상위 5종(3대 영양소 + 식이섬유 + 나트륨)만 보여준다.
-    final rows = s.todayNutrientStats.take(5);
+    final rows = today.todayNutrientStats.take(5);
 
     return AppCard(
       child: Column(
@@ -438,6 +445,7 @@ class _TodayCards extends StatelessWidget {
   Widget build(BuildContext context) {
     final profileVm = context.watch<ProfileViewModel>();
     final waterVm = context.watch<WaterViewModel>();
+    final today = context.watch<TodayViewModel>();
     final s = context.watch<AppState>();
 
     final cards = <_TodayCardData>[
@@ -457,11 +465,11 @@ class _TodayCards extends StatelessWidget {
       (
         icon: '🏃',
         label: '운동 시간',
-        value: '${s.todayExerciseMinutes}',
+        value: '${today.todayExerciseMinutes}',
         unit: '분',
         sub: '/ 60 분',
         subColor: AppColor.textGhost,
-        pct: (s.todayExerciseMinutes / 60).clamp(0.0, 1.0),
+        pct: (today.todayExerciseMinutes / 60).clamp(0.0, 1.0),
         tint: AppColor.tintExercise,
         color: AppColor.primary,
         sheet: false,
@@ -470,13 +478,16 @@ class _TodayCards extends StatelessWidget {
       (
         icon: '⚖️',
         label: '체중',
-        value: s.latestWeightKg.toStringAsFixed(1),
+        value: today.latestWeightKg.toStringAsFixed(1),
         unit: 'kg',
         sub: profileVm.profile.goalDelta,
         subColor: AppColor.primary,
         pct: profileVm.profile.goalWeight <= 0
             ? 0.0
-            : (profileVm.profile.goalWeight / s.latestWeightKg).clamp(0.0, 1.0),
+            : (profileVm.profile.goalWeight / today.latestWeightKg).clamp(
+                0.0,
+                1.0,
+              ),
         tint: AppColor.tintWeight,
         color: AppColor.teal,
         sheet: false,
@@ -485,11 +496,11 @@ class _TodayCards extends StatelessWidget {
       (
         icon: '🍽️',
         label: '식단',
-        value: '${s.todayMeals.length}',
+        value: '${today.todayMeals.length}',
         unit: '끼',
-        sub: '${AppStateFormat.comma(s.intakeKcal)} kcal 기록',
+        sub: '${AppStateFormat.comma(today.intakeKcal)} kcal 기록',
         subColor: AppColor.textGhost,
-        pct: s.intakeRatio,
+        pct: today.intakeRatio,
         tint: AppColor.tintMeal,
         color: AppColor.warnDeep,
         sheet: false,

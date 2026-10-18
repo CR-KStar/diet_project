@@ -3,6 +3,7 @@ import 'package:diet_project/ui/growth/viewmodel/plant_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/ai_consent_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/mission_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/notification_inbox_view_model.dart';
+import 'package:diet_project/ui/home/viewmodel/today_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/recommendation_view_model.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/auth_view_model.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
@@ -10,6 +11,7 @@ import 'package:diet_project/ui/record/viewmodel/bowl_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/exercise_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/meal_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/photo_analysis_view_model.dart';
+import 'package:diet_project/ui/record/viewmodel/records_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/routine_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/weight_view_model.dart';
@@ -66,6 +68,12 @@ class AppProviders extends StatelessWidget {
         ),
         ChangeNotifierProvider<MissionViewModel>.value(
           value: state.missionViewModel,
+        ),
+        ChangeNotifierProvider<RecordsViewModel>.value(
+          value: state.recordsViewModel,
+        ),
+        ChangeNotifierProvider<TodayViewModel>.value(
+          value: state.todayViewModel,
         ),
         ChangeNotifierProvider<ReportViewModel>.value(
           value: state.reportViewModel,

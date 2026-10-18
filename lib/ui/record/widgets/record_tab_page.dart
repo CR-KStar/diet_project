@@ -8,6 +8,8 @@ import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/common.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
+import 'package:diet_project/ui/home/viewmodel/today_view_model.dart';
+import 'package:diet_project/ui/record/viewmodel/records_view_model.dart';
 
 const _quickActions = [
   (label: '식단', icon: '🍽️', route: 'capture', sheet: false),
@@ -24,7 +26,7 @@ class RecordsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final profile = context.watch<ProfileViewModel>();
-    final s = context.watch<AppState>();
+    final records = context.watch<RecordsViewModel>();
 
     return ScreenScroll(
       children: [
@@ -36,12 +38,12 @@ class RecordsScreen extends StatelessWidget {
           child: Row(
             children: [
               Text(
-                '${s.month}월 ${s.day}일 기록',
+                '${records.month}월 ${records.day}일 기록',
                 style: t(AppFontSize.f15, w: FontWeight.w700),
               ),
               const Spacer(),
               Text(
-                '${AppStateFormat.comma(s.selectedDayKcal)} / ${AppStateFormat.comma(profile.dailyTarget)} kcal',
+                '${AppStateFormat.comma(records.selectedDayKcal)} / ${AppStateFormat.comma(profile.dailyTarget)} kcal',
                 style: t(
                   AppFontSize.f12,
                   w: FontWeight.w700,
@@ -51,7 +53,7 @@ class RecordsScreen extends StatelessWidget {
             ],
           ),
         ),
-        for (final m in s.meals) _MealCard(m: m),
+        for (final m in records.meals) _MealCard(m: m),
         _DaySummaryCard(),
       ],
     );
@@ -63,15 +65,15 @@ class _MonthNavRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final records = context.watch<RecordsViewModel>();
     return Row(
       children: [
-        _MonthButton(icon: '‹', onTap: s.prevMonth),
+        _MonthButton(icon: '‹', onTap: records.prevMonth),
         const SizedBox(width: AppSpace.s10),
         SizedBox(
           width: AppSpace.s78,
           child: Text(
-            '${s.year}. ${s.month.toString().padLeft(2, '0')}',
+            '${records.year}. ${records.month.toString().padLeft(2, '0')}',
             textAlign: TextAlign.center,
             style: t(AppFontSize.f14, w: FontWeight.w700),
           ),
@@ -79,9 +81,9 @@ class _MonthNavRow extends StatelessWidget {
         const SizedBox(width: AppSpace.s10),
         _MonthButton(
           icon: '›',
-          enabled: s.canGoNextMonth,
+          enabled: records.canGoNextMonth,
           onTap: () {
-            if (!s.nextMonth()) toast(context, '오늘 이후의 기록은 만들 수 없어요');
+            if (!records.nextMonth()) toast(context, '오늘 이후의 기록은 만들 수 없어요');
           },
         ),
       ],
@@ -95,14 +97,14 @@ class _QuickRecordCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final records = context.watch<RecordsViewModel>();
     return AppCard(
       padding: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${s.month}월 ${s.day}일에 기록 추가',
+            '${records.month}월 ${records.day}일에 기록 추가',
             style: t(AppFontSize.f13, w: FontWeight.w700),
           ),
           const SizedBox(height: AppSpace.s12),
@@ -122,8 +124,9 @@ class _QuickRecordButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final records = context.watch<RecordsViewModel>();
     final s = context.watch<AppState>();
-    final done = s.logged[q.label] ?? false;
+    final done = records.logged[q.label] ?? false;
     return Expanded(
       child: Padding(
         padding: EdgeInsets.only(right: q.label == '물' ? 0 : 8),
@@ -164,9 +167,10 @@ class _CalendarCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
-    final offset = DateTime(s.year, s.month, 1).weekday % 7; // 일요일 시작
-    final total = DateTime(s.year, s.month + 1, 0).day;
+    final records = context.watch<RecordsViewModel>();
+    final offset =
+        DateTime(records.year, records.month, 1).weekday % 7; // 일요일 시작
+    final total = DateTime(records.year, records.month + 1, 0).day;
     final cells = ((offset + total) / 7).ceil() * 7;
 
     return AppCard(
@@ -223,15 +227,17 @@ class _CalendarDayCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final records = context.watch<RecordsViewModel>();
     final n = i - offset + 1;
     final valid = n >= 1 && n <= total;
-    final sel = valid && n == s.day;
-    final future = valid && s.isFutureDay(n);
+    final sel = valid && n == records.day;
+    final future = valid && records.isFutureDay(n);
     final hasLog =
-        valid && !future && s.hasRecordOn(DateTime(s.year, s.month, n));
+        valid &&
+        !future &&
+        records.hasRecordOn(DateTime(records.year, records.month, n));
     return GestureDetector(
-      onTap: valid && !future ? () => s.selectDay(n) : null,
+      onTap: valid && !future ? () => records.selectDay(n) : null,
       behavior: HitTestBehavior.opaque,
       child: Container(
         margin: const EdgeInsets.all(AppSpace.s1),
@@ -350,7 +356,7 @@ class _DaySummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final today = context.watch<TodayViewModel>();
     final water = context.watch<WaterViewModel>();
     return AppCard(
       padding: 16,
@@ -358,8 +364,8 @@ class _DaySummaryCard extends StatelessWidget {
         children: [
           for (final r in [
             ('물', '${AppStateFormat.comma(water.waterTotal)}ml'),
-            ('운동', '${s.todayExerciseMinutes}분'),
-            ('체중', '${s.latestWeightKg.toStringAsFixed(1)}kg'),
+            ('운동', '${today.todayExerciseMinutes}분'),
+            ('체중', '${today.latestWeightKg.toStringAsFixed(1)}kg'),
           ]) ...[
             Expanded(
               child: Column(

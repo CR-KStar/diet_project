@@ -6,6 +6,8 @@ import '../../../common.dart';
 import '../../core/ui/themes/theme_tokens.dart';
 import '../../home/widgets/nutrient_detail_page.dart';
 import 'package:diet_project/ui/report_settings/viewmodel/report_view_model.dart';
+import 'package:diet_project/ui/home/viewmodel/today_view_model.dart';
+import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 
 /// 리포트 화면
 class ReportScreen extends StatelessWidget {
@@ -14,7 +16,7 @@ class ReportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final report = context.watch<ReportViewModel>();
-    final s = context.watch<AppState>();
+    final today = context.watch<TodayViewModel>();
 
     return ScreenScroll(
       children: [
@@ -25,7 +27,7 @@ class ReportScreen extends StatelessWidget {
               child: TabHeader(emoji: '📊', title: '리포트'),
             ),
             Text(
-              s.todayDateLabel,
+              today.todayDateLabel,
               style: t(AppFontSize.f12, c: AppColor.textFaint),
             ),
           ],
@@ -101,12 +103,14 @@ class _WeightChangeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final report = context.watch<ReportViewModel>();
+    final profile = context.watch<ProfileViewModel>();
+    final today = context.watch<TodayViewModel>();
     final s = context.watch<AppState>();
     final weights = report.weightSeries.map((w) => w.kg).toList();
     final highKg = weights.reduce((a, b) => a > b ? a : b);
     final lowKg = weights.reduce((a, b) => a < b ? a : b);
-    final delta = s.weightKg - report.weightSeries.first.kg;
-    final remainKg = (s.weightKg - s.goalWeight).abs();
+    final delta = profile.weightKg - report.weightSeries.first.kg;
+    final remainKg = (profile.weightKg - profile.goalWeight).abs();
 
     return AppCard(
       child: Column(
@@ -125,7 +129,7 @@ class _WeightChangeCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    '목표 ${s.goalWeight.toStringAsFixed(1)}kg',
+                    '목표 ${profile.goalWeight.toStringAsFixed(1)}kg',
                     style: t(AppFontSize.f11, c: AppColor.textFaint),
                   ),
                   const SizedBox(height: AppSpace.s2),
@@ -143,7 +147,7 @@ class _WeightChangeCard extends StatelessWidget {
             textBaseline: TextBaseline.alphabetic,
             children: [
               Text(
-                s.weightKg.toStringAsFixed(1),
+                profile.weightKg.toStringAsFixed(1),
                 style: t(
                   AppFontSize.f28,
                   w: FontWeight.w900,
@@ -165,7 +169,10 @@ class _WeightChangeCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpace.s16),
-          WeightLineChart(series: report.weightSeries, goal: s.goalWeight),
+          WeightLineChart(
+            series: report.weightSeries,
+            goal: profile.goalWeight,
+          ),
           const SizedBox(height: AppSpace.s18),
           Row(
             children: [
@@ -210,7 +217,7 @@ class _WeightChangeCard extends StatelessWidget {
                       ),
                       const SizedBox(height: AppSpace.s6),
                       Text(
-                        '${s.weightRecordCount}회 ›',
+                        '${today.weightRecordCount}회 ›',
                         style: t(
                           AppFontSize.f14,
                           w: FontWeight.w800,
@@ -236,9 +243,9 @@ class _ExerciseAndDeltaRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final report = context.watch<ReportViewModel>();
-    final s = context.watch<AppState>();
-    final delta = s.weightKg - report.weightSeries.first.kg;
-    final remainKg = (s.weightKg - s.goalWeight).abs();
+    final profile = context.watch<ProfileViewModel>();
+    final delta = profile.weightKg - report.weightSeries.first.kg;
+    final remainKg = (profile.weightKg - profile.goalWeight).abs();
 
     return IntrinsicHeight(
       child: Row(

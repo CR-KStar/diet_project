@@ -7,6 +7,7 @@ import 'package:diet_project/app_state.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/common.dart';
 import 'package:diet_project/ui/core/ui/health_sources_card.dart';
+import 'package:diet_project/ui/home/viewmodel/today_view_model.dart';
 
 /// 목표 대비 퍼센트에 맞춰 짧은 안내 문구를 만든다 — 음식별 코멘트 대신,
 /// 지금 실제로 계산되는 값만으로 말할 수 있는 정도로 단순하게 표현한다.
@@ -259,6 +260,7 @@ class NutritionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final today = context.watch<TodayViewModel>();
     final s = context.watch<AppState>();
 
     return ScreenScroll(
@@ -268,7 +270,7 @@ class NutritionScreen extends StatelessWidget {
           title: '영양소 상세',
           onBack: () => s.go('home'),
           trailing: Text(
-            s.todayDateLabel,
+            today.todayDateLabel,
             style: t(AppFontSize.f12, c: AppColor.textFaint),
           ),
         ),

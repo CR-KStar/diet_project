@@ -12,6 +12,8 @@ import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/bowl_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/exercise_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/routine_view_model.dart';
+import 'package:diet_project/ui/home/viewmodel/today_view_model.dart';
+import 'package:diet_project/ui/record/viewmodel/records_view_model.dart';
 
 // 운동 기록 (루틴 통합)
 
@@ -21,6 +23,7 @@ class ExerciseScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final exercise = context.watch<ExerciseViewModel>();
+    final today = context.watch<TodayViewModel>();
     final s = context.watch<AppState>();
 
     return ScreenScroll(
@@ -36,7 +39,7 @@ class ExerciseScreen extends StatelessWidget {
               ),
             ),
             Text(
-              s.todayDateLabel,
+              today.todayDateLabel,
               style: t(AppFontSize.f12, c: AppColor.textFaint),
             ),
           ],
@@ -368,6 +371,7 @@ class WeightScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final today = context.watch<TodayViewModel>();
     final s = context.watch<AppState>();
     final weight = context.watch<WeightViewModel>();
 
@@ -384,7 +388,7 @@ class WeightScreen extends StatelessWidget {
               ),
             ),
             Text(
-              s.todayDateLabel,
+              today.todayDateLabel,
               style: t(AppFontSize.f12, c: AppColor.textFaint),
             ),
           ],
@@ -464,9 +468,9 @@ class _WeightHistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final records = context.watch<RecordsViewModel>();
     context.watch<WeightViewModel>();
-    final days = s.recentWeightDays;
+    final days = records.recentWeightDays;
     final recorded = [for (final d in days) ?d.kg];
     final lo = recorded.isEmpty
         ? 0.0

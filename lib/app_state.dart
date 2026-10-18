@@ -8,6 +8,7 @@ import 'package:diet_project/ui/home/viewmodel/ai_consent_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/mission_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/notification_inbox_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/recommendation_view_model.dart';
+import 'package:diet_project/ui/home/viewmodel/today_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/today_summary.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/auth_view_model.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
@@ -15,6 +16,7 @@ import 'package:diet_project/ui/record/viewmodel/bowl_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/exercise_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/meal_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/photo_analysis_view_model.dart';
+import 'package:diet_project/ui/record/viewmodel/records_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/routine_view_model.dart';
 import 'package:diet_project/ui/report_settings/viewmodel/report_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/weight_view_model.dart';
@@ -186,6 +188,8 @@ class AppState extends ChangeNotifier {
     ]);
     sources.addListener(_missionViewModel.refresh);
     sources.addListener(_reportViewModel.refresh);
+    sources.addListener(_recordsViewModel.refresh);
+    sources.addListener(_todayViewModel.refresh);
     _profileViewModel
       ..onSyncFailed = showNotice
       ..addListener(notifyListeners);
@@ -218,6 +222,8 @@ class AppState extends ChangeNotifier {
   PlantViewModel get plantViewModel => _plantViewModel;
   PhotoAnalysisViewModel get photoAnalysisViewModel => _photoAnalysisViewModel;
   MissionViewModel get missionViewModel => _missionViewModel;
+  RecordsViewModel get recordsViewModel => _recordsViewModel;
+  TodayViewModel get todayViewModel => _todayViewModel;
   ReportViewModel get reportViewModel => _reportViewModel;
   RecommendationViewModel get recommendationViewModel =>
       _recommendationViewModel;
@@ -242,6 +248,30 @@ class AppState extends ChangeNotifier {
   final RoutineViewModel _routineViewModel;
   final PlantViewModel _plantViewModel;
   final PhotoAnalysisViewModel _photoAnalysisViewModel;
+
+  /// 기록 탭의 달력과 "기록한 날" 계산, 홈의 오늘 수치 — 둘 다 기록을 읽어 계산만 한다.
+  late final RecordsViewModel _recordsViewModel = RecordsViewModel(
+    snapshot: _recordsSnapshot,
+    now: _now,
+    onViewedMonthChanged: (y, m) =>
+        unawaited(_loadMonth(y, m).then((_) => notifyListeners())),
+  )..addListener(notifyListeners);
+  late final TodayViewModel _todayViewModel = TodayViewModel(
+    snapshot: _recordsSnapshot,
+    now: _now,
+  )..addListener(notifyListeners);
+
+  RecordsSnapshot _recordsSnapshot() => RecordsSnapshot(
+    meals: _mealViewModel.mealLogs,
+    exercises: _exerciseViewModel.exerciseLogs,
+    weights: _weightViewModel.weightEntries,
+    waterEntries: _waterViewModel.waterEntries,
+    mealsOn: _mealViewModel.mealsOn,
+    exercisesOn: _exerciseViewModel.exercisesOn,
+    dailyTarget: dailyTarget,
+    profileWeightKg: profile.weightKg,
+    latestLoggedWeightKg: _weightViewModel.latestWeightKg,
+  );
 
   /// 미션도 오늘의 기록을 읽어 계산하고, 수동 완료하면 식물 경험치를 올린다.
   late final MissionViewModel _missionViewModel = MissionViewModel(
@@ -397,40 +427,24 @@ class AppState extends ChangeNotifier {
 
   bool get showShell => screen != 'login' && screen != 'onboard';
 
-  // 오늘 날짜
-  static String dateKeyOf(DateTime d) =>
-      '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+  // 오늘 날짜 — 날짜 문구와 오늘의 기록 요약은 TodayViewModel이 맡는다.
+  static String dateKeyOf(DateTime d) => RecordsViewModel.dateKeyOf(d);
 
   /// 오늘 (시간은 버리고 날짜만)
-  DateTime get today {
-    final n = _now();
-    return DateTime(n.year, n.month, n.day);
-  }
+  DateTime get today => _todayViewModel.today;
 
   int get todayYear => today.year;
   int get todayMonth => today.month;
   int get todayDay => today.day;
 
-  String get _todayKey => dateKeyOf(today);
-  String get _selectedKey => dateKeyOf(DateTime(year, month, day));
-  bool get _viewingToday => _selectedKey == _todayKey;
-
-  static const _weekdayNames = [
-    '월요일',
-    '화요일',
-    '수요일',
-    '목요일',
-    '금요일',
-    '토요일',
-    '일요일',
-  ];
+  String get _todayKey => _todayViewModel.todayKey;
+  String get _selectedKey => _recordsViewModel.selectedKey;
 
   /// 예: "9월 21일"
-  String get todayDateLabel => '$todayMonth월 $todayDay일';
+  String get todayDateLabel => _todayViewModel.todayDateLabel;
 
   /// 예: "9월 21일 월요일"
-  String get todayLabel =>
-      '$todayDateLabel ${_weekdayNames[today.weekday - 1]}';
+  String get todayLabel => _todayViewModel.todayLabel;
 
   // 인증 · 온보딩
   String provider = 'Google';
@@ -659,22 +673,32 @@ class AppState extends ChangeNotifier {
     return null;
   }
 
-  /// 오늘 먹은 칼로리 · 남은 칼로리 · 권장량 대비 비율은 TodaySummary가 계산한다.
-  TodaySummary get _todaySummary =>
-      TodaySummary(meals: todayMeals, dailyTarget: dailyTarget);
+  // 오늘 수치 — 먹은 칼로리 · 영양소 합계 · 오늘 운동 시간 · 가장 최근 체중은
+  // TodayViewModel이 맡는다. 화면이 예전처럼 s.intakeKcal 같은 이름으로 쓸 수 있게,
+  // 같은 이름으로 전달만 한다.
+  int get intakeKcal => _todayViewModel.intakeKcal;
+  int get remainKcal => _todayViewModel.remainKcal;
+  double get intakeRatio => _todayViewModel.intakeRatio;
 
-  int get intakeKcal => _todaySummary.intakeKcal;
-  int get remainKcal => _todaySummary.remainKcal;
-  double get intakeRatio => _todaySummary.intakeRatio;
-
-  // 영양소 — 오늘 기록한 식단의 AI 분석값을 그대로 더한 실제 합계는 TodaySummary가 계산한다.
-  // 화면이 예전처럼 s.todayNutrientStats 같은 이름으로 쓸 수 있게, 같은 이름으로 전달만 한다.
-  List<NutrientStat> get todayNutrientStats => _todaySummary.nutrientStats;
-  double get todayProteinG => _todaySummary.proteinG;
-  double get todayCarbG => _todaySummary.carbG;
-  double get todayFatG => _todaySummary.fatG;
+  List<NutrientStat> get todayNutrientStats =>
+      _todayViewModel.todayNutrientStats;
+  double get todayProteinG => _todayViewModel.todayProteinG;
+  double get todayCarbG => _todayViewModel.todayCarbG;
+  double get todayFatG => _todayViewModel.todayFatG;
   ({int proteinPct, int carbPct, int fatPct}) get macroRatio =>
-      _todaySummary.macroRatio;
+      _todayViewModel.macroRatio;
+
+  /// 홈 화면 "오늘 섭취" 계산에 쓰는, 고정된 오늘 날짜의 식단.
+  List<MealLog> get todayMeals => _todayViewModel.todayMeals;
+
+  /// 홈 · 미션에서 쓰는, 고정된 오늘 날짜의 운동 시간 합계.
+  int get todayExerciseMinutes => _todayViewModel.todayExerciseMinutes;
+
+  /// 지금까지 저장한 체중 기록 횟수.
+  int get weightRecordCount => _todayViewModel.weightRecordCount;
+
+  /// 기록 탭 요약 카드에 쓰는, 가장 최근에 저장한 체중.
+  double get latestWeightKg => _todayViewModel.latestWeightKg;
 
   // 미션 (자동 생성)
   //
@@ -927,83 +951,27 @@ class AppState extends ChangeNotifier {
     return true;
   }
 
-  // 기록 탭
-  late int year = today.year;
-  late int month = today.month;
-  late int day = today.day;
+  // 기록 탭 — 달력(보고 있는 달 · 날짜)과 "기록한 날 · 연속 기록" 계산은
+  // RecordsViewModel이 맡는다.
+  int get year => _recordsViewModel.year;
+  int get month => _recordsViewModel.month;
+  int get day => _recordsViewModel.day;
 
-  Map<String, bool> get logged => {
-    '식단': meals.isNotEmpty,
-    '운동': _exerciseViewModel.exercisesOn(_selectedKey).isNotEmpty,
-    '체중': _viewingToday && _weightViewModel.weightEntries.isNotEmpty,
-    '물': _viewingToday && _waterViewModel.waterEntries.isNotEmpty,
-  };
+  Map<String, bool> get logged => _recordsViewModel.logged;
+  void prevMonth() => _recordsViewModel.prevMonth();
+  bool get canGoNextMonth => _recordsViewModel.canGoNextMonth;
+  bool nextMonth() => _recordsViewModel.nextMonth();
+  bool isFutureDay(int d) => _recordsViewModel.isFutureDay(d);
+  void selectDay(int d) => _recordsViewModel.selectDay(d);
 
-  /// 이전 달로 — 과거는 제한 없이 넘겨볼 수 있다.
-  void prevMonth() {
-    final first = DateTime(year, month - 1, 1);
-    year = first.year;
-    month = first.month;
-    day = day.clamp(1, DateTime(year, month + 1, 0).day);
-    notifyListeners();
-    _loadViewedMonth();
-  }
-
-  /// 오늘이 속한 달보다 뒤로는 갈 수 없다 (미래의 기록은 만들 수 없다).
-  bool get canGoNextMonth => year * 12 + month < todayYear * 12 + todayMonth;
-
-  bool nextMonth() {
-    if (!canGoNextMonth) return false;
-    final first = DateTime(year, month + 1, 1);
-    year = first.year;
-    month = first.month;
-    day = day.clamp(1, DateTime(year, month + 1, 0).day);
-    if (DateTime(year, month, day).isAfter(today)) day = todayDay;
-    notifyListeners();
-    _loadViewedMonth();
-    return true;
-  }
-
-  /// 보고 있는 달의 [d]일이 오늘보다 뒤인가
-  bool isFutureDay(int d) => DateTime(year, month, d).isAfter(today);
-
-  void selectDay(int d) {
-    if (isFutureDay(d)) return;
-    day = d;
-    notifyListeners();
-  }
-
-  /// [date]에 남긴 기록(식단 · 운동 · 체중, 그리고 오늘의 물)이 하나라도 있는가.
-  bool hasRecordOn(DateTime date) {
-    final key = dateKeyOf(date);
-    return _mealViewModel.mealLogs.any((m) => m.dateKey == key) ||
-        _exerciseViewModel.exerciseLogs.any((e) => e.dateKey == key) ||
-        _weightViewModel.weightEntries.any((w) => w.dateKey == key) ||
-        _waterViewModel.waterEntries.any((w) => w.dateKey == key);
-  }
-
-  /// 연속 기록 일수 — 오늘부터 거꾸로 기록이 이어진 날 수.
-  /// 오늘 아직 기록하지 않았어도 어제까지 이어진 연속은 끊기지 않은 것으로 센다.
-  int get streakDays {
-    var d = hasRecordOn(today)
-        ? today
-        : DateTime(today.year, today.month, today.day - 1);
-    var n = 0;
-    while (n < 3650 && hasRecordOn(d)) {
-      n++;
-      d = DateTime(d.year, d.month, d.day - 1);
-    }
-    return n;
-  }
+  bool hasRecordOn(DateTime date) => _recordsViewModel.hasRecordOn(date);
+  int get streakDays => _recordsViewModel.streakDays;
 
   /// 기록 탭에서 지금 보고 있는 날짜(month/day)의 식단.
-  List<MealLog> get meals => _mealViewModel.mealsOn(_selectedKey);
+  List<MealLog> get meals => _recordsViewModel.meals;
 
   /// 지금 보고 있는 날짜의 총 섭취 칼로리.
-  int get selectedDayKcal => meals.fold(0, (a, m) => a + m.kcal);
-
-  /// 홈 화면 "오늘 섭취" 계산에 쓰는, 고정된 오늘 날짜의 식단.
-  List<MealLog> get todayMeals => _mealViewModel.mealsOn(_todayKey);
+  int get selectedDayKcal => _recordsViewModel.selectedDayKcal;
 
   /// 촬영/기록 화면에서 저장한 값으로 실제 MealLog를 만들어 저장한다.
   void logMeal() {
@@ -1072,9 +1040,6 @@ class AppState extends ChangeNotifier {
   bool get exTypeKnown => _exerciseViewModel.exTypeKnown;
   int get exKcal => _exerciseViewModel.exKcal;
 
-  /// 홈 · 미션에서 쓰는, 고정된 오늘 날짜의 운동 시간 합계.
-  int get todayExerciseMinutes => _exerciseViewModel.minutesOn(_todayKey);
-
   /// 지금 입력값으로 실제 운동 기록을 저장한다.
   void logExercise() {
     final log = _exerciseViewModel.logFromDraft(dateKey: _selectedKey);
@@ -1111,30 +1076,9 @@ class AppState extends ChangeNotifier {
 
   // 체중
 
-  /// 체중 화면 "최근 7일" — 오래된 날부터 오늘까지, 그날 마지막으로 기록한
-  /// 체중(기록이 없는 날은 kg가 null).
-  List<({int day, double? kg, bool isToday})> get recentWeightDays {
-    final entries = _weightViewModel.weightEntries;
-    return [
-      for (var i = 6; i >= 0; i--)
-        () {
-          final d = DateTime(today.year, today.month, today.day - i);
-          final key = dateKeyOf(d);
-          double? kg;
-          for (final w in entries) {
-            if (w.dateKey == key) kg = w.kg;
-          }
-          return (day: d.day, kg: kg, isToday: i == 0);
-        }(),
-    ];
-  }
-
-  /// 지금까지 저장한 체중 기록 횟수.
-  int get weightRecordCount => _weightViewModel.weightEntries.length;
-
-  /// 기록 탭 요약 카드에 쓰는, 가장 최근에 저장한 체중.
-  double get latestWeightKg =>
-      _weightViewModel.latestWeightKg ?? profile.weightKg;
+  /// 체중 화면 "최근 7일" — 그날 마지막으로 기록한 체중(기록이 없는 날은 kg가 null).
+  List<({int day, double? kg, bool isToday})> get recentWeightDays =>
+      _recordsViewModel.recentWeightDays;
 
   void onWeightLogged(double kg) {
     _profileViewModel.onWeightLogged(kg);
@@ -1213,9 +1157,6 @@ class AppState extends ChangeNotifier {
       _notice = '$year년 $month월 기록을 불러오지 못했어요.';
     }
   }
-
-  void _loadViewedMonth() =>
-      unawaited(_loadMonth(year, month).then((_) => notifyListeners()));
 
   Future<void> _deleteAllUserData(String uid) async {
     const limit = Duration(seconds: 30);
