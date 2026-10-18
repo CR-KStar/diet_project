@@ -3,8 +3,8 @@
 // 화면 전환도 여기서 관리합니다 (Navigator 대신 screen 문자열).
 // 통합된 화면은 부모 screen + 서브 모드 플래그로 표현합니다.
 
-import 'dart:math';
 import 'package:diet_project/ui/growth/viewmodel/plant_view_model.dart';
+import 'package:diet_project/ui/home/viewmodel/mission_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/recommendation_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/bowl_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/exercise_view_model.dart';
@@ -41,32 +41,6 @@ import 'package:flutter/foundation.dart';
 import 'data/auth/auth_service.dart';
 
 export 'package:diet_project/domain/models/models.dart';
-
-/// 오늘의 미션 풀 하나의 정의. `current`는 AppState의 실시간 값을 읽어오는
-/// 함수라서, 미션이 뽑힌 뒤에도 항상 최신 진행도를 보여준다.
-class _MissionTemplate {
-  const _MissionTemplate({
-    required this.id,
-    required this.title,
-    required this.target,
-    required this.unit,
-    required this.exp,
-    required this.axis,
-    required this.route,
-    required this.current,
-    this.special,
-  });
-
-  final String id;
-  final String title;
-  final double target;
-  final String unit;
-  final int exp;
-  final PlantAxis axis;
-  final String route;
-  final String? special;
-  final double Function(AppState) current;
-}
 
 /// 영양소 하나의 오늘 합계 — 목표 대비 비율과 끼니별 분해까지 담는다.
 class NutrientStat {
@@ -244,6 +218,12 @@ class AppState extends ChangeNotifier {
   final RoutineViewModel _routineViewModel;
   final PlantViewModel _plantViewModel;
   final PhotoAnalysisViewModel _photoAnalysisViewModel;
+
+  /// 미션도 오늘의 기록을 읽어 계산하고, 수동 완료하면 식물 경험치를 올린다.
+  late final MissionViewModel _missionViewModel = MissionViewModel(
+    inputs: _missionInputs,
+    gainExp: (exp) => _plantViewModel.gainExp(exp),
+  )..addListener(notifyListeners);
 
   /// 리포트는 다른 ViewModel의 기록을 읽어 계산만 해서, AppState가 만들어진 뒤에 연결한다.
   late final ReportViewModel _reportViewModel = ReportViewModel(
@@ -850,204 +830,31 @@ class AppState extends ChangeNotifier {
 
   // 미션 (자동 생성)
   //
-  // 카테고리별 미션 풀에서 오늘 날짜 + 내 uid로 시드를 고정한 난수로
-  // 3~5개를 뽑는다. 같은 uid·같은 날이면 항상 같은 조합이 나오고(새로고침
-  // 해도 안 바뀜), 날짜가 바뀌면 다른 조합이 나온다. 한 카테고리에서는
-  // 최대 2개까지만 뽑는다.
-  //
-  // "전날 실패 카테고리 우선"이나 "난이도는 최근 7일 평균의 90~110%" 같은
-  // 더 정교한 규칙은 과거 날짜별 카테고리 성공/실패 기록이 따로 쌓여야
-  // 가능한데, 지금은 그 데이터가 없어서 구현하지 않았다 — 목표치가 다른
-  // 여러 난이도의 미션을 같은 카테고리 풀에 넣어 두는 정도로 대신한다.
-  static final Map<String, List<_MissionTemplate>> _missionPool = {
-    '식단': [
-      _MissionTemplate(
-        id: 'm_meal1',
-        title: '한 끼 기록하기',
-        target: 1,
-        unit: '끼',
-        exp: 10,
-        axis: PlantAxis.nutri,
-        route: 'capture',
-        current: (s) => s.todayMeals.length.toDouble(),
-      ),
-      _MissionTemplate(
-        id: 'm_meal2',
-        title: '두 끼 기록하기',
-        target: 2,
-        unit: '끼',
-        exp: 15,
-        axis: PlantAxis.nutri,
-        route: 'capture',
-        current: (s) => s.todayMeals.length.toDouble(),
-      ),
-      _MissionTemplate(
-        id: 'm_meal3',
-        title: '세 끼 모두 기록하기',
-        target: 3,
-        unit: '끼',
-        exp: 20,
-        axis: PlantAxis.nutri,
-        route: 'capture',
-        current: (s) => s.todayMeals.length.toDouble(),
-      ),
-    ],
-    '운동': [
-      _MissionTemplate(
-        id: 'm_exercise20',
-        title: '20분 운동하기',
-        target: 20,
-        unit: '분',
-        exp: 10,
-        axis: PlantAxis.sun,
-        route: 'exercise',
-        current: (s) => s.todayExerciseMinutes.toDouble(),
-      ),
-      _MissionTemplate(
-        id: 'm_exercise30',
-        title: '30분 운동하기',
-        target: 30,
-        unit: '분',
-        exp: 15,
-        axis: PlantAxis.sun,
-        route: 'exercise',
-        special: '변이 기회',
-        current: (s) => s.todayExerciseMinutes.toDouble(),
-      ),
-      _MissionTemplate(
-        id: 'm_exercise45',
-        title: '45분 운동하기',
-        target: 45,
-        unit: '분',
-        exp: 20,
-        axis: PlantAxis.sun,
-        route: 'exercise',
-        special: '변이 기회',
-        current: (s) => s.todayExerciseMinutes.toDouble(),
-      ),
-    ],
-    '생활': [
-      _MissionTemplate(
-        id: 'm_water1000',
-        title: '물 1L 마시기',
-        target: 1000,
-        unit: 'ml',
-        exp: 10,
-        axis: PlantAxis.water,
-        route: 'water',
-        current: (s) => s.waterTotal.toDouble(),
-      ),
-      _MissionTemplate(
-        id: 'm_water1500',
-        title: '물 1.5L 마시기',
-        target: 1500,
-        unit: 'ml',
-        exp: 10,
-        axis: PlantAxis.water,
-        route: 'water',
-        current: (s) => s.waterTotal.toDouble(),
-      ),
-      _MissionTemplate(
-        id: 'm_water2000',
-        title: '물 2L 마시기',
-        target: 2000,
-        unit: 'ml',
-        exp: 15,
-        axis: PlantAxis.water,
-        route: 'water',
-        current: (s) => s.waterTotal.toDouble(),
-      ),
-    ],
-    '꾸준함': [
-      _MissionTemplate(
-        id: 'm_streak3',
-        title: '3일 연속 기록하기',
-        target: 3,
-        unit: '일',
-        exp: 15,
-        axis: PlantAxis.nutri,
-        route: 'records',
-        current: (s) => s.streakDays.toDouble(),
-      ),
-      _MissionTemplate(
-        id: 'm_streak7',
-        title: '7일 연속 기록하기',
-        target: 7,
-        unit: '일',
-        exp: 25,
-        axis: PlantAxis.nutri,
-        route: 'records',
-        current: (s) => s.streakDays.toDouble(),
-      ),
-    ],
-  };
-
-  List<Mission> get missions {
-    final rng = Random(Object.hash(_uid, _todayKey));
-    final categories = _missionPool.keys.toList()..shuffle(rng);
-    final missionCount = 3 + rng.nextInt(3); // 3~5개
-
-    final picked = <(String category, _MissionTemplate template)>[];
-    for (final category in categories) {
-      if (picked.length >= missionCount) break;
-      final pool = List.of(_missionPool[category]!)..shuffle(rng);
-      picked.add((category, pool.first));
-    }
-    // 미션이 5개면 카테고리(4개)를 다 쓰고도 하나가 남는다 — 그 하나는
-    // 무작위 카테고리에서 이미 뽑은 것과 다른 난이도로 하나 더 뽑는다.
-    while (picked.length < missionCount) {
-      final category = categories[rng.nextInt(categories.length)];
-      final usedIds = picked
-          .where((p) => p.$1 == category)
-          .map((p) => p.$2.id)
-          .toSet();
-      final remaining = _missionPool[category]!
-          .where((t) => !usedIds.contains(t.id))
-          .toList();
-      if (remaining.isEmpty) break;
-      picked.add((category, remaining[rng.nextInt(remaining.length)]));
-    }
-
-    return [
-      for (final (category, template) in picked)
-        Mission(
-          id: template.id,
-          category: category,
-          title: template.title,
-          current: template.current(this),
-          target: template.target,
-          unit: template.unit,
-          exp: template.exp,
-          axis: template.axis,
-          route: template.route,
-          special: template.special,
-        ),
-    ];
-  }
+  // 오늘의 미션 뽑기 · 진행도 · 수동 완료는 MissionViewModel이 맡는다. 화면이 예전처럼
+  // s.missions 같은 이름으로 쓸 수 있게, 같은 이름으로 전달만 한다.
+  List<Mission> get missions => _missionViewModel.missions;
 
   /// 미션 카테고리 필터 — 전체/식단/운동/생활/꾸준함
-  String missionFilterTab = '전체';
-  void setMissionFilterTab(String t) {
-    missionFilterTab = t;
-    notifyListeners();
-  }
-
-  /// "달성 처리" 버튼으로 수동 완료한 미션(제목 기준)
-  final Set<String> _manualMissionDone = {};
+  String get missionFilterTab => _missionViewModel.missionFilterTab;
+  void setMissionFilterTab(String t) =>
+      _missionViewModel.setMissionFilterTab(t);
 
   bool missionEffectivelyDone(Mission m) =>
-      m.done || _manualMissionDone.contains(m.id);
+      _missionViewModel.missionEffectivelyDone(m);
+  void completeMissionManually(Mission m) =>
+      _missionViewModel.completeMissionManually(m);
+  int get missionDone => _missionViewModel.missionDone;
+  int get missionExp => _missionViewModel.missionExp;
 
-  void completeMissionManually(Mission m) {
-    if (missionEffectivelyDone(m)) return;
-    _manualMissionDone.add(m.id);
-    _plantViewModel.gainExp(m.exp);
-    notifyListeners();
-  }
-
-  int get missionDone => missions.where(missionEffectivelyDone).length;
-  int get missionExp =>
-      missions.where(missionEffectivelyDone).fold(0, (a, m) => a + m.exp);
+  /// 미션 진행도 계산에 쓸 오늘의 기록 — 부를 때마다 최신 값으로 만든다.
+  MissionInputs _missionInputs() => MissionInputs(
+    uid: _uid,
+    todayKey: _todayKey,
+    mealsToday: todayMeals.length,
+    exerciseMinutesToday: todayExerciseMinutes,
+    waterMl: waterTotal,
+    streakDays: streakDays,
+  );
 
   // 알림
   String notifTab = '전체';
