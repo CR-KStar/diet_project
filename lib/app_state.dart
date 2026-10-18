@@ -11,6 +11,8 @@ import 'package:diet_project/ui/record/viewmodel/exercise_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/meal_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/routine_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/weight_view_model.dart';
+import 'package:diet_project/ui/social/viewmodel/challenge_view_model.dart';
+import 'package:diet_project/ui/social/viewmodel/friend_view_model.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:diet_project/data/services/app_icon_service.dart';
 import 'package:diet_project/data/services/meal_analysis_service.dart';
@@ -106,6 +108,8 @@ class AppState extends ChangeNotifier {
     BowlViewModel? bowlViewModel,
     RoutineViewModel? routineViewModel,
     PlantViewModel? plantViewModel,
+    FriendViewModel? friendViewModel,
+    ChallengeViewModel? challengeViewModel,
     RecordRepository<ExerciseLog>? exerciseRepo,
     RecordRepository<MealLog>? mealRepo,
     RecordRepository<Bowl>? bowlRepo,
@@ -160,9 +164,20 @@ class AppState extends ChangeNotifier {
              plantRepo: plantRepo ?? MemoryRecordRepository(plantCodec),
              dexRepo: dexRepo ?? MemoryRecordRepository(dexEntryCodec),
            ),
-       _friendRepo = friendRepo ?? MemoryFriendRepository(),
-       _challengeRepo = challengeRepo ?? MemoryChallengeRepository(),
-       _activityFeedRepo = activityFeedRepo ?? MemoryActivityFeedRepository(),
+       _friendViewModel =
+           friendViewModel ??
+           FriendViewModel(
+             friendRepo: friendRepo ?? MemoryFriendRepository(),
+             activityFeedRepo:
+                 activityFeedRepo ?? MemoryActivityFeedRepository(),
+             now: now,
+           ),
+       _challengeViewModel =
+           challengeViewModel ??
+           ChallengeViewModel(
+             challengeRepo: challengeRepo ?? MemoryChallengeRepository(),
+             now: now,
+           ),
        _now = now ?? DateTime.now {
     // 식단 저장이 실패하면 예전처럼 화면에 알림을 띄운다.
     _exerciseViewModel.onSaveFailed = () {
@@ -188,6 +203,15 @@ class AppState extends ChangeNotifier {
     _plantViewModel
       ..onSyncFailed = showNotice
       ..addListener(notifyListeners);
+    // 친구와 챌린지는 서로의 사람 정보를 쓰고, 내 닉네임은 AppState가 갖고 있다.
+    _friendViewModel
+      ..nickname = (() => nickname)
+      ..onSyncFailed = showNotice
+      ..addListener(notifyListeners);
+    _challengeViewModel
+      ..userFor = _friendViewModel.userFor
+      ..onSyncFailed = showNotice
+      ..addListener(notifyListeners);
   }
 
   final AuthService _auth;
@@ -205,9 +229,8 @@ class AppState extends ChangeNotifier {
   final BowlViewModel _bowlViewModel;
   final RoutineViewModel _routineViewModel;
   final PlantViewModel _plantViewModel;
-  final FriendRepository _friendRepo;
-  final ChallengeRepository _challengeRepo;
-  final ActivityFeedRepository _activityFeedRepo;
+  final FriendViewModel _friendViewModel;
+  final ChallengeViewModel _challengeViewModel;
 
   /// 테스트에서 날짜를 고정할 수 있도록 시계를 주입받는다.
   final DateTime Function() _now;
@@ -568,18 +591,21 @@ class AppState extends ChangeNotifier {
     _bowlViewModel.clear();
     _routineViewModel.clear();
     _plantViewModel.clear(_uid);
-    inviteCode = '';
-    realFriends = [];
-    incomingFriendRequests = [];
-    requesterProfiles = {};
-    friendSearchResult = null;
-    friendSearchNotFound = false;
+    _friendViewModel.clear();
     _loadedMonths.clear();
   }
 
   void _resetPersonal() {
     if (!_isDemo) _clearSampleRecords();
     account = null;
+    // 로그아웃한 뒤에는 어떤 ViewModel도 서버에 쓰지 않도록 계정 연결을 끊는다.
+    _mealViewModel.uid = null;
+    _exerciseViewModel.uid = null;
+    _bowlViewModel.uid = null;
+    _routineViewModel.uid = null;
+    _plantViewModel.uid = null;
+    _friendViewModel.uid = null;
+    _challengeViewModel.uid = null;
     onboardingDone = false;
     _resumeStep = 1;
     nickname = '';
@@ -1420,9 +1446,12 @@ class AppState extends ChangeNotifier {
     aiIronMg = null;
     needsPhotoReview = false;
     notifyListeners();
-    _postActivity('${log.mealType.label} 식단을 기록했어요');
-    _reportChallengeProgress(ChallengeType.mealRecord, todayMeals.length);
-    _reportChallengeProgress(ChallengeType.protein, todayProteinG);
+    _friendViewModel.postActivity('${log.mealType.label} 식단을 기록했어요');
+    _challengeViewModel.reportProgress(
+      ChallengeType.mealRecord,
+      todayMeals.length,
+    );
+    _challengeViewModel.reportProgress(ChallengeType.protein, todayProteinG);
     unawaited(_appIconService.setFilled(true));
   }
 
@@ -1462,8 +1491,11 @@ class AppState extends ChangeNotifier {
     final log = _exerciseViewModel.logFromDraft(dateKey: _selectedKey);
     _exerciseViewModel.addExercise(log); // 목록 추가 + 서버 저장은 ViewModel이 한다
     notifyListeners();
-    _postActivity('$exType $exMinutes분 운동했어요');
-    _reportChallengeProgress(ChallengeType.exercise, todayExerciseMinutes);
+    _friendViewModel.postActivity('$exType $exMinutes분 운동했어요');
+    _challengeViewModel.reportProgress(
+      ChallengeType.exercise,
+      todayExerciseMinutes,
+    );
   }
 
   // 내 루틴 — 목록 · 저장은 RoutineViewModel이 맡는다.
@@ -1533,8 +1565,11 @@ class AppState extends ChangeNotifier {
   /// 챌린지 진행도)을 모른다 — 물을 기록한 뒤 이 메서드도 함께 불러서
   /// 그 연결을 이어준다.
   void onWaterAdded(int ml) {
-    _postActivity('물 ${AppStateFormat.comma(ml)}ml을 기록했어요');
-    _reportChallengeProgress(ChallengeType.water, _waterViewModel.waterTotal);
+    _friendViewModel.postActivity('물 ${AppStateFormat.comma(ml)}ml을 기록했어요');
+    _challengeViewModel.reportProgress(
+      ChallengeType.water,
+      _waterViewModel.waterTotal,
+    );
   }
 
   // 계정에 저장되는 기록들 (체중 · 운동 · 식단 · 그릇 · 루틴 · 식물)
@@ -1550,8 +1585,8 @@ class AppState extends ChangeNotifier {
       _weightViewModel.loadForUid(uid, fallbackKg: profile.weightKg),
       _loadTemplates(uid),
       _plantViewModel.loadForUid(uid),
-      _loadFriendData(uid),
-      _loadChallenges(uid),
+      _friendViewModel.loadForUid(uid),
+      _challengeViewModel.loadForUid(uid),
       _loadMonth(today.year, today.month),
       _loadMonth(prev.year, prev.month), // 연속 기록을 세려면 지난달 끝도 필요하다
     ]);
@@ -1605,9 +1640,8 @@ class AppState extends ChangeNotifier {
       _routineViewModel.deleteAll(uid),
       _plantViewModel.deleteAll(uid),
       // 친구 · 챌린지 · 활동 피드는 다른 사용자와 함께 쓰는 공간이라 따로 지운다.
-      _friendRepo.deleteAllForUser(uid),
-      _challengeRepo.removeUser(uid),
-      _activityFeedRepo.deleteAllForUser(uid),
+      _friendViewModel.deleteAll(uid),
+      _challengeViewModel.deleteAll(uid),
     ]).timeout(limit);
     await _profiles.delete(uid).timeout(limit);
   }
@@ -2245,170 +2279,109 @@ class AppState extends ChangeNotifier {
 
   // 친구 · 챌린지
   //
-  // 사람은 이름 문자열이 아니라 User 모델(id로 구분)로 다룬다.
-  // "나"는 currentUser로, 그 외 사람들은 아래 people 목록에서 가져온다.
+  // 친구(목록 · 요청 · 검색 · 활동 피드)는 FriendViewModel이, 챌린지(목록 · 순위 ·
+  // 만들기 폼)는 ChallengeViewModel이 맡는다. 화면이 예전처럼 s.realFriends,
+  // s.challenges 같은 이름으로 쓸 수 있게, 같은 이름으로 전달만 한다.
+  // 공개 범위 설정은 계정과 함께 저장되는 값이라 AppState가 갖고 있다.
 
-  static const List<User> people = [
-    User(id: 'u_jihyun', nickname: '지현', emoji: '🏃', tint: Color(0xFFFFEDE3)),
-    User(id: 'u_minsu', nickname: '민수', emoji: '🪴', tint: Color(0xFFEAF5E7)),
-    User(id: 'u_seoyeon', nickname: '서연', emoji: '🌸', tint: Color(0xFFFCEAF1)),
-    User(id: 'u_taeho', nickname: '태호', emoji: '💧', tint: Color(0xFFEAF1FE)),
-    User(id: 'u_hyunwoo', nickname: '현우', emoji: '🙂', tint: Color(0xFFF7EFE7)),
-    User(id: 'u_minji', nickname: '민지', emoji: '🏃', tint: Color(0xFFFFEDE3)),
-    User(id: 'u_junho', nickname: '준호', emoji: '🥗', tint: Color(0xFFEAF5E7)),
-    User(id: 'u_yujin', nickname: '유진', emoji: '🌱', tint: Color(0xFFEAF5E7)),
-  ];
+  static const List<User> people = FriendViewModel.people;
+  static User personById(String id) => FriendViewModel.personById(id);
 
-  /// 지금 로그인한 사용자. 닉네임은 온보딩 · 마이페이지에서 바꾸는 값(nickname)을 그대로 반영한다.
-  User get currentUser => User(
-    id: _uid,
-    nickname: nickname,
-    emoji: '🙂',
-    tint: const Color(0xFFEAF1FE),
-  );
+  User get currentUser => _friendViewModel.currentUser;
+  List<String> get addedFriends => _friendViewModel.addedFriends;
+  void addFriend(String userId) => _friendViewModel.addFriend(userId);
 
-  /// id로 사람을 찾는다. 목록에 없는 id면(알 수 없는 사람) 안전한 대체 값을 준다.
-  static User personById(String id) => people.firstWhere(
-    (u) => u.id == id,
-    orElse: () => User(
-      id: id,
-      nickname: '알 수 없음',
-      emoji: '❓',
-      tint: const Color(0xFFEDEDED),
-    ),
-  );
+  String get inviteCode => _friendViewModel.inviteCode;
+  List<PublicProfile> get realFriends => _friendViewModel.realFriends;
+  List<ActivityFeedEntry> get realActivityFeed =>
+      _friendViewModel.realActivityFeed;
+  List<FriendRequest> get incomingFriendRequests =>
+      _friendViewModel.incomingFriendRequests;
+  Map<String, PublicProfile> get requesterProfiles =>
+      _friendViewModel.requesterProfiles;
+  PublicProfile? get friendSearchResult => _friendViewModel.friendSearchResult;
+  bool get friendSearchNotFound => _friendViewModel.friendSearchNotFound;
+  String get friendSearchQuery => _friendViewModel.friendSearchQuery;
 
-  List<String> addedFriends = [];
+  void setFriendSearchQuery(String v) =>
+      _friendViewModel.setFriendSearchQuery(v);
+  Future<void> searchFriendByCode() => _friendViewModel.searchFriendByCode();
+  Future<void> sendFriendRequestToSearchResult() =>
+      _friendViewModel.sendFriendRequestToSearchResult();
+  Future<void> acceptFriendRequest(FriendRequest request) =>
+      _friendViewModel.acceptFriendRequest(request);
+  Future<void> declineFriendRequest(FriendRequest request) =>
+      _friendViewModel.declineFriendRequest(request);
+  List<({User user, String desc})> get suggestedFriends =>
+      _friendViewModel.suggestedFriends;
+
+  List<({User user, String activity, String time})> get friendActivity =>
+      _friendViewModel.friendActivity;
+  Set<String> get cheeredFriends => _friendViewModel.cheeredFriends;
+  void cheerFriend(String userId) => _friendViewModel.cheerFriend(userId);
+
+  // 챌린지
+  List<Challenge> get challenges => _challengeViewModel.challenges;
+  List<Challenge> get joinableChallenges =>
+      _challengeViewModel.joinableChallenges;
+  List<Challenge> get myChallenges => _challengeViewModel.myChallenges;
+  Future<void> joinChallenge(String challengeId) =>
+      _challengeViewModel.joinChallenge(challengeId);
+
+  String get activeChallengeName => _challengeViewModel.activeChallengeName;
+  String get activeChallengePeriod => _challengeViewModel.activeChallengePeriod;
+  List<({User user, double ratio})> get activeChallengeProgress =>
+      _challengeViewModel.activeChallengeProgress;
+  int get myChallengeRank => _challengeViewModel.myChallengeRank;
+  List<({int rank, User user, int pct})> get challengeLeaderboard =>
+      _challengeViewModel.challengeLeaderboard;
+  static const challengeRewardTiers = ChallengeViewModel.challengeRewardTiers;
+
+  // 챌린지 만들기 폼
+  ChallengeDraft get challengeDraft => _challengeViewModel.challengeDraft;
+
+  String get chKind => _challengeViewModel.chKind;
+  set chKind(String value) => _challengeViewModel.chKind = value;
+  int get chTarget => _challengeViewModel.chTarget;
+  set chTarget(int value) => _challengeViewModel.chTarget = value;
+  int get chDays => _challengeViewModel.chDays;
+  set chDays(int value) => _challengeViewModel.chDays = value;
+  List<String> get chInvites => _challengeViewModel.chInvites;
+  bool get chPublic => _challengeViewModel.chPublic;
+  set chPublic(bool value) => _challengeViewModel.chPublic = value;
+  String get chReward => _challengeViewModel.chReward;
+  set chReward(String value) => _challengeViewModel.chReward = value;
+
+  static const chKindMeta = ChallengeViewModel.chKindMeta;
+  String get chUnit => _challengeViewModel.chUnit;
+  String get chDurLabel => _challengeViewModel.chDurLabel;
+  String get chName => _challengeViewModel.chName;
+  String get chRange => _challengeViewModel.chRange;
+  String get chRewardDesc => _challengeViewModel.chRewardDesc;
+  String get chPreview => _challengeViewModel.chPreview;
+
+  void setChKind(String k) => _challengeViewModel.setChKind(k);
+  void setChTarget(int v) => _challengeViewModel.setChTarget(v);
+  void setChDays(int v) => _challengeViewModel.setChDays(v);
+  void toggleChInvite(String n) => _challengeViewModel.toggleChInvite(n);
+  void setChPublic(bool v) => _challengeViewModel.setChPublic(v);
+  void setChReward(String r) => _challengeViewModel.setChReward(r);
+
+  /// 챌린지를 만들고 챌린지 탭으로 이동한다. 화면 이동은 저장을 기다리지 않는다.
+  Future<void> createChallenge() {
+    final saving = _challengeViewModel.createChallenge();
+    friendTab = '챌린지';
+    screen = 'friends';
+    notifyListeners();
+    return saving;
+  }
+
   final PrivacySettings privacySettings = PrivacySettings(userId: User.meId);
 
   String get shareScope => privacySettings.scope.label;
   set shareScope(String value) => privacySettings.scope = value == '비공개'
       ? ShareScope.private
       : ShareScope.friends;
-
-  /// 이 계정의 진짜 초대 코드. 로그인 직후 _loadFriendData에서 채워진다.
-  String inviteCode = '';
-
-  /// 실제로 친구 관계가 확정된 사람들(공개 프로필만 — 닉네임 정도).
-  List<PublicProfile> realFriends = [];
-
-  /// 나 + 친구들이 남긴 최근 활동(식단 · 운동 · 물 기록).
-  List<ActivityFeedEntry> realActivityFeed = [];
-
-  /// 내가 받은, 아직 답하지 않은 진짜 친구 요청.
-  List<FriendRequest> incomingFriendRequests = [];
-
-  /// 받은 요청을 보낸 사람들의 닉네임 — fromUid로 찾아 화면에 보여줄 때 쓴다.
-  Map<String, PublicProfile> requesterProfiles = {};
-
-  /// 초대 코드로 검색한 결과 — 화면에 "이 사람 맞아요?" 하고 보여줄 때 쓴다.
-  PublicProfile? friendSearchResult;
-  bool friendSearchNotFound = false;
-
-  String friendSearchQuery = '';
-
-  void setFriendSearchQuery(String v) {
-    friendSearchQuery = v;
-    friendSearchResult = null;
-    friendSearchNotFound = false;
-    notifyListeners();
-  }
-
-  /// 로그인 직후 초대 코드 · 친구 목록 · 받은 요청 · 활동 피드를 불러온다.
-  Future<void> _loadFriendData(String uid) async {
-    try {
-      inviteCode = await _friendRepo.ensureInviteCode(uid, nickname);
-      final friendUids = await _friendRepo.loadFriendUids(uid);
-      realFriends = [
-        for (final id in friendUids) ?await _friendRepo.loadPublicProfile(id),
-      ];
-      incomingFriendRequests = await _friendRepo.loadIncomingRequests(uid);
-      requesterProfiles = {};
-      for (final r in incomingFriendRequests) {
-        final p = await _friendRepo.loadPublicProfile(r.fromUid);
-        if (p != null) requesterProfiles[r.fromUid] = p;
-      }
-      realActivityFeed = await _activityFeedRepo.loadRecent([
-        uid,
-        ...friendUids,
-      ]);
-    } catch (e, stack) {
-      debugPrint('친구 정보를 불러오지 못했어요: $e\n$stack');
-      _notice = '친구 정보를 불러오지 못했어요.';
-    }
-  }
-
-  /// friendSearchQuery를 초대 코드로 취급해 상대를 찾는다.
-  Future<void> searchFriendByCode() async {
-    final code = friendSearchQuery.trim();
-    if (code.isEmpty) return;
-    final uid = await _friendRepo.findUidByCode(code);
-    if (uid == null || uid == _uid) {
-      friendSearchResult = null;
-      friendSearchNotFound = true;
-      notifyListeners();
-      return;
-    }
-    friendSearchResult = await _friendRepo.loadPublicProfile(uid);
-    friendSearchNotFound = friendSearchResult == null;
-    notifyListeners();
-  }
-
-  /// 검색 결과로 나온 사람에게 친구 요청을 보낸다.
-  Future<void> sendFriendRequestToSearchResult() async {
-    final target = friendSearchResult;
-    if (target == null) return;
-    await _friendRepo.sendFriendRequest(_uid, target.uid);
-    friendSearchResult = null;
-    friendSearchQuery = '';
-    notifyListeners();
-  }
-
-  Future<void> acceptFriendRequest(FriendRequest request) async {
-    await _friendRepo.acceptFriendRequest(request);
-    incomingFriendRequests.removeWhere((r) => r.id == request.id);
-    final profile =
-        requesterProfiles.remove(request.fromUid) ??
-        await _friendRepo.loadPublicProfile(request.fromUid);
-    if (profile != null) realFriends.add(profile);
-    notifyListeners();
-  }
-
-  Future<void> declineFriendRequest(FriendRequest request) async {
-    await _friendRepo.declineFriendRequest(request.id);
-    incomingFriendRequests.removeWhere((r) => r.id == request.id);
-    requesterProfiles.remove(request.fromUid);
-    notifyListeners();
-  }
-
-  /// 정당한 사용자 탐색 방법(초대 코드) 없이 "추천"을 지어내지 않는다.
-  /// 언젠가 실제 추천 로직(예: 연락처 연동)이 생기면 그때 채운다.
-  List<({User user, String desc})> get suggestedFriends => const [];
-
-  /// uid로 화면에 보여줄 User를 만든다 — 나 → 실제 친구 프로필 → 데모 인물 순으로 찾는다.
-  User _userFor(String uid) {
-    if (uid == _uid) return currentUser;
-    for (final f in realFriends) {
-      if (f.uid == uid) {
-        return User(
-          id: f.uid,
-          nickname: f.nickname,
-          emoji: '🙂',
-          tint: const Color(0xFFEAF1FE),
-        );
-      }
-    }
-    return personById(uid);
-  }
-
-  String _relativeTime(DateTime at) {
-    final diff = DateTime.now().difference(at);
-    if (diff.inMinutes < 1) return '방금';
-    if (diff.inMinutes < 60) return '${diff.inMinutes}분 전';
-    if (diff.inHours < 24) return '${diff.inHours}시간 전';
-    if (diff.inDays < 2) return '어제';
-    return '${diff.inDays}일 전';
-  }
 
   void setFriendTab(String t) {
     friendTab = t;
@@ -2419,33 +2392,6 @@ class AppState extends ChangeNotifier {
     shareScope = s;
     notifyListeners();
     unawaited(_persistInBackground());
-  }
-
-  // 친구 탭 · 활동 요약
-  //
-  // 화면에는 "활성 챌린지" 하나만 보여주는데, 여러 개에 참여 중이면
-  // 가장 먼저 참여한(목록 첫 번째) 챌린지를 대표로 보여준다.
-  Challenge? get _primaryChallenge =>
-      myChallenges.isEmpty ? null : myChallenges.first;
-
-  String get activeChallengeName => _primaryChallenge?.title ?? '';
-
-  /// 남은 일수 대신, 챌린지에 저장된 기간 문자열을 그대로 보여준다.
-  String get activeChallengePeriod => _primaryChallenge?.period ?? '';
-
-  List<({User user, double ratio})> get activeChallengeProgress {
-    final c = _primaryChallenge;
-    if (c == null) return [];
-    final progress = _challengeProgress[c.id] ?? const {};
-    return [
-      for (final uid in c.participantIds)
-        (
-          user: _userFor(uid),
-          ratio: c.targetValue <= 0
-              ? 0.0
-              : ((progress[uid] ?? 0) / c.targetValue).clamp(0.0, 1.0),
-        ),
-    ];
   }
 
   static const friendVisibilityDesc = {
@@ -2503,340 +2449,6 @@ class AppState extends ChangeNotifier {
     privacySettings.shareGarden = !privacySettings.shareGarden;
     notifyListeners();
     unawaited(_persistInBackground());
-  }
-
-  List<({User user, String activity, String time})> get friendActivity => [
-    for (final e in realActivityFeed)
-      (user: _userFor(e.uid), activity: e.message, time: _relativeTime(e.at)),
-  ];
-
-  final Set<String> cheeredFriends = {};
-
-  void cheerFriend(String userId) {
-    cheeredFriends.add(userId);
-    notifyListeners();
-  }
-
-  // 친구 탭 · 챌린지
-  List<({User user, int pct})> _rankedParticipants(Challenge? c) {
-    if (c == null) return [];
-    final progress = _challengeProgress[c.id] ?? const {};
-    final list = [
-      for (final uid in c.participantIds)
-        (
-          user: _userFor(uid),
-          pct: c.targetValue <= 0
-              ? 0
-              : (((progress[uid] ?? 0) / c.targetValue) * 100).round().clamp(
-                  0,
-                  100,
-                ),
-        ),
-    ];
-    list.sort((a, b) => b.pct.compareTo(a.pct));
-    return list;
-  }
-
-  int get myChallengeRank {
-    final ranked = _rankedParticipants(_primaryChallenge);
-    final i = ranked.indexWhere((r) => r.user.id == _uid);
-    return i < 0 ? 0 : i + 1;
-  }
-
-  List<({int rank, User user, int pct})> get challengeLeaderboard {
-    final ranked = _rankedParticipants(_primaryChallenge);
-    return [
-      for (var i = 0; i < ranked.length; i++)
-        (rank: i + 1, user: ranked[i].user, pct: ranked[i].pct),
-    ];
-  }
-
-  static const challengeRewardTiers = [
-    (
-      icon: '💧',
-      tint: Color(0xFFEAF1FE),
-      title: '데일리 챌린지 (1일)',
-      confirmed: '확정 · 물방울 1개',
-      bonus: '보너스 15% · 희귀 씨앗',
-    ),
-    (
-      icon: '🌰',
-      tint: Color(0xFFF7EFE7),
-      title: '위클리 챌린지 (2~7일)',
-      confirmed: '확정 · 희귀 씨앗 1개',
-      bonus: '보너스 15% · 전설 씨앗',
-    ),
-    (
-      icon: '🏺',
-      tint: Color(0xFFF1ECFF),
-      title: '장기 챌린지 (8일~)',
-      confirmed: '확정 · 전설 씨앗 + 정원 장식',
-      bonus: '보너스 10% · 스페셜 아이템',
-    ),
-  ];
-
-  /// 데모(Mock) 계정에서 보여줄 예시 챌린지. 실제 계정은 로그인 후
-  /// _loadChallenges에서 Firestore에 저장된 전체 목록으로 덮어쓴다.
-  List<Challenge> challenges = [
-    Challenge(
-      id: 'c_water_2l',
-      title: '오늘 물 2L 마시기',
-      description: '자정까지 물 2,000ml 기록하기',
-      icon: '💧',
-      category: '데일리',
-      period: '오늘 하루',
-      creatorId: 'u_jihyun',
-      participantIds: ['u_jihyun', 'u_minsu', 'u_seoyeon'],
-      metricType: ChallengeType.water,
-      targetValue: 2000,
-      isPublic: true,
-      rewardDescription: '확정 물방울 1개',
-      bonusDescription: '보너스 15% 희귀 씨앗',
-    ),
-    Challenge(
-      id: 'c_morning_run_sep',
-      title: '9월 아침 러닝 챌린지',
-      description: '매일 아침 20분 이상 러닝 기록하기',
-      icon: '🏃',
-      category: '장기',
-      period: '9/1 ~ 9/30',
-      creatorId: 'u_taeho',
-      participantIds: ['u_taeho', 'u_hyunwoo'],
-      metricType: ChallengeType.exercise,
-      targetValue: 20,
-      isPublic: true,
-      rewardDescription: '확정 전설 씨앗 + 정원 장식',
-      bonusDescription: '보너스 10% 스페셜 아이템',
-    ),
-  ];
-
-  /// 챌린지별 · 참가자별 오늘 진행 상황(리더보드용). 내가 참여 중인
-  /// 챌린지만 불러온다.
-  Map<String, Map<String, num>> _challengeProgress = {};
-
-  /// 저장된 전체 챌린지와, 그중 내가 참여 중인 챌린지의 진행 상황을 불러온다.
-  Future<void> _loadChallenges(String uid) async {
-    try {
-      challenges = await _challengeRepo.loadAll();
-      final progress = <String, Map<String, num>>{};
-      for (final c in challenges.where((c) => c.isParticipant(uid))) {
-        progress[c.id] = await _challengeRepo.loadProgress(
-          c.id,
-          c.participantIds,
-        );
-      }
-      _challengeProgress = progress;
-    } catch (e, stack) {
-      debugPrint('챌린지를 불러오지 못했어요: $e\n$stack');
-      challenges = [];
-      _challengeProgress = {};
-      _notice = '챌린지를 불러오지 못했어요.';
-    }
-  }
-
-  /// 친구 활동 피드에 한 줄을 남긴다. 데모 계정(로그인 안 함)에서는 아무것도 하지 않는다.
-  void _postActivity(String message) {
-    final a = account;
-    if (a == null) return;
-    unawaited(
-      _activityFeedRepo.post(a.uid, message).catchError((
-        Object e,
-        StackTrace stack,
-      ) {
-        debugPrint('활동 피드를 기록하지 못했어요: $e\n$stack');
-      }),
-    );
-  }
-
-  /// 내가 참여 중인, metricType이 일치하는 모든 챌린지에 오늘 진행 상황을 보고한다.
-  void _reportChallengeProgress(ChallengeType type, num value) {
-    final a = account;
-    if (a == null) return;
-    for (final c in myChallenges.where((c) => c.metricType == type)) {
-      unawaited(
-        _challengeRepo.reportProgress(c.id, a.uid, value).catchError((
-          Object e,
-          StackTrace stack,
-        ) {
-          debugPrint('챌린지 진행 상황을 저장하지 못했어요: $e\n$stack');
-        }),
-      );
-    }
-  }
-
-  /// 아직 내가 참여하지 않은 공개 챌린지
-  List<Challenge> get joinableChallenges => challenges
-      .where((c) => c.isPublic && !c.isParticipant(currentUser.id))
-      .toList();
-
-  /// 내가 만들었거나 참여 중인 챌린지
-  List<Challenge> get myChallenges =>
-      challenges.where((c) => c.isParticipant(currentUser.id)).toList();
-
-  void addFriend(String userId) {
-    if (!addedFriends.contains(userId)) addedFriends.add(userId);
-    notifyListeners();
-  }
-
-  Future<void> joinChallenge(String challengeId) async {
-    final target = challenges.where((c) => c.id == challengeId);
-    if (target.isEmpty) return;
-    if (!target.first.participantIds.contains(currentUser.id)) {
-      target.first.participantIds.add(currentUser.id); // 화면에 바로 반영
-    }
-    notifyListeners();
-    await _challengeRepo.join(challengeId, currentUser.id);
-  }
-
-  // 챌린지 만들기 폼
-  /// 챌린지 생성 화면의 임시 입력값입니다. Challenge는 저장 시에만 만듭니다.
-  final ChallengeDraft challengeDraft = ChallengeDraft();
-
-  String get chKind => challengeDraft.type.label;
-  set chKind(String value) => challengeDraft.type = switch (value) {
-    '운동 시간' => ChallengeType.exercise,
-    '식단 기록' => ChallengeType.mealRecord,
-    '단백질' => ChallengeType.protein,
-    _ => ChallengeType.water,
-  };
-
-  int get chTarget => challengeDraft.dailyTarget;
-  set chTarget(int value) => challengeDraft.dailyTarget = value;
-
-  int get chDays => challengeDraft.durationDays;
-  set chDays(int value) => challengeDraft.durationDays = value;
-
-  List<String> get chInvites => challengeDraft.invitedUserIds
-      .map((id) => personById(id).nickname)
-      .toList();
-
-  bool get chPublic => challengeDraft.visibility == ChallengeVisibility.public;
-  set chPublic(bool value) => challengeDraft.visibility = value
-      ? ChallengeVisibility.public
-      : ChallengeVisibility.private;
-
-  String get chReward => challengeDraft.reward.label;
-  set chReward(String value) => challengeDraft.reward = switch (value) {
-    '배지' => ChallengeReward.badge,
-    '없음' => ChallengeReward.none,
-    _ => ChallengeReward.plantExperience,
-  };
-
-  static const chKindMeta =
-      <String, ({String icon, String unit, int base, String desc})>{
-        '물 마시기': (icon: '💧', unit: 'ml', base: 2000, desc: '하루 물 섭취량'),
-        '운동 시간': (icon: '🏃', unit: '분', base: 40, desc: '하루 운동 시간'),
-        '식단 기록': (icon: '🍽️', unit: '회', base: 3, desc: '하루 기록 횟수'),
-        '단백질': (icon: '🥚', unit: 'g', base: 100, desc: '하루 단백질 섭취'),
-      };
-
-  String get chUnit => chKindMeta[chKind]!.unit;
-
-  String get chDurLabel => chDays % 30 == 0 && chDays >= 30
-      ? '${chDays ~/ 30}개월'
-      : chDays % 7 == 0
-      ? '${chDays ~/ 7}주'
-      : '$chDays일';
-
-  String get chName =>
-      '$chKind ${AppStateFormat.comma(chTarget)}$chUnit $chDurLabel 챌린지';
-
-  String get chRange {
-    final start = today;
-    final end = start.add(Duration(days: chDays.clamp(1, 365) - 1));
-    return '${start.month}월 ${start.day}일 ~ ${end.month}월 ${end.day}일 ($chDays일)';
-  }
-
-  String get chRewardDesc => {
-    '식물 EXP': '완주하면 참가자 전원 +100 EXP, 1위는 +150 EXP를 받아요.',
-    '배지': '완주자에게 전용 배지가 지급돼요.',
-    '없음': '순위만 기록되고 별도 보상은 없어요.',
-  }[chReward]!;
-
-  String get chPreview =>
-      '참가 ${chInvites.length + 1}명 · $chDays일 · 매일 ${AppStateFormat.comma(chTarget)}$chUnit 달성 · '
-      '보상 $chReward${chPublic ? ' · 공개' : ' · 초대한 친구만'}';
-
-  void setChKind(String k) {
-    chKind = k;
-    chTarget = chKindMeta[k]!.base;
-    notifyListeners();
-  }
-
-  void setChTarget(int v) {
-    chTarget = v < 0 ? 0 : v;
-    notifyListeners();
-  }
-
-  void setChDays(int v) {
-    chDays = v.clamp(1, 365);
-    notifyListeners();
-  }
-
-  void toggleChInvite(String n) {
-    final user = people.firstWhere(
-      (candidate) => candidate.nickname == n,
-      orElse: () => User(
-        id: 'u_$n',
-        nickname: n,
-        emoji: '🙂',
-        tint: const Color(0xFFEDEDED),
-      ),
-    );
-    challengeDraft.invitedUserIds.contains(user.id)
-        ? challengeDraft.invitedUserIds.remove(user.id)
-        : challengeDraft.invitedUserIds.add(user.id);
-    notifyListeners();
-  }
-
-  void setChPublic(bool v) {
-    chPublic = v;
-    notifyListeners();
-  }
-
-  void setChReward(String r) {
-    chReward = r;
-    notifyListeners();
-  }
-
-  Future<void> createChallenge() async {
-    final start = today;
-    final end = start.add(Duration(days: chDays.clamp(1, 365) - 1));
-    final invitedIds = chInvites
-        .map(
-          (n) => people
-              .firstWhere(
-                (u) => u.nickname == n,
-                orElse: () => User(
-                  id: 'u_$n',
-                  nickname: n,
-                  emoji: '🙂',
-                  tint: const Color(0xFFEDEDED),
-                ),
-              )
-              .id,
-        )
-        .toList();
-    final challenge = Challenge(
-      id: 'c_${DateTime.now().microsecondsSinceEpoch}',
-      title: chName,
-      description:
-          '매일 ${AppStateFormat.comma(chTarget)}$chUnit 달성 · 보상 $chReward',
-      icon: chKindMeta[chKind]!.icon,
-      category: chDurLabel,
-      period: '${start.month}/${start.day} ~ ${end.month}/${end.day}',
-      creatorId: currentUser.id,
-      participantIds: [currentUser.id, ...invitedIds],
-      metricType: challengeDraft.type,
-      targetValue: chTarget,
-      isPublic: chPublic,
-      rewardDescription: chRewardDesc,
-    );
-    challenges.add(challenge); // 화면에 바로 반영
-    friendTab = '챌린지';
-    screen = 'friends';
-    notifyListeners();
-    await _challengeRepo.create(challenge);
   }
 
   // 설정
