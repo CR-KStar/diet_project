@@ -5,7 +5,6 @@ import 'package:diet_project/data/services/meal_analysis_service.dart';
 import 'package:diet_project/domain/models/models.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:typed_data';
 
 class MealViewModel extends ChangeNotifier {
   MealViewModel({
@@ -21,11 +20,6 @@ class MealViewModel extends ChangeNotifier {
   String get _todayKey {
     final n = _now();
     return '${n.year}-${n.month.toString().padLeft(2, '0')}-${n.day.toString().padLeft(2, '0')}';
-  }
-
-  String get _clockTime {
-    final n = _now();
-    return '${n.hour.toString().padLeft(2, '0')}:${n.minute.toString().padLeft(2, '0')}';
   }
 
   String _keyDaysAgo(int days) {
