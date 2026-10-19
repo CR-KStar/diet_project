@@ -5,6 +5,7 @@ import 'package:diet_project/ui/record/viewmodel/photo_analysis_view_model.dart'
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:diet_project/data/services/meal_analysis_service.dart';
+import 'package:diet_project/app_composition.dart';
 
 MealAnalysisResult _result({
   String name = '비빔밥',
@@ -188,7 +189,10 @@ void main() {
     late AppState s;
 
     setUp(() {
-      s = AppState(photoAnalysisViewModel: vm);
+      s = AppState(
+        dependencies: memoryDependencies(mealAnalysisService: service),
+        photoPicker: (source) async => picked,
+      );
     });
 
     test('분석할 때 지금 고른 그릇을 함께 보낸다', () async {

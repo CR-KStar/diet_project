@@ -3,6 +3,7 @@ import 'package:diet_project/data/repositories/record_codecs.dart';
 import 'package:diet_project/ui/growth/viewmodel/plant_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:diet_project/data/repositories/impl/memory_record_repository.dart';
+import 'package:diet_project/app_composition.dart';
 
 /// 저장 횟수를 세고, 불러오기 · 저장을 실패시킬 수 있는 저장소.
 class _Repo<T> extends MemoryRecordRepository<T> {
@@ -233,7 +234,7 @@ void main() {
 
   group('AppState와의 연결', () {
     test('식물을 돌보면 화면이 구독하는 ViewModel에 전달된다', () {
-      final s = AppState();
+      final s = AppState(dependencies: memoryDependencies());
       var notified = 0;
       s.plantViewModel.addListener(() => notified++);
       final before = s.plantExp;
@@ -245,7 +246,7 @@ void main() {
     });
 
     test('도감 탭을 바꾸면 AppState에서도 읽힌다', () {
-      final s = AppState();
+      final s = AppState(dependencies: memoryDependencies());
       final tier = s.dexFiltered.first.tier;
       s.setDexTab(tier);
       expect(s.dexTab, tier);

@@ -4,9 +4,13 @@ import 'package:diet_project/data/repositories/impl/memory_activity_feed_reposit
 import 'package:diet_project/data/repositories/impl/memory_challenge_repository.dart';
 import 'package:diet_project/data/repositories/impl/memory_friend_repository.dart';
 import 'package:diet_project/data/auth/auth_service.dart';
+import 'package:diet_project/app_composition.dart';
 
 /// 로그인된 계정처럼 동작하고, 삭제 전에 beforeDelete를 불러주는 가짜 인증.
 class _Auth implements AuthService {
+  @override
+  bool get isDemo => false;
+
   _Auth(this.uid);
 
   final String uid;
@@ -72,10 +76,12 @@ void main() {
     await feed.post('bob', '물을 마셨어요');
 
     final s = AppState(
-      auth: _Auth('me'),
-      friendRepo: friends,
-      challengeRepo: challenges,
-      activityFeedRepo: feed,
+      dependencies: memoryDependencies(
+        auth: _Auth('me'),
+        friendRepo: friends,
+        challengeRepo: challenges,
+        activityFeedRepo: feed,
+      ),
     );
     await s.restoreSession();
 

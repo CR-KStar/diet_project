@@ -4,6 +4,7 @@ import 'package:diet_project/data/repositories/impl/memory_profile_repository.da
 import 'package:diet_project/domain/repositories/profile_repository.dart';
 import 'package:diet_project/data/repositories/profile_codec.dart';
 import 'package:diet_project/data/auth/auth_service.dart';
+import 'package:diet_project/app_composition.dart';
 
 const _account = AuthAccount(
   uid: 'uid_1',
@@ -13,6 +14,9 @@ const _account = AuthAccount(
 );
 
 class _FakeAuth implements AuthService {
+  @override
+  bool get isDemo => false;
+
   _FakeAuth({this.current});
 
   final AuthAccount? current;
@@ -117,7 +121,7 @@ void main() {
 
   group('앱을 다시 켰을 때', () {
     test('로그인된 계정이 없으면 로그인 화면에 머문다', () async {
-      final s = AppState(auth: _FakeAuth());
+      final s = AppState(dependencies: memoryDependencies(auth: _FakeAuth()));
 
       expect(await s.restoreSession(), isFalse);
       expect(s.navigationViewModel.screen, 'login');
@@ -127,8 +131,10 @@ void main() {
       final repo = MemoryProfileRepository();
       await repo.save('uid_1', _saved(onboardingDone: true));
       final s = AppState(
-        auth: _FakeAuth(current: _account),
-        profiles: repo,
+        dependencies: memoryDependencies(
+          auth: _FakeAuth(current: _account),
+          profiles: repo,
+        ),
       );
 
       expect(await s.restoreSession(), isTrue);
@@ -141,7 +147,9 @@ void main() {
     });
 
     test('저장된 정보가 없는 새 계정은 온보딩부터 시작하고 이름을 닉네임으로 쓴다', () async {
-      final s = AppState(auth: _FakeAuth(current: _account));
+      final s = AppState(
+        dependencies: memoryDependencies(auth: _FakeAuth(current: _account)),
+      );
 
       expect(await s.restoreSession(), isTrue);
       // 'signup'은 온보딩 1단계(계정 연결)로 가는 별칭이다.
@@ -154,8 +162,10 @@ void main() {
     test('불러오기에 실패하면 화면을 넘기지 않고 아무것도 덮어쓰지 않는다', () async {
       final repo = _BrokenRepo();
       final s = AppState(
-        auth: _FakeAuth(current: _account),
-        profiles: repo,
+        dependencies: memoryDependencies(
+          auth: _FakeAuth(current: _account),
+          profiles: repo,
+        ),
       );
       final nicknameBefore = s.nickname;
 
@@ -171,8 +181,10 @@ void main() {
     test('완료하면 저장되고, 다음에 켜면 온보딩 없이 홈으로 간다', () async {
       final repo = MemoryProfileRepository();
       final first = AppState(
-        auth: _FakeAuth(current: _account),
-        profiles: repo,
+        dependencies: memoryDependencies(
+          auth: _FakeAuth(current: _account),
+          profiles: repo,
+        ),
       );
       await first.restoreSession();
       first
@@ -183,8 +195,10 @@ void main() {
       expect(first.navigationViewModel.screen, 'home');
 
       final second = AppState(
-        auth: _FakeAuth(current: _account),
-        profiles: repo,
+        dependencies: memoryDependencies(
+          auth: _FakeAuth(current: _account),
+          profiles: repo,
+        ),
       );
       await second.restoreSession();
 
@@ -195,8 +209,10 @@ void main() {
 
     test('저장에 실패하면 화면과 완료 표시를 그대로 둔다', () async {
       final s = AppState(
-        auth: _FakeAuth(current: _account),
-        profiles: _BrokenRepo(),
+        dependencies: memoryDependencies(
+          auth: _FakeAuth(current: _account),
+          profiles: _BrokenRepo(),
+        ),
       );
       await s.signIn(LoginProvider.google); // 불러오기 실패 → 로그인 상태만 유지
       s.account = _account;
@@ -210,8 +226,10 @@ void main() {
     test('단계를 넘길 때마다 진행 상황이 저장되고, 다시 켜면 그 단계에서 이어서 한다', () async {
       final repo = MemoryProfileRepository();
       final first = AppState(
-        auth: _FakeAuth(current: _account),
-        profiles: repo,
+        dependencies: memoryDependencies(
+          auth: _FakeAuth(current: _account),
+          profiles: repo,
+        ),
       );
       await first.restoreSession();
       first.nickname = '중간닉';
@@ -225,8 +243,10 @@ void main() {
       expect(saved?.nickname, '중간닉');
 
       final second = AppState(
-        auth: _FakeAuth(current: _account),
-        profiles: repo,
+        dependencies: memoryDependencies(
+          auth: _FakeAuth(current: _account),
+          profiles: repo,
+        ),
       );
       await second.restoreSession();
 
@@ -237,8 +257,10 @@ void main() {
 
     test('단계 저장이 실패해도 화면은 넘어가고 안내 문구가 남는다', () async {
       final s = AppState(
-        auth: _FakeAuth(current: _account),
-        profiles: _BrokenRepo(),
+        dependencies: memoryDependencies(
+          auth: _FakeAuth(current: _account),
+          profiles: _BrokenRepo(),
+        ),
       );
       await s.signIn(LoginProvider.google);
       s.account = _account;
@@ -254,8 +276,10 @@ void main() {
       final repo = MemoryProfileRepository();
       await repo.save('uid_1', _saved(onboardingDone: true));
       final s = AppState(
-        auth: _FakeAuth(current: _account),
-        profiles: repo,
+        dependencies: memoryDependencies(
+          auth: _FakeAuth(current: _account),
+          profiles: repo,
+        ),
       );
       await s.restoreSession();
 
@@ -273,8 +297,10 @@ void main() {
       final repo = MemoryProfileRepository();
       await repo.save('uid_1', _saved(onboardingDone: true));
       final s = AppState(
-        auth: _FakeAuth(current: _account),
-        profiles: repo,
+        dependencies: memoryDependencies(
+          auth: _FakeAuth(current: _account),
+          profiles: repo,
+        ),
       );
       await s.restoreSession();
 
@@ -292,8 +318,10 @@ void main() {
       final repo = _DeleteFailsRepo();
       await repo.save('uid_1', _saved(onboardingDone: true));
       final s = AppState(
-        auth: _FakeAuth(current: _account),
-        profiles: repo,
+        dependencies: memoryDependencies(
+          auth: _FakeAuth(current: _account),
+          profiles: repo,
+        ),
       );
       await s.restoreSession();
 
@@ -308,7 +336,9 @@ void main() {
   });
 
   test('로그아웃하면 안내 문구가 남는다', () async {
-    final s = AppState(auth: _FakeAuth(current: _account));
+    final s = AppState(
+      dependencies: memoryDependencies(auth: _FakeAuth(current: _account)),
+    );
     await s.restoreSession();
 
     await s.signOut();
@@ -320,8 +350,10 @@ void main() {
     final repo = MemoryProfileRepository();
     await repo.save('uid_1', _saved(onboardingDone: true));
     final s = AppState(
-      auth: _FakeAuth(current: _account),
-      profiles: repo,
+      dependencies: memoryDependencies(
+        auth: _FakeAuth(current: _account),
+        profiles: repo,
+      ),
     );
     await s.restoreSession();
 
@@ -334,7 +366,9 @@ void main() {
   });
 
   test('로그아웃 뒤 다른 계정으로 로그인하면 약관 동의를 다시 받는다', () async {
-    final s = AppState(auth: _FakeAuth(current: _account));
+    final s = AppState(
+      dependencies: memoryDependencies(auth: _FakeAuth(current: _account)),
+    );
     await s.restoreSession();
     s.toggleAllTerms(); // 이전 계정이 모든 약관에 동의
     expect(s.requiredTermsOk, isTrue);

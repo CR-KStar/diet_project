@@ -3,6 +3,7 @@ import 'package:diet_project/ui/social/viewmodel/challenge_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:diet_project/data/repositories/impl/memory_challenge_repository.dart';
 import 'package:diet_project/domain/repositories/challenge_repository.dart';
+import 'package:diet_project/app_composition.dart';
 
 Challenge _challenge(
   String id, {
@@ -306,7 +307,11 @@ void main() {
 
   group('AppState 연결', () {
     test('챌린지를 만들면 챌린지 탭으로 이동한다', () async {
-      final s = AppState(challengeRepo: MemoryChallengeRepository(seed: []));
+      final s = AppState(
+        dependencies: memoryDependencies(
+          challengeRepo: MemoryChallengeRepository(seed: []),
+        ),
+      );
 
       await s.createChallenge();
 
@@ -318,7 +323,11 @@ void main() {
     });
 
     test('챌린지 목록 변화가 화면이 구독하는 ViewModel에 전달된다', () async {
-      final s = AppState(challengeRepo: MemoryChallengeRepository(seed: []));
+      final s = AppState(
+        dependencies: memoryDependencies(
+          challengeRepo: MemoryChallengeRepository(seed: []),
+        ),
+      );
       var notified = 0;
       s.challengeViewModel.addListener(() => notified++);
 

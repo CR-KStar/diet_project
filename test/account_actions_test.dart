@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:diet_project/data/repositories/impl/memory_profile_repository.dart';
 import 'package:diet_project/data/auth/auth_service.dart';
+import 'package:diet_project/app_composition.dart';
 
 const _account = AuthAccount(
   uid: 'uid_1',
@@ -15,6 +16,9 @@ const _account = AuthAccount(
 );
 
 class _FakeAuth implements AuthService {
+  @override
+  bool get isDemo => false;
+
   @override
   AuthAccount? get currentAccount => _account;
 
@@ -44,7 +48,9 @@ Future<AppState> _loggedInState(MemoryProfileRepository repo) async {
       privacy: PrivacySettings(userId: 'uid_1'),
     ),
   );
-  final state = AppState(auth: _FakeAuth(), profiles: repo);
+  final state = AppState(
+    dependencies: memoryDependencies(auth: _FakeAuth(), profiles: repo),
+  );
   await state.restoreSession();
   return state;
 }

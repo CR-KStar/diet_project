@@ -1,6 +1,7 @@
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/ui/home/viewmodel/today_summary.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:diet_project/app_composition.dart';
 
 MealLog _meal(
   MealType type,
@@ -126,7 +127,9 @@ void main() {
 
   group('AppState 연결', () {
     test('예시 계정의 오늘 수치가 오늘의 식단 4건으로 계산된다', () {
-      final s = AppState(now: () => DateTime(2026, 10, 18));
+      final s = AppState(
+        dependencies: memoryDependencies(now: () => DateTime(2026, 10, 18)),
+      );
 
       expect(s.intakeKcal, 320 + 450 + 480 + 200);
       expect(s.remainKcal, s.dailyTarget - s.intakeKcal);
@@ -135,7 +138,9 @@ void main() {
     });
 
     test('식단을 기록하면 오늘 수치가 바로 바뀐다', () {
-      final s = AppState(now: () => DateTime(2026, 10, 18));
+      final s = AppState(
+        dependencies: memoryDependencies(now: () => DateTime(2026, 10, 18)),
+      );
       final before = s.intakeKcal;
 
       s.logMeal();
@@ -144,7 +149,9 @@ void main() {
     });
 
     test('기록 탭에서 다른 날짜를 보고 있어도 오늘 수치는 그대로다', () {
-      final s = AppState(now: () => DateTime(2026, 10, 18));
+      final s = AppState(
+        dependencies: memoryDependencies(now: () => DateTime(2026, 10, 18)),
+      );
       final before = s.intakeKcal;
 
       s.selectDay(17);

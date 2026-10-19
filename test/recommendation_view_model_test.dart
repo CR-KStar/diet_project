@@ -2,6 +2,7 @@ import 'package:diet_project/app_state.dart';
 import 'package:diet_project/ui/home/viewmodel/recommendation_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:diet_project/data/services/meal_recommendation_service.dart';
+import 'package:diet_project/app_composition.dart';
 
 AiMealSuggestion _ai(
   String name, {
@@ -220,7 +221,9 @@ void main() {
 
   group('AppState 연결', () {
     test('동의한 상태로 추천 화면에 들어가면 AI 추천을 한 번 불러온다', () async {
-      final s = AppState(mealRecommendationService: service);
+      final s = AppState(
+        dependencies: memoryDependencies(mealRecommendationService: service),
+      );
       await s.setAiConsent(true);
 
       s.navigationViewModel.go('recommend');
@@ -233,7 +236,9 @@ void main() {
     });
 
     test('동의 전에는 추천 화면에 들어가도 AI에 요청하지 않는다', () async {
-      final s = AppState(mealRecommendationService: service);
+      final s = AppState(
+        dependencies: memoryDependencies(mealRecommendationService: service),
+      );
 
       s.navigationViewModel.go('recommend');
       await Future<void>.delayed(Duration.zero);
@@ -243,7 +248,9 @@ void main() {
     });
 
     test('추천 조건이 바뀌면 화면이 구독하는 ViewModel에 전달된다', () {
-      final s = AppState(mealRecommendationService: service);
+      final s = AppState(
+        dependencies: memoryDependencies(mealRecommendationService: service),
+      );
       var notified = 0;
       s.recommendationViewModel.addListener(() => notified++);
 

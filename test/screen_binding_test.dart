@@ -7,9 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:diet_project/utils/app_state_format.dart';
+import 'package:diet_project/app_composition.dart';
 
 /// 로그인한 실제 새 계정 — 예시 기록이 없고, 도감에 모은 식물도 없다.
 class _NewAccountAuth implements AuthService {
+  @override
+  bool get isDemo => false;
+
   static const _account = AuthAccount(
     uid: 'uid_new',
     provider: LoginProvider.google,
@@ -53,7 +57,11 @@ void main() {
     tester.view.devicePixelRatio = 2.0;
     addTearDown(tester.view.reset);
 
-    final state = with_ ?? AppState(now: () => DateTime(2026, 10, 18));
+    final state =
+        with_ ??
+        AppState(
+          dependencies: memoryDependencies(now: () => DateTime(2026, 10, 18)),
+        );
     state.navigationViewModel.go(screen);
     await tester.pumpWidget(
       AppProviders(
@@ -169,8 +177,10 @@ void main() {
 
   testWidgets('새 계정의 정원에는 키우는 식물과 빈 화분뿐이다 (지어낸 화분 없음)', (tester) async {
     final state = AppState(
-      auth: _NewAccountAuth(),
-      now: () => DateTime(2026, 10, 18),
+      dependencies: memoryDependencies(
+        auth: _NewAccountAuth(),
+        now: () => DateTime(2026, 10, 18),
+      ),
     );
     await state.restoreSession();
     await pumpAt(tester, 'plant', with_: state);

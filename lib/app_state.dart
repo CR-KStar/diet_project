@@ -2,6 +2,7 @@
 //
 // 화면 이동은 NavigationViewModel이 맡고, 여기서는 이동할 때 이어 줄 일만 합니다.
 
+import 'package:diet_project/app_dependencies.dart';
 import 'package:diet_project/ui/core/viewmodel/navigation_view_model.dart';
 import 'package:diet_project/ui/growth/viewmodel/plant_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/ai_consent_view_model.dart';
@@ -24,7 +25,6 @@ import 'package:diet_project/ui/record/viewmodel/weight_view_model.dart';
 import 'package:diet_project/ui/social/viewmodel/challenge_view_model.dart';
 import 'package:diet_project/ui/social/viewmodel/friend_view_model.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:diet_project/data/repositories/record_codecs.dart';
 import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
 import 'package:diet_project/domain/models/models.dart';
 import 'package:flutter/material.dart' show Offset;
@@ -32,29 +32,9 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import 'package:diet_project/data/repositories/impl/memory_activity_feed_repository.dart';
-import 'package:diet_project/data/repositories/impl/memory_challenge_repository.dart';
-import 'package:diet_project/data/repositories/impl/memory_friend_repository.dart';
-import 'package:diet_project/data/repositories/impl/memory_profile_repository.dart';
-import 'package:diet_project/data/repositories/impl/memory_record_repository.dart';
-import 'package:diet_project/data/repositories/impl/memory_water_repository.dart';
-import 'package:diet_project/domain/repositories/activity_feed_repository.dart';
-import 'package:diet_project/domain/repositories/challenge_repository.dart';
-import 'package:diet_project/domain/repositories/friend_repository.dart';
-import 'package:diet_project/domain/repositories/profile_repository.dart';
 import 'package:diet_project/domain/repositories/record_repository.dart';
-import 'package:diet_project/data/auth/auth_service.dart';
-import 'package:diet_project/data/auth/impl/mock_auth_service.dart';
-import 'package:diet_project/data/services/ai_consent_store.dart';
 import 'package:diet_project/data/services/app_icon_service.dart';
-import 'package:diet_project/data/services/impl/memory_ai_consent_store.dart';
-import 'package:diet_project/data/services/meal_analysis_service.dart';
-import 'package:diet_project/data/services/meal_recommendation_service.dart';
 import 'package:diet_project/data/services/notification_service.dart';
-import 'package:diet_project/data/services/impl/cloud_meal_analysis_service.dart';
-import 'package:diet_project/data/services/impl/cloud_meal_recommendation_service.dart';
-import 'package:diet_project/data/services/impl/local_notification_service.dart';
-import 'package:diet_project/data/services/impl/platform_app_icon_service.dart';
 import 'package:diet_project/utils/date_format.dart';
 import 'package:diet_project/utils/app_state_format.dart';
 
@@ -63,115 +43,69 @@ export 'package:diet_project/ui/home/viewmodel/today_summary.dart'
     show NutrientStat;
 
 class AppState extends ChangeNotifier {
+  /// 필요한 저장소 · 서비스는 [dependencies]로 받는다 — 구현을 고르는 일은 하지 않는다
+  /// (`app_composition.dart`). 물 · 체중 ViewModel과 사진 고르기는 테스트가 바꿔 끼울 수 있다.
   AppState({
-    AuthService? auth,
-    ProfileRepository? profiles,
+    required AppDependencies dependencies,
     WaterViewModel? waterViewModel,
     WeightViewModel? weightViewModel,
-    MealViewModel? mealViewModel,
-    ExerciseViewModel? exerciseViewModel,
-    BowlViewModel? bowlViewModel,
-    RoutineViewModel? routineViewModel,
-    PlantViewModel? plantViewModel,
-    AuthViewModel? authViewModel,
-    ProfileViewModel? profileViewModel,
-    PhotoAnalysisViewModel? photoAnalysisViewModel,
-    RecommendationViewModel? recommendationViewModel,
-    FriendViewModel? friendViewModel,
-    ChallengeViewModel? challengeViewModel,
-    RecordRepository<ExerciseLog>? exerciseRepo,
-    RecordRepository<MealLog>? mealRepo,
-    RecordRepository<Bowl>? bowlRepo,
-    RecordRepository<Routine>? routineRepo,
-    RecordRepository<Plant>? plantRepo,
-    RecordRepository<DexEntry>? dexRepo,
-    FriendRepository? friendRepo,
-    ChallengeRepository? challengeRepo,
-    ActivityFeedRepository? activityFeedRepo,
-    AiConsentStore? aiConsentStore,
-    MealAnalysisService? mealAnalysisService,
-    MealRecommendationService? mealRecommendationService,
-    NotificationService? notificationService,
-    AppIconService? appIconService,
-    DateTime Function()? now,
-  }) : _notificationService = notificationService ?? LocalNotificationService(),
-       _appIconService = appIconService ?? PlatformAppIconService(),
+    PhotoPicker? photoPicker,
+  }) : _notificationService = dependencies.notificationService,
+       _appIconService = dependencies.appIconService,
        _aiConsentViewModel = AiConsentViewModel(
-         store: aiConsentStore ?? MemoryAiConsentStore(),
+         store: dependencies.aiConsentStore,
        ),
        _notificationInboxViewModel = NotificationInboxViewModel(),
-       _authViewModel =
-           authViewModel ?? AuthViewModel(auth: auth ?? MockAuthService()),
-       _profileViewModel =
-           profileViewModel ??
-           ProfileViewModel(profiles: profiles ?? MemoryProfileRepository()),
+       _authViewModel = AuthViewModel(auth: dependencies.auth),
+       _profileViewModel = ProfileViewModel(profiles: dependencies.profiles),
        _waterViewModel =
            waterViewModel ??
-           WaterViewModel(waterRepo: MemoryWaterRepository(), now: now),
+           WaterViewModel(
+             waterRepo: dependencies.waterRepo,
+             now: dependencies.now,
+           ),
        _weightViewModel =
            weightViewModel ??
            WeightViewModel(
-             weightRepo: MemoryRecordRepository(weightCodec),
-             now: now,
+             weightRepo: dependencies.weightRepo,
+             now: dependencies.now,
            ),
-       _mealViewModel =
-           mealViewModel ??
-           MealViewModel(
-             mealRepo: mealRepo ?? MemoryRecordRepository(mealCodec),
-             now: now,
-           ),
-       _exerciseViewModel =
-           exerciseViewModel ??
-           ExerciseViewModel(
-             exerciseRepo:
-                 exerciseRepo ?? MemoryRecordRepository(exerciseCodec),
-             now: now,
-           ),
-       _exerciseRepo = exerciseRepo ?? MemoryRecordRepository(exerciseCodec),
-       _mealRepo = mealRepo ?? MemoryRecordRepository(mealCodec),
-       _bowlViewModel =
-           bowlViewModel ??
-           BowlViewModel(
-             bowlRepo: bowlRepo ?? MemoryRecordRepository(bowlCodec),
-           ),
-       _routineViewModel =
-           routineViewModel ??
-           RoutineViewModel(
-             routineRepo: routineRepo ?? MemoryRecordRepository(routineCodec),
-           ),
-       _plantViewModel =
-           plantViewModel ??
-           PlantViewModel(
-             plantRepo: plantRepo ?? MemoryRecordRepository(plantCodec),
-             dexRepo: dexRepo ?? MemoryRecordRepository(dexEntryCodec),
-             now: now,
-           ),
-       _photoAnalysisViewModel =
-           photoAnalysisViewModel ??
-           PhotoAnalysisViewModel(
-             service: mealAnalysisService ?? CloudMealAnalysisService(),
-           ),
-       _recommendationViewModel =
-           recommendationViewModel ??
-           RecommendationViewModel(
-             service:
-                 mealRecommendationService ?? CloudMealRecommendationService(),
-           ),
-       _friendViewModel =
-           friendViewModel ??
-           FriendViewModel(
-             friendRepo: friendRepo ?? MemoryFriendRepository(),
-             activityFeedRepo:
-                 activityFeedRepo ?? MemoryActivityFeedRepository(),
-             now: now,
-           ),
-       _challengeViewModel =
-           challengeViewModel ??
-           ChallengeViewModel(
-             challengeRepo: challengeRepo ?? MemoryChallengeRepository(),
-             now: now,
-           ),
-       _now = now ?? DateTime.now {
+       _mealViewModel = MealViewModel(
+         mealRepo: dependencies.mealRepo,
+         now: dependencies.now,
+       ),
+       _exerciseViewModel = ExerciseViewModel(
+         exerciseRepo: dependencies.exerciseRepo,
+         now: dependencies.now,
+       ),
+       _exerciseRepo = dependencies.exerciseRepo,
+       _mealRepo = dependencies.mealRepo,
+       _bowlViewModel = BowlViewModel(bowlRepo: dependencies.bowlRepo),
+       _routineViewModel = RoutineViewModel(
+         routineRepo: dependencies.routineRepo,
+       ),
+       _plantViewModel = PlantViewModel(
+         plantRepo: dependencies.plantRepo,
+         dexRepo: dependencies.dexRepo,
+         now: dependencies.now,
+       ),
+       _photoAnalysisViewModel = PhotoAnalysisViewModel(
+         service: dependencies.mealAnalysisService,
+         picker: photoPicker,
+       ),
+       _recommendationViewModel = RecommendationViewModel(
+         service: dependencies.mealRecommendationService,
+       ),
+       _friendViewModel = FriendViewModel(
+         friendRepo: dependencies.friendRepo,
+         activityFeedRepo: dependencies.activityFeedRepo,
+         now: dependencies.now,
+       ),
+       _challengeViewModel = ChallengeViewModel(
+         challengeRepo: dependencies.challengeRepo,
+         now: dependencies.now,
+       ),
+       _now = dependencies.now {
     // 식단 저장이 실패하면 예전처럼 화면에 알림을 띄운다.
     _exerciseViewModel.onSaveFailed = () {
       _notice = '운동 기록 저장에 실패했어요. 네트워크를 확인해 주세요.';

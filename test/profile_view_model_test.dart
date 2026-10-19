@@ -2,6 +2,7 @@ import 'package:diet_project/app_state.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:diet_project/data/repositories/impl/memory_profile_repository.dart';
+import 'package:diet_project/app_composition.dart';
 
 const _account = AuthAccount(
   uid: 'uid_1',
@@ -287,7 +288,7 @@ void main() {
 
   group('AppState 연결', () {
     test('알림을 바꾸면 화면이 구독하는 ViewModel에 전달된다', () {
-      final s = AppState();
+      final s = AppState(dependencies: memoryDependencies());
       var notified = 0;
       s.profileViewModel.addListener(() => notified++);
 
@@ -298,7 +299,7 @@ void main() {
     });
 
     test('account를 바꾸면 내 정보 저장 대상도 함께 바뀐다', () async {
-      final s = AppState(profiles: repo);
+      final s = AppState(dependencies: memoryDependencies(profiles: repo));
 
       s.account = _account;
       await s.saveProfile();

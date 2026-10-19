@@ -8,9 +8,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:diet_project/data/repositories/impl/memory_record_repository.dart';
 import 'package:diet_project/data/auth/auth_service.dart';
+import 'package:diet_project/app_composition.dart';
 
 /// 로그인된 실제 계정 — 프로토타입 예시 기록이 비워져서 "기록이 하나도 없는" 상태가 된다.
 class _RealAuth implements AuthService {
+  @override
+  bool get isDemo => false;
+
   @override
   AuthAccount? get currentAccount =>
       const AuthAccount(uid: 'uid_1', provider: LoginProvider.google);
@@ -62,9 +66,11 @@ void main() {
         now: () => DateTime(2026, 9, 21),
       );
       final state = AppState(
-        auth: _RealAuth(),
+        dependencies: memoryDependencies(
+          auth: _RealAuth(),
+          now: () => DateTime(2026, 9, 21),
+        ),
         weightViewModel: weight,
-        now: () => DateTime(2026, 9, 21),
       );
       await state.restoreSession();
       state.navigationViewModel.go(screen);
@@ -91,7 +97,12 @@ void main() {
     tester.view.devicePixelRatio = 2.0;
     addTearDown(tester.view.reset);
 
-    final state = AppState(auth: _RealAuth(), now: () => DateTime(2026, 9, 21));
+    final state = AppState(
+      dependencies: memoryDependencies(
+        auth: _RealAuth(),
+        now: () => DateTime(2026, 9, 21),
+      ),
+    );
     await state.restoreSession();
     state.waterSheet = true;
 
@@ -111,7 +122,12 @@ void main() {
     tester.view.devicePixelRatio = 2.0;
     addTearDown(tester.view.reset);
 
-    final state = AppState(auth: _RealAuth(), now: () => DateTime(2026, 9, 21));
+    final state = AppState(
+      dependencies: memoryDependencies(
+        auth: _RealAuth(),
+        now: () => DateTime(2026, 9, 21),
+      ),
+    );
     await state.restoreSession();
     state.bowlSheet = true;
 

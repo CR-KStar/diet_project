@@ -12,6 +12,7 @@ import 'package:diet_project/data/repositories/impl/memory_record_repository.dar
 import 'package:diet_project/data/repositories/impl/memory_water_repository.dart';
 import 'package:diet_project/data/auth/auth_service.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
+import 'package:diet_project/app_composition.dart';
 
 const _account = AuthAccount(
   uid: 'uid_1',
@@ -21,6 +22,9 @@ const _account = AuthAccount(
 const _today = '2026-09-21';
 
 class _FakeAuth implements AuthService {
+  @override
+  bool get isDemo => false;
+
   @override
   AuthAccount? get currentAccount => _account;
 
@@ -88,16 +92,18 @@ class _Server {
     waterViewModel = WaterViewModel(waterRepo: water, now: clock);
     weightViewModel = WeightViewModel(weightRepo: weight, now: clock);
     return AppState(
-      auth: _FakeAuth(),
-      profiles: profiles,
+      dependencies: memoryDependencies(
+        auth: _FakeAuth(),
+        profiles: profiles,
+        exerciseRepo: exercise,
+        mealRepo: meals,
+        bowlRepo: bowls,
+        routineRepo: routines,
+        plantRepo: plant,
+        now: clock,
+      ),
       waterViewModel: waterViewModel,
       weightViewModel: weightViewModel,
-      exerciseRepo: exercise,
-      mealRepo: meals,
-      bowlRepo: bowls,
-      routineRepo: routines,
-      plantRepo: plant,
-      now: clock,
     );
   }
 }
@@ -504,9 +510,11 @@ void main() {
       final server = _Server();
       final flaky = _Flaky(plantCodec, failLoad: true);
       final s = AppState(
-        auth: _FakeAuth(),
-        plantRepo: flaky,
-        now: () => DateTime(2026, 9, 21),
+        dependencies: memoryDependencies(
+          auth: _FakeAuth(),
+          plantRepo: flaky,
+          now: () => DateTime(2026, 9, 21),
+        ),
       );
       await s.restoreSession();
 
@@ -526,9 +534,11 @@ void main() {
         now: () => DateTime(2026, 9, 21),
       );
       final s = AppState(
-        auth: _FakeAuth(),
+        dependencies: memoryDependencies(
+          auth: _FakeAuth(),
+          now: () => DateTime(2026, 9, 21),
+        ),
         weightViewModel: weight,
-        now: () => DateTime(2026, 9, 21),
       );
       await s.restoreSession();
 
@@ -540,12 +550,14 @@ void main() {
 
     test('기록을 불러오지 못해도 로그인은 막지 않고 안내만 한다', () async {
       final s = AppState(
-        auth: _FakeAuth(),
-        exerciseRepo: _Flaky(exerciseCodec, failLoad: true),
+        dependencies: memoryDependencies(
+          auth: _FakeAuth(),
+          exerciseRepo: _Flaky(exerciseCodec, failLoad: true),
+          now: () => DateTime(2026, 9, 21),
+        ),
         weightViewModel: WeightViewModel(
           weightRepo: _Flaky(weightCodec, failLoad: true),
         ),
-        now: () => DateTime(2026, 9, 21),
       );
 
       expect(await s.restoreSession(), isTrue);

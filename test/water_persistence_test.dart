@@ -10,6 +10,7 @@ import 'package:diet_project/data/repositories/impl/memory_water_repository.dart
 import 'package:diet_project/domain/repositories/water_repository.dart';
 import 'package:diet_project/data/repositories/water_codec.dart';
 import 'package:diet_project/data/auth/auth_service.dart';
+import 'package:diet_project/app_composition.dart';
 
 const _account = AuthAccount(
   uid: 'uid_1',
@@ -18,6 +19,9 @@ const _account = AuthAccount(
 );
 
 class _FakeAuth implements AuthService {
+  @override
+  bool get isDemo => false;
+
   @override
   AuthAccount? get currentAccount => _account;
 
@@ -71,10 +75,12 @@ Future<AppState> _start(
 }) async {
   final clock = now ?? () => DateTime(2026, 9, 21, 14, 5);
   final s = AppState(
-    auth: _FakeAuth(),
-    profiles: MemoryProfileRepository(),
+    dependencies: memoryDependencies(
+      auth: _FakeAuth(),
+      profiles: MemoryProfileRepository(),
+      now: clock,
+    ),
     waterViewModel: WaterViewModel(waterRepo: water, now: clock),
-    now: clock,
   );
   await s.restoreSession();
   return s;
@@ -258,10 +264,12 @@ void main() {
       DateTime now() => DateTime(2026, 9, 21, 14, 5);
       final water = WaterViewModel(waterRepo: repo, now: now);
       final s = AppState(
-        auth: _FakeAuth(),
-        profiles: MemoryProfileRepository(),
+        dependencies: memoryDependencies(
+          auth: _FakeAuth(),
+          profiles: MemoryProfileRepository(),
+          now: now,
+        ),
         waterViewModel: water,
-        now: now,
       );
       await s.restoreSession();
       water.addWater(250);
@@ -272,7 +280,9 @@ void main() {
     });
 
     test('가짜 로그인(예시 모드)에서는 예시 물 기록을 그대로 보여준다', () {
-      final s = AppState(now: () => DateTime(2026, 9, 21));
+      final s = AppState(
+        dependencies: memoryDependencies(now: () => DateTime(2026, 9, 21)),
+      );
 
       expect(s.waterTotal, 1450);
     });

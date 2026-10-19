@@ -9,13 +9,15 @@ ui  ──▶  domain  ◀──  data
 - `ui`는 `domain`과 `data`의 **인터페이스**를 안다.
 - `data`는 `domain`을 안다. (`ui`는 모른다.)
 - `domain`은 아무것도 모른다. Flutter도, Firebase도, 화면도 import하지 않는다.
-- 실제 구현(Firebase · 가짜 · 기기 기능)을 고르는 곳은 `main.dart`(와 AppState의 기본값)뿐이다.
+- 실제 구현(Firebase · 가짜 · 기기 기능)을 고르는 곳은 `app_composition.dart`뿐이다. `main.dart`가 그 결과(`AppDependencies`)를 AppState에 넘긴다.
 
 ## 폴더
 
 ```
 lib/
-  main.dart                     어떤 구현을 쓸지 고르고 앱을 시작한다 (조립하는 곳)
+  main.dart                     Firebase를 켜고 앱을 시작한다
+  app_composition.dart          어떤 구현을 쓸지 고르는 곳 (memoryDependencies · firebaseDependencies)
+  app_dependencies.dart         AppState가 받는 저장소 · 서비스 인터페이스 모음
   app_state.dart                여러 ViewModel을 엮는 동작(식단 기록, 로그인 …) + 시스템 뒤로가기
   app_providers.dart            AppState와 모든 ViewModel을 화면에 내려준다
   app_shell.dart                하단 탭 · 빠른 기록 시트 등 앱 껍데기

@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:diet_project/data/auth/auth_failure.dart';
 import 'package:diet_project/data/auth/auth_service.dart';
 import 'package:diet_project/data/auth/impl/mock_auth_service.dart';
+import 'package:diet_project/app_composition.dart';
 
 const _account = AuthAccount(
   uid: 'uid_1',
@@ -16,6 +17,9 @@ const _account = AuthAccount(
 
 /// 결과를 정할 수 있고, 어떤 순서로 불렸는지 기록하는 가짜 로그인 서비스.
 class _FakeAuth implements AuthService {
+  @override
+  bool get isDemo => false;
+
   AuthAccount? signInResult = _account;
   Object? signInError;
   Object? deleteError;
@@ -243,7 +247,7 @@ void main() {
 
   group('AppState 연결', () {
     test('로그인 상태 변화가 화면이 구독하는 ViewModel에 전달된다', () async {
-      final s = AppState(auth: auth);
+      final s = AppState(dependencies: memoryDependencies(auth: auth));
       var notified = 0;
       s.authViewModel.addListener(() => notified++);
 
@@ -255,7 +259,7 @@ void main() {
     });
 
     test('계정을 삭제하면 로그인 화면으로 돌아가고 안내 문구를 남긴다', () async {
-      final s = AppState(auth: auth);
+      final s = AppState(dependencies: memoryDependencies(auth: auth));
       await s.signIn(LoginProvider.google);
 
       expect(await s.deleteAccount(), isTrue);

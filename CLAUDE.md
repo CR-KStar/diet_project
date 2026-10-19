@@ -47,7 +47,7 @@ cd functions && npm run build            # Cloud Functions 컴파일
 
 ### 의존성 주입 · 테스트
 
-- 저장소 · 서비스는 인터페이스 뒤에 두고, 테스트에서는 메모리 구현이나 가짜(`implements`)를 끼운다. `AppState(...)` 생성자가 대부분의 의존성을 받는다.
+- 저장소 · 서비스는 인터페이스 뒤에 두고, 테스트에서는 메모리 구현이나 가짜(`implements`)를 끼운다. `AppState(dependencies: …)`가 `AppDependencies`(인터페이스 모음)를 받고, 어떤 구현을 끼울지는 `lib/app_composition.dart`(`memoryDependencies` · `firebaseDependencies`)에서만 고른다. 테스트는 `AppState(dependencies: memoryDependencies(mealRepo: fake, now: () => …))`처럼 바꿀 것만 넘긴다. AppState · ViewModel에서 `impl/` 구현 클래스를 import하지 않는다.
 - 날짜가 걸린 기능은 `now: () => DateTime(...)`을 주입해서 고정한다. `DateTime.now()`를 직접 부르지 않는다.
 - 새 동작에는 테스트를 같이 쓴다. 화면이 ViewModel을 구독하는지 확인하는 위젯 테스트는 `test/screen_binding_test.dart`를 참고한다. 위젯 테스트는 `AppProviders(state: ..., child: ...)`로 감싼다.
 - 테스트용 글꼴이 실제보다 커서 `overflowed` 경고가 나는 화면이 있다(`screen_binding_test`는 무시하도록 처리). 실제 오버플로 여부는 웹 데모로 확인한다.

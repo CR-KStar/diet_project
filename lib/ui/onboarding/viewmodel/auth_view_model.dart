@@ -2,7 +2,6 @@ import 'package:diet_project/domain/models/models.dart';
 import 'package:flutter/foundation.dart';
 import 'package:diet_project/data/auth/auth_failure.dart';
 import 'package:diet_project/data/auth/auth_service.dart';
-import 'package:diet_project/data/auth/impl/mock_auth_service.dart';
 
 /// 로그인 · 로그아웃 · 계정 삭제를 담당한다 — 진행 중 표시(중복 탭 방지)와
 /// 실패했을 때 사용자에게 보여줄 문구까지.
@@ -15,7 +14,7 @@ class AuthViewModel extends ChangeNotifier {
   final AuthService _auth;
 
   /// 가짜 로그인(Mock)일 때만 true — 이때는 예시 기록을 그대로 보여준다.
-  bool get isDemo => _auth is MockAuthService;
+  bool get isDemo => _auth.isDemo;
 
   /// 로그인한 계정 (로그인 전에는 null)
   AuthAccount? get account => _account;

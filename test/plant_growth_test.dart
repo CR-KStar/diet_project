@@ -4,6 +4,7 @@ import 'package:diet_project/data/repositories/record_codecs.dart';
 import 'package:diet_project/domain/rules/dex_rules.dart';
 import 'package:diet_project/ui/growth/viewmodel/plant_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:diet_project/app_composition.dart';
 
 /// 식물 성장 규칙 — 기록이 돌보기 · 축 점수 · 시듦 · 도감과 이어지는지 확인한다.
 void main() {
@@ -525,7 +526,9 @@ void main() {
 
   group('AppState 연결', () {
     test('식단 · 운동 · 물 · 체중을 기록하면 식물에 반영된다', () {
-      final s = AppState(now: () => DateTime(2026, 10, 18));
+      final s = AppState(
+        dependencies: memoryDependencies(now: () => DateTime(2026, 10, 18)),
+      );
       final before = s.plantViewModel.plant.tally.totalRecords;
       s.plantViewModel.plant.cares.updateAll((_, _) => 0);
 
@@ -542,7 +545,9 @@ void main() {
     });
 
     test('돌보기를 눌러 쓴 뒤에는 기록해야 다시 쓸 수 있다', () {
-      final s = AppState(now: () => DateTime(2026, 10, 18));
+      final s = AppState(
+        dependencies: memoryDependencies(now: () => DateTime(2026, 10, 18)),
+      );
       s.plantViewModel.plant.cares['영양 주기'] = 1;
       s.care('영양 주기');
       expect(s.cares['영양 주기'], 0);

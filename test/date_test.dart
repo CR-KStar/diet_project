@@ -5,9 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:diet_project/data/auth/auth_service.dart';
+import 'package:diet_project/app_composition.dart';
 
 /// 로그인된 실제 계정처럼 동작하는 가짜 인증 (Mock이 아니라서 예시 기록이 비워진다).
 class _RealAuth implements AuthService {
+  @override
+  bool get isDemo => false;
+
   @override
   AuthAccount? get currentAccount =>
       const AuthAccount(uid: 'uid_1', provider: LoginProvider.google);
@@ -25,8 +29,9 @@ class _RealAuth implements AuthService {
   Future<void> deleteAccount({Future<void> Function()? beforeDelete}) async {}
 }
 
-AppState _at(DateTime now, {AuthService? auth}) =>
-    AppState(now: () => now, auth: auth);
+AppState _at(DateTime now, {AuthService? auth}) => AppState(
+  dependencies: memoryDependencies(now: () => now, auth: auth),
+);
 
 void main() {
   group('날짜 키와 오늘', () {

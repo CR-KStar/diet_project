@@ -6,6 +6,7 @@ import 'package:diet_project/ui/record/viewmodel/routine_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:diet_project/data/repositories/impl/memory_record_repository.dart';
 import 'package:diet_project/domain/repositories/record_repository.dart';
+import 'package:diet_project/app_composition.dart';
 
 /// 저장 · 삭제 · 불러오기 중 원하는 동작을 실패시킬 수 있는 저장소.
 class _Flaky<T> extends MemoryRecordRepository<T> {
@@ -213,7 +214,7 @@ void main() {
 
   group('AppState와의 연결', () {
     test('그릇 · 루틴이 바뀌면 화면이 구독하는 ViewModel에 전달된다', () {
-      final s = AppState();
+      final s = AppState(dependencies: memoryDependencies());
       var notified = 0;
       s.bowlViewModel.addListener(() => notified++);
       s.routineViewModel.addListener(() => notified++);
@@ -227,7 +228,7 @@ void main() {
     });
 
     test('운동 입력값을 루틴으로 저장하고 다시 불러올 수 있다', () {
-      final s = AppState()
+      final s = AppState(dependencies: memoryDependencies())
         ..exType = '수영'
         ..exMinutes = 45
         ..exIntensity = '높음';
@@ -243,7 +244,7 @@ void main() {
     });
 
     test('식사에 쓸 그릇을 고르면 식단 입력값에도 반영된다', () {
-      final s = AppState();
+      final s = AppState(dependencies: memoryDependencies());
       s.selectBowl(2);
       expect(s.currentBowl?.id, 'bowl_salad');
       expect(s.mealDraft.bowlId, 'bowl_salad');

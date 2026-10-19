@@ -2,6 +2,7 @@ import 'package:diet_project/app_state.dart';
 import 'package:diet_project/domain/rules/diet_rules.dart';
 import 'package:diet_project/ui/record/viewmodel/meal_draft_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:diet_project/app_composition.dart';
 
 Bowl _bowl(int capacityMl) => Bowl(
   id: 'b',
@@ -207,7 +208,9 @@ void main() {
 
   group('AppState 연결', () {
     test('입력값을 바꾸면 보정 칼로리가 바뀌고 구독자에게도 전달된다', () {
-      final s = AppState(now: () => DateTime(2026, 10, 18));
+      final s = AppState(
+        dependencies: memoryDependencies(now: () => DateTime(2026, 10, 18)),
+      );
       var notified = 0;
       s.mealDraftViewModel.addListener(() => notified++);
       final before = s.adjustedKcal;
@@ -219,7 +222,9 @@ void main() {
     });
 
     test('식단을 기록하면 지금 입력값(끼니 · 소스)이 담긴다', () {
-      final s = AppState(now: () => DateTime(2026, 10, 18));
+      final s = AppState(
+        dependencies: memoryDependencies(now: () => DateTime(2026, 10, 18)),
+      );
       s.setExtra('meal', '저녁');
       s.setExtra('sauce', '간장');
 

@@ -1,6 +1,7 @@
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/ui/home/viewmodel/mission_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:diet_project/app_composition.dart';
 
 void main() {
   var uid = 'u1';
@@ -233,7 +234,9 @@ void main() {
 
   group('AppState 연결', () {
     test('미션 진행도가 실제 기록을 따라간다', () {
-      final s = AppState(now: () => DateTime(2026, 10, 18));
+      final s = AppState(
+        dependencies: memoryDependencies(now: () => DateTime(2026, 10, 18)),
+      );
       final before = s.missions.where((m) => m.category == '식단');
 
       s.logMeal();
@@ -249,7 +252,9 @@ void main() {
     });
 
     test('수동 완료하면 식물 경험치가 오른다', () {
-      final s = AppState(now: () => DateTime(2026, 10, 18));
+      final s = AppState(
+        dependencies: memoryDependencies(now: () => DateTime(2026, 10, 18)),
+      );
       final m = s.missions.firstWhere((m) => !s.missionEffectivelyDone(m));
       final exp = s.plantExp;
 
@@ -259,7 +264,9 @@ void main() {
     });
 
     test('미션 상태가 바뀌면 화면이 구독하는 ViewModel에 전달된다', () {
-      final s = AppState(now: () => DateTime(2026, 10, 18));
+      final s = AppState(
+        dependencies: memoryDependencies(now: () => DateTime(2026, 10, 18)),
+      );
       var notified = 0;
       s.missionViewModel.addListener(() => notified++);
 

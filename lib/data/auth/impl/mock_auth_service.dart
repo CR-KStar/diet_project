@@ -3,6 +3,9 @@ import 'package:diet_project/data/auth/auth_service.dart';
 
 /// Firebase 없이 화면만 확인할 때 쓰는 가짜 인증 — 항상 성공하고 uid는 고정값이다.
 class MockAuthService implements AuthService {
+  @override
+  bool get isDemo => true;
+
   AuthAccount? _account;
 
   @override

@@ -16,6 +16,9 @@ import 'package:diet_project/data/auth/auth_service.dart';
 
 /// Firebase Auth로 Google · Apple 로그인을 처리하는 인증 서비스.
 class FirebaseAuthService implements AuthService {
+  @override
+  bool get isDemo => false;
+
   FirebaseAuthService({FirebaseAuth? auth})
     : _auth = auth ?? FirebaseAuth.instance;
 

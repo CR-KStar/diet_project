@@ -3,6 +3,7 @@ import 'package:diet_project/data/repositories/record_codecs.dart';
 import 'package:diet_project/ui/record/viewmodel/weight_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:diet_project/data/repositories/impl/memory_record_repository.dart';
+import 'package:diet_project/app_composition.dart';
 
 void main() {
   group('Plant · PlantAxis', () {
@@ -57,7 +58,7 @@ void main() {
 
   group('AppState.todayRegistry', () {
     test('처음에는 오늘 저장한 운동 · 체중이 없다 (체중 시드는 어제 기록)', () {
-      final s = AppState();
+      final s = AppState(dependencies: memoryDependencies());
       expect(s.todayRegistry.exerciseLogs, isEmpty);
       expect(s.todayRegistry.weightEntry, isNull);
     });
@@ -66,9 +67,10 @@ void main() {
       final weight = WeightViewModel(
         weightRepo: MemoryRecordRepository(weightCodec),
       );
-      final s = AppState(weightViewModel: weight)
-        ..exType = '달리기'
-        ..exMinutes = 30;
+      final s =
+          AppState(dependencies: memoryDependencies(), weightViewModel: weight)
+            ..exType = '달리기'
+            ..exMinutes = 30;
       weight.setWeightInput(56.4);
       s.logExercise();
       weight.logWeight();
@@ -86,7 +88,10 @@ void main() {
         weightRepo: MemoryRecordRepository(weightCodec),
         now: () => now,
       );
-      final s = AppState(weightViewModel: weight, now: () => now);
+      final s = AppState(
+        dependencies: memoryDependencies(now: () => now),
+        weightViewModel: weight,
+      );
 
       var days = s.recentWeightDays;
       expect(days, hasLength(7));
@@ -103,7 +108,9 @@ void main() {
     });
 
     test('기록 탭에서 다른 날짜를 넘겨봐도 오늘 요약은 그대로다', () {
-      final s = AppState(now: () => DateTime(2026, 9, 21));
+      final s = AppState(
+        dependencies: memoryDependencies(now: () => DateTime(2026, 9, 21)),
+      );
       final before = s.todayRegistry;
 
       s.selectDay(20);
@@ -117,7 +124,9 @@ void main() {
 
   group('챌린지 만들기', () {
     test('기간은 오늘부터 계산하고, 가짜 사람을 초대하지 않는다', () async {
-      final s = AppState(now: () => DateTime(2026, 10, 7));
+      final s = AppState(
+        dependencies: memoryDependencies(now: () => DateTime(2026, 10, 7)),
+      );
       s.chDays = 7;
       expect(s.chInvites, isEmpty);
 

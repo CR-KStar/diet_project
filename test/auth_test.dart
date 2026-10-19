@@ -3,9 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:diet_project/data/auth/auth_failure.dart';
 import 'package:diet_project/data/auth/auth_service.dart';
 import 'package:diet_project/data/auth/impl/mock_auth_service.dart';
+import 'package:diet_project/app_composition.dart';
 
 /// 정해 둔 결과만 돌려주는 가짜 인증 서비스.
 class _FakeAuth implements AuthService {
+  @override
+  bool get isDemo => false;
+
   _FakeAuth({this.result, this.failure, this.crash});
 
   final AuthAccount? result;
@@ -44,12 +48,14 @@ void main() {
   group('AppState.signIn', () {
     test('성공하면 계정 · 방식 · 닉네임이 반영된다', () async {
       final s = AppState(
-        auth: _FakeAuth(
-          result: const AuthAccount(
-            uid: 'firebase_uid_1',
-            provider: LoginProvider.apple,
-            displayName: '지민',
-            isNewUser: true,
+        dependencies: memoryDependencies(
+          auth: _FakeAuth(
+            result: const AuthAccount(
+              uid: 'firebase_uid_1',
+              provider: LoginProvider.apple,
+              displayName: '지민',
+              isNewUser: true,
+            ),
           ),
         ),
       );
@@ -63,8 +69,13 @@ void main() {
 
     test('이름을 못 받으면 기존 닉네임을 유지한다', () async {
       final s = AppState(
-        auth: _FakeAuth(
-          result: const AuthAccount(uid: 'u1', provider: LoginProvider.google),
+        dependencies: memoryDependencies(
+          auth: _FakeAuth(
+            result: const AuthAccount(
+              uid: 'u1',
+              provider: LoginProvider.google,
+            ),
+          ),
         ),
       );
       final before = s.nickname;
@@ -74,7 +85,7 @@ void main() {
     });
 
     test('사용자가 취소하면 false이고 오류 문구는 없다', () async {
-      final s = AppState(auth: _FakeAuth());
+      final s = AppState(dependencies: memoryDependencies(auth: _FakeAuth()));
 
       expect(await s.signIn(LoginProvider.google), isFalse);
       expect(s.account, isNull);
@@ -84,7 +95,9 @@ void main() {
 
     test('실패하면 false이고 사용자용 문구가 남는다', () async {
       final s = AppState(
-        auth: _FakeAuth(failure: const AuthFailure('로그인에 실패했어요.')),
+        dependencies: memoryDependencies(
+          auth: _FakeAuth(failure: const AuthFailure('로그인에 실패했어요.')),
+        ),
       );
 
       expect(await s.signIn(LoginProvider.google), isFalse);
@@ -94,7 +107,11 @@ void main() {
   });
 
   test('예상하지 못한 오류도 사용자 문구로 바뀌고 로그인 중 표시가 풀린다', () async {
-    final s = AppState(auth: _FakeAuth(crash: StateError('boom')));
+    final s = AppState(
+      dependencies: memoryDependencies(
+        auth: _FakeAuth(crash: StateError('boom')),
+      ),
+    );
 
     expect(await s.signIn(LoginProvider.apple), isFalse);
     expect(s.authError, isNotNull);
@@ -107,7 +124,7 @@ void main() {
       final fake = _FakeAuth(
         result: const AuthAccount(uid: 'u1', provider: LoginProvider.google),
       );
-      final s = AppState(auth: fake);
+      final s = AppState(dependencies: memoryDependencies(auth: fake));
       await s.signIn(LoginProvider.google);
 
       await s.signOut();
@@ -118,7 +135,11 @@ void main() {
     });
 
     test('계정 삭제에 실패하면 false이고 문구가 남는다', () async {
-      final s = AppState(auth: _FakeAuth(failure: const AuthFailure('삭제 실패')));
+      final s = AppState(
+        dependencies: memoryDependencies(
+          auth: _FakeAuth(failure: const AuthFailure('삭제 실패')),
+        ),
+      );
 
       expect(await s.deleteAccount(), isFalse);
       expect(s.authError, '삭제 실패');

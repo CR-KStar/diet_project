@@ -111,7 +111,7 @@ flowchart LR
 
 - `domain`은 Flutter도 Firebase도 화면도 몰라요. (모델 · 저장소 인터페이스 · 계산 규칙)
 - `data`는 `domain`의 인터페이스를 구현해요. (`impl/` 폴더에 Firestore · 메모리 · Cloud Functions 구현)
-- `ui`는 인터페이스만 알고, 어떤 구현을 쓸지는 `main.dart`가 골라요.
+- `ui`는 인터페이스만 알고, 어떤 구현을 쓸지는 `app_composition.dart`가 골라요.
 
 자세한 규칙과 폴더 설명은 **[ARCHITECTURE.md](ARCHITECTURE.md)** 에 있어요.
 
@@ -284,7 +284,8 @@ dart run flutter_launcher_icons
 
 ```
 lib/
-  main.dart                  어떤 구현(Firebase / 가짜)을 쓸지 고르고 앱 시작
+  main.dart                  Firebase를 켜고 앱 시작
+  app_composition.dart       어떤 구현(Firebase / 가짜)을 쓸지 고르는 곳
   app_state.dart             화면 이동 + 여러 ViewModel을 엮는 동작
   app_providers.dart         AppState와 모든 ViewModel을 화면에 내려줌
   app_shell.dart             하단 탭 · 빠른 기록 시트
@@ -334,7 +335,6 @@ web/ · ios/ · android/       플랫폼 설정
 **구조**
 - 크기 고정 상수(`theme_tokens.dart`)를 `ThemeData` / `ThemeExtension`으로 옮길 예정이에요.
 - 화면 파일 일부가 1,000줄 안팎이라 더 쪼갤 수 있어요.
-- 서비스 구현 기본값을 `AppState`가 고르고 있어요 → `main.dart` 한 곳에서만 조립하도록 옮길 예정.
 
 ## 만든 방식
 

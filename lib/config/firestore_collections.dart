@@ -3,6 +3,13 @@ abstract final class FirestoreCollections {
   /// 사용자별 문서. 프로필과 하위 기록(물 · 체중 · 운동 …)이 이 아래에 있다.
   static const users = 'users';
   static const water = 'water';
+  static const weight = 'weight';
+  static const exercise = 'exercise';
+  static const meals = 'meals';
+  static const bowls = 'bowls';
+  static const routines = 'routines';
+  static const plant = 'plant';
+  static const dexEntries = 'dexEntries';
 
   /// 친구 · 초대 · 공개 프로필 (사용자 사이의 관계라서 users 밖에 둔다).
   static const publicProfiles = 'publicProfiles';

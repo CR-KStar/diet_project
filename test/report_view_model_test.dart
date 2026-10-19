@@ -1,6 +1,7 @@
 import 'package:diet_project/app_state.dart';
 import 'package:diet_project/ui/report_settings/viewmodel/report_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:diet_project/app_composition.dart';
 
 /// 2026-10-18(일요일)을 "오늘"로 고정한다.
 /// 주간 = 10/12(월) ~ 10/18(일), 지난주 = 10/5 ~ 10/11, 월간 = 10/1 ~ 10/18, 지난달 = 9월 전체.
@@ -343,7 +344,7 @@ void main() {
 
   group('AppState 연결', () {
     test('리포트 화면에 들어가면 주간으로 돌아온다', () {
-      final s = AppState(now: () => _today);
+      final s = AppState(dependencies: memoryDependencies(now: () => _today));
       s.setPeriod('월간');
 
       s.navigationViewModel.go('report');
@@ -352,7 +353,7 @@ void main() {
     });
 
     test('기간을 바꾸면 화면이 구독하는 ViewModel에 전달된다', () {
-      final s = AppState(now: () => _today);
+      final s = AppState(dependencies: memoryDependencies(now: () => _today));
       var notified = 0;
       s.reportViewModel.addListener(() => notified++);
 
@@ -363,7 +364,7 @@ void main() {
     });
 
     test('예시 계정의 최근 7일 기록이 리포트에 집계된다', () {
-      final s = AppState(now: () => _today);
+      final s = AppState(dependencies: memoryDependencies(now: () => _today));
 
       expect(s.kcalBars, hasLength(7));
       expect(s.recordDays, 7);
@@ -371,7 +372,7 @@ void main() {
     });
 
     test('식단을 기록하면 리포트의 오늘 막대가 바뀐다', () {
-      final s = AppState(now: () => _today);
+      final s = AppState(dependencies: memoryDependencies(now: () => _today));
       final before = s.kcalBars.last.value;
 
       s.logMeal();
