@@ -276,7 +276,7 @@ dart run flutter_launcher_icons
 
 ## 배포
 
-- **iOS** — `flutter build ipa` 후 App Store Connect로 업로드. Sign in with Apple 권한 때문에 자동 내보내기가 안 되면 `xcodebuild -exportArchive`로 수동 서명해서 내보내요.
+- **iOS** — `flutter build ipa` 후 App Store Connect로 업로드. Sign in with Apple 권한 때문에 자동 내보내기가 안 되면(`flutter build ipa`가 아카이브까지만 만들고 실패해요) `xcodebuild -exportArchive -archivePath build/ios/archive/Runner.xcarchive -exportOptionsPlist ios/ExportOptions.plist -exportPath build/ios/ipa`로 수동 서명해서 내보내요(프로필 `DietProject AppStore`).
 - **Android** — 업로드 키로 서명한 `flutter build appbundle --release` 결과를 Play Console에 올려요. 업로드 키 파일과 `android/key.properties`는 저장소에 없어요(`.gitignore`).
 - **웹 체험판**(`diet-project-81ce1.web.app`) — `tool/build_web.sh demo` 후 `firebase deploy --only hosting:demo`.
 - **웹 앱**(`meatgreen.web.app`, 실제 로그인 · 저장) — `tool/build_web.sh app` 후 `firebase deploy --only hosting:app`. 웹에서는 Google 로그인만 되고(Apple은 iPhone · iPad 전용), Firebase 승인된 도메인에 `meatgreen.web.app`이 있어야 해요.
