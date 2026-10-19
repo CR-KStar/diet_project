@@ -64,4 +64,44 @@ void main() {
     expect(state.onboardingDone, isTrue);
     expect((await repo.load('uid_1'))?.onboardingDone, isTrue);
   });
+
+  _backTests();
+}
+
+void _backTests() {
+  Future<AppState> start({required bool onboarded}) async {
+    final repo = MemoryProfileRepository();
+    final state = AppState(
+      dependencies: memoryDependencies(auth: _FakeAuth(), profiles: repo),
+    );
+    await state.restoreSession();
+    if (onboarded) {
+      await state.completeOnboarding();
+    }
+    return state;
+  }
+
+  group('온보딩 목표 단계에서 뒤로가기', () {
+    test('마이에서 "온보딩 다시 보기"로 들어왔으면 마이로 돌아간다', () async {
+      final state = await start(onboarded: true);
+      final nav = state.navigationViewModel;
+      nav.go('my');
+      nav.go('onboard');
+      expect(state.step, 2);
+
+      state.onboardingGoalBack();
+
+      expect(nav.screen, 'my');
+    });
+
+    test('처음 가입 중이면 계정 연결 단계(1단계)로 간다', () async {
+      final state = await start(onboarded: false);
+      state.step = 2;
+
+      state.onboardingGoalBack();
+
+      expect(state.step, 1);
+      expect(state.navigationViewModel.screen, 'onboard');
+    });
+  });
 }

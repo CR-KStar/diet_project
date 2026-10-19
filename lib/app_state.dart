@@ -414,6 +414,17 @@ class AppState extends ChangeNotifier {
     }
   }
 
+  /// 온보딩 첫 질문(목표)에서 뒤로 간다. 처음 가입 중이면 계정 연결(1단계)로, 마이에서
+  /// "온보딩 다시 보기"로 들어온 경우(이미 온보딩을 마친 계정)에는 마이로 돌아간다.
+  void onboardingGoalBack() {
+    if (onboardingDone) {
+      if (!_navigationViewModel.goBack()) _navigationViewModel.go('my');
+      return;
+    }
+    step = 1;
+    notifyListeners();
+  }
+
   /// 온보딩 완료를 저장하고 홈으로 간다. 저장 실패 시 false.
   Future<bool> completeOnboarding() async {
     final before = onboardingDone;

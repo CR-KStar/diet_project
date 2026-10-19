@@ -329,7 +329,7 @@ class _GoalStep extends StatelessWidget {
           stepNo: 1,
           title: '어떤 목표로 시작할까요?',
           desc: '목표와 평소 활동량에 맞춰 하루 권장 칼로리를 계산해요.',
-          onBack: () => s.setSub(() => profile.step = 1),
+          onBack: s.onboardingGoalBack,
         ),
 
         AppCard(
