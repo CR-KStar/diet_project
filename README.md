@@ -97,7 +97,7 @@
 | AI | Claude API (사진 → 영양 분석 · 메뉴 추천), zod 스키마로 응답 모양 강제 |
 | 기기 기능 | `flutter_local_notifications` · `image_picker` · `shared_preferences` · `url_launcher` |
 | 호스팅 | Firebase Hosting (웹 앱 · 웹 체험판) · GitHub Pages (정책 문서 · 포트폴리오) |
-| 테스트 | `flutter_test` — 단위 · 위젯 416개 |
+| 테스트 | `flutter_test` — 단위 · 위젯 415개 |
 
 ## 아키텍처
 
@@ -249,7 +249,7 @@ Google 로그인은 플랫폼별 설정이 더 필요해요(Android는 SHA-1 지
 flutter pub get                          # 의존성 설치
 flutter analyze                          # 정적 분석
 dart format lib test                     # 코드 정리
-flutter test                             # 전체 테스트 (416개)
+flutter test                             # 전체 테스트 (415개)
 flutter test test/mission_view_model_test.dart       # 파일 하나만
 flutter test --plain-name "시든다"                    # 이름으로 골라서
 
@@ -264,7 +264,7 @@ dart run flutter_launcher_icons
 
 ## 테스트
 
-`flutter test`로 단위 · 위젯 테스트 416개를 한 번에 돌려요. 서버 없이 가짜 구현으로 돌아가요.
+`flutter test`로 단위 · 위젯 테스트 415개를 한 번에 돌려요. 서버 없이 가짜 구현으로 돌아가요.
 
 | 영역 | 확인하는 것 |
 |---|---|
