@@ -15,7 +15,8 @@
 |---|---|
 | **iOS** | [App Store](https://apps.apple.com/kr/app/id6818954921) (2026-10-16 출시) |
 | **Android** | Google Play 비공개 테스트 중 (일반 공개 전) |
-| **웹 체험판** | https://diet-project-81ce1.web.app — 로그인 없이 예시 데이터로 둘러보기 (AI 분석 · 실제 로그인은 앱에서만) |
+| **웹 앱** | https://meatgreen.web.app — Google 로그인 후 실제 저장 (Apple 로그인은 iPhone · iPad에서만) |
+| **웹 체험판** | https://diet-project-81ce1.web.app — 로그인 없이 예시 데이터로 둘러보기 (실제 저장 · AI 분석은 안 돼요) |
 | **포트폴리오** | https://cr-kstar.github.io/diet_project/ |
 | **정책 문서** | [개인정보 처리방침](https://cr-kstar.github.io/diet_project/privacy/) · [이용약관](https://cr-kstar.github.io/diet_project/terms/) · [계정 삭제 안내](https://cr-kstar.github.io/diet_project/delete-account/) · [건강 정보 출처](https://cr-kstar.github.io/diet_project/sources/) |
 
@@ -82,7 +83,7 @@
 - **알림** — 아침 기록 · 저녁 정리 · 주간 리포트 알림을 기기에 예약해요(시간은 설정에서 바꿔요). 서버 푸시는 쓰지 않아요.
 - **동적 앱 아이콘** — 오늘 식단을 기록했는지에 따라 빈 그릇 ↔ 채운 그릇으로 바뀌어요(iOS 대체 아이콘 · Android activity-alias).
 - **계정** — Google · Apple 로그인, 설정에서 계정과 모든 기록 삭제.
-- **웹 체험판** — 로그인 없이 예시 데이터로 둘러봐요.
+- **웹** — 웹 앱은 Google 로그인으로 실제 기록을 저장하고, 웹 체험판은 로그인 없이 예시 데이터로 둘러봐요.
 
 ## 기술 스택
 
