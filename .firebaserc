@@ -1,5 +1,17 @@
 {
   "projects": {
     "default": "diet-project-81ce1"
+  },
+  "targets": {
+    "diet-project-81ce1": {
+      "hosting": {
+        "demo": [
+          "diet-project-81ce1"
+        ],
+        "app": [
+          "meatgreen"
+        ]
+      }
+    }
   }
 }

@@ -61,18 +61,26 @@ class FirebaseAuthService implements AuthService {
   @override
   Future<AuthAccount?> signIn(LoginProvider provider) async {
     try {
-      final fresh = switch (provider) {
-        LoginProvider.google => await _googleCredential(),
-        LoginProvider.apple => await _appleCredential(),
-      };
-      if (fresh == null) return null;
-
-      final result = await _auth.signInWithCredential(fresh.credential);
+      final UserCredential result;
+      String? name;
+      if (kIsWeb && provider == LoginProvider.google) {
+        // 웹은 기기 내 로그인 대신 Firebase 팝업으로 Google 로그인을 한다.
+        final popup = await _googlePopup();
+        if (popup == null) return null;
+        result = popup;
+      } else {
+        final fresh = switch (provider) {
+          LoginProvider.google => await _googleCredential(),
+          LoginProvider.apple => await _appleCredential(),
+        };
+        if (fresh == null) return null;
+        result = await _auth.signInWithCredential(fresh.credential);
+        // Apple은 이름을 첫 로그인 때만 주므로 그때 저장한다.
+        name = fresh.name;
+      }
       final user = result.user;
       if (user == null) throw const AuthFailure('로그인 정보를 받지 못했어요. 다시 시도해 주세요.');
 
-      // Apple은 이름을 첫 로그인 때만 주므로 그때 저장한다.
-      final name = fresh.name;
       if (name != null && (user.displayName ?? '').isEmpty) {
         await user.updateDisplayName(name);
       }
@@ -103,14 +111,22 @@ class FirebaseAuthService implements AuthService {
     try {
       // 순서: 본인 확인 → 데이터 삭제 → 계정 삭제.
       final apple = _providerOf(user) == LoginProvider.apple;
-      final fresh = apple
-          ? await _appleCredential()
-          : await _googleCredential();
-      if (fresh == null) throw const AuthFailure('본인 확인이 취소되어 계정을 삭제하지 못했어요.');
-      await user.reauthenticateWithCredential(fresh.credential);
+      if (kIsWeb && !apple) {
+        await _reauthenticateWithPopup(user);
+      } else {
+        final fresh = apple
+            ? await _appleCredential()
+            : await _googleCredential();
+        if (fresh == null) {
+          throw const AuthFailure('본인 확인이 취소되어 계정을 삭제하지 못했어요.');
+        }
+        await user.reauthenticateWithCredential(fresh.credential);
 
-      if (apple) {
-        await _auth.revokeTokenWithAuthorizationCode(fresh.authorizationCode!);
+        if (apple) {
+          await _auth.revokeTokenWithAuthorizationCode(
+            fresh.authorizationCode!,
+          );
+        }
       }
 
       await beforeDelete?.call();
@@ -128,6 +144,31 @@ class FirebaseAuthService implements AuthService {
     }
     return null;
   }
+
+  /// 웹 Google 로그인(팝업). 사용자가 팝업을 닫으면 null.
+  Future<UserCredential?> _googlePopup() async {
+    try {
+      return await _auth.signInWithPopup(GoogleAuthProvider());
+    } on FirebaseAuthException catch (e) {
+      if (_isPopupCancel(e)) return null;
+      rethrow;
+    }
+  }
+
+  /// 웹에서 계정 삭제 전 본인 확인(팝업). 취소하면 삭제하지 않는다.
+  Future<void> _reauthenticateWithPopup(User user) async {
+    try {
+      await user.reauthenticateWithPopup(GoogleAuthProvider());
+    } on FirebaseAuthException catch (e) {
+      if (_isPopupCancel(e)) {
+        throw const AuthFailure('본인 확인이 취소되어 계정을 삭제하지 못했어요.');
+      }
+      rethrow;
+    }
+  }
+
+  static bool _isPopupCancel(FirebaseAuthException e) =>
+      e.code == 'popup-closed-by-user' || e.code == 'cancelled-popup-request';
 
   /// 사용자가 취소하면 null.
   Future<_Fresh?> _googleCredential() async {
