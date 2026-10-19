@@ -285,7 +285,7 @@
         <div class="arch">
           <div class="layer"><b>UI</b><span>화면 위젯 (홈 · 기록 · 리포트 · 식물 · 친구) · 디자인 토큰</span></div>
           <div class="down">▼ 상태 구독 (Provider)</div>
-          <div class="layer"><b>상태</b><span>ViewModel 20개(식단 · 운동 · 식물 · 친구 …) — 화면이 각자 구독 + AppState(화면 이동 · 연결)</span></div>
+          <div class="layer"><b>상태</b><span>ViewModel 21개(식단 · 운동 · 식물 · 친구 · 화면 이동 …) — 화면이 각자 구독 + AppState(여러 기능 연결)</span></div>
           <div class="down">▼ 인터페이스 호출</div>
           <div class="layer"><b>Repository</b><span>저장소 인터페이스 → <b style="color:var(--ink)">Firestore 구현 / 메모리 구현</b> (테스트 · 웹 데모)</span></div>
           <div class="down">▼</div>
@@ -298,7 +298,7 @@
           <li><b>인터페이스 뒤에 저장소를 숨겨서</b> 서버 없이 테스트하고 웹 체험판을 만들 수 있어요</li>
           <li><b>시계를 주입</b>해 날짜가 걸린 기능도 테스트로 고정해요</li>
           <li>화면은 상태만 구독하고, <b>저장 · 서버 접근은 Repository 뒤</b>로 모았어요</li>
-          <li>3,400줄 상태 클래스를 영역별 <b>ViewModel 20개로 분리</b>했어요 (AppState는 약 1,400줄 · 화면 이동과 연결만)</li>
+          <li>3,400줄 상태 클래스를 영역별 <b>ViewModel 21개로 분리</b>했어요 (AppState는 약 1,300줄 · 여러 기능을 엮는 연결만)</li>
         </ul>
         <p class="how"><b>Claude Code와 협업해 개발</b>했고, 기획 방향과 검증, <b>아키텍처 구조 분리(ViewModel·Repository)</b>, <b>DB·백엔드 설계(Firestore 데이터 모델링 · 보안 규칙 · Cloud Functions · 인증과 계정 삭제 흐름)</b>, 스토어 배포, 심사 대응은 직접 진행했어요. DB·백엔드는 지금 처음부터 다시 구현해 보며 더 깊이 공부하고 있어요. 앱 아이콘 캐릭터는 AI로 생성했어요.</p>
       </div>
@@ -333,7 +333,7 @@
     <div class="card">
       <h3 class="ttl">숫자로 보기</h3>
       <div class="nums">
-        <div class="num"><b>402</b><span>자동 테스트 (모두 통과)</span></div>
+        <div class="num"><b>413</b><span>자동 테스트 (모두 통과)</span></div>
         <div class="num"><b>2건</b><span>App Store 반려 → 수정 후 승인·출시</span></div>
         <div class="num"><b>12명</b><span>Google Play 비공개 테스트</span></div>
         <div class="num"><b>8개</b><span>컬렉션별 보안 규칙 (내 기록 + 공유 7)</span></div>
@@ -369,7 +369,7 @@
       <h3 class="ttl">개발 · 배포 흐름</h3>
       <div class="tl">
         <div><b>설계·구현</b>Flutter + Firebase</div>
-        <div><b>테스트</b>402개 통과</div>
+        <div><b>테스트</b>413개 통과</div>
         <div><b>내부 배포</b>TestFlight · Play 내부</div>
         <div><b>App Store 출시</b>반려 2건 수정 후 승인</div>
         <div class="now"><b>Play</b>비공개 테스트 진행 중</div>
@@ -378,9 +378,8 @@
     <div class="card">
       <h3 class="ttl">다음 계획</h3>
       <ul class="road">
-        <li><b>화면 이동 상태</b> 분리 · <b>테마(ThemeData)</b> 정리</li>
+        <li><b>테마(ThemeData)</b> 정리 · 큰 화면 파일 쪼개기</li>
         <li><b>보안 규칙 테스트</b> (에뮬레이터)</li>
-        <li><b>AI 함수 인증 · 호출 횟수 제한</b></li>
         <li>친구 삭제 · 신고 기능</li>
       </ul>
     </div>
@@ -434,7 +433,8 @@ activityFeed                     <em>친구 활동 한 줄</em></pre>
     <article class="cs"><h3><em>A</em>사진 분석 — 앱 → 함수 → Claude</h3>
       <ol><li>동의 팝업 후, 사진(base64)과 그릇 정보를 <b>Cloud Function</b>(analyzeMealPhoto)으로 보내요</li>
       <li>함수가 <b>서버 Secret의 API 키</b>로 Claude를 호출하고, <b>zod 스키마</b>로 정해진 JSON(음식 이름 · 영양소 · 확신도)을 강제해요</li>
-      <li>확신이 낮으면 <b>needs_review</b>로 표시하고, 앱은 결과만 저장해요(사진은 저장 안 함)</li></ol>
+      <li>확신이 낮으면 <b>needs_review</b>로 표시하고, 앱은 결과만 저장해요(사진은 저장 안 함)</li>
+      <li>함수는 <b>로그인한 사용자만</b> 부를 수 있고, 한 사람당 <b>하루 30회</b>까지만 받아요(횟수는 서버가 트랜잭션으로 세요)</li></ol>
       <p class="why-line">왜 서버를 거치나: 키가 앱에 들어가면 앱 파일을 풀어서 누구나 꺼낼 수 있어요</p></article>
     <article class="cs"><h3><em>B</em>친구 요청 — 규칙으로 권한 나누기</h3>
       <ol><li>초대 코드를 입력하면 <b>inviteCodes</b>에서 상대 uid를 찾아요</li>
@@ -464,7 +464,6 @@ activityFeed                     <em>친구 활동 한 줄</em></pre>
       <h3 class="ttl">한계와 다음 단계</h3>
       <ul class="road">
         <li><b>보안 규칙 자동 테스트</b> — 에뮬레이터로 "허용 · 거부"를 고정</li>
-        <li><b>AI 함수 인증 · 호출 횟수 제한</b> — 비용과 남용 방지</li>
         <li><b>규칙 세분화</b> — 수정 가능한 필드를 더 좁히기</li>
         <li>친구 삭제 · 신고 기능</li>
       </ul>
@@ -478,6 +477,7 @@ activityFeed                     <em>친구 활동 한 줄</em></pre>
       <a href="mailto:kchaerin0811@gmail.com">kchaerin0811@gmail.com</a>
       <a href="https://github.com/CR-KStar/diet_project">github.com/CR-KStar/diet_project</a>
       <a href="https://apps.apple.com/kr/app/id6818954921">App Store</a>
+      <a href="https://meatgreen.web.app">웹 앱</a>
       <a href="https://diet-project-81ce1.web.app">웹 체험판</a>
       <a href="privacy/">개인정보 처리방침</a>
     </div>

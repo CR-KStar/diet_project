@@ -96,7 +96,7 @@
 | 서버 | Cloud Functions (TypeScript · Node 24) · Secret Manager |
 | AI | Claude API (사진 → 영양 분석 · 메뉴 추천), zod 스키마로 응답 모양 강제 |
 | 기기 기능 | `flutter_local_notifications` · `image_picker` · `shared_preferences` · `url_launcher` |
-| 호스팅 | Firebase Hosting (웹 체험판) · GitHub Pages (정책 문서 · 포트폴리오) |
+| 호스팅 | Firebase Hosting (웹 앱 · 웹 체험판) · GitHub Pages (정책 문서 · 포트폴리오) |
 | 테스트 | `flutter_test` — 단위 · 위젯 413개 |
 
 ## 아키텍처
@@ -192,6 +192,7 @@ activityFeed/{id}            친구 활동 피드 한 줄
 - `analyzeMealPhoto` — 사진(base64)과 그릇 정보를 받아 음식 이름(한국어) · 칼로리 · 영양소 8종 · 확신도(`confidence`) · 재확인 필요 여부(`needs_review`)를 **정해진 JSON**으로 돌려줘요.
 - `recommendMeals` — 부족한 영양소 · 끼니 · 선호 · 최대 칼로리로 메뉴 4~6개와 이유 · 점수를 돌려줘요.
 - API 키는 코드나 앱에 넣지 않고 **Secret Manager**(`ANTHROPIC_API_KEY`)에만 둬요.
+- 두 함수 모두 **로그인한 사용자만** 부를 수 있고(`unauthenticated`), 사용자별 **하루 30회**까지만 받아요(`resource-exhausted`, 한국 시간 자정에 초기화). 횟수는 서버가 Firestore `aiUsage`에 트랜잭션으로 세고, 보안 규칙에 열린 경로가 없어 앱에서는 읽거나 고칠 수 없어요. 사진은 8MB까지만 받아요.
 - 사진과 식단 정보가 외부(Anthropic)로 나가므로, 앱은 **동의를 먼저 받고** 나서만 호출해요.
 
 ### 계정 삭제 흐름
@@ -326,7 +327,6 @@ web/ · ios/ · android/       플랫폼 설정
 솔직하게 적어 둬요.
 
 **보안 · 서버**
-- AI 함수(`analyzeMealPhoto` · `recommendMeals`)는 코드에서 로그인 확인과 하루 호출 횟수 제한(사진 분석 30회 · 추천 30회, 한국 시간 자정 기준)을 하도록 바꿨어요. Functions 배포 후에 적용돼요.
 - Firestore 보안 규칙에 자동 테스트(에뮬레이터)가 아직 없어요.
 
 **기능**
