@@ -74,6 +74,7 @@ class MyApp extends StatelessWidget {
           behavior: HitTestBehavior.translucent,
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
           child: WebFrame(
+            showDemoNotice: !_useFirebase,
             child: MediaQuery(
               data: mq.copyWith(
                 textScaler: mq.textScaler.clamp(

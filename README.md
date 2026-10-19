@@ -276,7 +276,9 @@ dart run flutter_launcher_icons
 
 - **iOS** — `flutter build ipa` 후 App Store Connect로 업로드. Sign in with Apple 권한 때문에 자동 내보내기가 안 되면 `xcodebuild -exportArchive`로 수동 서명해서 내보내요.
 - **Android** — 업로드 키로 서명한 `flutter build appbundle --release` 결과를 Play Console에 올려요. 업로드 키 파일과 `android/key.properties`는 저장소에 없어요(`.gitignore`).
-- **웹 체험판** — `flutter build web --release --dart-define=USE_FIREBASE=false` 후 `firebase deploy --only hosting`.
+- **웹 체험판**(`diet-project-81ce1.web.app`) — `flutter build web --release --dart-define=USE_FIREBASE=false --output build/web_demo` 후 `firebase deploy --only hosting:demo`.
+- **웹 앱**(`meatgreen.web.app`, 실제 로그인 · 저장) — `flutter build web --release --output build/web_app` 후 `firebase deploy --only hosting:app`. 웹에서는 Google 로그인만 되고(Apple은 iPhone · iPad 전용), Firebase 승인된 도메인에 `meatgreen.web.app`이 있어야 해요.
+- **서버** — `firebase deploy --only firestore:indexes`(색인), `firebase deploy --only functions`(AI 함수), `firebase deploy --only firestore:rules`(보안 규칙).
 - **정책 · 포트폴리오 페이지** — `docs/` 폴더를 GitHub Pages로 공개해요.
 - 버전은 `pubspec.yaml`의 `version`(예: `1.0.0+10`)이고, `+` 뒤가 빌드 번호예요. 스토어마다 같은 번호를 다시 쓸 수 없어요.
 

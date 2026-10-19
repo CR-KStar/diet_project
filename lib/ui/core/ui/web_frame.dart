@@ -6,9 +6,12 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 /// 가운데에 폰 너비의 칸을 만들어 그 안에 앱을 보여준다.
 /// 웹이 아니거나 화면이 이미 좁으면(폰 브라우저) 아무것도 하지 않는다.
 class WebFrame extends StatelessWidget {
-  const WebFrame({super.key, required this.child});
+  const WebFrame({super.key, required this.child, this.showDemoNotice = false});
 
   final Widget child;
+
+  /// 체험판(가짜 로그인 · 예시 데이터)일 때만 위쪽에 안내 띠를 보인다.
+  final bool showDemoNotice;
 
   /// 이 너비보다 넓은 화면에서만 칸을 만든다.
   static const _phoneWidth = 460.0;
@@ -25,7 +28,7 @@ class WebFrame extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: _phoneWidth),
           child: Column(
             children: [
-              const _DemoNotice(),
+              if (showDemoNotice) const _DemoNotice(),
               Expanded(
                 child: ClipRect(
                   child: DecoratedBox(
