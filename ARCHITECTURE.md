@@ -16,7 +16,7 @@ ui  ──▶  domain  ◀──  data
 ```
 lib/
   main.dart                     어떤 구현을 쓸지 고르고 앱을 시작한다 (조립하는 곳)
-  app_state.dart                화면 이동 + 여러 ViewModel을 엮는 동작(식단 기록, 로그인 …)
+  app_state.dart                여러 ViewModel을 엮는 동작(식단 기록, 로그인 …) + 시스템 뒤로가기
   app_providers.dart            AppState와 모든 ViewModel을 화면에 내려준다
   app_shell.dart                하단 탭 · 빠른 기록 시트 등 앱 껍데기
 
@@ -35,6 +35,7 @@ lib/
 
   ui/
     core/ui/widgets/            공용 위젯 (위젯 하나에 파일 하나), 테마
+    core/viewmodel/             NavigationViewModel — 지금 화면 · 서브 모드 · 이동 기록
     <기능>/viewmodel/           ViewModel — 화면의 상태와 동작
     <기능>/pages/               화면(page)
 ```
@@ -45,7 +46,7 @@ lib/
 2. **모델은 파일 하나에 클래스 하나.** 화면 문구(label)는 enum이 직접 가진다.
 3. **저장 모양(Map 변환)은 data의 codec이 한다.** 도메인 모델은 저장 방법을 모른다.
 4. **화면은 자기 ViewModel만 구독한다** (`context.watch<XxxViewModel>()`).
-   화면 이동 같은 앱 전체 동작만 AppState에 부탁한다.
+   화면 이동은 `NavigationViewModel`에, 여러 기능을 엮는 동작만 AppState에 부탁한다.
 5. **여러 ViewModel을 엮는 동작**(예: 식단 기록 → 활동 피드 · 챌린지 진행 · 앱 아이콘)은 AppState가 맡는다.
 6. **다른 기록을 읽어 계산만 하는 것**(리포트 · 미션 · 오늘 수치 · 달력)은 기록을 직접 들고 있지 않고,
    AppState가 넘겨주는 값으로 계산한다. 기록이 바뀌면 AppState가 다시 계산하라고 알린다.

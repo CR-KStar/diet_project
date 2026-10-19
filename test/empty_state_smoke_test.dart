@@ -67,7 +67,7 @@ void main() {
         now: () => DateTime(2026, 9, 21),
       );
       await state.restoreSession();
-      state.go(screen);
+      state.navigationViewModel.go(screen);
 
       await tester.pumpWidget(
         AppProviders(

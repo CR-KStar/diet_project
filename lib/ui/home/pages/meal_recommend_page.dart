@@ -9,6 +9,7 @@ import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/ui/home/viewmodel/recommendation_view_model.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
+import 'package:diet_project/ui/core/viewmodel/navigation_view_model.dart';
 
 class RecommendScreen extends StatelessWidget {
   const RecommendScreen({super.key});
@@ -16,7 +17,7 @@ class RecommendScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final recommendation = context.watch<RecommendationViewModel>();
-    final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
     final consent = context.read<AiConsentViewModel>();
     final recs = recommendation.recommendations;
 
@@ -25,7 +26,7 @@ class RecommendScreen extends StatelessWidget {
         SubHeader(
           icon: AppIcons.sparkle,
           title: '식단 추천',
-          onBack: () => s.go('nutrition'),
+          onBack: () => nav.go('nutrition'),
         ),
         const _RemainingAllowanceCard(),
         const _NeedsCard(),
@@ -257,7 +258,7 @@ class _RecommendationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final recommendation = context.watch<RecommendationViewModel>();
-    final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
     return AppCard(
       padding: 15,
       child: Column(
@@ -347,8 +348,8 @@ class _RecommendationCard extends StatelessWidget {
           const SizedBox(height: AppSpace.s12),
           GestureDetector(
             onTap: () {
-              s.go('capture');
-              s.setSub(() => s.extraOpen = true);
+              nav.go('capture');
+              nav.setExtraOpen(true);
               toast(
                 context,
                 '“${r.meal.name}”을 ${recommendation.recMeal} 기록으로 불러왔어요',

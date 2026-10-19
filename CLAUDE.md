@@ -15,7 +15,7 @@ Flutter + Firebase(Auth · Firestore · Cloud Functions). iOS는 출시됐고 An
 flutter pub get
 flutter analyze                          # 에러 · 경고 0개를 유지한다
 dart format lib test
-flutter test                             # 전체 (현재 402개, 모두 통과해야 한다)
+flutter test                             # 전체 (현재 411개, 모두 통과해야 한다)
 flutter test test/<파일>.dart            # 파일 하나만
 flutter run -d chrome --dart-define=USE_FIREBASE=false   # 서버 없이 화면 확인(가짜 로그인 · 예시 데이터)
 cd functions && npm run build            # Cloud Functions 컴파일
@@ -40,7 +40,8 @@ cd functions && npm run build            # Cloud Functions 컴파일
 
 - 화면은 필요한 ViewModel만 `context.watch<XxxViewModel>()`로 구독한다. 이벤트 핸들러 안에서는 `context.read`를 쓴다.
   새 ViewModel은 `AppState`에서 만들고, `AppState`에 public getter를 열고, `lib/app_providers.dart`에 provider를 추가한다.
-- `AppState`(`lib/app_state.dart`)는 **상태를 들고 있는 곳이 아니다.** 화면 이동(`go(id)` — `Navigator`가 아니라 `screen` 문자열), 여러 ViewModel을 엮는 동작(`logMeal` · `logExercise` · `onWaterAdded` · 로그인 …), 기기 알림 예약, ViewModel 연결만 맡는다. 새 상태는 AppState가 아니라 알맞은 ViewModel에 둔다.
+- `AppState`(`lib/app_state.dart`)는 **상태를 들고 있는 곳이 아니다.** 여러 ViewModel을 엮는 동작(`logMeal` · `logExercise` · `onWaterAdded` · 로그인 …), 기기 알림 예약, ViewModel 연결만 맡는다. 새 상태는 AppState가 아니라 알맞은 ViewModel에 둔다.
+- 화면 이동은 `NavigationViewModel`(`lib/ui/core/viewmodel/`) — `Navigator`가 아니라 `screen` 문자열 하나로 바꾼다. 화면에서는 `context.read<NavigationViewModel>().go(id)`. 이동할 때 다른 기능이 해야 할 일(식물 날짜 맞추기 · 시트 닫기)은 `onNavigated`로 AppState가 이어 준다.
 - 다른 기록을 읽어 **계산만 하는** ViewModel(리포트 · 미션 · 오늘 수치 · 기록 달력)은 기록을 들고 있지 않고 `...Inputs`/`...Snapshot` 함수로 받는다. 기록이 바뀌면 AppState가 `refresh()`로 알린다.
 - 화면은 AppState의 forwarder 대신 해당 ViewModel의 값을 직접 읽는 것을 우선한다.
 

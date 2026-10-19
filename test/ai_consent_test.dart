@@ -30,7 +30,7 @@ void main() {
 
     test('동의 전에는 추천 화면에 들어가도 AI 추천을 자동 요청하지 않는다', () {
       final s = AppState();
-      s.go('recommend');
+      s.navigationViewModel.go('recommend');
       expect(s.loadingRecommendations, isFalse);
       expect(s.aiRecommendations, isNull);
     });

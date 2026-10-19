@@ -16,14 +16,15 @@ import 'package:diet_project/ui/home/viewmodel/today_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/records_view_model.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
+import 'package:diet_project/ui/core/viewmodel/navigation_view_model.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
-    if (s.missionOpen) return const TodayMissionScreen();
+    final nav = context.watch<NavigationViewModel>();
+    if (nav.missionOpen) return const TodayMissionScreen();
 
     return Stack(
       children: [
@@ -94,7 +95,7 @@ class _Greeting extends StatelessWidget {
     final inbox = context.watch<NotificationInboxViewModel>();
     final recordsVm = context.watch<RecordsViewModel>();
     final today = context.watch<TodayViewModel>();
-    final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
 
     return Padding(
       padding: const EdgeInsets.only(
@@ -154,13 +155,13 @@ class _Greeting extends StatelessWidget {
           ),
           _GreetingIconButton(
             icon: AppIcons.notifications,
-            onTap: () => s.go('notif'),
+            onTap: () => nav.go('notif'),
             badge: inbox.unread,
           ),
           const SizedBox(width: AppSpace.s8),
           _GreetingIconButton(
             icon: AppIcons.calendar,
-            onTap: () => s.go('records'),
+            onTap: () => nav.go('records'),
           ),
         ],
       ),
@@ -384,7 +385,7 @@ class _NutritionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final today = context.watch<TodayViewModel>();
-    final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
     // 홈 카드에는 상위 5종(3대 영양소 + 식이섬유 + 나트륨)만 보여준다.
     final rows = today.todayNutrientStats.take(5);
 
@@ -395,7 +396,7 @@ class _NutritionCard extends StatelessWidget {
             icon: AppIcons.meal,
             title: '영양소 섭취 현황',
             action: '자세히 ›',
-            onAction: () => s.go('nutrition'),
+            onAction: () => nav.go('nutrition'),
           ),
           const SizedBox(height: AppSpace.s14),
           for (final r in rows) _NutritionRow(stat: r, icon: _icons[r.name]!),
@@ -486,7 +487,7 @@ class _TodayCards extends StatelessWidget {
     final profileVm = context.watch<ProfileViewModel>();
     final waterVm = context.watch<WaterViewModel>();
     final today = context.watch<TodayViewModel>();
-    final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
 
     final cards = <_TodayCardData>[
       (
@@ -575,7 +576,7 @@ class _TodayCards extends StatelessWidget {
               ),
               const Spacer(),
               GestureDetector(
-                onTap: () => s.go('records'),
+                onTap: () => nav.go('records'),
                 child: Text(
                   '전체 ›',
                   style: t(AppFontSize.f12, c: AppColor.textFaint),
@@ -606,9 +607,10 @@ class _TodayCardTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
     return GestureDetector(
       onTap: () =>
-          c.sheet ? s.setSub(() => s.waterSheet = true) : s.go(c.route),
+          c.sheet ? s.setSub(() => s.waterSheet = true) : nav.go(c.route),
       child: Container(
         padding: const EdgeInsets.all(AppSpace.s15),
         decoration: BoxDecoration(
@@ -689,13 +691,13 @@ class _PlantCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final plantVm = context.watch<PlantViewModel>();
-    final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
     final stage = plantVm.plantStage;
 
     return AppCard(
       gradient: AppColor.plantGradient,
       radius: 26,
-      onTap: () => s.go('plant'),
+      onTap: () => nav.go('plant'),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -851,7 +853,7 @@ class _MissionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mission = context.watch<MissionViewModel>();
-    final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
 
     return AppCard(
       child: Column(
@@ -868,7 +870,7 @@ class _MissionCard extends StatelessWidget {
               ),
               const Spacer(),
               GestureDetector(
-                onTap: () => s.setSub(() => s.missionOpen = true),
+                onTap: () => nav.setMissionOpen(true),
                 child: Text(
                   '전체 ›',
                   style: t(AppFontSize.f12, c: AppColor.textFaint),
@@ -899,9 +901,9 @@ class _MissionMiniCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
     return GestureDetector(
-      onTap: () => s.go(m.route),
+      onTap: () => nav.go(m.route),
       child: Container(
         width: AppSpace.s150,
         padding: const EdgeInsets.all(AppSpace.s13),

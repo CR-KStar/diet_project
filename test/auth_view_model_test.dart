@@ -261,7 +261,7 @@ void main() {
       expect(await s.deleteAccount(), isTrue);
 
       expect(s.account, isNull);
-      expect(s.screen, 'login');
+      expect(s.navigationViewModel.screen, 'login');
       expect(s.takeNotice(), contains('모두 삭제'));
     });
   });

@@ -8,6 +8,7 @@ import 'package:diet_project/ui/social/viewmodel/challenge_view_model.dart';
 import 'package:diet_project/ui/social/viewmodel/friend_view_model.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
+import 'package:diet_project/ui/core/viewmodel/navigation_view_model.dart';
 
 /// 친구 및 챌린지 메인 화면
 class FriendsScreen extends StatelessWidget {
@@ -15,19 +16,19 @@ class FriendsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final nav = context.watch<NavigationViewModel>();
 
     return ScreenScroll(
       children: [
         const TabHeader(icon: AppIcons.friends, title: '친구'),
         PillTabs(
           options: const ['활동', '챌린지', '친구 추가'],
-          value: s.friendTab,
-          onChanged: s.setFriendTab,
+          value: nav.friendTab,
+          onChanged: nav.setFriendTab,
         ),
-        ...s.friendTab == '활동'
+        ...nav.friendTab == '활동'
             ? _activityTab(context)
-            : s.friendTab == '챌린지'
+            : nav.friendTab == '챌린지'
             ? _challengeTab(context)
             : _addFriendTab(context),
       ],
@@ -87,7 +88,7 @@ class _ActiveChallengeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final challenges = context.watch<ChallengeViewModel>();
-    final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,7 +113,7 @@ class _ActiveChallengeCard extends StatelessWidget {
                 ),
               ),
               GestureDetector(
-                onTap: () => s.setFriendTab('챌린지'),
+                onTap: () => nav.setFriendTab('챌린지'),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSpace.s14,
@@ -314,7 +315,7 @@ class _PrivacyCard extends StatelessWidget {
 
 List<Widget> _challengeTab(BuildContext context) {
   final challenges = context.watch<ChallengeViewModel>();
-  final s = context.watch<AppState>();
+  final nav = context.read<NavigationViewModel>();
   return [
     if (challenges.myChallenges.isNotEmpty) _ChallengeLeaderboardCard(),
     _RewardTiersCard(),
@@ -370,7 +371,7 @@ List<Widget> _challengeTab(BuildContext context) {
       ),
     ),
     for (final c in challenges.joinableChallenges) _JoinableChallengeCard(c: c),
-    PrimaryButton(label: '챌린지 만들기', onTap: () => s.go('chNew')),
+    PrimaryButton(label: '챌린지 만들기', onTap: () => nav.go('chNew')),
   ];
 }
 
@@ -1015,12 +1016,13 @@ class ChallengeNewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
     return ScreenScroll(
       children: [
         SubHeader(
           icon: AppIcons.trophy,
           title: '챌린지 만들기',
-          onBack: () => s.go('friends'),
+          onBack: () => nav.go('friends'),
         ),
         const AppCard(child: Text('목표 기간과 내용을 설정하여 새로운 챌린지를 만드세요.')),
         const SizedBox(height: AppSpace.s20),

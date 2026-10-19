@@ -120,7 +120,7 @@ void main() {
       final s = AppState(auth: _FakeAuth());
 
       expect(await s.restoreSession(), isFalse);
-      expect(s.screen, 'login');
+      expect(s.navigationViewModel.screen, 'login');
     });
 
     test('온보딩을 마친 계정은 로그인과 온보딩을 건너뛰고 홈으로 간다', () async {
@@ -132,7 +132,7 @@ void main() {
       );
 
       expect(await s.restoreSession(), isTrue);
-      expect(s.screen, 'home');
+      expect(s.navigationViewModel.screen, 'home');
       expect(s.nickname, '저장된닉');
       expect(s.onboardingDone, isTrue);
       expect(s.heightCm, 180);
@@ -145,7 +145,7 @@ void main() {
 
       expect(await s.restoreSession(), isTrue);
       // 'signup'은 온보딩 1단계(계정 연결)로 가는 별칭이다.
-      expect(s.screen, 'onboard');
+      expect(s.navigationViewModel.screen, 'onboard');
       expect(s.step, 1);
       expect(s.nickname, '지민');
       expect(s.onboardingDone, isFalse);
@@ -160,7 +160,7 @@ void main() {
       final nicknameBefore = s.nickname;
 
       expect(await s.restoreSession(), isFalse);
-      expect(s.screen, 'login');
+      expect(s.navigationViewModel.screen, 'login');
       expect(s.authError, isNotNull);
       expect(s.nickname, nicknameBefore);
       expect(repo.saveCalls, 0);
@@ -180,7 +180,7 @@ void main() {
         ..heightCm = 171;
 
       expect(await first.completeOnboarding(), isTrue);
-      expect(first.screen, 'home');
+      expect(first.navigationViewModel.screen, 'home');
 
       final second = AppState(
         auth: _FakeAuth(current: _account),
@@ -188,7 +188,7 @@ void main() {
       );
       await second.restoreSession();
 
-      expect(second.screen, 'home');
+      expect(second.navigationViewModel.screen, 'home');
       expect(second.nickname, '새닉네임');
       expect(second.heightCm, 171);
     });
@@ -203,7 +203,7 @@ void main() {
 
       expect(await s.completeOnboarding(), isFalse);
       expect(s.onboardingDone, isFalse);
-      expect(s.screen, isNot('home'));
+      expect(s.navigationViewModel.screen, isNot('home'));
       expect(s.authError, isNotNull);
     });
 
@@ -230,7 +230,7 @@ void main() {
       );
       await second.restoreSession();
 
-      expect(second.screen, 'onboard');
+      expect(second.navigationViewModel.screen, 'onboard');
       expect(second.step, 3);
       expect(second.nickname, '중간닉');
     });
@@ -282,7 +282,7 @@ void main() {
 
       expect(await repo.load('uid_1'), isNull);
       expect(s.account, isNull);
-      expect(s.screen, 'login');
+      expect(s.navigationViewModel.screen, 'login');
       expect(s.nickname, '');
       expect(s.takeNotice(), contains('삭제'));
       expect(s.deleting, isFalse);
@@ -301,7 +301,7 @@ void main() {
 
       expect(s.authError, isNotNull);
       expect(s.account, isNotNull);
-      expect(s.screen, 'home');
+      expect(s.navigationViewModel.screen, 'home');
       expect(s.deleting, isFalse);
       expect(await repo.load('uid_1'), isNotNull);
     });
@@ -330,7 +330,7 @@ void main() {
     expect(s.account, isNull);
     expect(s.onboardingDone, isFalse);
     expect(s.nickname, '');
-    expect(s.screen, 'login');
+    expect(s.navigationViewModel.screen, 'login');
   });
 
   test('로그아웃 뒤 다른 계정으로 로그인하면 약관 동의를 다시 받는다', () async {

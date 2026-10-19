@@ -81,7 +81,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(state.account, isNull);
-      expect(state.screen, 'login');
+      expect(state.navigationViewModel.screen, 'login');
     });
 
     testWidgets('확인창에서 "취소"를 누르면 로그인 상태가 그대로다', (tester) async {
@@ -95,7 +95,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(state.account, isNotNull);
-      expect(state.screen, 'home');
+      expect(state.navigationViewModel.screen, 'home');
     });
   });
 
@@ -103,7 +103,7 @@ void main() {
     testWidgets('확인창에서 "삭제"를 누르면 저장된 정보까지 지워지고 로그인 화면으로 간다', (tester) async {
       final repo = MemoryProfileRepository();
       final state = await _loggedInState(repo);
-      state.setSetTab('데이터 · 개인정보');
+      state.navigationViewModel.setSetTab('데이터 · 개인정보');
       await _pump(tester, state, const SettingsScreen());
 
       await tester.ensureVisible(find.text('계정 삭제'));
@@ -116,13 +116,13 @@ void main() {
 
       expect(await repo.load('uid_1'), isNull);
       expect(state.account, isNull);
-      expect(state.screen, 'login');
+      expect(state.navigationViewModel.screen, 'login');
     });
 
     testWidgets('확인창에서 "취소"를 누르면 아무것도 지워지지 않는다', (tester) async {
       final repo = MemoryProfileRepository();
       final state = await _loggedInState(repo);
-      state.setSetTab('데이터 · 개인정보');
+      state.navigationViewModel.setSetTab('데이터 · 개인정보');
       await _pump(tester, state, const SettingsScreen());
 
       await tester.ensureVisible(find.text('계정 삭제'));

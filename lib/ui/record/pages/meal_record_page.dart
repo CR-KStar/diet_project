@@ -10,6 +10,7 @@ import 'package:diet_project/ui/record/viewmodel/meal_draft_view_model.dart';
 import 'package:diet_project/domain/rules/diet_rules.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
+import 'package:diet_project/ui/core/viewmodel/navigation_view_model.dart';
 
 /// 식단 촬영/기록 화면 — 사진(자리표시자) + AI 분석 결과 + 저장
 class CaptureScreen extends StatelessWidget {
@@ -19,14 +20,15 @@ class CaptureScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final draft = context.watch<MealDraftViewModel>();
     final s = context.watch<AppState>();
-    if (s.extraOpen) return const _ExtraInfoBody();
+    final nav = context.watch<NavigationViewModel>();
+    if (nav.extraOpen) return const _ExtraInfoBody();
 
     return ScreenScroll(
       children: [
         SubHeader(
           icon: AppIcons.camera,
           title: '식단 기록',
-          onBack: () => s.go('home'),
+          onBack: () => nav.go('home'),
         ),
         _PhotoCard(),
         _AiAnalysisCard(),
@@ -34,14 +36,11 @@ class CaptureScreen extends StatelessWidget {
           label: '저장하기',
           onTap: () {
             s.logMeal();
-            s.go('home');
+            nav.go('home');
             toast(context, '${draft.extras['meal']} 기록 저장 · AI 추정값으로 반영됐어요');
           },
         ),
-        TextLink(
-          label: '부가 정보 입력 ›',
-          onTap: () => s.setSub(() => s.extraOpen = true),
-        ),
+        TextLink(label: '부가 정보 입력 ›', onTap: () => nav.setExtraOpen(true)),
       ],
     );
   }
@@ -366,6 +365,7 @@ class _ExtraInfoBody extends StatelessWidget {
     final bowlVm = context.watch<BowlViewModel>();
     final draft = context.watch<MealDraftViewModel>();
     final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
     final bowl = bowlVm.currentBowl;
 
     return ScreenScroll(
@@ -373,7 +373,7 @@ class _ExtraInfoBody extends StatelessWidget {
         SubHeader(
           icon: AppIcons.edit,
           title: '부가 정보',
-          onBack: () => s.setSub(() => s.extraOpen = false),
+          onBack: () => nav.setExtraOpen(false),
           trailing: Text(
             '선택 입력',
             style: t(AppFontSize.f12, c: AppColor.textFaint),
@@ -422,7 +422,7 @@ class _ExtraInfoBody extends StatelessWidget {
           label: '저장하기',
           onTap: () {
             s.logMeal();
-            s.go('home');
+            nav.go('home');
             toast(context, '${draft.extras['meal']} 기록 저장 · 부가 정보가 반영됐어요');
           },
         ),

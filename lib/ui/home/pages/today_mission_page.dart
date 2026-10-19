@@ -8,6 +8,7 @@ import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/ui/home/viewmodel/mission_view_model.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
+import 'package:diet_project/ui/core/viewmodel/navigation_view_model.dart';
 
 const _categories = ['전체', '식단', '운동', '생활', '꾸준함'];
 
@@ -26,6 +27,7 @@ class TodayMissionScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final mission = context.watch<MissionViewModel>();
     final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
     final list = mission.missionFilterTab == '전체'
         ? mission.missions
         : mission.missions
@@ -41,7 +43,7 @@ class TodayMissionScreen extends StatelessWidget {
               child: SubHeader(
                 icon: AppIcons.target,
                 title: '오늘의 미션',
-                onBack: () => s.setSub(() => s.missionOpen = false),
+                onBack: () => nav.setMissionOpen(false),
               ),
             ),
             Text(
@@ -78,7 +80,7 @@ class _AchievementCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mission = context.watch<MissionViewModel>();
-    final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
     final total = mission.missions.length;
     final ratio = total == 0 ? 0.0 : mission.missionDone / total;
 
@@ -125,7 +127,7 @@ class _AchievementCard extends StatelessWidget {
           ),
           const SizedBox(width: AppSpace.s14),
           GestureDetector(
-            onTap: () => s.go('plant'),
+            onTap: () => nav.go('plant'),
             child: Container(
               width: AppSpace.s96,
               padding: const EdgeInsets.symmetric(
@@ -188,7 +190,7 @@ class _MissionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mission = context.watch<MissionViewModel>();
-    final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
     final done = mission.missionEffectivelyDone(m);
     final meta =
         _categoryMeta[m.category] ??
@@ -267,7 +269,7 @@ class _MissionCard extends StatelessWidget {
             children: [
               _MissionActionButton(
                 label: '기록 화면으로',
-                onTap: () => s.go(m.route),
+                onTap: () => nav.go(m.route),
               ),
               const SizedBox(width: AppSpace.s9),
               if (done)

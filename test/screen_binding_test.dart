@@ -54,7 +54,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     final state = with_ ?? AppState(now: () => DateTime(2026, 10, 18));
-    state.go(screen);
+    state.navigationViewModel.go(screen);
     await tester.pumpWidget(
       AppProviders(
         state: state,
@@ -104,7 +104,7 @@ void main() {
 
   testWidgets('식단 입력값을 바꾸면 식단 화면의 보정 칼로리가 바로 바뀐다', (tester) async {
     final state = await pumpAt(tester, 'capture');
-    state.setSub(() => state.extraOpen = true);
+    state.setSub(() => state.navigationViewModel.extraOpen = true);
     await tester.pump(const Duration(milliseconds: 600));
     final before = state.adjustedKcal;
     expect(find.text('$before'), findsWidgets);

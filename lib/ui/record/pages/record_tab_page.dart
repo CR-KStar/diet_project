@@ -11,6 +11,7 @@ import 'package:diet_project/ui/home/viewmodel/today_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/records_view_model.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
+import 'package:diet_project/ui/core/viewmodel/navigation_view_model.dart';
 
 const _quickActions = [
   (
@@ -156,13 +157,14 @@ class _QuickRecordButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final records = context.watch<RecordsViewModel>();
     final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
     final done = records.logged[q.label] ?? false;
     return Expanded(
       child: Padding(
         padding: EdgeInsets.only(right: q.label == '물' ? 0 : 8),
         child: GestureDetector(
           onTap: () =>
-              q.sheet ? s.setSub(() => s.waterSheet = true) : s.go(q.route),
+              q.sheet ? s.setSub(() => s.waterSheet = true) : nav.go(q.route),
           child: Container(
             padding: const EdgeInsets.symmetric(
               vertical: AppSpace.s13,
@@ -455,14 +457,14 @@ class MealDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final recordsVm = context.watch<RecordsViewModel>();
-    final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
     final m = recordsVm.detailMeal;
     return ScreenScroll(
       children: [
         SubHeader(
           icon: AppIcons.meal,
           title: '식단 상세',
-          onBack: () => s.go('records'),
+          onBack: () => nav.go('records'),
         ),
         if (m == null)
           const AppCard(child: Text('식단 정보를 찾을 수 없어요.'))

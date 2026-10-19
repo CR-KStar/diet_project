@@ -8,6 +8,7 @@ import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/ui/home/viewmodel/notification_inbox_view_model.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
+import 'package:diet_project/ui/core/viewmodel/navigation_view_model.dart';
 
 /// 알림이 온 시각을 "방금 · n분 전 · n시간 전 · 어제 · n일 전"으로 보여준다.
 String _timeLabel(DateTime at, DateTime now) {
@@ -32,6 +33,7 @@ class NotifScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final inbox = context.watch<NotificationInboxViewModel>();
     final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
     final list = inbox.visibleItems;
 
     return ScreenScroll(
@@ -43,7 +45,7 @@ class NotifScreen extends StatelessWidget {
               child: SubHeader(
                 icon: AppIcons.notifications,
                 title: '알림',
-                onBack: () => s.go('home'),
+                onBack: () => nav.go('home'),
               ),
             ),
             if (inbox.unread > 0)
@@ -95,7 +97,7 @@ class _NotifCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final inbox = context.read<NotificationInboxViewModel>();
-    final s = context.read<AppState>();
+    final nav = context.read<NavigationViewModel>();
     return Container(
       padding: const EdgeInsets.all(AppSpace.s15),
       decoration: BoxDecoration(
@@ -112,7 +114,7 @@ class _NotifCard extends StatelessWidget {
       child: GestureDetector(
         onTap: () {
           inbox.markNotifRead(n.id);
-          s.go(n.route);
+          nav.go(n.route);
         },
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,7 +174,7 @@ class _EmptyInbox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.read<AppState>();
+    final nav = context.read<NavigationViewModel>();
     return AppCard(
       padding: 24,
       child: Column(
@@ -188,7 +190,7 @@ class _EmptyInbox extends StatelessWidget {
             style: t(AppFontSize.f12, c: AppColor.textMuted, h: 1.55),
           ),
           const SizedBox(height: AppSpace.s14),
-          SmallButton(label: '알림 설정', onTap: () => s.go('alerts')),
+          SmallButton(label: '알림 설정', onTap: () => nav.go('alerts')),
         ],
       ),
     );

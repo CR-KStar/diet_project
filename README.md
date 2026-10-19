@@ -96,7 +96,7 @@
 | AI | Claude API (사진 → 영양 분석 · 메뉴 추천), zod 스키마로 응답 모양 강제 |
 | 기기 기능 | `flutter_local_notifications` · `image_picker` · `shared_preferences` · `url_launcher` |
 | 호스팅 | Firebase Hosting (웹 체험판) · GitHub Pages (정책 문서 · 포트폴리오) |
-| 테스트 | `flutter_test` — 단위 · 위젯 402개 |
+| 테스트 | `flutter_test` — 단위 · 위젯 411개 |
 
 ## 아키텍처
 
@@ -117,10 +117,10 @@ flowchart LR
 
 ### 상태 관리
 
-- 화면마다 자기 **ViewModel**을 `context.watch<XxxViewModel>()`로 구독해요. (ViewModel 20개: 식단 · 식단 입력값 · 사진 분석 · 식단 추천 · 운동 · 그릇 · 루틴 · 물 · 체중 · 식물 · 친구 · 챌린지 · 미션 · 리포트 · 오늘 수치 · 기록 달력 · 알림함 · AI 동의 · 내 정보 · 로그인)
-- **`AppState`**(약 1,400줄)는 모든 상태를 들고 있지 않아요. 화면 이동, 여러 ViewModel을 엮는 동작(예: 식단 기록 → 활동 피드 · 챌린지 진행 · 앱 아이콘 · 식물 성장), 기기 알림 예약, ViewModel 연결만 맡아요.
+- 화면마다 자기 **ViewModel**을 `context.watch<XxxViewModel>()`로 구독해요. (ViewModel 21개: 화면 이동 · 식단 · 식단 입력값 · 사진 분석 · 식단 추천 · 운동 · 그릇 · 루틴 · 물 · 체중 · 식물 · 친구 · 챌린지 · 미션 · 리포트 · 오늘 수치 · 기록 달력 · 알림함 · AI 동의 · 내 정보 · 로그인)
+- **`AppState`**(약 1,300줄)는 모든 상태를 들고 있지 않아요. 여러 ViewModel을 엮는 동작(예: 식단 기록 → 활동 피드 · 챌린지 진행 · 앱 아이콘 · 식물 성장), 기기 알림 예약, ViewModel 연결만 맡아요.
 - 다른 기록을 읽어 **계산만 하는 것**(리포트 · 미션 · 오늘 수치 · 달력)은 기록을 직접 들고 있지 않고, AppState가 넘겨 주는 값으로 계산해요. 기록이 바뀌면 AppState가 다시 계산하라고 알려요.
-- 화면 이동은 `Navigator`가 아니라 `screen` 문자열 하나로 해요 (`AppState.go(id)`).
+- 화면 이동은 `Navigator`가 아니라 `screen` 문자열 하나로 해요 (`NavigationViewModel.go(id)`).
 
 ### 식단을 기록하면 일어나는 일
 
@@ -247,7 +247,7 @@ Google 로그인은 플랫폼별 설정이 더 필요해요(Android는 SHA-1 지
 flutter pub get                          # 의존성 설치
 flutter analyze                          # 정적 분석
 dart format lib test                     # 코드 정리
-flutter test                             # 전체 테스트 (402개)
+flutter test                             # 전체 테스트 (411개)
 flutter test test/mission_view_model_test.dart       # 파일 하나만
 flutter test --plain-name "시든다"                    # 이름으로 골라서
 
@@ -262,7 +262,7 @@ dart run flutter_launcher_icons
 
 ## 테스트
 
-`flutter test`로 단위 · 위젯 테스트 402개를 한 번에 돌려요. 서버 없이 가짜 구현으로 돌아가요.
+`flutter test`로 단위 · 위젯 테스트 411개를 한 번에 돌려요. 서버 없이 가짜 구현으로 돌아가요.
 
 | 영역 | 확인하는 것 |
 |---|---|
@@ -332,7 +332,6 @@ web/ · ios/ · android/       플랫폼 설정
 - 식물 · 음식 그림은 이모지예요. 웹에서는 글꼴에 따라 네모로 깨져 보일 수 있어요(앱에서는 기기 글꼴로 표시돼요).
 
 **구조**
-- 화면 이동 상태(`screen` · 서브 화면 여부)가 아직 AppState에 있어요 → 별도 ViewModel로 분리 예정.
 - 크기 고정 상수(`theme_tokens.dart`)를 `ThemeData` / `ThemeExtension`으로 옮길 예정이에요.
 - 화면 파일 일부가 1,000줄 안팎이라 더 쪼갤 수 있어요.
 - 서비스 구현 기본값을 `AppState`가 고르고 있어요 → `main.dart` 한 곳에서만 조립하도록 옮길 예정.

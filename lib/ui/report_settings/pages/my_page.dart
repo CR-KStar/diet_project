@@ -14,6 +14,7 @@ import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/bowl_view_model.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
+import 'package:diet_project/ui/core/viewmodel/navigation_view_model.dart';
 
 const _plantStages = [
   ('🌰', '씨앗', 1),
@@ -30,7 +31,8 @@ class MyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = context.watch<AppState>();
-    if (s.screen == 'profile' || s.profileEdit) return const _ProfileEdit();
+    final nav = context.watch<NavigationViewModel>();
+    if (nav.screen == 'profile' || nav.profileEdit) return const _ProfileEdit();
 
     return ScreenScroll(
       children: [
@@ -41,7 +43,7 @@ class MyScreen extends StatelessWidget {
         _MenuCard(),
         TextLink(
           label: '온보딩 다시 보기',
-          onTap: () => s.go('onboard'), // go('onboard')가 자동으로 step=2로 이동시킵니다.
+          onTap: () => nav.go('onboard'), // go('onboard')가 자동으로 step=2로 이동시킵니다.
         ),
         TextLink(
           label: '로그아웃',
@@ -66,9 +68,9 @@ class _ProfileSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final profileVm = context.watch<ProfileViewModel>();
-    final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
     return AppCard(
-      onTap: () => s.go('profile'),
+      onTap: () => nav.go('profile'),
       child: Row(
         children: [
           const IconTile.icon(
@@ -112,9 +114,9 @@ class _PlantSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final plantVm = context.watch<PlantViewModel>();
-    final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
     return AppCard(
-      onTap: () => s.go('plant'),
+      onTap: () => nav.go('plant'),
       child: Column(
         children: [
           Row(
@@ -180,7 +182,7 @@ class _MenuCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bowl = context.watch<BowlViewModel>();
-    final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
     return AppCard(
       padding: 0,
       child: Column(
@@ -189,7 +191,7 @@ class _MenuCard extends StatelessWidget {
             icon: AppIcons.bowl,
             title: '내 그릇 관리',
             desc: '${bowl.bowls.length}개 등록 · 기본 그릇 1개',
-            onTap: () => s.go('bowls'),
+            onTap: () => nav.go('bowls'),
           ),
           const Divider(height: AppSpace.s1, indent: 18, endIndent: 18),
           _MenuRow(
@@ -197,8 +199,8 @@ class _MenuCard extends StatelessWidget {
             title: '알림 설정',
             desc: '식단 미기록, 물, 운동, 친구 응원',
             onTap: () {
-              s.go('settings');
-              s.setSetTab('알림');
+              nav.go('settings');
+              nav.setSetTab('알림');
             },
           ),
           const Divider(height: AppSpace.s1, indent: 18, endIndent: 18),
@@ -207,8 +209,8 @@ class _MenuCard extends StatelessWidget {
             title: '데이터 및 개인정보',
             desc: '공개 범위, 기록 삭제, 계정 삭제',
             onTap: () {
-              s.go('settings');
-              s.setSetTab('데이터 · 개인정보');
+              nav.go('settings');
+              nav.setSetTab('데이터 · 개인정보');
             },
           ),
           const Divider(height: AppSpace.s1, indent: 18, endIndent: 18),
@@ -292,13 +294,14 @@ class _ProfileEdit extends StatelessWidget {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthViewModel>();
     final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
 
     return ScreenScroll(
       children: [
         SubHeader(
           icon: AppIcons.edit,
           title: '내 정보 수정',
-          onBack: () => s.go('my'),
+          onBack: () => nav.go('my'),
         ),
         _BasicInfoCard(),
         _GoalWeightCard(),
@@ -309,7 +312,7 @@ class _ProfileEdit extends StatelessWidget {
           onTap: () async {
             final saved = await s.saveProfile();
             if (!context.mounted) return;
-            if (saved) s.go('my');
+            if (saved) nav.go('my');
             toast(
               context,
               saved

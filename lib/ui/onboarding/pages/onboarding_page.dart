@@ -9,6 +9,7 @@ import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 import 'package:diet_project/domain/rules/diet_rules.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
+import 'package:diet_project/ui/core/viewmodel/navigation_view_model.dart';
 
 class OnboardingPage extends StatelessWidget {
   const OnboardingPage({super.key});
@@ -46,6 +47,7 @@ class _AccountLinkStep extends StatelessWidget {
     final profile = context.watch<ProfileViewModel>();
     final auth = context.watch<AuthViewModel>();
     final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
     final apple = auth.provider == 'Apple';
     final ok = profile.requiredTermsOk && profile.nickname.trim().isNotEmpty;
 
@@ -56,7 +58,7 @@ class _AccountLinkStep extends StatelessWidget {
         SubHeader(
           icon: AppIcons.link,
           title: '계정 연결',
-          onBack: () => s.go('login'),
+          onBack: () => nav.go('login'),
         ),
         Text(
           '${auth.provider} 계정으로 처음 로그인했어요. 아래 정보만 확인하면 바로 시작할 수 있어요.',
@@ -112,7 +114,7 @@ class _AccountLinkStep extends StatelessWidget {
               ),
               const SizedBox(width: AppSpace.s10),
               GestureDetector(
-                onTap: () => s.go('login'),
+                onTap: () => nav.go('login'),
                 child: Text(
                   '변경',
                   style: t(AppFontSize.f11, c: AppColor.textFaint),

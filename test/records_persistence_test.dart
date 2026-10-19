@@ -121,7 +121,7 @@ Future<void> _pumpScreen(
   tester.view.physicalSize = const Size(1200, 4000);
   tester.view.devicePixelRatio = 2.0;
   addTearDown(tester.view.reset);
-  state.go(screen);
+  state.navigationViewModel.go(screen);
   await tester.pumpWidget(
     AppProviders(
       state: state,

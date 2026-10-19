@@ -54,7 +54,7 @@ void main() {
     await tester.tap(find.text('시작하기'));
     await tester.pumpAndSettle();
 
-    expect(state.screen, 'home');
+    expect(state.navigationViewModel.screen, 'home');
     expect(state.onboardingDone, isTrue);
     expect((await repo.load('uid_1'))?.onboardingDone, isTrue);
   });

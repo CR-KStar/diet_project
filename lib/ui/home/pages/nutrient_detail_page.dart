@@ -9,6 +9,7 @@ import 'package:diet_project/ui/core/ui/health_sources_card.dart';
 import 'package:diet_project/ui/home/viewmodel/today_view_model.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
+import 'package:diet_project/ui/core/viewmodel/navigation_view_model.dart';
 
 /// 목표 대비 퍼센트에 맞춰 짧은 안내 문구를 만든다 — 음식별 코멘트 대신,
 /// 지금 실제로 계산되는 값만으로 말할 수 있는 정도로 단순하게 표현한다.
@@ -29,6 +30,7 @@ String _lowNutrientSummary(List<NutrientStat> stats) {
 /// 영양소 상세 화면과 리포트(오늘) 탭에서 함께 씁니다.
 List<Widget> nutrientDetailCards(BuildContext context) {
   final s = context.watch<AppState>();
+  final nav = context.read<NavigationViewModel>();
   final macro = s.macroRatio;
 
   return [
@@ -212,7 +214,7 @@ List<Widget> nutrientDetailCards(BuildContext context) {
       ),
 
     GestureDetector(
-      onTap: () => s.go('recommend'),
+      onTap: () => nav.go('recommend'),
       child: Container(
         padding: const EdgeInsets.all(AppSpace.s18),
         decoration: BoxDecoration(
@@ -262,14 +264,14 @@ class NutritionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final today = context.watch<TodayViewModel>();
-    final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
 
     return ScreenScroll(
       children: [
         SubHeader(
           icon: AppIcons.meal,
           title: '영양소 상세',
-          onBack: () => s.go('home'),
+          onBack: () => nav.go('home'),
           trailing: Text(
             today.todayDateLabel,
             style: t(AppFontSize.f12, c: AppColor.textFaint),

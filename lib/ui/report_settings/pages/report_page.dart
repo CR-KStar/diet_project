@@ -9,6 +9,7 @@ import 'package:diet_project/ui/home/viewmodel/today_view_model.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
+import 'package:diet_project/ui/core/viewmodel/navigation_view_model.dart';
 
 /// 리포트 화면
 class ReportScreen extends StatelessWidget {
@@ -106,7 +107,7 @@ class _WeightChangeCard extends StatelessWidget {
     final report = context.watch<ReportViewModel>();
     final profile = context.watch<ProfileViewModel>();
     final today = context.watch<TodayViewModel>();
-    final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
     final weights = report.weightSeries.map((w) => w.kg).toList();
     final highKg = weights.reduce((a, b) => a > b ? a : b);
     final lowKg = weights.reduce((a, b) => a < b ? a : b);
@@ -209,7 +210,7 @@ class _WeightChangeCard extends StatelessWidget {
               ),
               Expanded(
                 child: GestureDetector(
-                  onTap: () => s.go('weight'),
+                  onTap: () => nav.go('weight'),
                   child: Column(
                     children: [
                       Text(

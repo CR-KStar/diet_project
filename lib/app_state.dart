@@ -1,8 +1,8 @@
 // 앱 전역 상태 — 프로토타입의 Component.state를 그대로 옮긴 ChangeNotifier.
 //
-// 화면 전환도 여기서 관리합니다 (Navigator 대신 screen 문자열).
-// 통합된 화면은 부모 screen + 서브 모드 플래그로 표현합니다.
+// 화면 이동은 NavigationViewModel이 맡고, 여기서는 이동할 때 이어 줄 일만 합니다.
 
+import 'package:diet_project/ui/core/viewmodel/navigation_view_model.dart';
 import 'package:diet_project/ui/growth/viewmodel/plant_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/ai_consent_view_model.dart';
 import 'package:diet_project/ui/home/viewmodel/mission_view_model.dart';
@@ -210,6 +210,7 @@ class AppState extends ChangeNotifier {
     sources.addListener(_reportViewModel.refresh);
     sources.addListener(_recordsViewModel.refresh);
     sources.addListener(_todayViewModel.refresh);
+    _navigationViewModel.onNavigated = _onNavigated;
     _profileViewModel.onSyncFailed = showNotice;
     // 친구와 챌린지는 서로의 사람 정보를 쓰고, 내 닉네임은 AppState가 갖고 있다.
     _friendViewModel
@@ -222,6 +223,7 @@ class AppState extends ChangeNotifier {
 
   // 화면이 필요한 ViewModel을 직접 구독할 수 있도록 밖으로 내놓는다 (AppProviders 참고).
   // AppState는 이것들을 만들고 서로 연결하는 일을 맡는다.
+  NavigationViewModel get navigationViewModel => _navigationViewModel;
   AuthViewModel get authViewModel => _authViewModel;
   AiConsentViewModel get aiConsentViewModel => _aiConsentViewModel;
   NotificationInboxViewModel get notificationInboxViewModel =>
@@ -307,70 +309,20 @@ class AppState extends ChangeNotifier {
   /// 테스트에서 날짜를 고정할 수 있도록 시계를 주입받는다.
   final DateTime Function() _now;
 
-  // 화면 전환
-  String screen = 'login';
+  // 화면 이동 — 현재 화면과 서브 모드는 NavigationViewModel이 맡는다.
+  // 화면을 옮길 때 다른 기능이 해야 할 일만 여기서 이어 준다.
+  final NavigationViewModel _navigationViewModel = NavigationViewModel();
 
-  // 서브 모드 (통합된 화면)
-  bool missionOpen = false; // home
-  bool extraOpen = false; // capture
-  bool editing = false; // mealDetail
-  bool profileEdit = false; // my
-  String plantTab = '식물'; // 식물 / 도감
-  String friendTab = '활동'; // 활동 / 챌린지 / 친구 추가
-  String setTab = '알림'; // 알림 / 데이터 · 개인정보
-
-  /// 옛 화면 id → 부모 화면 + 서브 모드
-  static const _alias = <String, Map<String, Object>>{
-    'signup': {'screen': 'onboard', 'step': 1},
-    'mission': {'screen': 'home', 'missionOpen': true},
-    'dex': {'screen': 'plant', 'plantTab': '도감'},
-    'extra': {'screen': 'capture', 'extraOpen': true},
-    'mealEdit': {'screen': 'mealDetail', 'editing': true},
-    'challenge': {'screen': 'friends', 'friendTab': '챌린지'},
-    'alerts': {'screen': 'settings', 'setTab': '알림'},
-    'privacy': {'screen': 'settings', 'setTab': '데이터 · 개인정보'},
-  };
-
-  /// 화면 이동 기록 — 안드로이드 시스템 뒤로가기 버튼으로 이전 화면에
-  /// 돌아가는 데 쓴다. (handleSystemBack 참고)
-  final List<String> _history = [];
-
-  void go(String id) {
-    final resolvedScreen = (_alias[id]?['screen'] as String?) ?? id;
-    if (showShell && screen != resolvedScreen) {
-      _history.add(screen);
-    }
-
-    // 서브 모드 초기화
-    missionOpen = false;
-    extraOpen = false;
-    editing = false;
-    profileEdit = false;
-    plantTab = '식물';
-    friendTab = '활동';
-    setTab = '알림';
-
-    final a = _alias[id];
-    if (a != null) {
-      screen = a['screen'] as String;
-      if (a.containsKey('step')) step = a['step'] as int;
-      missionOpen = a['missionOpen'] as bool? ?? false;
-      extraOpen = a['extraOpen'] as bool? ?? false;
-      editing = a['editing'] as bool? ?? false;
-      plantTab = a['plantTab'] as String? ?? '식물';
-      friendTab = a['friendTab'] as String? ?? '활동';
-      setTab = a['setTab'] as String? ?? '알림';
-    } else {
-      screen = id;
-      if (id == 'report') period = '주간';
-      if (id == 'home' || id == 'plant') _syncPlant(); // 자정을 넘겨 앱을 켜 둔 경우
-      if (id == 'onboard') step = 2;
-      // AI 추천은 동의한 뒤에만 자동으로 불러온다 (동의 전에는 화면의 버튼으로 요청).
-      if (id == 'recommend' &&
-          _recommendationViewModel.aiRecommendations == null &&
-          aiConsent) {
-        unawaited(fetchAiRecommendations());
-      }
+  void _onNavigated(String id) {
+    if (id == 'signup') step = 1; // 온보딩 1단계
+    if (id == 'onboard') step = 2;
+    if (id == 'report') period = '주간';
+    if (id == 'home' || id == 'plant') _syncPlant(); // 자정을 넘겨 앱을 켜 둔 경우
+    // AI 추천은 동의한 뒤에만 자동으로 불러온다 (동의 전에는 화면의 버튼으로 요청).
+    if (id == 'recommend' &&
+        _recommendationViewModel.aiRecommendations == null &&
+        aiConsent) {
+      unawaited(fetchAiRecommendations());
     }
     fabOpen = false;
     bowlSheet = false;
@@ -406,19 +358,8 @@ class AppState extends ChangeNotifier {
       notifyListeners();
       return true;
     }
-    if (missionOpen || extraOpen || editing || profileEdit) {
-      missionOpen = false;
-      extraOpen = false;
-      editing = false;
-      profileEdit = false;
-      notifyListeners();
-      return true;
-    }
-    if (_history.isNotEmpty) {
-      screen = _history.removeLast();
-      notifyListeners();
-      return true;
-    }
+    if (_navigationViewModel.closeSubMode()) return true;
+    if (_navigationViewModel.goBack()) return true;
 
     final now = _now();
     final armed =
@@ -433,17 +374,6 @@ class AppState extends ChangeNotifier {
     notifyListeners();
     return true;
   }
-
-  /// 하단 탭 활성 판정용 그룹
-  static const tabGroups = <String, List<String>>{
-    'home': ['home', 'notif', 'nutrition', 'recommend', 'plant'],
-    'records': ['records', 'capture', 'exercise', 'weight', 'mealDetail'],
-    'report': ['report'],
-    'friends': ['friends', 'chNew'],
-    'my': ['my', 'bowls', 'profile', 'settings'],
-  };
-
-  bool get showShell => screen != 'login' && screen != 'onboard';
 
   // 오늘 날짜 — 날짜 문구와 오늘의 기록 요약은 TodayViewModel이 맡는다.
   static String dateKeyOf(DateTime d) => RecordsViewModel.dateKeyOf(d);
@@ -503,10 +433,10 @@ class AppState extends ChangeNotifier {
   /// 온보딩 완료 계정은 홈으로, 아니면 저장된 단계의 온보딩으로 보낸다.
   void goAfterLogin() {
     if (onboardingDone) {
-      go('home');
+      _navigationViewModel.go('home');
       return;
     }
-    go('signup'); // 온보딩 1단계 (이때 step이 1로 초기화된다)
+    _navigationViewModel.go('signup'); // 온보딩 1단계 (이때 step이 1로 초기화된다)
     step = _profileViewModel.resumeStep;
     notifyListeners();
   }
@@ -560,7 +490,7 @@ class AppState extends ChangeNotifier {
       return false;
     }
     _syncPlant(); // 시작 안내를 마치면 튤립이 도감에 들어온다
-    go('home');
+    _navigationViewModel.go('home');
     return true;
   }
 
@@ -604,7 +534,7 @@ class AppState extends ChangeNotifier {
     await _authViewModel.signOut();
     _resetPersonal();
     _notice = '로그아웃했어요.';
-    go('login');
+    _navigationViewModel.go('login');
   }
 
   /// 계정 삭제에 성공하면 true, 실패하면 false(authError에 사용자용 문구).
@@ -614,7 +544,7 @@ class AppState extends ChangeNotifier {
     afterDelete: () {
       _resetPersonal();
       _notice = '계정과 저장된 정보를 모두 삭제했어요.';
-      go('login');
+      _navigationViewModel.go('login');
     },
   );
 
@@ -931,7 +861,7 @@ class AppState extends ChangeNotifier {
 
   void openMeal(MealLog m) {
     _recordsViewModel.selectDetailMeal(m);
-    go('mealDetail');
+    _navigationViewModel.go('mealDetail');
   }
 
   // 운동
@@ -1337,9 +1267,7 @@ class AppState extends ChangeNotifier {
   /// 챌린지를 만들고 챌린지 탭으로 이동한다. 화면 이동은 저장을 기다리지 않는다.
   Future<void> createChallenge() {
     final saving = _challengeViewModel.createChallenge();
-    friendTab = '챌린지';
-    screen = 'friends';
-    notifyListeners();
+    _navigationViewModel.replaceWith('friends', friendTab: '챌린지');
     return saving;
   }
 
@@ -1358,11 +1286,6 @@ class AppState extends ChangeNotifier {
   bool get gardenPublic => _profileViewModel.gardenPublic;
   void toggleGardenPublic() => _profileViewModel.toggleGardenPublic();
 
-  void setFriendTab(String t) {
-    friendTab = t;
-    notifyListeners();
-  }
-
   // 설정
   //
   // 알림 토글 · 시간은 ProfileViewModel이 저장하고, 바뀌면 기기 알림 예약을 다시 한다.
@@ -1377,11 +1300,6 @@ class AppState extends ChangeNotifier {
   void setAlertTime(String key, String value) {
     _profileViewModel.setAlertTime(key, value);
     unawaited(_applyNotificationSchedule());
-  }
-
-  void setSetTab(String t) {
-    setTab = t;
-    notifyListeners();
   }
 
   // FAB (드래그 가능)

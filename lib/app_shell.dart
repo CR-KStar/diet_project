@@ -19,6 +19,7 @@ import 'ui/report_settings/pages/settings_page.dart';
 import 'package:diet_project/ui/record/viewmodel/bowl_view_model.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
+import 'package:diet_project/ui/core/viewmodel/navigation_view_model.dart';
 
 /// FAB을 눌렀을 때 뜨는 빠른 기록 시트 — 식단/운동/체중/물 4가지 바로가기
 class QuickSheet extends StatelessWidget {
@@ -27,6 +28,7 @@ class QuickSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = context.read<AppState>();
+    final nav = context.read<NavigationViewModel>();
 
     Widget tile(
       IconData icon,
@@ -69,7 +71,7 @@ class QuickSheet extends StatelessWidget {
                 AppIconColors.meal,
                 '식단 기록',
                 '사진 + 부가 정보',
-                () => s.go('capture'),
+                () => nav.go('capture'),
               ),
               const SizedBox(width: 12),
               tile(
@@ -77,7 +79,7 @@ class QuickSheet extends StatelessWidget {
                 AppIconColors.exercise,
                 '운동 기록',
                 '루틴 불러오기',
-                () => s.go('exercise'),
+                () => nav.go('exercise'),
               ),
             ],
           ),
@@ -89,7 +91,7 @@ class QuickSheet extends StatelessWidget {
                 AppIconColors.weight,
                 '체중 기록',
                 '오늘 체중 입력',
-                () => s.go('weight'),
+                () => nav.go('weight'),
               ),
               const SizedBox(width: 12),
               tile(
@@ -190,6 +192,7 @@ class AppShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final bowl = context.watch<BowlViewModel>();
     final s = context.watch<AppState>();
+    final nav = context.watch<NavigationViewModel>();
     return Scaffold(
       backgroundColor: AppColor.bg,
       body: SafeArea(
@@ -197,13 +200,13 @@ class AppShell extends StatelessWidget {
           children: [
             // 화면 본문
             Positioned.fill(
-              bottom: s.showShell ? AppSize.tabBarHeight : 0,
-              child: _ScreenBody(screen: s.screen),
+              bottom: nav.showShell ? AppSize.tabBarHeight : 0,
+              child: _ScreenBody(screen: nav.screen),
             ),
             // 하단 탭바
-            if (s.showShell)
+            if (nav.showShell)
               const Align(alignment: Alignment.bottomCenter, child: _TabBar()),
-            if (s.showShell) const _DraggableFab(),
+            if (nav.showShell) const _DraggableFab(),
             if (s.fabOpen)
               _SheetOverlay(onClose: s.closeFab, child: const QuickSheet()),
             if (s.waterSheet)
@@ -365,7 +368,7 @@ class _TabBar extends StatelessWidget {
   ];
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final nav = context.watch<NavigationViewModel>();
     return Container(
       height: AppSize.tabBarHeight,
       padding: const EdgeInsets.only(top: 14, left: 6, right: 6),
@@ -376,11 +379,11 @@ class _TabBar extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: _tabs.map((tab) {
-          final group = AppState.tabGroups[tab.$1] ?? [tab.$1];
-          final active = group.contains(s.screen);
+          final group = NavigationViewModel.tabGroups[tab.$1] ?? [tab.$1];
+          final active = group.contains(nav.screen);
           return Expanded(
             child: GestureDetector(
-              onTap: () => s.go(tab.$1),
+              onTap: () => nav.go(tab.$1),
               behavior: HitTestBehavior.opaque,
               child: Column(
                 children: [

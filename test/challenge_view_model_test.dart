@@ -310,8 +310,8 @@ void main() {
 
       await s.createChallenge();
 
-      expect(s.screen, 'friends');
-      expect(s.friendTab, '챌린지');
+      expect(s.navigationViewModel.screen, 'friends');
+      expect(s.navigationViewModel.friendTab, '챌린지');
       // 데모 계정은 예시 챌린지 2개로 시작하고, 새로 만든 것이 맨 뒤에 붙는다.
       expect(s.challenges, hasLength(3));
       expect(s.challenges.last.creatorId, User.meId);

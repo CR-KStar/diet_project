@@ -346,7 +346,7 @@ void main() {
       final s = AppState(now: () => _today);
       s.setPeriod('월간');
 
-      s.go('report');
+      s.navigationViewModel.go('report');
 
       expect(s.period, '주간');
     });

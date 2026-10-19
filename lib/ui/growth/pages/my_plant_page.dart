@@ -12,6 +12,7 @@ import 'package:diet_project/ui/growth/viewmodel/plant_view_model.dart';
 import 'package:diet_project/ui/social/viewmodel/friend_view_model.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
+import 'package:diet_project/ui/core/viewmodel/navigation_view_model.dart';
 
 class PlantScreen extends StatelessWidget {
   const PlantScreen({super.key});
@@ -19,7 +20,7 @@ class PlantScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final plant = context.watch<PlantViewModel>();
-    final s = context.watch<AppState>();
+    final nav = context.watch<NavigationViewModel>();
 
     return ScreenScroll(
       children: [
@@ -28,13 +29,13 @@ class PlantScreen extends StatelessWidget {
           children: [
             Expanded(
               child: SubHeader(
-                icon: s.plantTab == '도감' ? AppIcons.dex : AppIcons.plant,
-                title: s.plantTab == '도감' ? '식물 도감' : '나의 식물',
-                onBack: () => s.go('home'),
+                icon: nav.plantTab == '도감' ? AppIcons.dex : AppIcons.plant,
+                title: nav.plantTab == '도감' ? '식물 도감' : '나의 식물',
+                onBack: () => nav.go('home'),
               ),
             ),
             Text(
-              s.plantTab == '도감'
+              nav.plantTab == '도감'
                   ? '${plant.dexOwned} / ${plant.dexTotal}종'
                   : 'Lv.${plant.plantLevel} · ${plant.plantStage.name}',
               style: t(AppFontSize.f12, c: AppColor.textFaint),
@@ -43,10 +44,10 @@ class PlantScreen extends StatelessWidget {
         ),
         PillTabs(
           options: const ['식물', '도감'],
-          value: s.plantTab,
-          onChanged: (v) => s.setSub(() => s.plantTab = v),
+          value: nav.plantTab,
+          onChanged: (v) => nav.setPlantTab(v),
         ),
-        if (s.plantTab == '도감') const PlantDexTab() else const _PlantBody(),
+        if (nav.plantTab == '도감') const PlantDexTab() else const _PlantBody(),
       ],
     );
   }
@@ -661,7 +662,7 @@ class _GardenCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final plant = context.watch<PlantViewModel>();
-    final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -671,7 +672,7 @@ class _GardenCard extends StatelessWidget {
               Text('내 정원', style: t(AppFontSize.f14, w: FontWeight.w700)),
               const Spacer(),
               GestureDetector(
-                onTap: () => s.setSub(() => s.plantTab = '도감'),
+                onTap: () => nav.setPlantTab('도감'),
                 child: Text(
                   '도감 ${plant.dexOwned} / ${plant.dexTotal} ›',
                   style: t(

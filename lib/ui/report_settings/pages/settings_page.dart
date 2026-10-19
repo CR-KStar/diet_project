@@ -7,6 +7,7 @@ import '../../core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
+import 'package:diet_project/ui/core/viewmodel/navigation_view_model.dart';
 
 /// 알림별 관련 시간대만 노출 — 스테퍼 대신 시간 칩
 const _slots = [
@@ -51,21 +52,21 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final nav = context.watch<NavigationViewModel>();
 
     return ScreenScroll(
       children: [
         SubHeader(
           icon: AppIcons.settings,
           title: '설정',
-          onBack: () => s.go('my'),
+          onBack: () => nav.go('my'),
         ),
         PillTabs(
           options: const ['알림', '데이터 · 개인정보'],
-          value: s.setTab,
-          onChanged: s.setSetTab,
+          value: nav.setTab,
+          onChanged: nav.setSetTab,
         ),
-        if (s.setTab == '알림') const _AlertsTab() else const _PrivacyTab(),
+        if (nav.setTab == '알림') const _AlertsTab() else const _PrivacyTab(),
       ],
     );
   }

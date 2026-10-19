@@ -114,7 +114,7 @@ void main() {
 
       expect(fake.signedOut, isTrue);
       expect(s.account, isNull);
-      expect(s.screen, 'login');
+      expect(s.navigationViewModel.screen, 'login');
     });
 
     test('계정 삭제에 실패하면 false이고 문구가 남는다', () async {

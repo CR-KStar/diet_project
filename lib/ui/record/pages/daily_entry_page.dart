@@ -16,6 +16,7 @@ import 'package:diet_project/ui/home/viewmodel/today_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/records_view_model.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
+import 'package:diet_project/ui/core/viewmodel/navigation_view_model.dart';
 
 // 운동 기록 (루틴 통합)
 
@@ -27,6 +28,7 @@ class ExerciseScreen extends StatelessWidget {
     final exercise = context.watch<ExerciseViewModel>();
     final today = context.watch<TodayViewModel>();
     final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
 
     return ScreenScroll(
       children: [
@@ -38,7 +40,7 @@ class ExerciseScreen extends StatelessWidget {
                 icon: AppIcons.exercise,
                 iconColor: AppIconColors.exercise,
                 title: '운동 기록',
-                onBack: () => s.go('records'),
+                onBack: () => nav.go('records'),
               ),
             ),
             Text(
@@ -55,7 +57,7 @@ class ExerciseScreen extends StatelessWidget {
           label: '운동 저장',
           onTap: () {
             s.logExercise();
-            s.go('home');
+            nav.go('home');
             toast(context, '운동 ${exercise.exMinutes}분 기록 저장 · 홈에 반영됐어요');
           },
         ),
@@ -377,6 +379,7 @@ class WeightScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final today = context.watch<TodayViewModel>();
     final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
     final weight = context.watch<WeightViewModel>();
 
     return ScreenScroll(
@@ -389,7 +392,7 @@ class WeightScreen extends StatelessWidget {
                 icon: AppIcons.weight,
                 iconColor: AppIconColors.weight,
                 title: '체중 기록',
-                onBack: () => s.go('records'),
+                onBack: () => nav.go('records'),
               ),
             ),
             Text(
@@ -408,7 +411,7 @@ class WeightScreen extends StatelessWidget {
             }
             weight.logWeight();
             s.onWeightLogged(weight.weightInput);
-            s.go('home');
+            nav.go('home');
             toast(
               context,
               '체중 ${weight.weightInput.toStringAsFixed(1)}kg을 저장했어요',
@@ -773,14 +776,14 @@ class BowlsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bowlVm = context.watch<BowlViewModel>();
-    final s = context.watch<AppState>();
+    final nav = context.read<NavigationViewModel>();
 
     return ScreenScroll(
       children: [
         SubHeader(
           icon: AppIcons.bowl,
           title: '내 그릇 관리',
-          onBack: () => s.go('my'),
+          onBack: () => nav.go('my'),
           trailing: Text(
             '${bowlVm.bowls.length} / ${DietRules.maxBowls}',
             style: t(AppFontSize.f12, c: AppColor.textFaint),

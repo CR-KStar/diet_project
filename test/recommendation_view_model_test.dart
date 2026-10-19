@@ -223,10 +223,10 @@ void main() {
       final s = AppState(mealRecommendationService: service);
       await s.setAiConsent(true);
 
-      s.go('recommend');
+      s.navigationViewModel.go('recommend');
       await Future<void>.delayed(Duration.zero);
-      s.go('home');
-      s.go('recommend'); // 이미 받아 둔 결과가 있으면 다시 부르지 않는다
+      s.navigationViewModel.go('home');
+      s.navigationViewModel.go('recommend'); // 이미 받아 둔 결과가 있으면 다시 부르지 않는다
       await Future<void>.delayed(Duration.zero);
 
       expect(service.calls, 1);
@@ -235,7 +235,7 @@ void main() {
     test('동의 전에는 추천 화면에 들어가도 AI에 요청하지 않는다', () async {
       final s = AppState(mealRecommendationService: service);
 
-      s.go('recommend');
+      s.navigationViewModel.go('recommend');
       await Future<void>.delayed(Duration.zero);
 
       expect(service.calls, 0);
