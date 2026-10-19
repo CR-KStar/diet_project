@@ -1,11 +1,21 @@
 import {setGlobalOptions} from "firebase-functions";
+import {initializeApp} from "firebase-admin/app";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 import {defineSecret} from "firebase-functions/params";
 import Anthropic from "@anthropic-ai/sdk";
 import {z} from "zod";
 import {zodOutputFormat} from "@anthropic-ai/sdk/helpers/zod";
+import {requireUid, consumeDailyQuota} from "./guards";
 
+initializeApp();
 setGlobalOptions({maxInstances: 10});
+
+// 한 사람이 하루에 부를 수 있는 횟수 — 비용과 남용을 막기 위한 상한.
+const DAILY_ANALYZE_LIMIT = 30;
+const DAILY_RECOMMEND_LIMIT = 30;
+
+// 사진(base64 문자열) 크기 상한 — 앱이 올리는 사진보다 넉넉하게.
+const MAX_IMAGE_BASE64_LENGTH = 8 * 1024 * 1024;
 
 // 등록해둔 키 참조.
 const anthropicApiKey = defineSecret("ANTHROPIC_API_KEY");
@@ -35,6 +45,7 @@ const MealAnalysisSchema = z.object({
 export const analyzeMealPhoto = onCall(
   {secrets: [anthropicApiKey]}, // 이 함수에서만 시크릿을 꺼내 쓸 수 있게 허용
   async (request) => {
+    const uid = requireUid(request);
     const {imageBase64, mediaType, bowl} = request.data as {
       imageBase64: string;
       mediaType: string; // 예: "image/jpeg"
@@ -44,6 +55,12 @@ export const analyzeMealPhoto = onCall(
     if (!imageBase64) {
       throw new HttpsError("invalid-argument", "imageBase64가 필요해요.");
     }
+    if (imageBase64.length > MAX_IMAGE_BASE64_LENGTH) {
+      throw new HttpsError("invalid-argument", "사진이 너무 커요.");
+    }
+
+    // 입력 검사를 통과한 뒤에 횟수를 쓴다 — 잘못된 요청은 한도를 깎지 않는다.
+    await consumeDailyQuota(uid, "analyze", DAILY_ANALYZE_LIMIT);
 
     const client = new Anthropic({apiKey: anthropicApiKey.value()});
 
@@ -114,12 +131,18 @@ const MealRecommendationSchema = z.object({
 export const recommendMeals = onCall(
   {secrets: [anthropicApiKey]},
   async (request) => {
+    const uid = requireUid(request);
     const {needs, recMeal, recPrefs, recMaxKcal} = request.data as {
       needs: string[];
       recMeal: string;
       recPrefs: string[];
       recMaxKcal: number;
     };
+
+    if (!Array.isArray(needs) || !Array.isArray(recPrefs)) {
+      throw new HttpsError("invalid-argument", "추천 조건이 올바르지 않아요.");
+    }
+    await consumeDailyQuota(uid, "recommend", DAILY_RECOMMEND_LIMIT);
 
     const client = new Anthropic({apiKey: anthropicApiKey.value()});
 

@@ -1,5 +1,6 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:diet_project/domain/models/models.dart';
+import 'package:diet_project/data/services/ai_failure.dart';
 import 'package:diet_project/data/services/meal_analysis_service.dart';
 import 'package:diet_project/config/app_config.dart';
 
@@ -24,13 +25,18 @@ class CloudMealAnalysisService implements MealAnalysisService {
     final callable = _functions.httpsCallable(
       AppConfig.analyzeMealPhotoFunction,
     );
-    final result = await callable.call<Map<String, dynamic>>({
-      'imageBase64': imageBase64,
-      'mediaType': mediaType,
-      if (bowl != null)
-        'bowl': {'name': bowl.name, 'capacityMl': bowl.capacityMl},
-    });
-    return _fromMap(Map<String, dynamic>.from(result.data));
+    try {
+      final result = await callable.call<Map<String, dynamic>>({
+        'imageBase64': imageBase64,
+        'mediaType': mediaType,
+        if (bowl != null)
+          'bowl': {'name': bowl.name, 'capacityMl': bowl.capacityMl},
+      });
+      return _fromMap(Map<String, dynamic>.from(result.data));
+    } on FirebaseFunctionsException catch (e) {
+      if (e.code == 'resource-exhausted') throw const AiQuotaExceeded();
+      rethrow;
+    }
   }
 
   /// 함수가 돌려준 값을 분석 결과로 바꾼다.

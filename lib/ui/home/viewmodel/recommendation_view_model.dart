@@ -1,6 +1,7 @@
 import 'package:diet_project/domain/models/models.dart';
 import 'package:flutter/foundation.dart';
 import 'package:diet_project/data/services/meal_recommendation_service.dart';
+import 'package:diet_project/data/services/ai_failure.dart';
 
 /// 식단 추천 화면의 조건(부족한 영양소 · 끼니 · 선호 · 최대 칼로리 · 정렬)과
 /// 추천 결과를 담당한다.
@@ -182,6 +183,8 @@ class RecommendationViewModel extends ChangeNotifier {
         prefs: recPrefs,
         maxKcal: recMaxKcal,
       );
+    } on AiQuotaExceeded {
+      recommendationError = '오늘 추천 횟수를 모두 썼어요. 내일 다시 이용해 주세요.';
     } catch (e, stack) {
       debugPrint('식단 추천을 받지 못했어요: $e\n$stack');
       recommendationError = '추천을 불러오지 못했어요. 다시 시도해주세요.';

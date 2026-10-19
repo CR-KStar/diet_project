@@ -3,6 +3,7 @@ import 'package:diet_project/ui/home/viewmodel/recommendation_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:diet_project/data/services/meal_recommendation_service.dart';
 import 'package:diet_project/app_composition.dart';
+import 'package:diet_project/data/services/ai_failure.dart';
 
 AiMealSuggestion _ai(
   String name, {
@@ -28,6 +29,7 @@ class _FakeService implements MealRecommendationService {
 
   List<AiMealSuggestion> result = [];
   bool fail = false;
+  bool overQuota = false;
   int calls = 0;
   Map<String, Object?>? lastRequest;
 
@@ -45,6 +47,7 @@ class _FakeService implements MealRecommendationService {
       'prefs': [...prefs],
       'maxKcal': maxKcal,
     };
+    if (overQuota) throw const AiQuotaExceeded();
     if (fail) throw Exception('network down');
     return result;
   }
@@ -192,6 +195,16 @@ void main() {
       final byName = {for (final r in vm.recommendations) r.meal.name: r};
       expect(byName['저녁용']!.offMeal, isFalse);
       expect(byName['아침용']!.offMeal, isTrue);
+    });
+
+    test('하루 호출 횟수를 다 쓰면 내일 다시 이용하라고 알린다', () async {
+      service.overQuota = true;
+
+      await vm.fetchAiRecommendations();
+
+      expect(vm.recommendationError, '오늘 추천 횟수를 모두 썼어요. 내일 다시 이용해 주세요.');
+      expect(vm.aiRecommendations, isNull);
+      expect(vm.recommendations, isNotEmpty);
     });
 
     test('실패하면 오류 문구를 알리고, 규칙 기반 추천으로 대신한다', () async {

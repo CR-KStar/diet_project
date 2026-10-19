@@ -96,7 +96,7 @@
 | AI | Claude API (사진 → 영양 분석 · 메뉴 추천), zod 스키마로 응답 모양 강제 |
 | 기기 기능 | `flutter_local_notifications` · `image_picker` · `shared_preferences` · `url_launcher` |
 | 호스팅 | Firebase Hosting (웹 체험판) · GitHub Pages (정책 문서 · 포트폴리오) |
-| 테스트 | `flutter_test` — 단위 · 위젯 411개 |
+| 테스트 | `flutter_test` — 단위 · 위젯 413개 |
 
 ## 아키텍처
 
@@ -247,7 +247,7 @@ Google 로그인은 플랫폼별 설정이 더 필요해요(Android는 SHA-1 지
 flutter pub get                          # 의존성 설치
 flutter analyze                          # 정적 분석
 dart format lib test                     # 코드 정리
-flutter test                             # 전체 테스트 (411개)
+flutter test                             # 전체 테스트 (413개)
 flutter test test/mission_view_model_test.dart       # 파일 하나만
 flutter test --plain-name "시든다"                    # 이름으로 골라서
 
@@ -262,7 +262,7 @@ dart run flutter_launcher_icons
 
 ## 테스트
 
-`flutter test`로 단위 · 위젯 테스트 411개를 한 번에 돌려요. 서버 없이 가짜 구현으로 돌아가요.
+`flutter test`로 단위 · 위젯 테스트 413개를 한 번에 돌려요. 서버 없이 가짜 구현으로 돌아가요.
 
 | 영역 | 확인하는 것 |
 |---|---|
@@ -323,7 +323,7 @@ web/ · ios/ · android/       플랫폼 설정
 솔직하게 적어 둬요.
 
 **보안 · 서버**
-- AI 함수에 사용자 인증 확인과 호출 횟수 제한을 추가할 예정이에요.
+- AI 함수(`analyzeMealPhoto` · `recommendMeals`)는 코드에서 로그인 확인과 하루 호출 횟수 제한(사진 분석 30회 · 추천 30회, 한국 시간 자정 기준)을 하도록 바꿨어요. Functions 배포 후에 적용돼요.
 - Firestore 보안 규칙에 자동 테스트(에뮬레이터)가 아직 없어요.
 
 **기능**

@@ -1,5 +1,6 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:diet_project/domain/models/models.dart';
+import 'package:diet_project/data/services/ai_failure.dart';
 import 'package:diet_project/data/services/meal_recommendation_service.dart';
 import 'package:diet_project/config/app_config.dart';
 
@@ -22,14 +23,19 @@ class CloudMealRecommendationService implements MealRecommendationService {
     required int maxKcal,
   }) async {
     final callable = _functions.httpsCallable(AppConfig.recommendMealsFunction);
-    final result = await callable.call<Map<String, dynamic>>({
-      'needs': needs,
-      'recMeal': meal,
-      'recPrefs': prefs,
-      'recMaxKcal': maxKcal,
-    });
-    final list = (result.data['recommendations'] as List).cast<Map>();
-    return [for (final m in list) _fromMap(Map<String, dynamic>.from(m))];
+    try {
+      final result = await callable.call<Map<String, dynamic>>({
+        'needs': needs,
+        'recMeal': meal,
+        'recPrefs': prefs,
+        'recMaxKcal': maxKcal,
+      });
+      final list = (result.data['recommendations'] as List).cast<Map>();
+      return [for (final m in list) _fromMap(Map<String, dynamic>.from(m))];
+    } on FirebaseFunctionsException catch (e) {
+      if (e.code == 'resource-exhausted') throw const AiQuotaExceeded();
+      rethrow;
+    }
   }
 
   static AiMealSuggestion _fromMap(Map<String, dynamic> map) =>

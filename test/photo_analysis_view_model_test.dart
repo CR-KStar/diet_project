@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:diet_project/data/services/meal_analysis_service.dart';
 import 'package:diet_project/app_composition.dart';
+import 'package:diet_project/data/services/ai_failure.dart';
 
 MealAnalysisResult _result({
   String name = '비빔밥',
@@ -30,6 +31,7 @@ MealAnalysisResult _result({
 class _FakeService implements MealAnalysisService {
   MealAnalysisResult result = _result();
   bool fail = false;
+  bool overQuota = false;
   int calls = 0;
   String? lastBase64;
   String? lastMediaType;
@@ -45,6 +47,7 @@ class _FakeService implements MealAnalysisService {
     lastBase64 = imageBase64;
     lastMediaType = mediaType;
     lastBowl = bowl;
+    if (overQuota) throw const AiQuotaExceeded();
     if (fail) throw Exception('network down');
     return result;
   }
@@ -159,6 +162,16 @@ void main() {
       expect(vm.aiMealName, isNull);
       expect(vm.analyzingPhoto, isFalse);
       expect(vm.baseKcal, 450);
+    });
+
+    test('하루 호출 횟수를 다 쓰면 내일 다시 이용하라고 알린다', () async {
+      service.overQuota = true;
+
+      await vm.pickAndAnalyze(ImageSource.gallery);
+
+      expect(vm.photoAnalysisError, '오늘 사진 분석 횟수를 모두 썼어요. 내일 다시 이용해 주세요.');
+      expect(vm.aiMealName, isNull);
+      expect(vm.analyzingPhoto, isFalse);
     });
 
     test('다시 시도해서 성공하면 오류 문구가 사라진다', () async {

@@ -4,6 +4,7 @@ import 'package:diet_project/domain/models/models.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:diet_project/data/services/meal_analysis_service.dart';
+import 'package:diet_project/data/services/ai_failure.dart';
 
 /// 사진을 고르는 방법 — 테스트에서는 갤러리 · 카메라 대신 가짜를 넣는다.
 typedef PhotoPicker = Future<XFile?> Function(ImageSource source);
@@ -66,6 +67,8 @@ class PhotoAnalysisViewModel extends ChangeNotifier {
             ? null
             : (name: bowl.name, capacityMl: bowl.capacityMl),
       );
+    } on AiQuotaExceeded {
+      photoAnalysisError = '오늘 사진 분석 횟수를 모두 썼어요. 내일 다시 이용해 주세요.';
     } catch (e) {
       photoAnalysisError = '사진 분석에 실패했어요. 다시 시도해주세요.';
       debugPrint('사진 분석 실패: $e');
