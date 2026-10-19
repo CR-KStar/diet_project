@@ -142,13 +142,36 @@
     .contact a { color: #fff; font-weight: 700; font-size: 14px; } .contact .links { display: flex; gap: 20px; flex-wrap: wrap; }
     .foot { margin-top: 10px; font-size: 12px; color: var(--muted); }
 
+
+    /* ─ 3쪽 ─ */
+    .p3top { display: grid; grid-template-columns: 6fr 6fr; gap: 16px; }
+    .tree { margin: 0 0 10px; padding: 12px 14px; border-radius: 14px; background: var(--g-tint); border: 1px solid var(--line);
+      font: 500 12px/1.65 ui-monospace, "SF Mono", Menlo, Consolas, "Noto Sans KR", monospace; color: var(--ink); white-space: pre; overflow-x: auto; }
+    .tree em { font-style: normal; color: var(--muted); }
+    .rt { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .rt th { text-align: left; font-size: 11.5px; color: var(--g-dark); padding: 5px 8px; border-bottom: 2px solid var(--g-soft); }
+    .rt td { padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--muted); }
+    .rt td:first-child { color: var(--ink); font-weight: 700; white-space: nowrap; }
+    .rt tr:last-child td { border-bottom: 0; }
+    .flows3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 16px; }
+    .cs ol { margin: 0; padding-left: 18px; font-size: 12.5px; color: var(--muted); }
+    .cs ol li { margin: 3px 0; } .cs ol b { color: var(--ink); }
+    .why-line { margin: 8px 0 0; padding: 7px 10px; border-radius: 10px; background: var(--g-soft); font-size: 12px; font-weight: 500; color: var(--g-dark); }
+    .p3bot { display: grid; grid-template-columns: 7fr 5fr; gap: 16px; margin-top: 16px; }
+    .fix { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .fix th { text-align: left; font-size: 11.5px; color: var(--g-dark); padding: 5px 8px; border-bottom: 2px solid var(--g-soft); }
+    .fix td { padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--muted); }
+    .fix td:first-child { color: var(--ink); font-weight: 700; width: 30%; }
+    .fix tr:last-child td { border-bottom: 0; }
+    .fix b { color: var(--ink); }
+
     @media screen and (max-width: 1000px) {
-      .p1, .p2top, .p2bot, .how-grid { grid-template-columns: 1fr; }
-      .row3 { grid-template-columns: 1fr 1fr; } .cards6 { grid-template-columns: 1fr 1fr; }
+      .p1, .p2top, .p2bot, .p3top, .p3bot, .how-grid { grid-template-columns: 1fr; }
+      .row3 { grid-template-columns: 1fr 1fr; } .cards6, .flows3 { grid-template-columns: 1fr 1fr; }
     }
     @media screen and (max-width: 640px) {
       .page { padding: 18px 14px 28px; }
-      .tiles { grid-template-columns: 1fr 1fr; } .row3, .cards6, .nums { grid-template-columns: 1fr; }
+      .tiles { grid-template-columns: 1fr 1fr; } .row3, .cards6, .flows3, .nums { grid-template-columns: 1fr; }
       .layer { grid-template-columns: 1fr; gap: 2px; }
       .phones5 { grid-template-columns: repeat(5, 46%); overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; }
       .phones5 .ph { scroll-snap-align: start; }
@@ -360,6 +383,92 @@
         <li><b>AI 함수 인증 · 호출 횟수 제한</b></li>
         <li>친구 삭제 · 신고 기능</li>
       </ul>
+    </div>
+  </div>
+
+</section>
+
+<!-- ───────────── 3쪽: 백엔드 · DB 설계 ───────────── -->
+<section class="page" id="page3">
+  <div class="p2head">
+    <h2>백엔드 · DB 설계</h2>
+    <span class="chip">Firebase — Auth · Firestore · Cloud Functions</span>
+  </div>
+
+  <div class="p3top">
+    <div class="card">
+      <h3 class="ttl">Firestore 데이터 구조</h3>
+<pre class="tree">users/{uid}                      <em>프로필 (닉네임 · 신체 정보 · 알림 · 공개 범위)</em>
+ ├─ weight · exercise · meals    <em>기록 — 문서 1건 = 기록 1건</em>
+ │  bowls · routines · water
+ ├─ plant/state                  <em>내 식물 (경험치 · 축 점수 · 누적 기록)</em>
+ └─ dexEntries/{speciesId}       <em>식물 도감</em>
+publicProfiles/{uid}             <em>친구 찾기용 닉네임 · 초대 코드</em>
+inviteCodes/{code}               <em>초대 코드 → uid</em>
+friendRequests · friendships     <em>친구 요청 · 확정된 관계</em>
+challenges · challengeProgress   <em>챌린지 · 참가자별 진행</em>
+activityFeed                     <em>친구 활동 한 줄</em></pre>
+      <ul class="why">
+        <li>내 기록은 <b>users/{uid} 아래</b> → 규칙 한 줄로 하위 전체를 보호</li>
+        <li>사용자 <b>사이의 관계</b>(친구 · 챌린지)는 한 사람 아래에 둘 수 없어서 최상위로 분리</li>
+        <li>날짜는 <b>'yyyy-MM-dd' 문자열</b>(dateKey) → 사전순이 곧 시간순이라 월 범위 조회가 <b>색인 없이</b> 한 필드 조건으로 됨</li>
+        <li>모델 ↔ 저장 형식 변환은 <b>codec</b>이 맡고, 예전 형식 · 깨진 값도 읽도록 테스트로 고정</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 class="ttl">보안 규칙 — 기본은 전부 막고, 필요한 것만 열기</h3>
+      <table class="rt">
+        <tr><th>컬렉션</th><th>읽기</th><th>쓰기</th></tr>
+        <tr><td>users/{uid}/**</td><td>본인</td><td>본인</td></tr>
+        <tr><td>publicProfiles · inviteCodes</td><td>로그인한 사용자 <small>(코드로 찾아야 해서)</small></td><td>본인 것만</td></tr>
+        <tr><td>friendRequests</td><td>보낸 사람 · 받은 사람</td><td>생성은 <b>보낸 사람</b>, 수락 · 거절은 <b>받은 사람</b></td></tr>
+        <tr><td>friendships</td><td>관계에 포함된 두 사람</td><td>포함된 사람</td></tr>
+        <tr><td>challenges</td><td>로그인한 사용자</td><td>만든 사람(creatorId)이 생성 · 삭제, 참여는 로그인한 사용자</td></tr>
+        <tr><td>challengeProgress · activityFeed</td><td>로그인한 사용자</td><td>본인(uid) 것만, 삭제도 본인 것만</td></tr>
+      </table>
+      <p class="how">규칙은 <b>request.auth.uid</b>(요청한 사람) · <b>resource.data</b>(저장된 값) · <b>request.resource.data</b>(쓰려는 값)로 조건을 써요. 앱이 DB에 직접 접근하는 구조라 <b>규칙이 곧 서버의 권한 검사</b>예요.</p>
+    </div>
+  </div>
+
+  <div class="flows3">
+    <article class="cs"><h3><em>A</em>사진 분석 — 앱 → 함수 → Claude</h3>
+      <ol><li>동의 팝업 후, 사진(base64)과 그릇 정보를 <b>Cloud Function</b>(analyzeMealPhoto)으로 보내요</li>
+      <li>함수가 <b>서버 Secret의 API 키</b>로 Claude를 호출하고, <b>zod 스키마</b>로 정해진 JSON(음식 이름 · 영양소 · 확신도)을 강제해요</li>
+      <li>확신이 낮으면 <b>needs_review</b>로 표시하고, 앱은 결과만 저장해요(사진은 저장 안 함)</li></ol>
+      <p class="why-line">왜 서버를 거치나: 키가 앱에 들어가면 앱 파일을 풀어서 누구나 꺼낼 수 있어요</p></article>
+    <article class="cs"><h3><em>B</em>친구 요청 — 규칙으로 권한 나누기</h3>
+      <ol><li>초대 코드를 입력하면 <b>inviteCodes</b>에서 상대 uid를 찾아요</li>
+      <li><b>friendRequests</b> 생성 — 규칙상 보낸 사람만 만들 수 있어요</li>
+      <li>받은 사람이 수락(<b>받은 사람만 update</b>)하면 <b>friendships</b>가 생겨요</li>
+      <li>활동 피드에는 짧은 한 줄만 남기고, 보이는 범위는 항목별로 사용자가 정해요</li></ol>
+      <p class="why-line">초대 코드는 헷갈리는 글자(0/O, 1/I)를 뺀 6자리예요</p></article>
+    <article class="cs"><h3><em>C</em>계정 삭제 — 순서가 중요한 흐름</h3>
+      <ol><li><b>재인증</b>(민감 작업은 최근 로그인 필요) → Apple이면 <b>토큰 철회</b></li>
+      <li><b>내 데이터 삭제</b> — 기록 · 프로필 · 친구 · 챌린지 · 활동 피드(<b>300개씩 배치</b>)</li>
+      <li>마지막에 <b>계정 삭제</b></li></ol>
+      <p class="why-line">계정을 먼저 지우면 보안 규칙이 삭제를 허용하지 않아서, 데이터를 먼저 지워요</p></article>
+  </div>
+
+  <div class="p3bot">
+    <div class="card">
+      <h3 class="ttl">직접 풀었던 문제</h3>
+      <table class="fix">
+        <tr><th>문제</th><th>원인과 해결</th></tr>
+        <tr><td>App Store 반려<br><small>(2.1 · Apple 로그인 오류)</small></td><td>Firebase의 <b>Apple 제공자 서버 설정</b>이 빠져 있었어요 → 서비스 ID · 키를 설정하고, 삭제 때 <b>토큰 철회</b>까지 구현해 재제출 · 승인</td></tr>
+        <tr><td>삭제 후에도 친구 · 챌린지 · 활동 기록이 남음</td><td>저장 단계에서 빠뜨린 데이터를 찾아 <b>저장소 삭제 기능 + 보안 규칙(본인 삭제 허용) + 처방침 문구</b>를 함께 고치고 테스트로 보호</td></tr>
+        <tr><td>한 번에 처리할 수 있는 개수 한도</td><td>삭제는 <b>300개씩 배치</b>, <b>whereIn은 30개씩</b> 나눠 조회</td></tr>
+        <tr><td>로그아웃 후 이전 계정의 값이 남음<br><small>(약관 동의 · 공개 범위)</small></td><td>다음 계정이 <b>민감 정보 동의를 물려받는</b> 문제 → 로그아웃 때 초기 상태로 되돌리고 테스트로 고정</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3 class="ttl">한계와 다음 단계</h3>
+      <ul class="road">
+        <li><b>보안 규칙 자동 테스트</b> — 에뮬레이터로 "허용 · 거부"를 고정</li>
+        <li><b>AI 함수 인증 · 호출 횟수 제한</b> — 비용과 남용 방지</li>
+        <li><b>규칙 세분화</b> — 수정 가능한 필드를 더 좁히기</li>
+        <li>친구 삭제 · 신고 기능</li>
+      </ul>
+      <p class="how">DB · 백엔드는 <b>처음부터 작은 단위로 다시 구현</b>해 보며 공부하고 있어요 — 인증 → 저장 → 보안 규칙 → 서버 함수 → 계정 삭제 순서로요.</p>
     </div>
   </div>
 
