@@ -115,6 +115,10 @@ class AppState extends ChangeNotifier {
       _notice = '식단 기록 저장에 실패했어요. 네트워크를 확인해 주세요.';
       notifyListeners();
     };
+    _mealViewModel.onDeleteFailed = () {
+      _notice = '식단 기록을 삭제하지 못했어요. 네트워크를 확인해 주세요.';
+      notifyListeners();
+    };
     // 저장·불러오기에 실패하면 화면 밖 안내(스낵바)로 알린다. 화면은 필요한 ViewModel을 직접 구독한다.
     void showNotice(String message) {
       _notice = message;
@@ -757,6 +761,48 @@ class AppState extends ChangeNotifier {
   /// 지금 보고 있는 날짜의 총 섭취 칼로리.
   int get selectedDayKcal => _recordsViewModel.selectedDayKcal;
 
+  /// 식단 한 건의 이름 · 칼로리 · 끼니를 고친다. 직접 고쳤으면 확인한 것으로 보고
+  /// '확인 필요' 표시는 뗀다. 수정 화면은 저장하면 닫힌다.
+  void updateMeal(
+    String id, {
+    required String name,
+    required int kcal,
+    required MealType mealType,
+  }) {
+    final m = _mealViewModel.mealById(id);
+    if (m == null) return;
+    final trimmed = name.trim();
+    _mealViewModel.updateMeal(
+      m.copyWith(
+        name: trimmed.isEmpty ? m.name : trimmed,
+        kcal: kcal < 0 ? 0 : kcal,
+        mealType: mealType,
+        needsReview: false,
+      ),
+    );
+    _navigationViewModel.setEditing(false);
+  }
+
+  /// 'AI 분석이 맞다'고 확인해서 '확인 필요' 표시만 뗀다.
+  void confirmMeal(String id) {
+    final m = _mealViewModel.mealById(id);
+    if (m == null || !m.needsReview) return;
+    _mealViewModel.updateMeal(m.copyWith(needsReview: false));
+  }
+
+  /// 식단 한 건을 지우고 기록 탭으로 돌아간다. 오늘 기준 챌린지 진행도와 앱 아이콘도
+  /// 다시 맞춘다. (이미 얻은 식물 돌보기 · 활동 피드는 되돌리지 않는다.)
+  void deleteMeal(String id) {
+    if (!_mealViewModel.deleteMeal(id)) return;
+    _challengeViewModel.reportProgress(
+      ChallengeType.mealRecord,
+      todayMeals.length,
+    );
+    _challengeViewModel.reportProgress(ChallengeType.protein, todayProteinG);
+    unawaited(_appIconService.setFilled(todayMeals.isNotEmpty));
+    _navigationViewModel.go('records');
+  }
+
   /// 촬영/기록 화면에서 저장한 값으로 실제 MealLog를 만들어 저장한다.
   void logMeal() {
     final bowl = currentBowl;
@@ -772,7 +818,7 @@ class AppState extends ChangeNotifier {
       dateKey: _todayKey,
       bowlId: bowl?.id,
       sauce: extras['sauce'] ?? '',
-      needsReview: true,
+      needsReview: needsPhotoReview, // AI가 확신하지 못했을 때만 '확인 필요'
       proteinG: aiProteinG ?? 0,
       carbG: aiCarbG ?? 0,
       fatG: aiFatG ?? 0,

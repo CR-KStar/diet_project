@@ -457,70 +457,217 @@ class MealDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final recordsVm = context.watch<RecordsViewModel>();
-    final nav = context.read<NavigationViewModel>();
+    final nav = context.watch<NavigationViewModel>();
     final m = recordsVm.detailMeal;
+    final editing = nav.editing && m != null;
     return ScreenScroll(
       children: [
         SubHeader(
           icon: AppIcons.meal,
-          title: '식단 상세',
-          onBack: () => nav.go('records'),
+          title: editing ? '식단 수정' : '식단 상세',
+          onBack: () => editing ? nav.setEditing(false) : nav.go('records'),
         ),
         if (m == null)
           const AppCard(child: Text('식단 정보를 찾을 수 없어요.'))
-        else
-          AppCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      m.type,
-                      style: t(
-                        AppFontSize.f11,
-                        w: FontWeight.w700,
-                        c: AppColor.textFaint,
-                      ),
-                    ),
-                    if (m.needsReview) ...[
-                      const SizedBox(width: AppSpace.s7),
-                      Pill(
-                        '확인 필요',
-                        bg: const Color(0xFFFFF3EF),
-                        fg: AppColor.alertText,
-                        fontSize: 9,
-                      ),
-                    ],
-                  ],
-                ),
-                const SizedBox(height: AppSpace.s6),
-                Text(m.name, style: t(AppFontSize.f18, w: FontWeight.w900)),
-                const SizedBox(height: AppSpace.s4),
-                Text(m.meta, style: t(AppFontSize.f12, c: AppColor.textGhost)),
-                const SizedBox(height: AppSpace.s14),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    Text(
-                      '${m.kcal}',
-                      style: t(
-                        AppFontSize.f24,
-                        w: FontWeight.w900,
-                        c: AppColor.primary,
-                      ),
-                    ),
-                    const SizedBox(width: AppSpace.s4),
-                    Text(
-                      'kcal',
-                      style: t(AppFontSize.f12, c: AppColor.textFaint),
-                    ),
-                  ],
-                ),
-              ],
+        else if (editing)
+          _MealEditForm(key: ValueKey(m.id), meal: m)
+        else ...[
+          _MealDetailCard(m: m),
+          if (m.needsReview) _ReviewHint(m: m),
+          _MealActions(m: m),
+        ],
+      ],
+    );
+  }
+}
+
+/// 식단 한 건의 내용 카드.
+class _MealDetailCard extends StatelessWidget {
+  const _MealDetailCard({required this.m});
+
+  final MealLog m;
+
+  @override
+  Widget build(BuildContext context) => AppCard(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              m.type,
+              style: t(
+                AppFontSize.f11,
+                w: FontWeight.w700,
+                c: AppColor.textFaint,
+              ),
+            ),
+            if (m.needsReview) ...[
+              const SizedBox(width: AppSpace.s7),
+              Pill(
+                '확인 필요',
+                bg: const Color(0xFFFFF3EF),
+                fg: AppColor.alertText,
+                fontSize: 9,
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: AppSpace.s6),
+        Text(m.name, style: t(AppFontSize.f18, w: FontWeight.w900)),
+        const SizedBox(height: AppSpace.s4),
+        Text(m.meta, style: t(AppFontSize.f12, c: AppColor.textGhost)),
+        const SizedBox(height: AppSpace.s14),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Text(
+              '${m.kcal}',
+              style: t(
+                AppFontSize.f24,
+                w: FontWeight.w900,
+                c: AppColor.primary,
+              ),
+            ),
+            const SizedBox(width: AppSpace.s4),
+            Text('kcal', style: t(AppFontSize.f12, c: AppColor.textFaint)),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+/// AI가 확신하지 못한 기록 — 맞는지 확인하게 하고, 맞으면 한 번에 표시를 뗀다.
+class _ReviewHint extends StatelessWidget {
+  const _ReviewHint({required this.m});
+
+  final MealLog m;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = context.read<AppState>();
+    return AppCard(
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              '이름과 칼로리가 맞는지 확인해 주세요. 다르면 아래에서 고칠 수 있어요.',
+              style: t(AppFontSize.f12, c: AppColor.textMuted, h: 1.5),
             ),
           ),
+          const SizedBox(width: AppSpace.s12),
+          SmallButton(label: '맞아요', onTap: () => s.confirmMeal(m.id)),
+        ],
+      ),
+    );
+  }
+}
+
+/// 수정 · 삭제 버튼.
+class _MealActions extends StatelessWidget {
+  const _MealActions({required this.m});
+
+  final MealLog m;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = context.read<AppState>();
+    final nav = context.read<NavigationViewModel>();
+    return Column(
+      children: [
+        PrimaryButton(label: '수정하기', onTap: () => nav.setEditing(true)),
+        TextLink(
+          label: '식단 삭제',
+          color: AppColor.alertText,
+          onTap: () async {
+            final ok = await confirmDialog(
+              context,
+              title: '식단을 삭제할까요?',
+              message: '"${m.name}" 기록이 지워져요. 되돌릴 수 없어요.',
+              confirmLabel: '삭제',
+              destructive: true,
+            );
+            if (ok) s.deleteMeal(m.id);
+          },
+        ),
+      ],
+    );
+  }
+}
+
+/// 식단의 이름 · 칼로리 · 끼니를 고치는 폼. 입력은 저장을 눌러야 반영된다.
+class _MealEditForm extends StatefulWidget {
+  const _MealEditForm({super.key, required this.meal});
+
+  final MealLog meal;
+
+  @override
+  State<_MealEditForm> createState() => _MealEditFormState();
+}
+
+class _MealEditFormState extends State<_MealEditForm> {
+  late String _name = widget.meal.name;
+  late int _kcal = widget.meal.kcal;
+  late MealType _type = widget.meal.mealType;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = context.read<AppState>();
+    final nav = context.read<NavigationViewModel>();
+    final canSave = _name.trim().isNotEmpty;
+    return Column(
+      children: [
+        AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('음식 이름', style: t(AppFontSize.f12, c: AppColor.textMuted)),
+              const SizedBox(height: AppSpace.s8),
+              AppTextField(
+                value: _name,
+                hint: '예: 비빔밥',
+                onChanged: (v) => setState(() => _name = v),
+              ),
+              const SizedBox(height: AppSpace.s16),
+              Text('칼로리', style: t(AppFontSize.f12, c: AppColor.textMuted)),
+              const SizedBox(height: AppSpace.s8),
+              NumberField(
+                value: _kcal,
+                unit: 'kcal',
+                max: 5000,
+                onChanged: (v) => setState(() => _kcal = v.toInt()),
+              ),
+              const SizedBox(height: AppSpace.s16),
+              Text('끼니', style: t(AppFontSize.f12, c: AppColor.textMuted)),
+              const SizedBox(height: AppSpace.s8),
+              SegmentedRow(
+                options: [for (final mt in MealType.values) mt.label],
+                value: _type.label,
+                onChanged: (label) => setState(
+                  () => _type = MealType.values.firstWhere(
+                    (mt) => mt.label == label,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppSpace.s12),
+        PrimaryButton(
+          label: '저장',
+          enabled: canSave,
+          onTap: canSave
+              ? () => s.updateMeal(
+                  widget.meal.id,
+                  name: _name,
+                  kcal: _kcal,
+                  mealType: _type,
+                )
+              : null,
+        ),
+        TextLink(label: '취소', onTap: () => nav.setEditing(false)),
       ],
     );
   }

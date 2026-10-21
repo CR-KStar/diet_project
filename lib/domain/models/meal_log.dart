@@ -49,4 +49,31 @@ class MealLog {
   final double sugarG;
   final double calciumMg;
   final double ironMg;
+
+  /// 사용자가 고칠 수 있는 값만 바꾼 새 기록을 만든다. 나머지(영양소 · 그릇 · 날짜 …)는 그대로다.
+  MealLog copyWith({
+    MealType? mealType,
+    String? name,
+    int? kcal,
+    bool? needsReview,
+  }) => MealLog(
+    id: id,
+    userId: userId,
+    mealType: mealType ?? this.mealType,
+    name: name ?? this.name,
+    meta: meta,
+    kcal: kcal ?? this.kcal,
+    dateKey: dateKey,
+    bowlId: bowlId,
+    sauce: sauce,
+    needsReview: needsReview ?? this.needsReview,
+    proteinG: proteinG,
+    carbG: carbG,
+    fatG: fatG,
+    fiberG: fiberG,
+    sodiumMg: sodiumMg,
+    sugarG: sugarG,
+    calciumMg: calciumMg,
+    ironMg: ironMg,
+  );
 }

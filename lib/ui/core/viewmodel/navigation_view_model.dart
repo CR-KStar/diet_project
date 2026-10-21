@@ -96,6 +96,11 @@ class NavigationViewModel extends ChangeNotifier {
     return true;
   }
 
+  void setEditing(bool v) {
+    editing = v;
+    notifyListeners();
+  }
+
   void setMissionOpen(bool v) {
     missionOpen = v;
     notifyListeners();

@@ -24,6 +24,9 @@ class MealViewModel extends ChangeNotifier {
   /// 서버 저장이 실패했을 때 불린다. AppState가 사용자에게 알림을 띄우는 데 쓴다.
   void Function()? onSaveFailed;
 
+  /// 서버에서 식단을 지우지 못했을 때 불린다 (목록에는 되돌려 놓은 뒤다).
+  void Function()? onDeleteFailed;
+
   /// 전체 식단 기록 저장소. bowlId로 Bowl을, dateKey로 날짜를 참조한다.
   late final List<MealLog> mealLogs = [
     MealLog(
@@ -108,6 +111,39 @@ class MealViewModel extends ChangeNotifier {
     mealLogs.add(log);
     notifyListeners();
     _saveMeal(log);
+  }
+
+  /// 식단 한 건을 고쳐서 저장한다. 없는 id면 아무것도 하지 않고 false.
+  bool updateMeal(MealLog updated) {
+    final i = mealLogs.indexWhere((m) => m.id == updated.id);
+    if (i < 0) return false;
+    mealLogs[i] = updated;
+    notifyListeners();
+    _saveMeal(updated);
+    return true;
+  }
+
+  /// 식단 한 건을 지운다. 없는 id면 false. 서버에서 지우지 못하면 목록에 되돌리고 알린다
+  /// (그대로 두면 다음에 불러올 때 지운 기록이 다시 나타난다).
+  bool deleteMeal(String id) {
+    final i = mealLogs.indexWhere((m) => m.id == id);
+    if (i < 0) return false;
+    final removed = mealLogs.removeAt(i);
+    notifyListeners();
+    final owner = uid;
+    if (owner != null) {
+      unawaited(
+        _mealRepo.delete(owner, id).catchError((Object e, StackTrace stack) {
+          debugPrint('식단 기록 삭제 실패: $e\n$stack');
+          if (!mealLogs.any((m) => m.id == id)) {
+            mealLogs.insert(i.clamp(0, mealLogs.length), removed);
+            notifyListeners();
+          }
+          onDeleteFailed?.call();
+        }),
+      );
+    }
+    return true;
   }
 
   /// 예시 모드에서 달력 · 리포트가 비어 보이지 않도록 지난 6일치 식단을 채운다.
