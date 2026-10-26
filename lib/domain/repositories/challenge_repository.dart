@@ -14,6 +14,13 @@ abstract class ChallengeRepository {
   /// 하지 않는다.
   Future<void> join(String challengeId, String userId);
 
+  /// challengeId에서 userId를 참여자에서 빼고, 그 사람의 진행 기록도 지운다.
+  /// 챌린지 자체는 다른 참여자를 위해 남는다.
+  Future<void> leave(String challengeId, String userId);
+
+  /// challengeId 챌린지를 삭제한다 (만든 사람만 할 수 있다). 모든 참여자에게서 사라진다.
+  Future<void> delete(String challengeId);
+
   /// userId의 오늘 진행 상황을 challengeId에 보고한다(리더보드용).
   Future<void> reportProgress(String challengeId, String userId, num value);
 

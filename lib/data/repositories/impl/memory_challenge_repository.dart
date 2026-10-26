@@ -60,6 +60,20 @@ class MemoryChallengeRepository implements ChallengeRepository {
   }
 
   @override
+  Future<void> leave(String challengeId, String userId) async {
+    for (final c in _all.where((c) => c.id == challengeId)) {
+      c.participantIds.remove(userId);
+    }
+    _progress.remove('${challengeId}_$userId');
+  }
+
+  @override
+  Future<void> delete(String challengeId) async {
+    _all.removeWhere((c) => c.id == challengeId);
+    _progress.removeWhere((key, _) => key.startsWith('${challengeId}_'));
+  }
+
+  @override
   Future<void> reportProgress(
     String challengeId,
     String userId,

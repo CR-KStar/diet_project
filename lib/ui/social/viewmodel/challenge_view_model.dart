@@ -93,6 +93,57 @@ class ChallengeViewModel extends ChangeNotifier {
     await _challengeRepo.join(challengeId, _uid);
   }
 
+  /// 챌린지에서 나간다 (만든 사람이 아닐 때). 챌린지는 다른 참여자를 위해 남고, 내 진행 기록은
+  /// 지워진다. 서버에서 처리하지 못하면 원래대로 되돌리고 알린다.
+  Future<bool> leaveChallenge(String challengeId) async {
+    final c = challenges.where((c) => c.id == challengeId).firstOrNull;
+    if (c == null || !c.isParticipant(_uid) || c.isCreatedBy(_uid)) {
+      return false;
+    }
+    final index = c.participantIds.indexOf(_uid);
+    final myProgress = _challengeProgress[challengeId]?.remove(_uid);
+    c.participantIds.remove(_uid);
+    notifyListeners();
+    if (uid == null) return true; // 체험 상태 — 서버에는 아무것도 없다
+    try {
+      await _challengeRepo.leave(challengeId, _uid);
+      return true;
+    } catch (e, stack) {
+      debugPrint('챌린지에서 나가지 못했어요: $e\n$stack');
+      if (!c.participantIds.contains(_uid)) {
+        c.participantIds.insert(index.clamp(0, c.participantIds.length), _uid);
+      }
+      if (myProgress != null) {
+        (_challengeProgress[challengeId] ??= {})[_uid] = myProgress;
+      }
+      notifyListeners();
+      onSyncFailed?.call('챌린지에서 나가지 못했어요. 네트워크를 확인해 주세요.');
+      return false;
+    }
+  }
+
+  /// 내가 만든 챌린지를 삭제한다 — 모든 참여자에게서 사라진다. 만든 사람이 아니면 아무것도 하지
+  /// 않는다. 서버에서 지우지 못하면 목록에 되돌리고 알린다.
+  Future<bool> deleteChallenge(String challengeId) async {
+    final index = challenges.indexWhere((c) => c.id == challengeId);
+    if (index < 0 || !challenges[index].isCreatedBy(_uid)) return false;
+    final removed = challenges.removeAt(index);
+    final progress = _challengeProgress.remove(challengeId);
+    notifyListeners();
+    if (uid == null) return true; // 체험 상태
+    try {
+      await _challengeRepo.delete(challengeId);
+      return true;
+    } catch (e, stack) {
+      debugPrint('챌린지를 삭제하지 못했어요: $e\n$stack');
+      challenges.insert(index.clamp(0, challenges.length), removed);
+      if (progress != null) _challengeProgress[challengeId] = progress;
+      notifyListeners();
+      onSyncFailed?.call('챌린지를 삭제하지 못했어요. 네트워크를 확인해 주세요.');
+      return false;
+    }
+  }
+
   /// 내가 참여 중인, metricType이 일치하는 모든 챌린지에 오늘 진행 상황을 보고한다.
   /// 데모 계정(로그인 안 함)에서는 아무것도 하지 않는다.
   void reportProgress(ChallengeType type, num value) {

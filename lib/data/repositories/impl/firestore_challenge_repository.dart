@@ -44,6 +44,18 @@ class FirestoreChallengeRepository implements ChallengeRepository {
   }
 
   @override
+  Future<void> leave(String challengeId, String userId) async {
+    await _col.doc(challengeId).update({
+      'participantIds': FieldValue.arrayRemove([userId]),
+    });
+    // 내 진행 기록은 내가 지울 수 있다 (보안 규칙). 없어도 오류가 아니다.
+    await _progressCol.doc('${challengeId}_$userId').delete();
+  }
+
+  @override
+  Future<void> delete(String challengeId) => _col.doc(challengeId).delete();
+
+  @override
   Future<void> reportProgress(String challengeId, String userId, num value) {
     return _progressCol.doc('${challengeId}_$userId').set({
       'challengeId': challengeId,

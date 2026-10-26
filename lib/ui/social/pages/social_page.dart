@@ -575,8 +575,62 @@ class _MyChallengeCard extends StatelessWidget {
               ],
             ),
           ),
-          Text(c.icon, style: const TextStyle(fontSize: 24)),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(c.icon, style: const TextStyle(fontSize: 24)),
+              const SizedBox(height: AppSpace.s8),
+              _ChallengeExitButton(c: c),
+            ],
+          ),
         ],
+      ),
+    );
+  }
+}
+
+/// 챌린지에서 나가거나(참여자) 챌린지를 지우는(만든 사람) 작은 글자 버튼.
+class _ChallengeExitButton extends StatelessWidget {
+  const _ChallengeExitButton({required this.c});
+
+  final Challenge c;
+
+  @override
+  Widget build(BuildContext context) {
+    final challenges = context.read<ChallengeViewModel>();
+    final mine = c.isCreatedBy(context.read<FriendViewModel>().currentUser.id);
+    final others = c.participantIds.length - 1;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () async {
+        final ok = await confirmDialog(
+          context,
+          title: mine ? '챌린지를 삭제할까요?' : '챌린지에서 나갈까요?',
+          message: mine
+              ? '"${c.title}"가 모든 참여자에게서 사라져요. '
+                    '${others > 0 ? '지금 $others명이 함께하고 있어요. ' : ''}되돌릴 수 없어요.'
+              : '"${c.title}"에서 나가고 내 진행 기록이 지워져요. 챌린지는 다른 참여자들을 위해 남아요.',
+          confirmLabel: mine ? '삭제' : '나가기',
+          destructive: true,
+        );
+        if (!ok || !context.mounted) return;
+        final done = mine
+            ? await challenges.deleteChallenge(c.id)
+            : await challenges.leaveChallenge(c.id);
+        if (done && context.mounted) {
+          toast(context, mine ? '챌린지를 삭제했어요' : '챌린지에서 나갔어요');
+        }
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppSpace.s4),
+        child: Text(
+          mine ? '삭제' : '나가기',
+          style: t(
+            AppFontSize.f12,
+            w: FontWeight.w700,
+            c: mine ? AppColor.alertText : AppColor.textFaint,
+          ),
+        ),
       ),
     );
   }

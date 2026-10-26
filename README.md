@@ -75,7 +75,7 @@
 
 ### 친구 · 챌린지
 - **초대 코드**(6자리)로 친구 요청을 보내고, 받은 사람이 수락해요.
-- **챌린지**는 종류(물 · 운동 · 식단 기록 · 단백질), 하루 목표, 기간, 공개 여부, 보상을 정해 만들어요. 참가자 진행률로 순위를 보여줘요.
+- **챌린지**는 종류(물 · 운동 · 식단 기록 · 단백질), 하루 목표, 기간, 공개 여부, 보상을 정해 만들어요. 참가자 진행률로 순위를 보여줘요. 참여한 챌린지에서 **나갈** 수 있고(내 진행 기록이 지워지고 챌린지는 남아요), 내가 만든 챌린지는 **삭제**할 수 있어요(모든 참여자에게서 사라져요).
 - **공개 범위**를 항목별로 정해요 — 식물 · 연속 기록 · 체중 변화 · 식단 사진 · 챌린지 순위.
 - 친구 활동 피드에 "식단을 기록했어요" 같은 짧은 한 줄만 남겨요(정확한 수치는 남기지 않아요).
 - **친구 관리** — 친구 · 받은 요청 옆 ⋯ 메뉴에서 **친구 끊기 · 차단 · 신고**를 해요. 보낸 요청은 **취소**할 수 있고, 차단한 사용자는 목록에서 해제해요. 차단하면 그 사람의 활동과 요청이 보이지 않고, 신고는 사유와 설명이 운영자에게 접수돼요(상대에게는 알려지지 않아요).
@@ -99,7 +99,7 @@
 | AI | Claude API (사진 → 영양 분석 · 메뉴 추천), zod 스키마로 응답 모양 강제 |
 | 기기 기능 | `flutter_local_notifications` · `image_picker` · `shared_preferences` · `url_launcher` |
 | 호스팅 | Firebase Hosting (웹 앱 · 웹 체험판) · GitHub Pages (정책 문서 · 포트폴리오) |
-| 테스트 | `flutter_test` — 단위 · 위젯 483개 |
+| 테스트 | `flutter_test` — 단위 · 위젯 494개 |
 
 ## 아키텍처
 
@@ -251,7 +251,7 @@ Google 로그인은 플랫폼별 설정이 더 필요해요(Android는 SHA-1 지
 flutter pub get                          # 의존성 설치
 flutter analyze                          # 정적 분석
 dart format lib test                     # 코드 정리
-flutter test                             # 전체 테스트 (483개)
+flutter test                             # 전체 테스트 (494개)
 flutter test test/mission_view_model_test.dart       # 파일 하나만
 flutter test --plain-name "시든다"                    # 이름으로 골라서
 
@@ -266,7 +266,7 @@ dart run flutter_launcher_icons
 
 ## 테스트
 
-`flutter test`로 단위 · 위젯 테스트 483개를 한 번에 돌려요. 서버 없이 가짜 구현으로 돌아가요.
+`flutter test`로 단위 · 위젯 테스트 494개를 한 번에 돌려요. 서버 없이 가짜 구현으로 돌아가요.
 보안 규칙(신고 · 차단 목록)은 Firestore 에뮬레이터로 따로 확인해요: `firebase emulators:exec --only firestore --project demo-test "python3 tool/check_firestore_rules.py"`.
 
 | 영역 | 확인하는 것 |
