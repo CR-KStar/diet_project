@@ -27,6 +27,15 @@ abstract class FriendRepository {
   /// 이 계정의 친구 uid 목록.
   Future<List<String>> loadFriendUids(String uid);
 
+  /// 내가 보낸, 아직 답을 받지 못한 친구 요청 목록.
+  Future<List<FriendRequest>> loadOutgoingRequests(String uid);
+
+  /// 내가 보낸 요청을 취소한다 (상대가 아직 답하지 않았을 때).
+  Future<void> cancelFriendRequest(String requestId);
+
+  /// 친구 관계를 끊는다 — 상대의 친구 목록에서도 나가 사라진다.
+  Future<void> removeFriend(String uid, String friendUid);
+
   /// 계정 삭제 때 이 사용자의 공개 프로필 · 초대 코드 · 친구 관계 · 친구 요청을 모두 지운다.
   Future<void> deleteAllForUser(String uid);
 }

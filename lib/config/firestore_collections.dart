@@ -18,6 +18,10 @@ abstract final class FirestoreCollections {
   static const friendships = 'friendships';
 
   static const activityFeed = 'activityFeed';
+
+  /// 내가 차단한 사용자 (users/{uid}/blocks) · 운영자에게 접수한 신고 (최상위).
+  static const blocks = 'blocks';
+  static const reports = 'reports';
   static const challenges = 'challenges';
   static const challengeProgress = 'challengeProgress';
 }

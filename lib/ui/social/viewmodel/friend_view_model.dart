@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:diet_project/domain/models/models.dart';
 import 'package:flutter/foundation.dart';
 import 'package:diet_project/domain/repositories/activity_feed_repository.dart';
+import 'package:diet_project/domain/repositories/block_repository.dart';
+import 'package:diet_project/domain/repositories/report_repository.dart';
 import 'package:diet_project/domain/repositories/friend_repository.dart';
 
 /// 친구 목록 · 친구 요청 · 초대 코드 검색 · 친구 활동 피드를 담당한다.
@@ -14,11 +16,15 @@ class FriendViewModel extends ChangeNotifier {
   FriendViewModel({
     required this._friendRepo,
     required this._activityFeedRepo,
+    required this._blockRepo,
+    required this._reportRepo,
     DateTime Function()? now,
   }) : _now = now ?? DateTime.now;
 
   final FriendRepository _friendRepo;
   final ActivityFeedRepository _activityFeedRepo;
+  final BlockRepository _blockRepo;
+  final ReportRepository _reportRepo;
   final DateTime Function() _now;
 
   /// 로그인한 계정의 uid. 데모 계정(로그인 안 함)에서는 null.
@@ -95,6 +101,18 @@ class FriendViewModel extends ChangeNotifier {
   /// 받은 요청을 보낸 사람들의 닉네임 — fromUid로 찾아 화면에 보여줄 때 쓴다.
   Map<String, PublicProfile> requesterProfiles = {};
 
+  /// 내가 보낸, 아직 답을 받지 못한 요청과 받는 사람들의 닉네임.
+  List<FriendRequest> outgoingFriendRequests = [];
+  Map<String, PublicProfile> outgoingProfiles = {};
+
+  /// 내가 차단한 사용자 (uid → 차단 당시 닉네임). 차단한 사람의 활동 · 요청은 보이지 않는다.
+  Map<String, String> blocked = {};
+
+  bool isBlocked(String uid) => blocked.containsKey(uid);
+
+  /// 검색한 코드의 주인이 내가 차단한 사람이라서 요청을 보낼 수 없을 때.
+  bool friendSearchBlocked = false;
+
   /// 초대 코드로 검색한 결과 — 화면에 "이 사람 맞아요?" 하고 보여줄 때 쓴다.
   PublicProfile? friendSearchResult;
   bool friendSearchNotFound = false;
@@ -105,6 +123,7 @@ class FriendViewModel extends ChangeNotifier {
     friendSearchQuery = v;
     friendSearchResult = null;
     friendSearchNotFound = false;
+    friendSearchBlocked = false;
     notifyListeners();
   }
 
@@ -116,6 +135,12 @@ class FriendViewModel extends ChangeNotifier {
     if (found == null || found == _uid) {
       friendSearchResult = null;
       friendSearchNotFound = true;
+      notifyListeners();
+      return;
+    }
+    if (isBlocked(found)) {
+      friendSearchResult = null;
+      friendSearchBlocked = true;
       notifyListeners();
       return;
     }
@@ -131,6 +156,7 @@ class FriendViewModel extends ChangeNotifier {
     await _friendRepo.sendFriendRequest(_uid, target.uid);
     friendSearchResult = null;
     friendSearchQuery = '';
+    await _refreshOutgoing();
     notifyListeners();
   }
 
@@ -155,11 +181,137 @@ class FriendViewModel extends ChangeNotifier {
   /// 언젠가 실제 추천 로직(예: 연락처 연동)이 생기면 그때 채운다.
   List<({User user, String desc})> get suggestedFriends => const [];
 
+  // ── 친구 관리 · 요청 취소 · 차단 · 신고 ───────────────────────────────
+
+  Future<void> _refreshOutgoing() async {
+    outgoingFriendRequests = await _friendRepo.loadOutgoingRequests(_uid);
+    final profiles = <String, PublicProfile>{};
+    for (final r in outgoingFriendRequests) {
+      final p = await _friendRepo.loadPublicProfile(r.toUid);
+      if (p != null) profiles[r.toUid] = p;
+    }
+    outgoingProfiles = profiles;
+  }
+
+  /// 친구 관계를 끊는다. 상대의 친구 목록에서도 내가 사라진다. 실패하면 그대로 둔다.
+  Future<bool> removeFriend(String friendUid) async {
+    try {
+      await _friendRepo.removeFriend(_uid, friendUid);
+    } catch (e, stack) {
+      debugPrint('친구를 끊지 못했어요: $e\n$stack');
+      onSyncFailed?.call('친구를 끊지 못했어요. 네트워크를 확인해 주세요.');
+      return false;
+    }
+    _forgetFriend(friendUid);
+    notifyListeners();
+    return true;
+  }
+
+  void _forgetFriend(String friendUid) {
+    realFriends.removeWhere((f) => f.uid == friendUid);
+    realActivityFeed.removeWhere((e) => e.uid == friendUid);
+    cheeredFriends.remove(friendUid);
+  }
+
+  /// 내가 보낸 요청을 취소한다.
+  Future<bool> cancelFriendRequest(FriendRequest request) async {
+    try {
+      await _friendRepo.cancelFriendRequest(request.id);
+    } catch (e, stack) {
+      debugPrint('친구 요청을 취소하지 못했어요: $e\n$stack');
+      onSyncFailed?.call('친구 요청을 취소하지 못했어요. 네트워크를 확인해 주세요.');
+      return false;
+    }
+    outgoingFriendRequests.removeWhere((r) => r.id == request.id);
+    outgoingProfiles.remove(request.toUid);
+    notifyListeners();
+    return true;
+  }
+
+  /// 사용자를 차단한다 — 친구였다면 관계를 끊고, 주고받은 요청을 정리하고, 그 사람의 활동은 숨긴다.
+  /// 차단 자체가 저장되지 않으면 아무것도 바꾸지 않고 false.
+  Future<bool> blockUser(String targetUid, String nickname) async {
+    try {
+      await _blockRepo.block(_uid, targetUid, nickname);
+    } catch (e, stack) {
+      debugPrint('차단하지 못했어요: $e\n$stack');
+      onSyncFailed?.call('차단하지 못했어요. 네트워크를 확인해 주세요.');
+      return false;
+    }
+    blocked[targetUid] = nickname;
+    // 이어서 관계 · 요청을 정리한다. 일부가 실패해도 차단과 숨김은 이미 적용된 상태다.
+    try {
+      if (realFriends.any((f) => f.uid == targetUid)) {
+        await _friendRepo.removeFriend(_uid, targetUid);
+      }
+      for (final r in incomingFriendRequests.where(
+        (r) => r.fromUid == targetUid,
+      )) {
+        await _friendRepo.declineFriendRequest(r.id);
+      }
+      for (final r in outgoingFriendRequests.where(
+        (r) => r.toUid == targetUid,
+      )) {
+        await _friendRepo.cancelFriendRequest(r.id);
+      }
+    } catch (e, stack) {
+      debugPrint('차단 뒤 관계를 정리하지 못했어요: $e\n$stack');
+    }
+    _forgetFriend(targetUid);
+    incomingFriendRequests.removeWhere((r) => r.fromUid == targetUid);
+    requesterProfiles.remove(targetUid);
+    outgoingFriendRequests.removeWhere((r) => r.toUid == targetUid);
+    outgoingProfiles.remove(targetUid);
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> unblock(String targetUid) async {
+    try {
+      await _blockRepo.unblock(_uid, targetUid);
+    } catch (e, stack) {
+      debugPrint('차단을 풀지 못했어요: $e\n$stack');
+      onSyncFailed?.call('차단을 풀지 못했어요. 네트워크를 확인해 주세요.');
+      return false;
+    }
+    blocked.remove(targetUid);
+    notifyListeners();
+    return true;
+  }
+
+  /// 사용자를 운영자에게 신고한다. 접수되면 true. (신고해도 차단이나 친구 끊기는 따로 한다.)
+  Future<bool> reportUser({
+    required String targetUid,
+    required String nickname,
+    required ReportReason reason,
+    String detail = '',
+  }) async {
+    try {
+      await _reportRepo.submit(
+        UserReport(
+          reporterUid: _uid,
+          targetUid: targetUid,
+          targetNickname: nickname,
+          reason: reason,
+          // 보안 규칙이 설명을 300자까지만 받는다.
+          detail: detail.trim().length > 300
+              ? detail.trim().substring(0, 300)
+              : detail.trim(),
+        ),
+      );
+      return true;
+    } catch (e, stack) {
+      debugPrint('신고를 접수하지 못했어요: $e\n$stack');
+      return false;
+    }
+  }
+
   // ── 활동 피드 · 응원 ─────────────────────────────────────────────────
 
   List<({User user, String activity, String time})> get friendActivity => [
     for (final e in realActivityFeed)
-      (user: userFor(e.uid), activity: e.message, time: _relativeTime(e.at)),
+      if (!isBlocked(e.uid))
+        (user: userFor(e.uid), activity: e.message, time: _relativeTime(e.at)),
   ];
 
   final Set<String> cheeredFriends = {};
@@ -199,11 +351,19 @@ class FriendViewModel extends ChangeNotifier {
     this.uid = uid;
     try {
       inviteCode = await _friendRepo.ensureInviteCode(uid, nickname());
-      final friendUids = await _friendRepo.loadFriendUids(uid);
+      blocked = await _blockRepo.loadBlocked(uid);
+      final friendUids = [
+        for (final id in await _friendRepo.loadFriendUids(uid))
+          if (!isBlocked(id)) id,
+      ];
       realFriends = [
         for (final id in friendUids) ?await _friendRepo.loadPublicProfile(id),
       ];
-      incomingFriendRequests = await _friendRepo.loadIncomingRequests(uid);
+      incomingFriendRequests = [
+        for (final r in await _friendRepo.loadIncomingRequests(uid))
+          if (!isBlocked(r.fromUid)) r,
+      ];
+      await _refreshOutgoing();
       requesterProfiles = {};
       for (final r in incomingFriendRequests) {
         final p = await _friendRepo.loadPublicProfile(r.fromUid);
@@ -227,14 +387,19 @@ class FriendViewModel extends ChangeNotifier {
     realActivityFeed = [];
     incomingFriendRequests = [];
     requesterProfiles = {};
+    outgoingFriendRequests = [];
+    outgoingProfiles = {};
+    blocked = {};
     friendSearchResult = null;
     friendSearchNotFound = false;
+    friendSearchBlocked = false;
     notifyListeners();
   }
 
-  /// 계정 삭제 — 공개 프로필 · 친구 관계 · 친구 요청 · 내 활동 피드를 지운다.
+  /// 계정 삭제 — 공개 프로필 · 친구 관계 · 친구 요청 · 내 활동 피드 · 차단 목록을 지운다.
   Future<void> deleteAll(String uid) => Future.wait<void>([
     _friendRepo.deleteAllForUser(uid),
     _activityFeedRepo.deleteAllForUser(uid),
+    _blockRepo.deleteAll(uid),
   ]);
 }

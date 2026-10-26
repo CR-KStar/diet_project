@@ -7,10 +7,12 @@ import 'package:diet_project/data/services/meal_recommendation_service.dart';
 import 'package:diet_project/data/services/notification_service.dart';
 import 'package:diet_project/domain/models/models.dart';
 import 'package:diet_project/domain/repositories/activity_feed_repository.dart';
+import 'package:diet_project/domain/repositories/block_repository.dart';
 import 'package:diet_project/domain/repositories/challenge_repository.dart';
 import 'package:diet_project/domain/repositories/friend_repository.dart';
 import 'package:diet_project/domain/repositories/profile_repository.dart';
 import 'package:diet_project/domain/repositories/record_repository.dart';
+import 'package:diet_project/domain/repositories/report_repository.dart';
 import 'package:diet_project/domain/repositories/water_repository.dart';
 
 /// AppState가 일하는 데 필요한 저장소 · 서비스 모음 — 전부 인터페이스(계약)다.
@@ -32,6 +34,8 @@ class AppDependencies {
     required this.friendRepo,
     required this.challengeRepo,
     required this.activityFeedRepo,
+    required this.blockRepo,
+    required this.reportRepo,
     required this.aiConsentStore,
     required this.mealAnalysisService,
     required this.mealRecommendationService,
@@ -54,6 +58,8 @@ class AppDependencies {
   final FriendRepository friendRepo;
   final ChallengeRepository challengeRepo;
   final ActivityFeedRepository activityFeedRepo;
+  final BlockRepository blockRepo;
+  final ReportRepository reportRepo;
   final AiConsentStore aiConsentStore;
   final MealAnalysisService mealAnalysisService;
   final MealRecommendationService mealRecommendationService;

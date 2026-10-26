@@ -15,7 +15,7 @@ Flutter + Firebase(Auth · Firestore · Cloud Functions). iOS는 출시됐고 An
 flutter pub get
 flutter analyze                          # 에러 · 경고 0개를 유지한다
 dart format lib test
-flutter test                             # 전체 (현재 445개, 모두 통과해야 한다)
+flutter test                             # 전체 (현재 483개, 모두 통과해야 한다)
 flutter test test/<파일>.dart            # 파일 하나만
 flutter run -d chrome --dart-define=USE_FIREBASE=false   # 서버 없이 화면 확인(가짜 로그인 · 예시 데이터)
 cd functions && npm run build            # Cloud Functions 컴파일

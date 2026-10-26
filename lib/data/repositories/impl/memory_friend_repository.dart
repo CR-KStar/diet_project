@@ -68,6 +68,25 @@ class MemoryFriendRepository implements FriendRepository {
   ];
 
   @override
+  Future<List<FriendRequest>> loadOutgoingRequests(String uid) async => [
+    for (final r in _requests)
+      if (r.fromUid == uid && r.status == FriendRequestStatus.pending) r,
+  ];
+
+  @override
+  Future<void> cancelFriendRequest(String requestId) async {
+    _requests.removeWhere((r) => r.id == requestId);
+  }
+
+  @override
+  Future<void> removeFriend(String uid, String friendUid) async {
+    _friendships.removeWhere(
+      (f) =>
+          (f.a == uid && f.b == friendUid) || (f.a == friendUid && f.b == uid),
+    );
+  }
+
+  @override
   Future<void> deleteAllForUser(String uid) async {
     final code = _uidToCode.remove(uid);
     if (code != null) _codeToUid.remove(code);

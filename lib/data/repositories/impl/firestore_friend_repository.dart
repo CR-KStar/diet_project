@@ -145,6 +145,41 @@ class FirestoreFriendRepository implements FriendRepository {
   }
 
   @override
+  Future<List<FriendRequest>> loadOutgoingRequests(String uid) async {
+    final snap = await _db
+        .collection(FirestoreCollections.friendRequests)
+        .where('fromUid', isEqualTo: uid)
+        .where('status', isEqualTo: 'pending')
+        .get();
+    return [
+      for (final d in snap.docs)
+        FriendRequest(
+          id: d.id,
+          fromUid: d.data()['fromUid'] as String,
+          toUid: d.data()['toUid'] as String,
+          status: FriendRequestStatus.pending,
+        ),
+    ];
+  }
+
+  @override
+  Future<void> cancelFriendRequest(String requestId) {
+    return _db
+        .collection(FirestoreCollections.friendRequests)
+        .doc(requestId)
+        .delete();
+  }
+
+  @override
+  Future<void> removeFriend(String uid, String friendUid) {
+    final pairId = ([uid, friendUid]..sort()).join('_');
+    return _db
+        .collection(FirestoreCollections.friendships)
+        .doc(pairId)
+        .delete();
+  }
+
+  @override
   Future<void> deleteAllForUser(String uid) async {
     // 관계 → 초대 코드 → 공개 프로필 순으로 지운다.
     await deleteWhere(

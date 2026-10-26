@@ -2,6 +2,8 @@ import 'package:diet_project/domain/models/models.dart';
 import 'package:diet_project/ui/social/viewmodel/friend_view_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:diet_project/data/repositories/impl/memory_activity_feed_repository.dart';
+import 'package:diet_project/data/repositories/impl/memory_block_repository.dart';
+import 'package:diet_project/data/repositories/impl/memory_report_repository.dart';
 import 'package:diet_project/data/repositories/impl/memory_friend_repository.dart';
 import 'package:diet_project/domain/repositories/friend_repository.dart';
 
@@ -42,6 +44,8 @@ void main() {
     return FriendViewModel(
       friendRepo: friendRepo ?? friends,
       activityFeedRepo: feed,
+      blockRepo: MemoryBlockRepository(),
+      reportRepo: MemoryReportRepository(),
       now: () => clock,
     )..nickname = () => nickname;
   }
@@ -89,6 +93,8 @@ void main() {
       final bob = FriendViewModel(
         friendRepo: friends,
         activityFeedRepo: feed,
+        blockRepo: MemoryBlockRepository(),
+        reportRepo: MemoryReportRepository(),
         now: () => clock,
       )..nickname = () => '밥';
       await bob.loadForUid('bob');
@@ -120,6 +126,8 @@ void main() {
       final vm = FriendViewModel(
         friendRepo: friends,
         activityFeedRepo: MemoryActivityFeedRepository(),
+        blockRepo: MemoryBlockRepository(),
+        reportRepo: MemoryReportRepository(),
       )..nickname = () => '나';
       vm.setFriendSearchQuery(bobCode);
       await vm.searchFriendByCode();

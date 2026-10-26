@@ -6,6 +6,7 @@ import '../../core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 import 'package:diet_project/ui/social/viewmodel/challenge_view_model.dart';
 import 'package:diet_project/ui/social/viewmodel/friend_view_model.dart';
+import 'package:diet_project/ui/social/pages/friend_actions_sheet.dart';
 import 'package:diet_project/ui/core/ui/widgets/widgets.dart';
 import 'package:diet_project/ui/core/ui/icons/app_icons.dart';
 import 'package:diet_project/ui/core/viewmodel/navigation_view_model.dart';
@@ -68,6 +69,14 @@ List<Widget> _activityTab(BuildContext context) {
         _FriendRow(
           user: f.user,
           subtitle: '${f.activity} · ${f.time}',
+          onMore: f.user.id == friends.currentUser.id
+              ? null
+              : () => FriendActionsSheet.show(
+                  context,
+                  uid: f.user.id,
+                  nickname: f.user.nickname,
+                  isFriend: friends.realFriends.any((p) => p.uid == f.user.id),
+                ),
           trailing: _PillButton(
             label: friends.cheeredFriends.contains(f.user.id) ? '응원 완료' : '응원',
             active: !friends.cheeredFriends.contains(f.user.id),
@@ -764,6 +773,13 @@ List<Widget> _addFriendTab(BuildContext context) {
           style: t(AppFontSize.f12, c: AppColor.textFaint),
         ),
       ),
+    if (friends.friendSearchBlocked)
+      AppCard(
+        child: Text(
+          '차단한 사용자예요. 아래 \'차단한 사용자\'에서 차단을 풀면 요청을 보낼 수 있어요.',
+          style: t(AppFontSize.f12, c: AppColor.textFaint, h: 1.5),
+        ),
+      ),
     _InviteCodeCard(),
     if (friends.incomingFriendRequests.isNotEmpty) ...[
       Padding(
@@ -780,6 +796,13 @@ List<Widget> _addFriendTab(BuildContext context) {
             friends.requesterProfiles[r.fromUid]?.nickname ?? '알 수 없음',
           ),
           subtitle: '친구 요청',
+          onMore: () => FriendActionsSheet.show(
+            context,
+            uid: r.fromUid,
+            nickname:
+                friends.requesterProfiles[r.fromUid]?.nickname ?? '알 수 없음',
+            isFriend: false,
+          ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -815,6 +838,61 @@ List<Widget> _addFriendTab(BuildContext context) {
           user: _asRow(f.uid, f.nickname),
           subtitle: '초대 코드로 추가된 친구',
           trailing: const SizedBox.shrink(),
+          onMore: () => FriendActionsSheet.show(
+            context,
+            uid: f.uid,
+            nickname: f.nickname,
+            isFriend: true,
+          ),
+        ),
+    ],
+    if (friends.outgoingFriendRequests.isNotEmpty) ...[
+      Padding(
+        padding: const EdgeInsets.only(left: AppSpace.s4, bottom: AppSpace.s2),
+        child: Text(
+          '보낸 요청 ${friends.outgoingFriendRequests.length}',
+          style: t(AppFontSize.f15, w: FontWeight.w800),
+        ),
+      ),
+      for (final r in friends.outgoingFriendRequests)
+        _FriendRow(
+          user: _asRow(
+            r.toUid,
+            friends.outgoingProfiles[r.toUid]?.nickname ?? '알 수 없음',
+          ),
+          subtitle: '상대가 수락하면 친구가 돼요',
+          trailing: _OutlineButton(
+            label: '요청 취소',
+            onTap: () async {
+              final nickname =
+                  friends.outgoingProfiles[r.toUid]?.nickname ?? '상대';
+              if (await friends.cancelFriendRequest(r) && context.mounted) {
+                toast(context, '$nickname님에게 보낸 요청을 취소했어요');
+              }
+            },
+          ),
+        ),
+    ],
+    if (friends.blocked.isNotEmpty) ...[
+      Padding(
+        padding: const EdgeInsets.only(left: AppSpace.s4, bottom: AppSpace.s2),
+        child: Text(
+          '차단한 사용자 ${friends.blocked.length}',
+          style: t(AppFontSize.f15, w: FontWeight.w800),
+        ),
+      ),
+      for (final e in friends.blocked.entries)
+        _FriendRow(
+          user: _asRow(e.key, e.value.isEmpty ? '알 수 없음' : e.value),
+          subtitle: '활동과 요청이 보이지 않아요',
+          trailing: _OutlineButton(
+            label: '차단 해제',
+            onTap: () async {
+              if (await friends.unblock(e.key) && context.mounted) {
+                toast(context, '차단을 풀었어요');
+              }
+            },
+          ),
         ),
     ],
     if (friends.suggestedFriends.isNotEmpty) ...[
@@ -913,11 +991,15 @@ class _FriendRow extends StatelessWidget {
     required this.user,
     required this.subtitle,
     required this.trailing,
+    this.onMore,
   });
 
   final User user;
   final String subtitle;
   final Widget trailing;
+
+  /// 있으면 오른쪽 끝에 '⋯' 메뉴 버튼을 보여준다 (친구 끊기 · 차단 · 신고).
+  final VoidCallback? onMore;
 
   @override
   Widget build(BuildContext context) => AppCard(
@@ -945,6 +1027,19 @@ class _FriendRow extends StatelessWidget {
           ),
         ),
         trailing,
+        if (onMore != null)
+          GestureDetector(
+            onTap: onMore,
+            behavior: HitTestBehavior.opaque,
+            child: const Padding(
+              padding: EdgeInsets.only(left: AppSpace.s8),
+              child: Icon(
+                Icons.more_horiz_rounded,
+                size: 22,
+                color: AppColor.textFaint,
+              ),
+            ),
+          ),
       ],
     ),
   );

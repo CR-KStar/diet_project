@@ -101,6 +101,8 @@ class AppState extends ChangeNotifier {
        _friendViewModel = FriendViewModel(
          friendRepo: dependencies.friendRepo,
          activityFeedRepo: dependencies.activityFeedRepo,
+         blockRepo: dependencies.blockRepo,
+         reportRepo: dependencies.reportRepo,
          now: dependencies.now,
        ),
        _challengeViewModel = ChallengeViewModel(
