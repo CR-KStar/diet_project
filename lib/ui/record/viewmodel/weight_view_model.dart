@@ -147,4 +147,10 @@ class WeightViewModel extends ChangeNotifier {
   }
 
   Future<void> deleteAll(String uid) => _weightRepo.deleteAll(uid);
+
+  /// 이 기기의 체중 기록 목록을 비운다 (서버는 [deleteAll]).
+  void clear() {
+    weightEntries = [];
+    notifyListeners();
+  }
 }

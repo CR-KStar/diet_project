@@ -47,6 +47,24 @@ Future<void> _confirmDeleteAccount(BuildContext context) async {
   if (!done && context.mounted) toast(context, s.authError ?? '계정을 삭제하지 못했어요');
 }
 
+/// 기록 전체 삭제 — 되돌릴 수 없어서 한 번 확인한 뒤 진행한다. 계정 · 식물 · 친구는 그대로다.
+Future<void> _confirmDeleteRecords(BuildContext context) async {
+  final s = context.read<AppState>();
+  final ok = await confirmDialog(
+    context,
+    title: '기록을 모두 지울까요?',
+    message:
+        '식단 · 운동 · 체중 · 물 기록과 이 기기에 보관한 식단 사진이 모두 지워지고 되돌릴 수 없어요.\n'
+        '계정과 식물, 친구는 그대로예요.',
+    confirmLabel: '모두 삭제',
+    destructive: true,
+  );
+  if (!ok || !context.mounted) return;
+  final done = await s.deleteAllRecords();
+  if (!context.mounted) return;
+  toast(context, done ? '기록을 모두 지웠어요' : '기록을 모두 지우지 못했어요');
+}
+
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -485,7 +503,7 @@ class _DangerActionRow extends StatelessWidget {
   Widget build(BuildContext context) => GestureDetector(
     onTap: () => a.account
         ? _confirmDeleteAccount(context)
-        : toast(context, '기록 삭제를 요청했어요'),
+        : _confirmDeleteRecords(context),
     behavior: HitTestBehavior.opaque,
     child: Padding(
       padding: const EdgeInsets.symmetric(

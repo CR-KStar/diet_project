@@ -147,4 +147,10 @@ class WaterViewModel extends ChangeNotifier {
   }
 
   Future<void> deleteAll(String uid) => _waterRepo.deleteAll(uid);
+
+  /// 이 기기의 물 기록 목록을 비운다 (서버는 [deleteAll]).
+  void clear() {
+    waterEntries = [];
+    notifyListeners();
+  }
 }

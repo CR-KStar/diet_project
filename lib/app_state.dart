@@ -1102,6 +1102,45 @@ class AppState extends ChangeNotifier {
     }
   }
 
+  /// 식단 · 운동 · 체중 · 물 기록과 이 기기에 보관한 식단 사진을 모두 지운다.
+  /// 계정 · 프로필 · 식물 · 친구 · 챌린지는 그대로 둔다.
+  ///
+  /// 서버에서 먼저 지우고, 하나라도 실패하면 기기의 기록은 건드리지 않고 false를 돌려준다
+  /// ("지운 줄 아는데 남아 있는" 상태를 막는다). 다시 누르면 남은 것부터 이어서 지운다.
+  /// 로그인하지 않은 체험 상태에서는 기기의 예시 기록만 비운다.
+  Future<bool> deleteAllRecords() async {
+    final owner = account?.uid;
+    try {
+      if (owner != null) {
+        await Future.wait<void>([
+          _mealRepo.deleteAll(owner),
+          _exerciseRepo.deleteAll(owner),
+          _weightViewModel.deleteAll(owner),
+          _waterViewModel.deleteAll(owner),
+        ]).timeout(const Duration(seconds: 30));
+      }
+    } catch (e, stack) {
+      debugPrint('기록 전체 삭제 실패: $e\n$stack');
+      _notice = '기록을 모두 지우지 못했어요. 네트워크를 확인하고 다시 시도해 주세요.';
+      notifyListeners();
+      return false;
+    }
+    _mealViewModel.clear();
+    _exerciseViewModel.clear();
+    _weightViewModel.clear();
+    _waterViewModel.clear();
+    await _mealPhotoStore.deleteAll();
+    // 지운 기록이 반영돼 있던 오늘 기준 값들을 다시 맞춘다.
+    _challengeViewModel.reportProgress(ChallengeType.mealRecord, 0);
+    _challengeViewModel.reportProgress(ChallengeType.protein, 0);
+    _challengeViewModel.reportProgress(ChallengeType.exercise, 0);
+    _challengeViewModel.reportProgress(ChallengeType.water, 0);
+    unawaited(_appIconService.setFilled(false));
+    _syncPlant();
+    notifyListeners();
+    return true;
+  }
+
   Future<void> _deleteAllUserData(String uid) async {
     const limit = Duration(seconds: 30);
     await Future.wait<void>([
