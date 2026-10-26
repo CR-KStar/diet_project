@@ -333,7 +333,7 @@
     <div class="card">
       <h3 class="ttl">숫자로 보기</h3>
       <div class="nums">
-        <div class="num"><b>430</b><span>자동 테스트 (모두 통과)</span></div>
+        <div class="num"><b>445</b><span>자동 테스트 (모두 통과)</span></div>
         <div class="num"><b>2건</b><span>App Store 반려 → 수정 후 승인·출시</span></div>
         <div class="num"><b>12명</b><span>Google Play 비공개 테스트</span></div>
         <div class="num"><b>8개</b><span>컬렉션별 보안 규칙 (내 기록 + 공유 7)</span></div>
@@ -369,7 +369,7 @@
       <h3 class="ttl">개발 · 배포 흐름</h3>
       <div class="tl">
         <div><b>설계·구현</b>Flutter + Firebase</div>
-        <div><b>테스트</b>430개 통과</div>
+        <div><b>테스트</b>445개 통과</div>
         <div><b>내부 배포</b>TestFlight · Play 내부</div>
         <div><b>App Store 출시</b>반려 2건 수정 후 승인</div>
         <div class="now"><b>Play</b>비공개 테스트 진행 중</div>
@@ -433,7 +433,7 @@ activityFeed                     <em>친구 활동 한 줄</em></pre>
     <article class="cs"><h3><em>A</em>사진 분석 — 앱 → 함수 → Claude</h3>
       <ol><li>동의 팝업 후, 사진(base64)과 그릇 정보를 <b>Cloud Function</b>(analyzeMealPhoto)으로 보내요</li>
       <li>함수가 <b>서버 Secret의 API 키</b>로 Claude를 호출하고, <b>zod 스키마</b>로 정해진 JSON(음식 이름 · 영양소 · 확신도)을 강제해요</li>
-      <li>확신이 낮으면 <b>needs_review</b>로 표시하고, 앱은 결과만 저장해요(사진은 저장 안 함)</li>
+      <li>확신이 낮으면 <b>needs_review</b>로 표시하고, 서버에는 결과만 저장하고, 사진은 이 기기에만 보관해요</li>
       <li>함수는 <b>로그인한 사용자만</b> 부를 수 있고, 한 사람당 <b>하루 30회</b>까지만 받아요(횟수는 서버가 트랜잭션으로 세요)</li></ol>
       <p class="why-line">왜 서버를 거치나: 키가 앱에 들어가면 앱 파일을 풀어서 누구나 꺼낼 수 있어요</p></article>
     <article class="cs"><h3><em>B</em>친구 요청 — 규칙으로 권한 나누기</h3>

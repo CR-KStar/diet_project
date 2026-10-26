@@ -322,10 +322,13 @@ class _MealCard extends StatelessWidget {
       onTap: () => s.openMeal(m),
       child: Row(
         children: [
-          const SizedBox(
+          MealPhoto(
+            store: s.mealPhotoStore,
+            photoId: m.photoId,
             width: AppSpace.s58,
             height: AppSpace.s58,
-            child: PhotoPlaceholder(height: AppSpace.s58, radius: 18),
+            radius: 18,
+            decodeWidth: 200, // 작은 썸네일이라 원본을 줄여서 읽는다
           ),
           const SizedBox(width: AppSpace.s12),
           Expanded(
@@ -492,6 +495,17 @@ class _MealDetailCard extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // 사진을 찍어 기록한 식단이면 큰 사진을 먼저 보여준다.
+        if (m.photoId != null) ...[
+          MealPhoto(
+            store: context.read<AppState>().mealPhotoStore,
+            photoId: m.photoId,
+            height: 220,
+            radius: 16,
+            showPlaceholder: false,
+          ),
+          const SizedBox(height: AppSpace.s14),
+        ],
         Row(
           children: [
             Text(

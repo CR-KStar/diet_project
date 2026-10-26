@@ -15,6 +15,7 @@ export 'package:diet_project/ui/core/ui/widgets/filter_tabs.dart';
 export 'package:diet_project/ui/core/ui/widgets/icon_tile.dart';
 export 'package:diet_project/ui/core/ui/widgets/number_field.dart';
 export 'package:diet_project/ui/core/ui/widgets/open_legal_doc.dart';
+export 'package:diet_project/ui/core/ui/widgets/meal_photo.dart';
 export 'package:diet_project/ui/core/ui/widgets/photo_placeholder.dart';
 export 'package:diet_project/ui/core/ui/widgets/pill.dart';
 export 'package:diet_project/ui/core/ui/widgets/pill_tabs.dart';

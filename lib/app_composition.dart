@@ -20,10 +20,13 @@ import 'package:diet_project/data/services/ai_consent_store.dart';
 import 'package:diet_project/data/services/app_icon_service.dart';
 import 'package:diet_project/data/services/impl/cloud_meal_analysis_service.dart';
 import 'package:diet_project/data/services/impl/cloud_meal_recommendation_service.dart';
+import 'package:diet_project/data/services/impl/file_meal_photo_store.dart';
 import 'package:diet_project/data/services/impl/local_notification_service.dart';
+import 'package:diet_project/data/services/impl/memory_meal_photo_store.dart';
 import 'package:diet_project/data/services/impl/memory_ai_consent_store.dart';
 import 'package:diet_project/data/services/impl/platform_app_icon_service.dart';
 import 'package:diet_project/data/services/meal_analysis_service.dart';
+import 'package:diet_project/data/services/meal_photo_store.dart';
 import 'package:diet_project/data/services/meal_recommendation_service.dart';
 import 'package:diet_project/data/services/notification_service.dart';
 import 'package:diet_project/domain/models/models.dart';
@@ -33,6 +36,7 @@ import 'package:diet_project/domain/repositories/friend_repository.dart';
 import 'package:diet_project/domain/repositories/profile_repository.dart';
 import 'package:diet_project/domain/repositories/record_repository.dart';
 import 'package:diet_project/domain/repositories/water_repository.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 // 어떤 구현을 끼울지 고르는 곳 — 앱(main.dart)과 테스트가 여기서 조립한다.
 // AppState는 이 구현들을 모르고 AppDependencies(인터페이스)만 받는다.
@@ -58,6 +62,7 @@ AppDependencies memoryDependencies({
   MealRecommendationService? mealRecommendationService,
   NotificationService? notificationService,
   AppIconService? appIconService,
+  MealPhotoStore? mealPhotoStore,
   DateTime Function()? now,
 }) {
   return AppDependencies(
@@ -80,6 +85,7 @@ AppDependencies memoryDependencies({
         mealRecommendationService ?? CloudMealRecommendationService(),
     notificationService: notificationService ?? LocalNotificationService(),
     appIconService: appIconService ?? PlatformAppIconService(),
+    mealPhotoStore: mealPhotoStore ?? MemoryMealPhotoStore(),
     now: now ?? DateTime.now,
   );
 }
@@ -117,5 +123,7 @@ AppDependencies firebaseDependencies({required AiConsentStore aiConsentStore}) {
     challengeRepo: FirestoreChallengeRepository(),
     activityFeedRepo: FirestoreActivityFeedRepository(),
     aiConsentStore: aiConsentStore,
+    // 사진은 이 기기 안에만 보관한다. 웹은 파일을 쓸 수 없어 새로고침하면 사라진다.
+    mealPhotoStore: kIsWeb ? MemoryMealPhotoStore() : FileMealPhotoStore(),
   );
 }

@@ -13,6 +13,7 @@ class MealLog {
     this.bowlId,
     this.sauce = '',
     this.needsReview = false,
+    this.photoId,
     this.proteinG = 0,
     this.carbG = 0,
     this.fatG = 0,
@@ -38,6 +39,10 @@ class MealLog {
   /// 부가 정보 입력에서 고른 소스/양념 — 리포트의 "자주 쓴 소스" 통계에 쓴다.
   final String sauce;
   final bool needsReview;
+
+  /// 이 기기에 보관한 식사 사진의 id (사진 없이 기록했거나, 다른 기기에서 만든 기록이면 null).
+  /// 사진 자체는 기록에 들어 있지 않고 `MealPhotoStore`가 따로 보관한다.
+  final String? photoId;
 
   /// AI 사진 분석이 추정한 영양소. 분석 없이 기록했으면(예: 대체값 450kcal로
   /// 그냥 저장) 전부 0이다 — 영양소 합계 화면에서는 그만큼 실제보다 적게 잡힌다.
@@ -67,6 +72,7 @@ class MealLog {
     bowlId: bowlId,
     sauce: sauce,
     needsReview: needsReview ?? this.needsReview,
+    photoId: photoId,
     proteinG: proteinG,
     carbG: carbG,
     fatG: fatG,

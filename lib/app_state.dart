@@ -34,6 +34,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:diet_project/domain/repositories/record_repository.dart';
 import 'package:diet_project/data/services/app_icon_service.dart';
+import 'package:diet_project/data/services/meal_photo_store.dart';
 import 'package:diet_project/data/services/notification_service.dart';
 import 'package:diet_project/utils/date_format.dart';
 import 'package:diet_project/utils/app_state_format.dart';
@@ -52,6 +53,7 @@ class AppState extends ChangeNotifier {
     PhotoPicker? photoPicker,
   }) : _notificationService = dependencies.notificationService,
        _appIconService = dependencies.appIconService,
+       _mealPhotoStore = dependencies.mealPhotoStore,
        _aiConsentViewModel = AiConsentViewModel(
          store: dependencies.aiConsentStore,
        ),
@@ -665,6 +667,10 @@ class AppState extends ChangeNotifier {
   int get baseKcal => _photoAnalysisViewModel.baseKcal;
 
   final AppIconService _appIconService;
+
+  /// 식단 사진을 이 기기 안에 보관하는 곳 — 서버로는 보내지 않는다.
+  final MealPhotoStore _mealPhotoStore;
+  MealPhotoStore get mealPhotoStore => _mealPhotoStore;
   final NotificationService _notificationService;
 
   /// 지금 알림 설정(notificationSettings)에 맞춰 기기 알림을 다시 예약한다.
@@ -793,7 +799,9 @@ class AppState extends ChangeNotifier {
   /// 식단 한 건을 지우고 기록 탭으로 돌아간다. 오늘 기준 챌린지 진행도와 앱 아이콘도
   /// 다시 맞춘다. (이미 얻은 식물 돌보기 · 활동 피드는 되돌리지 않는다.)
   void deleteMeal(String id) {
+    final photoId = _mealViewModel.mealById(id)?.photoId;
     if (!_mealViewModel.deleteMeal(id)) return;
+    if (photoId != null) unawaited(_mealPhotoStore.delete(photoId));
     _challengeViewModel.reportProgress(
       ChallengeType.mealRecord,
       todayMeals.length,
@@ -806,8 +814,22 @@ class AppState extends ChangeNotifier {
   /// 촬영/기록 화면에서 저장한 값으로 실제 MealLog를 만들어 저장한다.
   void logMeal() {
     final bowl = currentBowl;
+    final id = 'meal_${DateTime.now().microsecondsSinceEpoch}';
+    // 사진을 찍어 기록했다면 이 기기 안에 복사본을 둔다 (갤러리에서 지워도 앱에는 남는다).
+    final photoBytes = pickedPhotoBytes;
+    final photoId = photoBytes == null ? null : id;
+    if (photoId != null) {
+      unawaited(
+        _mealPhotoStore.save(photoId, photoBytes!).catchError((
+          Object e,
+          StackTrace stack,
+        ) {
+          debugPrint('식단 사진을 보관하지 못했어요: $e\n$stack');
+        }),
+      );
+    }
     final log = MealLog(
-      id: 'meal_${DateTime.now().microsecondsSinceEpoch}',
+      id: id,
       userId: _uid,
       mealType: MealDraftViewModel.mealTypeFromLabel(extras['meal'] ?? '점심'),
       name: aiMealName ?? '식사 (직접 기록)',
@@ -819,6 +841,7 @@ class AppState extends ChangeNotifier {
       bowlId: bowl?.id,
       sauce: extras['sauce'] ?? '',
       needsReview: needsPhotoReview, // AI가 확신하지 못했을 때만 '확인 필요'
+      photoId: photoId,
       proteinG: aiProteinG ?? 0,
       carbG: aiCarbG ?? 0,
       fatG: aiFatG ?? 0,
@@ -1021,6 +1044,7 @@ class AppState extends ChangeNotifier {
       // 친구 · 챌린지 · 활동 피드는 다른 사용자와 함께 쓰는 공간이라 따로 지운다.
       _friendViewModel.deleteAll(uid),
       _challengeViewModel.deleteAll(uid),
+      _mealPhotoStore.deleteAll(), // 이 기기에 보관한 식단 사진도 함께 지운다
     ]).timeout(limit);
     await _profileViewModel.deleteProfile(uid).timeout(limit);
   }

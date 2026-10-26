@@ -2,6 +2,7 @@ import 'package:diet_project/data/auth/auth_service.dart';
 import 'package:diet_project/data/services/ai_consent_store.dart';
 import 'package:diet_project/data/services/app_icon_service.dart';
 import 'package:diet_project/data/services/meal_analysis_service.dart';
+import 'package:diet_project/data/services/meal_photo_store.dart';
 import 'package:diet_project/data/services/meal_recommendation_service.dart';
 import 'package:diet_project/data/services/notification_service.dart';
 import 'package:diet_project/domain/models/models.dart';
@@ -36,6 +37,7 @@ class AppDependencies {
     required this.mealRecommendationService,
     required this.notificationService,
     required this.appIconService,
+    required this.mealPhotoStore,
     this.now = DateTime.now,
   });
 
@@ -57,6 +59,7 @@ class AppDependencies {
   final MealRecommendationService mealRecommendationService;
   final NotificationService notificationService;
   final AppIconService appIconService;
+  final MealPhotoStore mealPhotoStore;
 
   /// 테스트에서 날짜를 고정할 수 있도록 시계를 주입받는다.
   final DateTime Function() now;

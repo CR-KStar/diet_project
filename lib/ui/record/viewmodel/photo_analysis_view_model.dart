@@ -10,7 +10,13 @@ import 'package:diet_project/data/services/ai_failure.dart';
 typedef PhotoPicker = Future<XFile?> Function(ImageSource source);
 
 Future<XFile?> _pickWithImagePicker(ImageSource source) =>
-    ImagePicker().pickImage(source: source, imageQuality: 70);
+    ImagePicker().pickImage(
+      source: source,
+      // 앱에 보관하고 AI에도 보낼 사진이라 1280px · 품질 75로 줄인다 (용량 ↓, 분석에는 충분하다).
+      maxWidth: 1280,
+      maxHeight: 1280,
+      imageQuality: 75,
+    );
 
 /// 식사 사진을 고르고 AI로 음식과 영양소를 추정하는 일을 담당한다.
 ///
