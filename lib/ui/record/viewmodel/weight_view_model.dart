@@ -13,6 +13,12 @@ class WeightViewModel extends ChangeNotifier {
 
   String get _todayKey => formatDateKey(_now());
 
+  /// 서버에서 지우지 못했을 때 불린다 (목록에는 되돌려 놓은 뒤다).
+  void Function()? onDeleteFailed;
+
+  /// 서버 저장이 실패했을 때 불린다.
+  void Function()? onSaveFailed;
+
   double weightInput = 56.7;
   void setWeightInput(double v) {
     weightInput = v;
@@ -86,11 +92,44 @@ class WeightViewModel extends ChangeNotifier {
     _saveWeight(entry);
   }
 
+  /// 체중 한 건을 고쳐서 저장한다. 없는 id면 false.
+  bool updateWeight(WeightEntry updated) {
+    final i = weightEntries.indexWhere((e) => e.id == updated.id);
+    if (i < 0) return false;
+    weightEntries[i] = updated;
+    notifyListeners();
+    _saveWeight(updated);
+    return true;
+  }
+
+  /// 체중 한 건을 지운다. 없는 id면 false. 서버에서 지우지 못하면 목록에 되돌리고 알린다.
+  bool deleteWeight(String id) {
+    final i = weightEntries.indexWhere((e) => e.id == id);
+    if (i < 0) return false;
+    final removed = weightEntries.removeAt(i);
+    notifyListeners();
+    final owner = uid;
+    if (owner != null) {
+      unawaited(
+        _weightRepo.delete(owner, id).catchError((Object e, StackTrace stack) {
+          debugPrint('체중 기록 삭제 실패: $e\n$stack');
+          if (!weightEntries.any((x) => x.id == id)) {
+            weightEntries.insert(i.clamp(0, weightEntries.length), removed);
+            notifyListeners();
+          }
+          onDeleteFailed?.call();
+        }),
+      );
+    }
+    return true;
+  }
+
   void _saveWeight(WeightEntry entry) {
     if (uid == null) return;
     unawaited(
       _weightRepo.save(uid!, entry).catchError((Object e, StackTrace stack) {
         debugPrint('체중 기록을 저장하지 못했어요: $e\n$stack');
+        onSaveFailed?.call();
       }),
     );
   }

@@ -113,6 +113,18 @@ class AppState extends ChangeNotifier {
       _notice = '운동 기록 저장에 실패했어요. 네트워크를 확인해 주세요.';
       notifyListeners();
     };
+    _exerciseViewModel.onDeleteFailed = () {
+      _notice = '운동 기록을 삭제하지 못했어요. 네트워크를 확인해 주세요.';
+      notifyListeners();
+    };
+    _weightViewModel.onSaveFailed = () {
+      _notice = '체중 기록 저장에 실패했어요. 네트워크를 확인해 주세요.';
+      notifyListeners();
+    };
+    _weightViewModel.onDeleteFailed = () {
+      _notice = '체중 기록을 삭제하지 못했어요. 네트워크를 확인해 주세요.';
+      notifyListeners();
+    };
     _mealViewModel.onSaveFailed = () {
       _notice = '식단 기록 저장에 실패했어요. 네트워크를 확인해 주세요.';
       notifyListeners();
@@ -808,6 +820,7 @@ class AppState extends ChangeNotifier {
     );
     _challengeViewModel.reportProgress(ChallengeType.protein, todayProteinG);
     unawaited(_appIconService.setFilled(todayMeals.isNotEmpty));
+    _syncPlant();
     _navigationViewModel.go('records');
   }
 
@@ -907,6 +920,64 @@ class AppState extends ChangeNotifier {
       todayExerciseMinutes,
     );
     _plantViewModel.onRecorded(RecordKind.exercise, minutes: log.minutes);
+    _syncPlant();
+  }
+
+  /// 운동 한 건의 종류 · 시간 · 강도를 고친다. 소모 칼로리는 새 값으로 다시 계산한다.
+  void updateExercise(
+    String id, {
+    required String type,
+    required int minutes,
+    required ExerciseIntensity intensity,
+  }) {
+    final e = _exerciseViewModel.exerciseLogs
+        .where((x) => x.id == id)
+        .firstOrNull;
+    if (e == null) return;
+    final t = type.trim().isEmpty ? e.type : type.trim();
+    final m = minutes < 1 ? 1 : minutes;
+    _exerciseViewModel.updateExercise(
+      e.copyWith(
+        type: t,
+        minutes: m,
+        intensity: intensity,
+        kcal: ExerciseViewModel.kcalFor(
+          type: t,
+          minutes: m,
+          intensity: intensity,
+        ),
+      ),
+    );
+    _challengeViewModel.reportProgress(
+      ChallengeType.exercise,
+      todayExerciseMinutes,
+    );
+    _syncPlant();
+  }
+
+  /// 운동 한 건을 지운다. 오늘 기준 챌린지 진행도와 식물 상태를 다시 맞춘다.
+  /// (이미 얻은 돌보기 · 활동 피드는 되돌리지 않는다.)
+  void deleteExercise(String id) {
+    if (!_exerciseViewModel.deleteExercise(id)) return;
+    _challengeViewModel.reportProgress(
+      ChallengeType.exercise,
+      todayExerciseMinutes,
+    );
+    _syncPlant();
+  }
+
+  /// 체중 한 건의 값을 고친다.
+  void updateWeight(String id, double kg) {
+    final w = _weightViewModel.weightEntries
+        .where((x) => x.id == id)
+        .firstOrNull;
+    if (w == null) return;
+    _weightViewModel.updateWeight(w.copyWith(kg: kg));
+  }
+
+  /// 체중 한 건을 지운다.
+  void deleteWeight(String id) {
+    if (!_weightViewModel.deleteWeight(id)) return;
     _syncPlant();
   }
 

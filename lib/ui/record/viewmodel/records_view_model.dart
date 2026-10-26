@@ -125,6 +125,15 @@ class RecordsViewModel extends ChangeNotifier {
   /// 기록 탭에서 지금 보고 있는 날짜(month/day)의 식단.
   List<MealLog> get meals => snapshot().mealsOn(selectedKey);
 
+  /// 지금 보고 있는 날짜의 운동 · 체중 기록 (수정 · 삭제하러 들어가는 목록).
+  List<ExerciseLog> get selectedExercises =>
+      snapshot().exercisesOn(selectedKey);
+
+  List<WeightEntry> get selectedWeights => [
+    for (final w in snapshot().weights)
+      if (w.dateKey == selectedKey) w,
+  ];
+
   /// 지금 보고 있는 날짜의 총 섭취 칼로리.
   int get selectedDayKcal => meals.fold(0, (a, m) => a + m.kcal);
 

@@ -25,6 +25,9 @@ class ExerciseViewModel extends ChangeNotifier {
   /// 서버 저장이 실패했을 때 불린다. AppState가 사용자에게 알림을 띄우는 데 쓴다.
   void Function()? onSaveFailed;
 
+  /// 서버에서 지우지 못했을 때 불린다 (목록에는 되돌려 놓은 뒤다).
+  void Function()? onDeleteFailed;
+
   String get _clockTime => formatClockTime(_now());
 
   // ── 입력값 (저장 전까지만 유지되는 Draft) ─────────────────────────────
@@ -46,10 +49,21 @@ class ExerciseViewModel extends ChangeNotifier {
   bool get exTypeKnown =>
       DietRules.exerciseTypeFactor.containsKey(exType.trim());
 
-  int get exKcal {
-    final f = DietRules.exerciseTypeFactor[exType.trim()] ?? 1.0;
-    final i = DietRules.exerciseIntensityFactor[exIntensity] ?? 8;
-    return (exMinutes * i * f).round();
+  int get exKcal => kcalFor(
+    type: exType,
+    minutes: exMinutes,
+    intensity: exerciseDraft.intensity,
+  );
+
+  /// 운동 종류 · 시간 · 강도로 소모 칼로리를 계산한다 (입력 화면 · 수정 화면이 같이 쓴다).
+  static int kcalFor({
+    required String type,
+    required int minutes,
+    required ExerciseIntensity intensity,
+  }) {
+    final f = DietRules.exerciseTypeFactor[type.trim()] ?? 1.0;
+    final i = DietRules.exerciseIntensityFactor[intensity.label] ?? 8;
+    return (minutes * i * f).round();
   }
 
   // ── 저장된 기록 ──────────────────────────────────────────────────────
@@ -81,6 +95,41 @@ class ExerciseViewModel extends ChangeNotifier {
     exerciseLogs.add(log);
     notifyListeners();
     _saveExercise(log);
+  }
+
+  /// 운동 한 건을 고쳐서 저장한다. 없는 id면 false.
+  bool updateExercise(ExerciseLog updated) {
+    final i = exerciseLogs.indexWhere((e) => e.id == updated.id);
+    if (i < 0) return false;
+    exerciseLogs[i] = updated;
+    notifyListeners();
+    _saveExercise(updated);
+    return true;
+  }
+
+  /// 운동 한 건을 지운다. 없는 id면 false. 서버에서 지우지 못하면 목록에 되돌리고 알린다.
+  bool deleteExercise(String id) {
+    final i = exerciseLogs.indexWhere((e) => e.id == id);
+    if (i < 0) return false;
+    final removed = exerciseLogs.removeAt(i);
+    notifyListeners();
+    final owner = uid;
+    if (owner != null) {
+      unawaited(
+        _exerciseRepo.delete(owner, id).catchError((
+          Object e,
+          StackTrace stack,
+        ) {
+          debugPrint('운동 기록 삭제 실패: $e\n$stack');
+          if (!exerciseLogs.any((x) => x.id == id)) {
+            exerciseLogs.insert(i.clamp(0, exerciseLogs.length), removed);
+            notifyListeners();
+          }
+          onDeleteFailed?.call();
+        }),
+      );
+    }
+    return true;
   }
 
   void _saveExercise(ExerciseLog log) {

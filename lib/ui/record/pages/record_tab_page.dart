@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:diet_project/app_state.dart';
+import 'package:diet_project/ui/record/pages/exercise_edit_sheet.dart';
+import 'package:diet_project/ui/record/pages/weight_edit_sheet.dart';
 import 'package:diet_project/ui/core/ui/themes/theme_tokens.dart';
 import 'package:diet_project/ui/onboarding/viewmodel/profile_view_model.dart';
 import 'package:diet_project/ui/record/viewmodel/water_view_model.dart';
@@ -84,6 +86,8 @@ class RecordsScreen extends StatelessWidget {
           ),
         ),
         for (final m in records.meals) _MealCard(m: m),
+        for (final e in records.selectedExercises) _ExerciseCard(e: e),
+        for (final w in records.selectedWeights) _WeightCard(w: w),
         _DaySummaryCard(),
       ],
     );
@@ -306,6 +310,128 @@ class _CalendarDayCell extends StatelessWidget {
       ),
     );
   }
+}
+
+/// 시트를 아래에서 올린다 (운동 · 체중 수정).
+Future<void> _showEditSheet(BuildContext context, Widget sheet) =>
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => sheet,
+    );
+
+/// 운동 목록 — 탭하면 수정 · 삭제 시트
+class _ExerciseCard extends StatelessWidget {
+  const _ExerciseCard({required this.e});
+
+  final ExerciseLog e;
+
+  @override
+  Widget build(BuildContext context) => _RecordRowCard(
+    onTap: () => _showEditSheet(context, ExerciseEditSheet(log: e)),
+    icon: AppIcons.exercise,
+    color: AppIconColors.exercise,
+    label: '운동',
+    title: '${e.type} ${e.minutes}분',
+    sub: '${e.intensity.label} 강도 · ${e.time}',
+    value: '${e.kcal}',
+    unit: 'kcal',
+  );
+}
+
+/// 체중 목록 — 탭하면 수정 · 삭제 시트
+class _WeightCard extends StatelessWidget {
+  const _WeightCard({required this.w});
+
+  final WeightEntry w;
+
+  @override
+  Widget build(BuildContext context) => _RecordRowCard(
+    onTap: () => _showEditSheet(context, WeightEditSheet(entry: w)),
+    icon: AppIcons.weight,
+    color: AppIconColors.weight,
+    label: '체중',
+    title: '${w.kg.toStringAsFixed(1)} kg',
+    sub: w.time,
+    value: '',
+    unit: '',
+  );
+}
+
+/// 운동 · 체중 기록 한 줄 카드 (식단 카드와 같은 모양, 사진 대신 아이콘).
+class _RecordRowCard extends StatelessWidget {
+  const _RecordRowCard({
+    required this.onTap,
+    required this.icon,
+    required this.color,
+    required this.label,
+    required this.title,
+    required this.sub,
+    required this.value,
+    required this.unit,
+  });
+
+  final VoidCallback onTap;
+  final IconData icon;
+  final Color color;
+  final String label;
+  final String title;
+  final String sub;
+  final String value;
+  final String unit;
+
+  @override
+  Widget build(BuildContext context) => AppCard(
+    padding: 13,
+    onTap: onTap,
+    child: Row(
+      children: [
+        Container(
+          width: AppSpace.s58,
+          height: AppSpace.s58,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Icon(icon, color: color),
+        ),
+        const SizedBox(width: AppSpace.s12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: t(
+                  AppFontSize.f11,
+                  w: FontWeight.w700,
+                  c: AppColor.textFaint,
+                ),
+              ),
+              const SizedBox(height: AppSpace.s4),
+              Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: t(AppFontSize.f14, w: FontWeight.w700),
+              ),
+              const SizedBox(height: AppSpace.s3),
+              Text(sub, style: t(AppFontSize.f11, c: AppColor.textGhost)),
+            ],
+          ),
+        ),
+        if (value.isNotEmpty)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(value, style: t(AppFontSize.f15, w: FontWeight.w900)),
+              Text(unit, style: t(AppFontSize.f10, c: AppColor.textGhost)),
+            ],
+          ),
+      ],
+    ),
+  );
 }
 
 /// 끼니 목록 — 탭하면 상세로
