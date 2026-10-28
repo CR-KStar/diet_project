@@ -121,7 +121,10 @@
     .p2head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
     .p2head h2 { margin: 0; font-size: clamp(26px, 3.6vw, 36px); font-weight: 900; letter-spacing: -.02em; color: var(--g-dark); }
     .p2top { display: grid; grid-template-columns: 7fr 5fr; gap: 16px; }
-    .flow { display: grid; grid-template-columns: 1.1fr .2fr 1.3fr .2fr 1fr; align-items: center; gap: 4px; }
+    .flow { display: grid; grid-template-columns: 1.1fr .2fr 1.3fr .2fr 1fr; grid-template-rows: auto auto auto; align-items: center; gap: 8px 4px; }
+    .flow .n-app { grid-column: 1; grid-row: 1 / 4; } .flow .a1 { grid-column: 2; grid-row: 1 / 4; }
+    .flow .n-auth { grid-column: 3; grid-row: 1; text-align: left; } .flow .n-db { grid-column: 3; grid-row: 2; text-align: left; } .flow .n-fn { grid-column: 3; grid-row: 3; text-align: left; }
+    .flow .a2 { grid-column: 4; grid-row: 3; } .flow .n-ai { grid-column: 5; grid-row: 3; }
     .node { border-radius: 14px; padding: 10px 12px; font-size: 12.5px; background: var(--g-tint); border: 1.5px solid var(--g); text-align: center; line-height: 1.4; }
     .node b { display: block; font-size: 13.5px; }
     .node.y { border-color: var(--orange); background: #FFF6E5; } .node.c { border-color: var(--coral); background: #FFF0EB; }
@@ -190,7 +193,7 @@
       .layer { grid-template-columns: 1fr; gap: 2px; }
       .phones5 { grid-template-columns: repeat(5, 46%); overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; }
       .phones5 .ph { scroll-snap-align: start; }
-      .flow { grid-template-columns: 1fr; } .arr { transform: rotate(90deg); } .tl { flex-direction: column; } .tl div { border-top: 0; border-left: 3px solid var(--g); text-align: left; padding-left: 14px; }
+      .flow { grid-template-columns: 1fr; grid-template-rows: none; } .flow > * { grid-column: 1 !important; grid-row: auto !important; } .arr { transform: rotate(90deg); } .tl { flex-direction: column; } .tl div { border-top: 0; border-left: 3px solid var(--g); text-align: left; padding-left: 14px; }
       .tl div::before { top: 10px; left: -8px; margin: 0; }
     }
 
@@ -213,7 +216,27 @@
 </head>
 <body>
 
-<!-- ───────────── 1쪽: 프로젝트 소개 ───────────── -->
+<!-- ───────────── 1쪽: 자기소개 ───────────── -->
+<section class="page" id="page0">
+  <div class="p0">
+    <div class="card me">
+      <h2>Flutter 앱 개발 · 신입</h2>
+      <h1>권채린</h1>
+    </div>
+    <div class="card">
+      <h3 class="ttl">연락처</h3>
+      <div class="cl">
+        <div><span>이름</span><b>권채린</b></div>
+        <div><span>이메일</span><a href="mailto:kchaerin0811@gmail.com">kchaerin0811@gmail.com</a></div>
+        <div><span>GitHub</span><a href="https://github.com/CR-KStar/diet_project">github.com/CR-KStar/diet_project</a></div>
+        <div><span>트러블슈팅</span><a href="troubleshooting/">cr-kstar.github.io/diet_project/troubleshooting/</a></div>
+        <div><span>앱 · 웹</span><span class="lnk"><a href="https://apps.apple.com/kr/app/id6818954921">App Store</a> · <a href="https://meatgreen.web.app">웹 앱</a> · <a href="https://diet-project-81ce1.web.app">웹 체험판</a></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── 2쪽: 프로젝트 소개 ───────────── -->
 <section class="page" id="page1">
   <div class="p1">
     <div class="stackcol">
@@ -276,26 +299,6 @@
 
 </section>
 
-<!-- ───────────── 2쪽: 자기소개 ───────────── -->
-<section class="page" id="page0">
-  <div class="p0">
-    <div class="card me">
-      <h2>Flutter 앱 개발 · 신입</h2>
-      <h1>권채린</h1>
-    </div>
-    <div class="card">
-      <h3 class="ttl">연락처</h3>
-      <div class="cl">
-        <div><span>이름</span><b>권채린</b></div>
-        <div><span>이메일</span><a href="mailto:kchaerin0811@gmail.com">kchaerin0811@gmail.com</a></div>
-        <div><span>GitHub</span><a href="https://github.com/CR-KStar/diet_project">github.com/CR-KStar/diet_project</a></div>
-        <div><span>트러블슈팅</span><a href="troubleshooting/">cr-kstar.github.io/diet_project/troubleshooting/</a></div>
-        <div><span>앱 · 웹</span><span class="lnk"><a href="https://apps.apple.com/kr/app/id6818954921">App Store</a> · <a href="https://meatgreen.web.app">웹 앱</a> · <a href="https://diet-project-81ce1.web.app">웹 체험판</a></span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- ───────────── 3쪽: 서버 구조와 문제 해결 ───────────── -->
 <section class="page" id="page2">
   <div class="p2head">
@@ -307,15 +310,13 @@
     <div class="card">
       <h3 class="ttl">서버 구조</h3>
       <div class="flow">
-        <div class="node"><b>📱 Flutter 앱</b>Provider · ViewModel<br>Repository</div>
-        <div class="arr">→</div>
-        <div class="stack">
-          <div class="node"><b>🔐 Firebase Auth</b>Google · Apple 로그인</div>
-          <div class="node"><b>🗄 Cloud Firestore</b>users/{uid} + 공유 컬렉션 7개</div>
-          <div class="node y"><b>⚡ Cloud Functions</b>TypeScript · Secret 보관</div>
-        </div>
-        <div class="arr">→</div>
-        <div class="node c"><b>🤖 Claude API</b>사진 → 영양 분석<br>(정해진 JSON으로 응답)</div>
+        <div class="node n-app"><b>📱 Flutter 앱</b>Provider · ViewModel<br>Repository</div>
+        <div class="arr a1">→</div>
+        <div class="node n-auth"><b>🔐 Firebase Auth</b>Google · Apple 로그인</div>
+        <div class="node n-db"><b>🗄 Cloud Firestore</b>users/{uid} + 공유 컬렉션 7개</div>
+        <div class="node y n-fn"><b>⚡ Cloud Functions</b>TypeScript · Secret 보관</div>
+        <div class="arr a2">→</div>
+        <div class="node c n-ai"><b>🤖 Claude API</b>사진 → 영양 분석<br>(정해진 JSON으로 응답)</div>
       </div>
       <div class="rules">🛡 Firestore 보안 규칙 — 컬렉션마다 최소 권한 · 웹 앱 · 웹 체험판은 Firebase Hosting으로 배포</div>
       <div class="col">공유 컬렉션: publicProfiles · inviteCodes · friendRequests · friendships · challenges · challengeProgress · activityFeed</div>
