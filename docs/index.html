@@ -221,65 +221,7 @@
 </head>
 <body>
 
-<!-- ───────────── 1쪽: 자기소개 ───────────── -->
-<section class="page" id="page0">
-  <div class="p0">
-    <div class="card me">
-      <h2>Flutter 앱 개발 · 신입</h2>
-      <h1>안녕하세요,<br>권채린입니다</h1>
-      <p class="lead">식단 기록 앱 <b>‘밋그린’</b>을 기획부터 구현, 서버, 스토어 출시까지 한 사이클 직접 이끌어 본 신입 앱 개발자예요. 만드는 데서 끝내지 않고, 심사 반려나 계정 삭제 같은 실제 서비스에서 마주치는 문제까지 풀어 봤어요.</p>
-      <p class="lead">모르는 부분은 넘어가지 않고 작은 단위로 다시 만들어 보며 이해하는 편이에요. 지금도 백엔드 · DB를 처음부터 다시 구현하며 공부하고 있어요.</p>
-      <div class="meta">
-        <div><span>이메일</span><a href="mailto:kchaerin0811@gmail.com">kchaerin0811@gmail.com</a></div>
-        <div><span>GitHub</span><a href="https://github.com/CR-KStar/diet_project">github.com/CR-KStar/diet_project</a></div>
-        <div><span>앱 · 웹</span><span style="display:inline;font-weight:500;font-size:14px;color:var(--ink)"><a href="https://apps.apple.com/kr/app/id6818954921">App Store</a> · <a href="https://meatgreen.web.app">웹 앱</a> · <a href="https://diet-project-81ce1.web.app">웹 체험판</a></span></div>
-      </div>
-    </div>
-
-    <div class="pts">
-      <div class="card pt"><i>🚀</i><h3>끝까지 출시해요</h3>
-        <p>기획부터 App Store · Google Play 제출까지 진행했어요. 심사 반려 <b>2건</b>은 원인을 분석해 고치고 다시 제출해 <b>승인</b>받았어요.</p></div>
-      <div class="card pt"><i>🧱</i><h3>구조를 정리해요</h3>
-        <p>3,400줄이던 상태 클래스를 영역별 <b>ViewModel</b>로 나누고, 저장소를 <b>인터페이스 뒤</b>로 숨겨 화면과 데이터를 분리했어요.</p></div>
-      <div class="card pt"><i>🔍</i><h3>빠진 곳을 찾아요</h3>
-        <p>계정을 지워도 친구 · 챌린지 기록이 남는 문제를 직접 찾아서, 저장소 · 보안 규칙 · 처방침 문구를 <b>함께</b> 고쳤어요.</p></div>
-      <div class="card pt"><i>📚</i><h3>직접 다시 풀어 봐요</h3>
-        <p>백엔드 · DB는 인증 → 저장 → 보안 규칙 → 서버 함수 → 계정 삭제 순서로 <b>처음부터 작게 다시 구현</b>하며 공부하고 있어요.</p></div>
-    </div>
-  </div>
-
-  <div class="p0bot">
-    <div class="card">
-      <h3 class="ttl">대표 프로젝트</h3>
-      <div class="pm"><img src="portfolio/icon.png" alt="밋그린 앱 아이콘"><div><b>밋그린 (MEATGREEN)</b><span>식사 사진을 찍으면 AI가 칼로리와 영양소를 추정하고, 기록할수록 식물이 자라는 식단 기록 앱</span></div></div>
-      <div class="row" style="display:flex;flex-wrap:wrap;gap:8px">
-        <a class="chip live" href="https://apps.apple.com/kr/app/id6818954921" target="_blank" rel="noopener">App Store 출시</a>
-        <span class="chip live">Google Play 출시 심사 중</span>
-        <a class="chip live" href="https://meatgreen.web.app" target="_blank" rel="noopener">웹 앱 배포</a>
-      </div>
-      <p class="how">다음 쪽부터 앱 화면과 구조, 해결한 문제를 소개해요.</p>
-    </div>
-    <div class="card">
-      <h3 class="ttl">기술 스택</h3>
-      <div class="grp"><span>앱</span><div class="tags"><span class="tag">Flutter / Dart</span><span class="tag">Provider</span><span class="tag">ViewModel · Repository</span></div></div>
-      <div class="grp"><span>서버</span><div class="tags"><span class="tag">Firebase Auth</span><span class="tag">Firestore</span><span class="tag">Cloud Functions (TS)</span><span class="tag">Firebase Hosting</span></div></div>
-      <div class="grp"><span>AI · 인증</span><div class="tags"><span class="tag">Claude API</span><span class="tag">Sign in with Apple / Google</span></div></div>
-      <div class="grp"><span>도구</span><div class="tags"><span class="tag">Git / GitHub</span><span class="tag">GitHub Pages</span><span class="tag">Claude Code</span></div></div>
-    </div>
-    <div class="card">
-      <h3 class="ttl">AI와 함께 일하는 방식</h3>
-      <p class="how" style="margin-top:0"><b>Claude Code와 협업</b>해 개발했어요. 무엇을 만들지 정하고, 결과를 확인하고, 구조를 잡는 일은 제가 맡았어요.</p>
-      <div class="split2">
-        <div><h4>직접 한 일</h4>
-          <ul class="why"><li>기획 방향 · 결과 검증</li><li><b>아키텍처 구조 분리</b> (ViewModel · Repository)</li><li><b>DB · 백엔드 설계</b> — 데이터 모델링 · 보안 규칙 · Cloud Functions · 인증과 계정 삭제 흐름</li><li>스토어 배포 · 심사 대응</li></ul></div>
-        <div><h4>AI가 도운 일</h4>
-          <ul class="why"><li>구현 코드 작성 보조</li><li>앱 아이콘 캐릭터 생성</li></ul></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ───────────── 2쪽: 프로젝트 소개 ───────────── -->
+<!-- ───────────── 1쪽: 프로젝트 소개 ───────────── -->
 <section class="page" id="page1">
   <div class="p1">
     <div class="card hero">
@@ -347,6 +289,64 @@
     </div>
     </div>
 
+</section>
+
+<!-- ───────────── 2쪽: 자기소개 ───────────── -->
+<section class="page" id="page0">
+  <div class="p0">
+    <div class="card me">
+      <h2>Flutter 앱 개발 · 신입</h2>
+      <h1>안녕하세요,<br>권채린입니다</h1>
+      <p class="lead">식단 기록 앱 <b>‘밋그린’</b>을 기획부터 구현, 서버, 스토어 출시까지 한 사이클 직접 이끌어 본 신입 앱 개발자예요. 만드는 데서 끝내지 않고, 심사 반려나 계정 삭제 같은 실제 서비스에서 마주치는 문제까지 풀어 봤어요.</p>
+      <p class="lead">모르는 부분은 넘어가지 않고 작은 단위로 다시 만들어 보며 이해하는 편이에요. 지금도 백엔드 · DB를 처음부터 다시 구현하며 공부하고 있어요.</p>
+      <div class="meta">
+        <div><span>이메일</span><a href="mailto:kchaerin0811@gmail.com">kchaerin0811@gmail.com</a></div>
+        <div><span>GitHub</span><a href="https://github.com/CR-KStar/diet_project">github.com/CR-KStar/diet_project</a></div>
+        <div><span>앱 · 웹</span><span style="display:inline;font-weight:500;font-size:14px;color:var(--ink)"><a href="https://apps.apple.com/kr/app/id6818954921">App Store</a> · <a href="https://meatgreen.web.app">웹 앱</a> · <a href="https://diet-project-81ce1.web.app">웹 체험판</a></span></div>
+      </div>
+    </div>
+
+    <div class="pts">
+      <div class="card pt"><i>🚀</i><h3>끝까지 출시해요</h3>
+        <p>기획부터 App Store · Google Play 제출까지 진행했어요. 심사 반려 <b>2건</b>은 원인을 분석해 고치고 다시 제출해 <b>승인</b>받았어요.</p></div>
+      <div class="card pt"><i>🧱</i><h3>구조를 정리해요</h3>
+        <p>3,400줄이던 상태 클래스를 영역별 <b>ViewModel</b>로 나누고, 저장소를 <b>인터페이스 뒤</b>로 숨겨 화면과 데이터를 분리했어요.</p></div>
+      <div class="card pt"><i>🔍</i><h3>빠진 곳을 찾아요</h3>
+        <p>계정을 지워도 친구 · 챌린지 기록이 남는 문제를 직접 찾아서, 저장소 · 보안 규칙 · 처방침 문구를 <b>함께</b> 고쳤어요.</p></div>
+      <div class="card pt"><i>📚</i><h3>직접 다시 풀어 봐요</h3>
+        <p>백엔드 · DB는 인증 → 저장 → 보안 규칙 → 서버 함수 → 계정 삭제 순서로 <b>처음부터 작게 다시 구현</b>하며 공부하고 있어요.</p></div>
+    </div>
+  </div>
+
+  <div class="p0bot">
+    <div class="card">
+      <h3 class="ttl">대표 프로젝트</h3>
+      <div class="pm"><img src="portfolio/icon.png" alt="밋그린 앱 아이콘"><div><b>밋그린 (MEATGREEN)</b><span>식사 사진을 찍으면 AI가 칼로리와 영양소를 추정하고, 기록할수록 식물이 자라는 식단 기록 앱</span></div></div>
+      <div class="row" style="display:flex;flex-wrap:wrap;gap:8px">
+        <a class="chip live" href="https://apps.apple.com/kr/app/id6818954921" target="_blank" rel="noopener">App Store 출시</a>
+        <span class="chip live">Google Play 출시 심사 중</span>
+        <a class="chip live" href="https://meatgreen.web.app" target="_blank" rel="noopener">웹 앱 배포</a>
+      </div>
+      <p class="how">앱 화면은 앞 쪽에, 구조와 해결한 문제는 다음 쪽부터 소개해요.</p>
+    </div>
+    <div class="card">
+      <h3 class="ttl">기술 스택</h3>
+      <div class="grp"><span>앱</span><div class="tags"><span class="tag">Flutter / Dart</span><span class="tag">Provider</span><span class="tag">ViewModel · Repository</span></div></div>
+      <div class="grp"><span>서버</span><div class="tags"><span class="tag">Firebase Auth</span><span class="tag">Firestore</span><span class="tag">Cloud Functions (TS)</span><span class="tag">Firebase Hosting</span></div></div>
+      <div class="grp"><span>AI · 인증</span><div class="tags"><span class="tag">Claude API</span><span class="tag">Sign in with Apple / Google</span></div></div>
+      <div class="grp"><span>도구</span><div class="tags"><span class="tag">Git / GitHub</span><span class="tag">GitHub Pages</span><span class="tag">Claude Code</span></div></div>
+    </div>
+    <div class="card">
+      <h3 class="ttl">AI와 함께 일하는 방식</h3>
+      <p class="how" style="margin-top:0"><b>Claude Code와 협업</b>해 개발했어요. 무엇을 만들지 정하고, 결과를 확인하고, 구조를 잡는 일은 제가 맡았어요.</p>
+      <div class="split2">
+        <div><h4>직접 한 일</h4>
+          <ul class="why"><li>기획 방향 · 결과 검증</li><li><b>아키텍처 구조 분리</b> (ViewModel · Repository)</li><li><b>DB · 백엔드 설계</b> — 데이터 모델링 · 보안 규칙 · Cloud Functions · 인증과 계정 삭제 흐름</li><li>스토어 배포 · 심사 대응</li></ul></div>
+        <div><h4>AI가 도운 일</h4>
+          <ul class="why"><li>구현 코드 작성 보조</li><li>앱 아이콘 캐릭터 생성</li></ul></div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- ───────────── 3쪽: 서버 구조와 문제 해결 ───────────── -->
