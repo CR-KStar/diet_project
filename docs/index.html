@@ -78,7 +78,7 @@
     .phones5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; }
     .ph figure { margin: 0; text-align: center; }
     .ph figcaption { font-size: 14px; font-weight: 700; margin-bottom: 9px; }
-    .frame { background: #151917; border-radius: 28px; padding: 5px; box-shadow: var(--shadow); max-width: 300px; margin: 0 auto; }
+    .frame { background: #151917; border-radius: 28px; padding: 5px; box-shadow: var(--shadow); max-width: 290px; margin: 0 auto; }
     .frame img { display: block; width: 100%; aspect-ratio: 560 / 1127; object-fit: cover; border-radius: 23px; }
 
     .feat { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
@@ -212,6 +212,7 @@
 <!-- ───────────── 1쪽: 프로젝트 소개 ───────────── -->
 <section class="page" id="page1">
   <div class="p1">
+    <div class="stackcol">
     <div class="card hero">
       <h2>식단 · 운동 · 체중 기록과 식물 키우기를 한 앱에서</h2>
       <h1>식단 기록 앱 개발<small>밋그린 (MEATGREEN)</small></h1>
@@ -236,18 +237,6 @@
       </div>
       <div class="muted" style="font-size:13px"><b style="color:var(--ink)">권채린</b> · Flutter 앱 개발 · 신입 · kchaerin0811@gmail.com</div>
     </div>
-
-    <div class="stackcol">
-    <div class="card">
-      <h3 class="ttl">주요 특징 (구현한 기능)</h3>
-      <ul class="feat">
-        <li><i>📸</i><div><b>식사 사진 AI 분석</b><span>사진으로 음식명, 칼로리, 영양소 8종 추정 · 사진은 내 기기에만 보관</span></div></li>
-        <li><i>🎯</i><div><b>하루 목표 관리</b><span>기초대사량 기반 권장 칼로리와 영양소 진행률</span></div></li>
-        <li><i>📈</i><div><b>기록 &amp; 리포트</b><span>식단·물·운동·체중 기록(수정 · 삭제), 주간·월간 변화 그래프</span></div></li>
-        <li><i>🪴</i><div><b>식물 성장 보상</b><span>기록할수록 EXP가 쌓여 5단계로 성장, 도감 수집</span></div></li>
-        <li><i>🤝</i><div><b>친구 &amp; 챌린지</b><span>초대 코드로 친구 추가 · 친구 관리(삭제 · 차단 · 신고), 챌린지와 활동 피드</span></div></li>
-      </ul>
-    </div>
     <div class="card">
       <h3 class="ttl">식물 성장 시스템</h3>
       <div class="grow">
@@ -258,6 +247,18 @@
         <div class="stage"><div class="em">🌸</div><b>꽃</b><small>Lv.20</small></div>
       </div>
       <div class="axes"><span>💧 물 주기 ← 물 기록</span><span>☀️ 햇빛 ← 운동 기록</span><span>🧺 영양 ← 식단 기록</span><span>⚠️ 기록을 이틀 쉬면 시들고, 기록하면 회복</span></div>
+    </div>
+    </div>
+    <div class="stackcol">
+    <div class="card">
+      <h3 class="ttl">주요 특징 (구현한 기능)</h3>
+      <ul class="feat">
+        <li><i>📸</i><div><b>식사 사진 AI 분석</b><span>앱 → Cloud Functions → Claude API. 서버가 로그인과 하루 30회 한도를 확인하고, zod 스키마로 정해진 JSON(음식명 · 영양소 8종 · 확신도)만 받아요. 사진은 기기에만 저장해요</span></div></li>
+        <li><i>🎯</i><div><b>하루 목표 관리</b><span>기초대사량 기반으로 권장 칼로리를 계산하고, 영양소별 진행률을 Provider로 구독해 화면에 바로 반영해요</span></div></li>
+        <li><i>📈</i><div><b>기록 &amp; 리포트</b><span>Firestore users/{uid} 아래 문서 1건 = 기록 1건. 날짜를 정렬 가능한 문자열(dateKey)로 저장해 주간 · 월간을 한 필드 조건으로 조회하고, 수정 · 삭제는 서버 먼저, 실패하면 되돌려요</span></div></li>
+        <li><i>🪴</i><div><b>식물 성장 보상</b><span>물 · 운동 · 식단 기록이 EXP와 축 점수로 쌓이는 상태 모델이에요. 시계를 주입해 &quot;이틀 쉬면 시듦&quot; 같은 날짜 규칙을 구현했어요</span></div></li>
+        <li><i>🤝</i><div><b>친구 &amp; 챌린지</b><span>초대 코드로 uid를 찾아 요청 → 수락 → 친구 관계로 이어져요. 보안 규칙이 요청은 보낸 사람만, 수락은 받은 사람만 하게 막고, 삭제 · 차단 · 신고도 지원해요</span></div></li>
+      </ul>
     </div>
     </div>
   </div>
