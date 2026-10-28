@@ -47,28 +47,19 @@
 
     /* ─ 자기소개 ─ */
     .p0 { display: grid; grid-template-columns: 5fr 7fr; gap: 16px; }
-    .me { display: flex; flex-direction: column; }
+    .me { display: flex; flex-direction: column; justify-content: center; }
     .me h2 { margin: 0 0 8px; font-size: 17px; font-weight: 700; color: var(--muted); }
-    .me h1 { margin: 0 0 18px; font-size: clamp(42px, 6.2vw, 74px); line-height: 1.1; font-weight: 900; letter-spacing: -.03em; color: var(--g-dark); }
+    .me h1 { margin: 0; font-size: clamp(54px, 8vw, 96px); line-height: 1.1; font-weight: 900; letter-spacing: -.03em; color: var(--g-dark); }
     .me p.lead { margin: 0 0 12px; font-size: 15.5px; color: var(--ink); line-height: 1.75; }
     .meta { margin-top: auto; padding-top: 14px; display: grid; gap: 7px; font-size: 14px; }
     .meta div { display: grid; grid-template-columns: 72px 1fr; gap: 8px; }
     .meta span { color: var(--muted); font-weight: 700; font-size: 12.5px; }
-    .pts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .pt i { font-style: normal; font-size: 30px; display: grid; place-items: center; width: 54px; height: 54px; border-radius: 16px; background: var(--g-soft); margin-bottom: 12px; }
-    .pt h3 { margin: 0 0 6px; font-size: 18px; letter-spacing: -.01em; }
-    .pt p { margin: 0; font-size: 14px; line-height: 1.7; color: var(--muted); }
-    .pt p b { color: var(--ink); }
-    .p0bot { display: grid; grid-template-columns: 1fr 1.1fr 1.2fr; gap: 16px; margin-top: 16px; }
-    .pm { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; }
-    .pm img { width: 72px; height: 72px; border-radius: 18px; box-shadow: var(--shadow); flex: none; }
-    .pm b { display: block; font-size: 17px; }
-    .pm span { font-size: 13px; color: var(--muted); line-height: 1.55; display: block; }
-    .grp { display: grid; grid-template-columns: 64px 1fr; gap: 10px; align-items: start; margin-bottom: 10px; }
-    .grp > span { font-size: 12px; font-weight: 700; color: var(--g-dark); padding-top: 5px; }
-    .split2 { display: grid; grid-template-columns: 1.15fr .85fr; gap: 16px; margin-top: 10px; }
-    .split2 h4 { margin: 0 0 6px; font-size: 13.5px; }
-    .split2 .why { font-size: 12.5px; }
+    .cl div { display: grid; grid-template-columns: 110px 1fr; gap: 12px; align-items: center; padding: 16px 4px; border-bottom: 1px solid var(--line); font-size: 18px; }
+    .cl div:last-child { border-bottom: 0; }
+    .cl span { color: var(--muted); font-weight: 700; font-size: 14px; }
+    .cl .lnk { color: var(--ink); font-weight: 500; font-size: 18px; }
+    #page0 { min-height: 70vh; display: flex; align-items: center; }
+    #page0 .p0 { width: 100%; }
 
     /* ─ 프로젝트 소개 ─ */
     .p1 { display: grid; grid-template-columns: 5fr 7fr; gap: 16px; }
@@ -187,14 +178,14 @@
     .fix tr:last-child td { border-bottom: 0; }
     .fix b { color: var(--ink); }
 
-    .p0 > *, .p0bot > *, .p1 > *, .p2top > *, .p2bot > *, .p3top > *, .p3bot > * { min-width: 0; }
+    .p0 > *, .p1 > *, .p2top > *, .p2bot > *, .p3top > *, .p3bot > * { min-width: 0; }
     @media screen and (max-width: 1000px) {
-      .p0, .p0bot, .p1, .p2top, .p2bot, .p3top, .p3bot, .how-grid { grid-template-columns: 1fr; }
+      .p0, .p1, .p2top, .p2bot, .p3top, .p3bot, .how-grid { grid-template-columns: 1fr; }
       .cards6, .flows3 { grid-template-columns: 1fr 1fr; }
     }
     @media screen and (max-width: 640px) {
       .page { padding: 18px 14px 28px; }
-      .tiles { grid-template-columns: 1fr 1fr; } .cards6, .flows3, .pts, .split2 { grid-template-columns: 1fr; }
+      .tiles { grid-template-columns: 1fr 1fr; } .cards6, .flows3 { grid-template-columns: 1fr; }
       .layer { grid-template-columns: 1fr; gap: 2px; }
       .phones5 { grid-template-columns: repeat(5, 46%); overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; }
       .phones5 .ph { scroll-snap-align: start; }
@@ -215,7 +206,7 @@
       .layer { padding: 5px 8px; } .arch { gap: 3px; }
       .stage .em { font-size: 30px; } .axes { margin-top: 8px; }
       .card, .cs, .node { break-inside: avoid; }
-      #page0 { zoom: 1.55; } #page2, #page3 { zoom: 1.1; }
+      #page0 { zoom: 1.9; min-height: 680px; } #page2, #page3 { zoom: 1.1; }
     }
   </style>
 </head>
@@ -296,54 +287,15 @@
   <div class="p0">
     <div class="card me">
       <h2>Flutter 앱 개발 · 신입</h2>
-      <h1>안녕하세요,<br>권채린입니다</h1>
-      <p class="lead">식단 기록 앱 <b>‘밋그린’</b>을 기획부터 구현, 서버, 스토어 출시까지 한 사이클 직접 이끌어 본 신입 앱 개발자예요. 만드는 데서 끝내지 않고, 심사 반려나 계정 삭제 같은 실제 서비스에서 마주치는 문제까지 풀어 봤어요.</p>
-      <p class="lead">모르는 부분은 넘어가지 않고 작은 단위로 다시 만들어 보며 이해하는 편이에요. 지금도 백엔드 · DB를 처음부터 다시 구현하며 공부하고 있어요.</p>
-      <div class="meta">
+      <h1>권채린</h1>
+    </div>
+    <div class="card">
+      <h3 class="ttl">연락처</h3>
+      <div class="cl">
+        <div><span>이름</span><b>권채린</b></div>
         <div><span>이메일</span><a href="mailto:kchaerin0811@gmail.com">kchaerin0811@gmail.com</a></div>
         <div><span>GitHub</span><a href="https://github.com/CR-KStar/diet_project">github.com/CR-KStar/diet_project</a></div>
-        <div><span>앱 · 웹</span><span style="display:inline;font-weight:500;font-size:14px;color:var(--ink)"><a href="https://apps.apple.com/kr/app/id6818954921">App Store</a> · <a href="https://meatgreen.web.app">웹 앱</a> · <a href="https://diet-project-81ce1.web.app">웹 체험판</a></span></div>
-      </div>
-    </div>
-
-    <div class="pts">
-      <div class="card pt"><i>🚀</i><h3>끝까지 출시해요</h3>
-        <p>기획부터 App Store · Google Play 제출까지 진행했어요. 심사 반려 <b>2건</b>은 원인을 분석해 고치고 다시 제출해 <b>승인</b>받았어요.</p></div>
-      <div class="card pt"><i>🧱</i><h3>구조를 정리해요</h3>
-        <p>3,400줄이던 상태 클래스를 영역별 <b>ViewModel</b>로 나누고, 저장소를 <b>인터페이스 뒤</b>로 숨겨 화면과 데이터를 분리했어요.</p></div>
-      <div class="card pt"><i>🔍</i><h3>빠진 곳을 찾아요</h3>
-        <p>계정을 지워도 친구 · 챌린지 기록이 남는 문제를 직접 찾아서, 저장소 · 보안 규칙 · 처방침 문구를 <b>함께</b> 고쳤어요.</p></div>
-      <div class="card pt"><i>📚</i><h3>직접 다시 풀어 봐요</h3>
-        <p>백엔드 · DB는 인증 → 저장 → 보안 규칙 → 서버 함수 → 계정 삭제 순서로 <b>처음부터 작게 다시 구현</b>하며 공부하고 있어요.</p></div>
-    </div>
-  </div>
-
-  <div class="p0bot">
-    <div class="card">
-      <h3 class="ttl">대표 프로젝트</h3>
-      <div class="pm"><img src="portfolio/icon.png" alt="밋그린 앱 아이콘"><div><b>밋그린 (MEATGREEN)</b><span>식사 사진을 찍으면 AI가 칼로리와 영양소를 추정하고, 기록할수록 식물이 자라는 식단 기록 앱</span></div></div>
-      <div class="row" style="display:flex;flex-wrap:wrap;gap:8px">
-        <a class="chip live" href="https://apps.apple.com/kr/app/id6818954921" target="_blank" rel="noopener">App Store 출시</a>
-        <span class="chip live">Google Play 출시 심사 중</span>
-        <a class="chip live" href="https://meatgreen.web.app" target="_blank" rel="noopener">웹 앱 배포</a>
-      </div>
-      <p class="how">앱 화면은 앞 쪽에, 구조와 해결한 문제는 다음 쪽부터 소개해요.</p>
-    </div>
-    <div class="card">
-      <h3 class="ttl">기술 스택</h3>
-      <div class="grp"><span>앱</span><div class="tags"><span class="tag">Flutter / Dart</span><span class="tag">Provider</span><span class="tag">ViewModel · Repository</span></div></div>
-      <div class="grp"><span>서버</span><div class="tags"><span class="tag">Firebase Auth</span><span class="tag">Firestore</span><span class="tag">Cloud Functions (TS)</span><span class="tag">Firebase Hosting</span></div></div>
-      <div class="grp"><span>AI · 인증</span><div class="tags"><span class="tag">Claude API</span><span class="tag">Sign in with Apple / Google</span></div></div>
-      <div class="grp"><span>도구</span><div class="tags"><span class="tag">Git / GitHub</span><span class="tag">GitHub Pages</span><span class="tag">Claude Code</span></div></div>
-    </div>
-    <div class="card">
-      <h3 class="ttl">AI와 함께 일하는 방식</h3>
-      <p class="how" style="margin-top:0"><b>Claude Code와 협업</b>해 개발했어요. 무엇을 만들지 정하고, 결과를 확인하고, 구조를 잡는 일은 제가 맡았어요.</p>
-      <div class="split2">
-        <div><h4>직접 한 일</h4>
-          <ul class="why"><li>기획 방향 · 결과 검증</li><li><b>아키텍처 구조 분리</b> (ViewModel · Repository)</li><li><b>DB · 백엔드 설계</b> — 데이터 모델링 · 보안 규칙 · Cloud Functions · 인증과 계정 삭제 흐름</li><li>스토어 배포 · 심사 대응</li></ul></div>
-        <div><h4>AI가 도운 일</h4>
-          <ul class="why"><li>구현 코드 작성 보조</li><li>앱 아이콘 캐릭터 생성</li></ul></div>
+        <div><span>앱 · 웹</span><span class="lnk"><a href="https://apps.apple.com/kr/app/id6818954921">App Store</a> · <a href="https://meatgreen.web.app">웹 앱</a> · <a href="https://diet-project-81ce1.web.app">웹 체험판</a></span></div>
       </div>
     </div>
   </div>
