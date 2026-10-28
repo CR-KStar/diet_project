@@ -61,6 +61,10 @@
     #page0 { min-height: 70vh; display: flex; align-items: center; }
     #page0 .p0 { width: 100%; }
 
+    .grp { display: grid; grid-template-columns: 64px 1fr; gap: 10px; align-items: start; margin-bottom: 8px; }
+    .grp:last-child { margin-bottom: 0; }
+    .grp > span { font-size: 12px; font-weight: 700; color: var(--g-dark); padding-top: 5px; }
+
     /* ─ 프로젝트 소개 ─ */
     .p1 { display: grid; grid-template-columns: 5fr 7fr; gap: 16px; }
     .hero h2 { margin: 0 0 6px; font-size: 17px; font-weight: 700; color: var(--muted); }
@@ -238,15 +242,11 @@
       <div class="muted" style="font-size:13px"><b style="color:var(--ink)">권채린</b> · Flutter 앱 개발 · 신입 · kchaerin0811@gmail.com</div>
     </div>
     <div class="card">
-      <h3 class="ttl">식물 성장 시스템</h3>
-      <div class="grow">
-        <div class="stage"><div class="em">🌰</div><b>씨앗</b><small>Lv.1</small></div><div class="arrow">→</div>
-        <div class="stage"><div class="em">🌱</div><b>새싹</b><small>Lv.5</small></div><div class="arrow">→</div>
-        <div class="stage"><div class="em">🪴</div><b>어린잎</b><small>Lv.10</small></div><div class="arrow">→</div>
-        <div class="stage"><div class="em">🌿</div><b>무성한 잎</b><small>Lv.15</small></div><div class="arrow">→</div>
-        <div class="stage"><div class="em">🌸</div><b>꽃</b><small>Lv.20</small></div>
-      </div>
-      <div class="axes"><span>💧 물 주기 ← 물 기록</span><span>☀️ 햇빛 ← 운동 기록</span><span>🧺 영양 ← 식단 기록</span><span>⚠️ 기록을 이틀 쉬면 시들고, 기록하면 회복</span></div>
+      <h3 class="ttl">기술 스택</h3>
+      <div class="grp"><span>앱</span><div class="tags"><span class="tag">Flutter / Dart</span><span class="tag">Provider</span><span class="tag">ViewModel · Repository</span></div></div>
+      <div class="grp"><span>서버</span><div class="tags"><span class="tag">Firebase Auth</span><span class="tag">Firestore</span><span class="tag">Cloud Functions (TS)</span><span class="tag">Firebase Hosting</span></div></div>
+      <div class="grp"><span>AI · 인증</span><div class="tags"><span class="tag">Claude API</span><span class="tag">Sign in with Apple / Google</span></div></div>
+      <div class="grp"><span>도구</span><div class="tags"><span class="tag">Git / GitHub</span><span class="tag">GitHub Pages</span><span class="tag">Claude Code</span></div></div>
     </div>
     </div>
     <div class="stackcol">
@@ -289,6 +289,7 @@
         <div><span>이름</span><b>권채린</b></div>
         <div><span>이메일</span><a href="mailto:kchaerin0811@gmail.com">kchaerin0811@gmail.com</a></div>
         <div><span>GitHub</span><a href="https://github.com/CR-KStar/diet_project">github.com/CR-KStar/diet_project</a></div>
+        <div><span>트러블슈팅</span><a href="troubleshooting/">cr-kstar.github.io/diet_project/troubleshooting/</a></div>
         <div><span>앱 · 웹</span><span class="lnk"><a href="https://apps.apple.com/kr/app/id6818954921">App Store</a> · <a href="https://meatgreen.web.app">웹 앱</a> · <a href="https://diet-project-81ce1.web.app">웹 체험판</a></span></div>
       </div>
     </div>
@@ -314,7 +315,7 @@
           <div class="node y"><b>⚡ Cloud Functions</b>TypeScript · Secret 보관</div>
         </div>
         <div class="arr">→</div>
-        <div class="node c"><b>🤖 Claude API</b>사진 → 영양 분석<br>(zod 스키마 강제)</div>
+        <div class="node c"><b>🤖 Claude API</b>사진 → 영양 분석<br>(정해진 JSON으로 응답)</div>
       </div>
       <div class="rules">🛡 Firestore 보안 규칙 — 컬렉션마다 최소 권한 · 웹 앱 · 웹 체험판은 Firebase Hosting으로 배포</div>
       <div class="col">공유 컬렉션: publicProfiles · inviteCodes · friendRequests · friendships · challenges · challengeProgress · activityFeed</div>
@@ -378,7 +379,7 @@
       <li>글자 크기 배율 · 디자인 토큰 · 화면 오버플로 점검, 로그인 없는 <b>웹 체험판</b></li></ul></article>
   </div>
 
-  <div class="p2bot">
+  <div class="p2bot" style="grid-template-columns:1fr">
     <div class="card">
       <h3 class="ttl">개발 · 배포 흐름</h3>
       <div class="tl">
@@ -388,13 +389,6 @@
         <div><b>App Store 출시</b>반려 2건 수정 후 승인</div>
         <div class="now"><b>Play</b>출시 심사 중</div>
       </div>
-    </div>
-    <div class="card">
-      <h3 class="ttl">다음 계획</h3>
-      <ul class="road">
-        <li><b>테마(ThemeData)</b> 정리 · 큰 화면 파일 쪼개기</li>
-        <li><b>보안 규칙 세분화</b> — 수정 가능한 필드를 더 좁히기</li>
-      </ul>
     </div>
   </div>
 
@@ -445,7 +439,7 @@ activityFeed                     <em>친구 활동 한 줄</em></pre>
   <div class="flows3">
     <article class="cs"><h3><em>A</em>사진 분석 — 앱 → 함수 → Claude</h3>
       <ol><li>동의 팝업 후, 사진(base64)과 그릇 정보를 <b>Cloud Function</b>(analyzeMealPhoto)으로 보내요</li>
-      <li>함수가 <b>서버 Secret의 API 키</b>로 Claude를 호출하고, <b>zod 스키마</b>로 정해진 JSON(음식 이름 · 영양소 · 확신도)을 강제해요</li>
+      <li>함수가 <b>서버 Secret의 API 키</b>로 Claude를 호출하고, <b>정해진 JSON 형식</b>(음식 이름 · 영양소 · 확신도)으로만 받아요</li>
       <li>확신이 낮으면 <b>needs_review</b>로 표시하고, 서버에는 결과만 저장하고, 사진은 이 기기에만 보관해요</li>
       <li>함수는 <b>로그인한 사용자만</b> 부를 수 있고, 한 사람당 <b>하루 30회</b>까지만 받아요(횟수는 서버가 트랜잭션으로 세요)</li></ol>
       <p class="why-line">왜 서버를 거치나: 키가 앱에 들어가면 앱 파일을 풀어서 누구나 꺼낼 수 있어요</p></article>
@@ -462,24 +456,10 @@ activityFeed                     <em>친구 활동 한 줄</em></pre>
       <p class="why-line">계정을 먼저 지우면 보안 규칙이 삭제를 허용하지 않아서, 데이터를 먼저 지워요</p></article>
   </div>
 
-  <div class="p3bot">
-    <div class="card">
-      <h3 class="ttl">트러블슈팅</h3>
-      <table class="fix">
-        <tr><th>문제</th><th>원인과 해결</th></tr>
-        <tr><td>App Store 반려<br><small>(2.1 · Apple 로그인 오류)</small></td><td>Firebase의 <b>Apple 제공자 서버 설정</b>이 빠져 있었어요 → 서비스 ID · 키를 설정하고, 삭제 때 <b>토큰 철회</b>까지 구현해 재제출 · 승인</td></tr>
-        <tr><td>삭제 후에도 친구 · 챌린지 · 활동 기록이 남음</td><td>저장 단계에서 빠뜨린 데이터를 찾아 <b>저장소 삭제 기능 + 보안 규칙(본인 삭제 허용) + 처방침 문구</b>를 함께 고침</td></tr>
-        <tr><td>한 번에 처리할 수 있는 개수 한도</td><td>삭제는 <b>300개씩 배치</b>, <b>whereIn은 30개씩</b> 나눠 조회</td></tr>
-        <tr><td>로그아웃 후 이전 계정의 값이 남음<br><small>(약관 동의 · 공개 범위)</small></td><td>다음 계정이 <b>민감 정보 동의를 물려받는</b> 문제 → 로그아웃 때 초기 상태로 되돌리도록 수정</td></tr>
-      </table>
-    </div>
-    <div class="card">
-      <h3 class="ttl">한계와 다음 단계</h3>
-      <ul class="road">
-        <li><b>규칙 세분화</b> — 수정 가능한 필드를 더 좁히기</li>
-      </ul>
-      <p class="how">DB · 백엔드는 <b>처음부터 작은 단위로 다시 구현</b>해 보며 공부하고 있어요 — 인증 → 저장 → 보안 규칙 → 서버 함수 → 계정 삭제 순서로요.</p>
-    </div>
+  <div class="card" style="margin-top:16px">
+    <h3 class="ttl">트러블슈팅</h3>
+    <p class="how" style="margin:0 0 6px">App Store 반려, 계정 삭제 뒤 남는 데이터, 기록 삭제 버그, 빌드 · 배포 문제 등 <b>막혔던 일 10가지</b>를 문제 → 원인 → 해결 순서로 따로 정리했어요.</p>
+    <p style="margin:0;font-size:15px;font-weight:700"><a href="troubleshooting/">cr-kstar.github.io/diet_project/troubleshooting/</a></p>
   </div>
 
   <div class="contact">
