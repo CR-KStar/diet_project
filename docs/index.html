@@ -255,7 +255,7 @@
       <div class="row" style="display:flex;flex-wrap:wrap;gap:8px">
         <a class="chip live" href="https://apps.apple.com/kr/app/id6818954921" target="_blank" rel="noopener">App Store 출시</a>
         <span class="chip live">Google Play 출시 심사 중</span>
-        <a class="chip live" href="https://meatgreen.web.app" target="_blank" rel="noopener">웹 앱 운영</a>
+        <a class="chip live" href="https://meatgreen.web.app" target="_blank" rel="noopener">웹 앱 배포</a>
       </div>
       <p class="how">다음 쪽부터 앱 화면과 구조, 해결한 문제를 소개해요.</p>
     </div>
@@ -295,6 +295,7 @@
       <div class="row">
         <a class="chip live" href="https://apps.apple.com/kr/app/id6818954921" target="_blank" rel="noopener">App Store 출시 (2026.10.16)</a>
         <span class="chip live">Google Play 출시 심사 중</span>
+        <a class="chip live" href="https://meatgreen.web.app" target="_blank" rel="noopener">웹 앱 배포</a>
       </div>
       <div class="row noprint">
         <button class="btn primary" id="demoBtn" type="button">▶ 앱 체험하기 (웹 데모)</button>
@@ -352,7 +353,7 @@
 <section class="page" id="page2">
   <div class="p2head">
     <h2>서버 구조와 문제 해결</h2>
-    <span class="chip">현재 상태 (2026년 10월): iOS 출시 · Android 출시 심사 중</span>
+    <span class="chip">현재 상태 (2026년 10월): iOS 출시 · 웹 앱 배포 · Android 출시 심사 중</span>
   </div>
 
   <div class="p2top">
@@ -369,7 +370,7 @@
         <div class="arr">→</div>
         <div class="node c"><b>🤖 Claude API</b>사진 → 영양 분석<br>(zod 스키마 강제)</div>
       </div>
-      <div class="rules">🛡 Firestore 보안 규칙 — 컬렉션마다 최소 권한 · 웹 체험판은 Firebase Hosting</div>
+      <div class="rules">🛡 Firestore 보안 규칙 — 컬렉션마다 최소 권한 · 웹 앱 · 웹 체험판은 Firebase Hosting으로 배포</div>
       <div class="col">공유 컬렉션: publicProfiles · inviteCodes · friendRequests · friendships · challenges · challengeProgress · activityFeed</div>
     </div>
     <div class="card">
@@ -377,7 +378,7 @@
       <ul class="rel">
         <li><span class="chip live">iOS</span><div><b>App Store 출시 (2026.10.16)</b><small>심사 반려 2건을 원인 분석 · 수정 후 재제출해 승인</small></div></li>
         <li><span class="chip">Android</span><div><b>Google Play 출시 심사 중</b><small>비공개 테스트를 마치고 프로덕션 출시를 신청</small></div></li>
-        <li><span class="chip live">Web</span><div><b>웹 앱 · 웹 체험판 운영</b><small>Firebase Hosting — 로그인하는 웹 앱과 체험판을 따로 배포</small></div></li>
+        <li><span class="chip live">Web</span><div><b>웹 앱 배포 (meatgreen.web.app) · 웹 체험판</b><small>Firebase Hosting — Google 로그인으로 쓰는 웹 앱과 로그인 없는 체험판을 따로 배포</small></div></li>
       </ul>
     </div>
   </div>
@@ -546,7 +547,7 @@ activityFeed                     <em>친구 활동 한 줄</em></pre>
       <a href="privacy/">개인정보 처리방침</a>
     </div>
   </div>
-  <p class="foot">※ iOS는 2026년 10월 16일 App Store에 출시했고, Android는 Google Play 출시 심사를 진행 중이에요(2026년 10월 기준).</p>
+  <p class="foot">※ iOS는 2026년 10월 16일 App Store에 출시했고, 웹 앱은 Firebase Hosting으로 배포했고, Android는 Google Play 출시 심사를 진행 중이에요(2026년 10월 기준).</p>
 </section>
 
 <script>
