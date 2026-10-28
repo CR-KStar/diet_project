@@ -6,7 +6,7 @@
   <title>권채린 · Flutter 앱 개발 포트폴리오</title>
   <meta name="description" content="권채린 포트폴리오 — 식단 기록 앱 '밋그린'을 기획부터 스토어 제출까지 진행한 Flutter 앱 개발 프로젝트">
   <meta property="og:title" content="권채린 · Flutter 앱 개발 포트폴리오">
-  <meta property="og:description" content="식단 기록 앱 '밋그린' — 기획, 구현, 서버, 테스트, 스토어 심사 대응까지">
+  <meta property="og:description" content="식단 기록 앱 '밋그린' — 기획, 구현, 서버, 스토어 출시와 심사 대응까지">
   <meta property="og:image" content="https://cr-kstar.github.io/diet_project/portfolio/icon.png">
   <meta name="theme-color" content="#EEF5EE">
   <link rel="icon" href="portfolio/favicon.png">
@@ -45,7 +45,32 @@
     .btn.primary { background: var(--g); border-color: var(--g); color: #fff; }
     .btn:hover { text-decoration: none; transform: translateY(-1px); }
 
-    /* ─ 1쪽 ─ */
+    /* ─ 자기소개 ─ */
+    .p0 { display: grid; grid-template-columns: 5fr 7fr; gap: 16px; }
+    .me { display: flex; flex-direction: column; }
+    .me h2 { margin: 0 0 8px; font-size: 17px; font-weight: 700; color: var(--muted); }
+    .me h1 { margin: 0 0 18px; font-size: clamp(42px, 6.2vw, 74px); line-height: 1.1; font-weight: 900; letter-spacing: -.03em; color: var(--g-dark); }
+    .me p.lead { margin: 0 0 12px; font-size: 15.5px; color: var(--ink); line-height: 1.75; }
+    .meta { margin-top: auto; padding-top: 14px; display: grid; gap: 7px; font-size: 14px; }
+    .meta div { display: grid; grid-template-columns: 72px 1fr; gap: 8px; }
+    .meta span { color: var(--muted); font-weight: 700; font-size: 12.5px; }
+    .pts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .pt i { font-style: normal; font-size: 30px; display: grid; place-items: center; width: 54px; height: 54px; border-radius: 16px; background: var(--g-soft); margin-bottom: 12px; }
+    .pt h3 { margin: 0 0 6px; font-size: 18px; letter-spacing: -.01em; }
+    .pt p { margin: 0; font-size: 14px; line-height: 1.7; color: var(--muted); }
+    .pt p b { color: var(--ink); }
+    .p0bot { display: grid; grid-template-columns: 1fr 1.1fr 1.2fr; gap: 16px; margin-top: 16px; }
+    .pm { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; }
+    .pm img { width: 72px; height: 72px; border-radius: 18px; box-shadow: var(--shadow); flex: none; }
+    .pm b { display: block; font-size: 17px; }
+    .pm span { font-size: 13px; color: var(--muted); line-height: 1.55; display: block; }
+    .grp { display: grid; grid-template-columns: 64px 1fr; gap: 10px; align-items: start; margin-bottom: 10px; }
+    .grp > span { font-size: 12px; font-weight: 700; color: var(--g-dark); padding-top: 5px; }
+    .split2 { display: grid; grid-template-columns: 1.15fr .85fr; gap: 16px; margin-top: 10px; }
+    .split2 h4 { margin: 0 0 6px; font-size: 13.5px; }
+    .split2 .why { font-size: 12.5px; }
+
+    /* ─ 프로젝트 소개 ─ */
     .p1 { display: grid; grid-template-columns: 5fr 7fr; gap: 16px; }
     .hero h2 { margin: 0 0 6px; font-size: 17px; font-weight: 700; color: var(--muted); }
     .hero h1 { margin: 0 0 12px; font-size: clamp(38px, 5.4vw, 60px); line-height: 1.12; font-weight: 900; letter-spacing: -.03em; color: var(--g-dark); }
@@ -56,12 +81,14 @@
     .tile i { display: block; font-style: normal; font-size: 26px; margin-bottom: 4px; }
     .hero .row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
 
-    .shots h3 { margin: 0 0 10px; }
-    .phones5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+    .stackcol { display: grid; gap: 16px; align-content: start; }
+    .shots { margin-top: 16px; }
+    .shots h3 { margin: 0 0 12px; }
+    .phones5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; }
     .ph figure { margin: 0; text-align: center; }
-    .ph figcaption { font-size: 12.5px; font-weight: 700; margin-bottom: 7px; }
-    .frame { background: #151917; border-radius: 22px; padding: 4px; box-shadow: var(--shadow); }
-    .frame img { display: block; width: 100%; aspect-ratio: 560 / 1127; object-fit: cover; border-radius: 18px; }
+    .ph figcaption { font-size: 14px; font-weight: 700; margin-bottom: 9px; }
+    .frame { background: #151917; border-radius: 28px; padding: 5px; box-shadow: var(--shadow); max-width: 300px; margin: 0 auto; }
+    .frame img { display: block; width: 100%; aspect-ratio: 560 / 1127; object-fit: cover; border-radius: 23px; }
 
     .feat { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
     .feat li { display: grid; grid-template-columns: 38px 1fr; gap: 10px; align-items: center; padding: 9px 10px; border-radius: 14px; background: var(--g-tint); border: 1px solid var(--line); }
@@ -78,12 +105,6 @@
     .axes { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
     .axes span { padding: 5px 10px; border-radius: 10px; font-size: 12px; font-weight: 700; background: var(--g-tint); border: 1px solid var(--line); }
 
-    .row3 { display: grid; grid-template-columns: 1fr 1.3fr; gap: 16px; margin-top: 16px; }
-    .sw { display: flex; gap: 10px; flex-wrap: wrap; }
-    .sw div { text-align: center; font-size: 10.5px; color: var(--muted); }
-    .sw b { display: block; width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 4px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); }
-    .icons { display: flex; gap: 12px; flex-wrap: wrap; font-size: 26px; }
-    .icons small { display: block; width: 100%; font-size: 12px; color: var(--muted); margin-top: 4px; }
     .tags { display: flex; flex-wrap: wrap; gap: 6px; }
     .tag { font-size: 12px; padding: 4px 10px; border-radius: 9px; background: var(--g-tint); border: 1px solid var(--line); font-weight: 500; }
     .how { font-size: 12.5px; margin: 10px 0 0; color: var(--muted); }
@@ -117,10 +138,11 @@
     .stack .node { text-align: left; } .arr { text-align: center; color: var(--g); font-weight: 900; font-size: 18px; }
     .rules { margin-top: 10px; padding: 9px 12px; border-radius: 12px; background: var(--g-soft); font-size: 12.5px; text-align: center; font-weight: 500; }
     .col { margin-top: 8px; font-size: 12px; color: var(--muted); }
-    .nums { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .num { background: var(--g-tint); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; }
-    .num b { font-size: 30px; line-height: 1.1; font-weight: 900; color: var(--g-dark); display: block; }
-    .num span { font-size: 12px; color: var(--muted); }
+    .rel { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+    .rel li { display: grid; grid-template-columns: 74px 1fr; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 14px; background: var(--g-tint); border: 1px solid var(--line); }
+    .rel .chip { justify-content: center; }
+    .rel b { display: block; font-size: 14px; }
+    .rel small { font-size: 12.5px; color: var(--muted); }
 
     .cards6 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 16px; }
     .cs { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 16px 18px; box-shadow: var(--shadow); }
@@ -165,13 +187,14 @@
     .fix tr:last-child td { border-bottom: 0; }
     .fix b { color: var(--ink); }
 
+    .p0 > *, .p0bot > *, .p1 > *, .p2top > *, .p2bot > *, .p3top > *, .p3bot > * { min-width: 0; }
     @media screen and (max-width: 1000px) {
-      .p1, .p2top, .p2bot, .p3top, .p3bot, .how-grid { grid-template-columns: 1fr; }
-      .row3 { grid-template-columns: 1fr 1fr; } .cards6, .flows3 { grid-template-columns: 1fr 1fr; }
+      .p0, .p0bot, .p1, .p2top, .p2bot, .p3top, .p3bot, .how-grid { grid-template-columns: 1fr; }
+      .cards6, .flows3 { grid-template-columns: 1fr 1fr; }
     }
     @media screen and (max-width: 640px) {
       .page { padding: 18px 14px 28px; }
-      .tiles { grid-template-columns: 1fr 1fr; } .row3, .cards6, .flows3, .nums { grid-template-columns: 1fr; }
+      .tiles { grid-template-columns: 1fr 1fr; } .cards6, .flows3, .pts, .split2 { grid-template-columns: 1fr; }
       .layer { grid-template-columns: 1fr; gap: 2px; }
       .phones5 { grid-template-columns: repeat(5, 46%); overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; }
       .phones5 .ph { scroll-snap-align: start; }
@@ -179,7 +202,7 @@
       .tl div::before { top: 10px; left: -8px; margin: 0; }
     }
 
-    /* 인쇄(PDF): A4 가로 2장 */
+    /* 인쇄(PDF): A4 가로 */
     @page { size: A4 landscape; margin: 7mm; }
     @media print {
       html { zoom: 0.56; }
@@ -187,24 +210,82 @@
       .page { max-width: none; padding: 0; } .page + .page { border: 0; page-break-before: always; }
       .noprint, .demo { display: none !important; }
       .card, .cs { box-shadow: none; } .frame { box-shadow: none; }
-      .page { padding: 0; } .card { padding: 16px 18px; } .p1, .row3 { gap: 12px; } .row3 { margin-top: 12px; }
+      .page { padding: 0; } .card { padding: 16px 18px; } .p1 { gap: 12px; }
       .feat { gap: 5px; } .feat li { padding: 6px 8px; } .hero h1 { font-size: 46px; }
       .layer { padding: 5px 8px; } .arch { gap: 3px; }
-      .frame img { aspect-ratio: 560 / 800; object-position: top; }
       .stage .em { font-size: 30px; } .axes { margin-top: 8px; }
-      .card, .cs, .num, .node { break-inside: avoid; }
+      .card, .cs, .node { break-inside: avoid; }
+      #page0 { zoom: 1.55; } #page2, #page3 { zoom: 1.1; }
     }
   </style>
 </head>
 <body>
 
-<!-- ───────────── 1쪽: 한눈에 보기 ───────────── -->
+<!-- ───────────── 1쪽: 자기소개 ───────────── -->
+<section class="page" id="page0">
+  <div class="p0">
+    <div class="card me">
+      <h2>Flutter 앱 개발 · 신입</h2>
+      <h1>안녕하세요,<br>권채린입니다</h1>
+      <p class="lead">식단 기록 앱 <b>‘밋그린’</b>을 기획부터 구현, 서버, 스토어 출시까지 한 사이클 직접 이끌어 본 신입 앱 개발자예요. 만드는 데서 끝내지 않고, 심사 반려나 계정 삭제 같은 실제 서비스에서 마주치는 문제까지 풀어 봤어요.</p>
+      <p class="lead">모르는 부분은 넘어가지 않고 작은 단위로 다시 만들어 보며 이해하는 편이에요. 지금도 백엔드 · DB를 처음부터 다시 구현하며 공부하고 있어요.</p>
+      <div class="meta">
+        <div><span>이메일</span><a href="mailto:kchaerin0811@gmail.com">kchaerin0811@gmail.com</a></div>
+        <div><span>GitHub</span><a href="https://github.com/CR-KStar/diet_project">github.com/CR-KStar/diet_project</a></div>
+        <div><span>앱 · 웹</span><span style="display:inline;font-weight:500;font-size:14px;color:var(--ink)"><a href="https://apps.apple.com/kr/app/id6818954921">App Store</a> · <a href="https://meatgreen.web.app">웹 앱</a> · <a href="https://diet-project-81ce1.web.app">웹 체험판</a></span></div>
+      </div>
+    </div>
+
+    <div class="pts">
+      <div class="card pt"><i>🚀</i><h3>끝까지 출시해요</h3>
+        <p>기획부터 App Store · Google Play 제출까지 진행했어요. 심사 반려 <b>2건</b>은 원인을 분석해 고치고 다시 제출해 <b>승인</b>받았어요.</p></div>
+      <div class="card pt"><i>🧱</i><h3>구조를 정리해요</h3>
+        <p>3,400줄이던 상태 클래스를 영역별 <b>ViewModel</b>로 나누고, 저장소를 <b>인터페이스 뒤</b>로 숨겨 화면과 데이터를 분리했어요.</p></div>
+      <div class="card pt"><i>🔍</i><h3>빠진 곳을 찾아요</h3>
+        <p>계정을 지워도 친구 · 챌린지 기록이 남는 문제를 직접 찾아서, 저장소 · 보안 규칙 · 처방침 문구를 <b>함께</b> 고쳤어요.</p></div>
+      <div class="card pt"><i>📚</i><h3>직접 다시 풀어 봐요</h3>
+        <p>백엔드 · DB는 인증 → 저장 → 보안 규칙 → 서버 함수 → 계정 삭제 순서로 <b>처음부터 작게 다시 구현</b>하며 공부하고 있어요.</p></div>
+    </div>
+  </div>
+
+  <div class="p0bot">
+    <div class="card">
+      <h3 class="ttl">대표 프로젝트</h3>
+      <div class="pm"><img src="portfolio/icon.png" alt="밋그린 앱 아이콘"><div><b>밋그린 (MEATGREEN)</b><span>식사 사진을 찍으면 AI가 칼로리와 영양소를 추정하고, 기록할수록 식물이 자라는 식단 기록 앱</span></div></div>
+      <div class="row" style="display:flex;flex-wrap:wrap;gap:8px">
+        <a class="chip live" href="https://apps.apple.com/kr/app/id6818954921" target="_blank" rel="noopener">App Store 출시</a>
+        <span class="chip live">Google Play 출시 심사 중</span>
+        <a class="chip live" href="https://meatgreen.web.app" target="_blank" rel="noopener">웹 앱 운영</a>
+      </div>
+      <p class="how">다음 쪽부터 앱 화면과 구조, 해결한 문제를 소개해요.</p>
+    </div>
+    <div class="card">
+      <h3 class="ttl">기술 스택</h3>
+      <div class="grp"><span>앱</span><div class="tags"><span class="tag">Flutter / Dart</span><span class="tag">Provider</span><span class="tag">ViewModel · Repository</span></div></div>
+      <div class="grp"><span>서버</span><div class="tags"><span class="tag">Firebase Auth</span><span class="tag">Firestore</span><span class="tag">Cloud Functions (TS)</span><span class="tag">Firebase Hosting</span></div></div>
+      <div class="grp"><span>AI · 인증</span><div class="tags"><span class="tag">Claude API</span><span class="tag">Sign in with Apple / Google</span></div></div>
+      <div class="grp"><span>도구</span><div class="tags"><span class="tag">Git / GitHub</span><span class="tag">GitHub Pages</span><span class="tag">Claude Code</span></div></div>
+    </div>
+    <div class="card">
+      <h3 class="ttl">AI와 함께 일하는 방식</h3>
+      <p class="how" style="margin-top:0"><b>Claude Code와 협업</b>해 개발했어요. 무엇을 만들지 정하고, 결과를 확인하고, 구조를 잡는 일은 제가 맡았어요.</p>
+      <div class="split2">
+        <div><h4>직접 한 일</h4>
+          <ul class="why"><li>기획 방향 · 결과 검증</li><li><b>아키텍처 구조 분리</b> (ViewModel · Repository)</li><li><b>DB · 백엔드 설계</b> — 데이터 모델링 · 보안 규칙 · Cloud Functions · 인증과 계정 삭제 흐름</li><li>스토어 배포 · 심사 대응</li></ul></div>
+        <div><h4>AI가 도운 일</h4>
+          <ul class="why"><li>구현 코드 작성 보조</li><li>앱 아이콘 캐릭터 생성</li></ul></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── 2쪽: 프로젝트 소개 ───────────── -->
 <section class="page" id="page1">
   <div class="p1">
     <div class="card hero">
       <h2>식단 · 운동 · 체중 기록과 식물 키우기를 한 앱에서</h2>
       <h1>식단 기록 앱 개발<small>밋그린 (MEATGREEN)</small></h1>
-      <p class="lead">식사 사진을 찍으면 AI가 칼로리와 영양소를 추정하고, 기록할수록 식물이 자라요. 기획부터 구현, 서버, 테스트, <b>App Store · Google Play 제출과 심사 대응</b>까지 한 사이클을 만들었어요.</p>
+      <p class="lead">식사 사진을 찍으면 AI가 칼로리와 영양소를 추정하고, 기록할수록 식물이 자라요. 기획부터 구현, 서버, <b>App Store · Google Play 제출과 심사 대응</b>까지 한 사이클을 만들었어요.</p>
       <div class="tiles">
         <div class="tile"><i>📷</i>사진 한 장으로<br>간편 기록</div>
         <div class="tile"><i>📊</i>목표 대비<br>한눈에 확인</div>
@@ -213,7 +294,7 @@
       </div>
       <div class="row">
         <a class="chip live" href="https://apps.apple.com/kr/app/id6818954921" target="_blank" rel="noopener">App Store 출시 (2026.10.16)</a>
-        <span class="chip live">Google Play 비공개 테스트 중</span>
+        <span class="chip live">Google Play 출시 심사 중</span>
       </div>
       <div class="row noprint">
         <button class="btn primary" id="demoBtn" type="button">▶ 앱 체험하기 (웹 데모)</button>
@@ -224,32 +305,15 @@
       <div class="muted" style="font-size:13px"><b style="color:var(--ink)">권채린</b> · Flutter 앱 개발 · 신입 · kchaerin0811@gmail.com</div>
     </div>
 
-    <div class="card shots">
-      <h3 class="ttl">핵심 화면 (실제 앱 화면)</h3>
-      <div class="phones5">
-        <div class="ph"><figure><figcaption>홈 (오늘)</figcaption><div class="frame"><img src="portfolio/home.jpg" alt="홈 화면"></div></figure></div>
-        <div class="ph"><figure><figcaption>식단 기록</figcaption><div class="frame"><img src="portfolio/records.jpg" alt="기록 화면"></div></figure></div>
-        <div class="ph"><figure><figcaption>리포트 (주간)</figcaption><div class="frame"><img src="portfolio/report.jpg" alt="리포트 화면"></div></figure></div>
-        <div class="ph"><figure><figcaption>식물 성장</figcaption><div class="frame"><img src="portfolio/plant.jpg" alt="식물 화면"></div></figure></div>
-        <div class="ph"><figure><figcaption>친구 · 챌린지</figcaption><div class="frame"><img src="portfolio/challenge.jpg" alt="챌린지 화면"></div></figure></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="demo" id="demo">
-    <iframe id="demoFrame" title="밋그린 웹 체험판" loading="lazy" data-src="https://diet-project-81ce1.web.app"></iframe>
-    <p class="foot" style="text-align:center">웹 체험판 · 예시 데이터로 둘러볼 수 있어요. 로그인과 AI 사진 분석은 앱에서 가능해요.</p>
-  </div>
-
-  <div class="p1" style="margin-top:16px;grid-template-columns:5fr 7fr">
+    <div class="stackcol">
     <div class="card">
       <h3 class="ttl">주요 특징 (구현한 기능)</h3>
       <ul class="feat">
-        <li><i>📸</i><div><b>식사 사진 AI 분석</b><span>사진으로 음식명, 칼로리, 영양소 8종 추정</span></div></li>
+        <li><i>📸</i><div><b>식사 사진 AI 분석</b><span>사진으로 음식명, 칼로리, 영양소 8종 추정 · 사진은 내 기기에만 보관</span></div></li>
         <li><i>🎯</i><div><b>하루 목표 관리</b><span>기초대사량 기반 권장 칼로리와 영양소 진행률</span></div></li>
-        <li><i>📈</i><div><b>기록 &amp; 리포트</b><span>식단·물·운동·체중 기록, 주간·월간 변화 그래프</span></div></li>
+        <li><i>📈</i><div><b>기록 &amp; 리포트</b><span>식단·물·운동·체중 기록(수정 · 삭제), 주간·월간 변화 그래프</span></div></li>
         <li><i>🪴</i><div><b>식물 성장 보상</b><span>기록할수록 EXP가 쌓여 5단계로 성장, 도감 수집</span></div></li>
-        <li><i>🤝</i><div><b>친구 &amp; 챌린지</b><span>초대 코드로 친구 추가, 챌린지와 활동 피드</span></div></li>
+        <li><i>🤝</i><div><b>친구 &amp; 챌린지</b><span>초대 코드로 친구 추가 · 친구 관리(삭제 · 차단 · 신고), 챌린지와 활동 피드</span></div></li>
       </ul>
     </div>
     <div class="card">
@@ -263,54 +327,32 @@
       </div>
       <div class="axes"><span>💧 물 주기 ← 물 기록</span><span>☀️ 햇빛 ← 운동 기록</span><span>🧺 영양 ← 식단 기록</span><span>⚠️ 기록을 이틀 쉬면 시들고, 기록하면 회복</span></div>
     </div>
-  </div>
-
-  <div class="row3">
-    <div class="card"><h3 class="ttl">색상 팔레트</h3>
-      <div class="sw">
-        <div><b style="background:#4CAF50"></b>#4CAF50</div><div><b style="background:#A8E0A2"></b>#A8E0A2</div>
-        <div><b style="background:#FFD566"></b>#FFD566</div><div><b style="background:#FFB74D"></b>#FFB74D</div>
-        <div><b style="background:#FF8A65"></b>#FF8A65</div><div><b style="background:#F5F8F5"></b>#F5F8F5</div>
-      </div>
-      <p class="how" style="margin-top:8px">Flutter 아이콘 · 색/간격/글자를 디자인 토큰으로 관리</p></div>
-    <div class="card"><h3 class="ttl">기술 스택</h3>
-      <div class="tags"><span class="tag">Flutter / Dart</span><span class="tag">Provider</span><span class="tag">Firebase Auth</span><span class="tag">Firestore</span><span class="tag">Cloud Functions (TS)</span><span class="tag">Claude API</span><span class="tag">Sign in with Apple/Google</span></div></div>
-
-  </div>
-
-  <div class="card" style="margin-top:16px">
-    <h3 class="ttl">만든 방식 · 앱 아키텍처</h3>
-    <div class="how-grid">
-      <div>
-        <div class="arch">
-          <div class="layer"><b>UI</b><span>화면 위젯 (홈 · 기록 · 리포트 · 식물 · 친구) · 디자인 토큰</span></div>
-          <div class="down">▼ 상태 구독 (Provider)</div>
-          <div class="layer"><b>상태</b><span>ViewModel 21개(식단 · 운동 · 식물 · 친구 · 화면 이동 …) — 화면이 각자 구독 + AppState(여러 기능 연결)</span></div>
-          <div class="down">▼ 인터페이스 호출</div>
-          <div class="layer"><b>Repository</b><span>저장소 인터페이스 → <b style="color:var(--ink)">Firestore 구현 / 메모리 구현</b> (테스트 · 웹 데모)</span></div>
-          <div class="down">▼</div>
-          <div class="layer"><b>서비스</b><span>인증 · AI 분석 · 알림 · 앱 아이콘 (Firebase, Cloud Functions)</span></div>
-          <div class="layer dom"><b>모델</b><span>domain/models — 모든 모델이 id · userId를 가지고, 코덱이 저장 형식으로 변환</span></div>
-        </div>
-      </div>
-      <div>
-        <ul class="why">
-          <li><b>인터페이스 뒤에 저장소를 숨겨서</b> 서버 없이 테스트하고 웹 체험판을 만들 수 있어요</li>
-          <li><b>시계를 주입</b>해 날짜가 걸린 기능도 테스트로 고정해요</li>
-          <li>화면은 상태만 구독하고, <b>저장 · 서버 접근은 Repository 뒤</b>로 모았어요</li>
-          <li>3,400줄 상태 클래스를 영역별 <b>ViewModel 21개로 분리</b>했어요 (AppState는 약 1,300줄 · 여러 기능을 엮는 연결만)</li>
-        </ul>
-        <p class="how"><b>Claude Code와 협업해 개발</b>했고, 기획 방향과 검증, <b>아키텍처 구조 분리(ViewModel·Repository)</b>, <b>DB·백엔드 설계(Firestore 데이터 모델링 · 보안 규칙 · Cloud Functions · 인증과 계정 삭제 흐름)</b>, 스토어 배포, 심사 대응은 직접 진행했어요. DB·백엔드는 지금 처음부터 다시 구현해 보며 더 깊이 공부하고 있어요. 앱 아이콘 캐릭터는 AI로 생성했어요.</p>
-      </div>
     </div>
   </div>
+
+  <div class="demo" id="demo">
+    <iframe id="demoFrame" title="밋그린 웹 체험판" loading="lazy" data-src="https://diet-project-81ce1.web.app"></iframe>
+    <p class="foot" style="text-align:center">웹 체험판 · 예시 데이터로 둘러볼 수 있어요. 로그인과 AI 사진 분석은 앱에서 가능해요.</p>
+  </div>
+
+  <div class="card shots">
+    <h3 class="ttl">핵심 화면 (실제 앱 화면)</h3>
+    <div class="phones5">
+      <div class="ph"><figure><figcaption>홈 (오늘)</figcaption><div class="frame"><img src="portfolio/home.jpg" alt="홈 화면"></div></figure></div>
+      <div class="ph"><figure><figcaption>식단 기록</figcaption><div class="frame"><img src="portfolio/records.jpg" alt="기록 화면"></div></figure></div>
+      <div class="ph"><figure><figcaption>리포트 (주간)</figcaption><div class="frame"><img src="portfolio/report.jpg" alt="리포트 화면"></div></figure></div>
+      <div class="ph"><figure><figcaption>식물 성장</figcaption><div class="frame"><img src="portfolio/plant.jpg" alt="식물 화면"></div></figure></div>
+      <div class="ph"><figure><figcaption>친구 · 챌린지</figcaption><div class="frame"><img src="portfolio/challenge.jpg" alt="챌린지 화면"></div></figure></div>
+    </div>
+    </div>
+
 </section>
 
-<!-- ───────────── 2쪽: 서버 구조와 문제 해결 ───────────── -->
+<!-- ───────────── 3쪽: 서버 구조와 문제 해결 ───────────── -->
 <section class="page" id="page2">
   <div class="p2head">
     <h2>서버 구조와 문제 해결</h2>
-    <span class="chip">현재 상태 (2026년 10월): iOS 출시 · Android 비공개 테스트 중</span>
+    <span class="chip">현재 상태 (2026년 10월): iOS 출시 · Android 출시 심사 중</span>
   </div>
 
   <div class="p2top">
@@ -331,19 +373,44 @@
       <div class="col">공유 컬렉션: publicProfiles · inviteCodes · friendRequests · friendships · challenges · challengeProgress · activityFeed</div>
     </div>
     <div class="card">
-      <h3 class="ttl">숫자로 보기</h3>
-      <div class="nums">
-        <div class="num"><b>494</b><span>자동 테스트 (모두 통과)</span></div>
-        <div class="num"><b>2건</b><span>App Store 반려 → 수정 후 승인·출시</span></div>
-        <div class="num"><b>12명</b><span>Google Play 비공개 테스트</span></div>
-        <div class="num"><b>8개</b><span>컬렉션별 보안 규칙 (내 기록 + 공유 7)</span></div>
+      <h3 class="ttl">출시 현황</h3>
+      <ul class="rel">
+        <li><span class="chip live">iOS</span><div><b>App Store 출시 (2026.10.16)</b><small>심사 반려 2건을 원인 분석 · 수정 후 재제출해 승인</small></div></li>
+        <li><span class="chip">Android</span><div><b>Google Play 출시 심사 중</b><small>비공개 테스트를 마치고 프로덕션 출시를 신청</small></div></li>
+        <li><span class="chip live">Web</span><div><b>웹 앱 · 웹 체험판 운영</b><small>Firebase Hosting — 로그인하는 웹 앱과 체험판을 따로 배포</small></div></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3 class="ttl">만든 방식 · 앱 아키텍처</h3>
+    <div class="how-grid">
+      <div>
+        <div class="arch">
+          <div class="layer"><b>UI</b><span>화면 위젯 (홈 · 기록 · 리포트 · 식물 · 친구) · 디자인 토큰</span></div>
+          <div class="down">▼ 상태 구독 (Provider)</div>
+          <div class="layer"><b>상태</b><span>ViewModel 21개(식단 · 운동 · 식물 · 친구 · 화면 이동 …) — 화면이 각자 구독 + AppState(여러 기능 연결)</span></div>
+          <div class="down">▼ 인터페이스 호출</div>
+          <div class="layer"><b>Repository</b><span>저장소 인터페이스 → <b style="color:var(--ink)">Firestore 구현 / 메모리 구현</b> (테스트 · 웹 데모)</span></div>
+          <div class="down">▼</div>
+          <div class="layer"><b>서비스</b><span>인증 · AI 분석 · 알림 · 앱 아이콘 (Firebase, Cloud Functions)</span></div>
+          <div class="layer dom"><b>모델</b><span>domain/models — 모든 모델이 id · userId를 가지고, 코덱이 저장 형식으로 변환</span></div>
+        </div>
+      </div>
+      <div>
+        <ul class="why">
+          <li><b>인터페이스 뒤에 저장소를 숨겨서</b> 서버 없이 테스트하고 웹 체험판을 만들 수 있어요</li>
+          <li>화면은 상태만 구독하고, <b>저장 · 서버 접근은 Repository 뒤</b>로 모았어요</li>
+          <li>3,400줄 상태 클래스를 영역별 <b>ViewModel 21개로 분리</b>했어요 (AppState는 약 1,300줄 · 여러 기능을 엮는 연결만)</li>
+        </ul>
+        <p class="how"><b>Claude Code와 협업해 개발</b>했고, 기획 방향과 검증, <b>아키텍처 구조 분리(ViewModel·Repository)</b>, <b>DB·백엔드 설계(Firestore 데이터 모델링 · 보안 규칙 · Cloud Functions · 인증과 계정 삭제 흐름)</b>, 스토어 배포, 심사 대응은 직접 진행했어요. DB·백엔드는 지금 처음부터 다시 구현해 보며 더 깊이 공부하고 있어요. 앱 아이콘 캐릭터는 AI로 생성했어요.</p>
       </div>
     </div>
   </div>
 
   <div class="cards6">
     <article class="cs"><h3><em>01</em>스토어 제출과 심사 대응</h3>
-      <ul><li>iOS 서명 · TestFlight · App Privacy, Play 데이터 보안 · 개인 계정 <b>비공개 테스트(12명, 14일)</b></li>
+      <ul><li>iOS 서명 · TestFlight · App Privacy, Play 데이터 보안 · 개인 계정 <b>비공개 테스트</b>(테스터 12명 · 14일)</li>
       <li>반려 <b>2건</b>(건강 정보 출처 1.4.1, Apple 로그인 2.1)을 원인 분석 후 수정, 재제출해 <b>승인·출시</b></li></ul></article>
     <article class="cs"><h3><em>02</em>Firestore 모델링과 보안 규칙</h3>
       <ul><li>내 기록은 <b>users/{uid} 하위</b>, 함께 쓰는 데이터는 최상위로 분리</li>
@@ -355,10 +422,10 @@
       <li>외부 전송 전 <b>사용자 동의</b> 팝업</li></ul></article>
     <article class="cs"><h3><em>04</em>계정 수명주기와 데이터 삭제</h3>
       <ul><li>Apple 로그인 <b>nonce(SHA-256)</b>, 삭제 순서: 재인증 → 토큰 철회 → 데이터 삭제 → 계정 삭제</li>
-      <li>빠뜨린 소셜 데이터를 찾아 저장소 · <b>보안 규칙</b> · 처방침 문구를 함께 수정하고 테스트로 보호</li></ul></article>
-    <article class="cs"><h3><em>05</em>Repository 추상화와 테스트</h3>
-      <ul><li>저장소 인터페이스에 <b>Firestore · 메모리</b> 두 구현 → 서버 없이 테스트 · 웹 데모</li>
-      <li><b>시계 주입</b>으로 날짜를 고정하는 테스트, 3,400줄 상태 클래스를 영역별 ViewModel로 분리 완료</li></ul></article>
+      <li>빠뜨린 소셜 데이터를 찾아 저장소 · <b>보안 규칙</b> · 처방침 문구를 함께 수정</li></ul></article>
+    <article class="cs"><h3><em>05</em>Repository 추상화와 구조 분리</h3>
+      <ul><li>저장소 인터페이스에 <b>Firestore · 메모리</b> 두 구현 → 서버 없이 웹 데모 · 테스트</li>
+      <li>3,400줄 상태 클래스를 영역별 <b>ViewModel</b>로 분리 완료</li></ul></article>
     <article class="cs"><h3><em>06</em>사용자 경험의 세부 완성도</h3>
       <ul><li>기록 여부에 따라 바뀌는 <b>동적 앱 아이콘</b>(iOS 대체 아이콘 · Android activity-alias)</li>
       <li>글자 크기 배율 · 디자인 토큰 · 화면 오버플로 점검, 로그인 없는 <b>웹 체험판</b></li></ul></article>
@@ -369,25 +436,24 @@
       <h3 class="ttl">개발 · 배포 흐름</h3>
       <div class="tl">
         <div><b>설계·구현</b>Flutter + Firebase</div>
-        <div><b>테스트</b>494개 통과</div>
+        <div><b>검증</b>자동 테스트로 점검</div>
         <div><b>내부 배포</b>TestFlight · Play 내부</div>
         <div><b>App Store 출시</b>반려 2건 수정 후 승인</div>
-        <div class="now"><b>Play</b>비공개 테스트 진행 중</div>
+        <div class="now"><b>Play</b>출시 심사 중</div>
       </div>
     </div>
     <div class="card">
       <h3 class="ttl">다음 계획</h3>
       <ul class="road">
         <li><b>테마(ThemeData)</b> 정리 · 큰 화면 파일 쪼개기</li>
-        <li><b>보안 규칙 테스트</b> (에뮬레이터)</li>
-        <li>친구 삭제 · 신고 기능</li>
+        <li><b>보안 규칙 세분화</b> — 수정 가능한 필드를 더 좁히기</li>
       </ul>
     </div>
   </div>
 
 </section>
 
-<!-- ───────────── 3쪽: 백엔드 · DB 설계 ───────────── -->
+<!-- ───────────── 4쪽: 백엔드 · DB 설계 ───────────── -->
 <section class="page" id="page3">
   <div class="p2head">
     <h2>백엔드 · DB 설계</h2>
@@ -411,7 +477,7 @@ activityFeed                     <em>친구 활동 한 줄</em></pre>
         <li>내 기록은 <b>users/{uid} 아래</b> → 규칙 한 줄로 하위 전체를 보호</li>
         <li>사용자 <b>사이의 관계</b>(친구 · 챌린지)는 한 사람 아래에 둘 수 없어서 최상위로 분리</li>
         <li>날짜는 <b>'yyyy-MM-dd' 문자열</b>(dateKey) → 사전순이 곧 시간순이라 월 범위 조회가 <b>색인 없이</b> 한 필드 조건으로 됨</li>
-        <li>모델 ↔ 저장 형식 변환은 <b>codec</b>이 맡고, 예전 형식 · 깨진 값도 읽도록 테스트로 고정</li>
+        <li>모델 ↔ 저장 형식 변환은 <b>codec</b>이 맡고, 예전 형식 · 깨진 값도 읽도록 처리</li>
       </ul>
     </div>
     <div class="card">
@@ -455,17 +521,15 @@ activityFeed                     <em>친구 활동 한 줄</em></pre>
       <table class="fix">
         <tr><th>문제</th><th>원인과 해결</th></tr>
         <tr><td>App Store 반려<br><small>(2.1 · Apple 로그인 오류)</small></td><td>Firebase의 <b>Apple 제공자 서버 설정</b>이 빠져 있었어요 → 서비스 ID · 키를 설정하고, 삭제 때 <b>토큰 철회</b>까지 구현해 재제출 · 승인</td></tr>
-        <tr><td>삭제 후에도 친구 · 챌린지 · 활동 기록이 남음</td><td>저장 단계에서 빠뜨린 데이터를 찾아 <b>저장소 삭제 기능 + 보안 규칙(본인 삭제 허용) + 처방침 문구</b>를 함께 고치고 테스트로 보호</td></tr>
+        <tr><td>삭제 후에도 친구 · 챌린지 · 활동 기록이 남음</td><td>저장 단계에서 빠뜨린 데이터를 찾아 <b>저장소 삭제 기능 + 보안 규칙(본인 삭제 허용) + 처방침 문구</b>를 함께 고침</td></tr>
         <tr><td>한 번에 처리할 수 있는 개수 한도</td><td>삭제는 <b>300개씩 배치</b>, <b>whereIn은 30개씩</b> 나눠 조회</td></tr>
-        <tr><td>로그아웃 후 이전 계정의 값이 남음<br><small>(약관 동의 · 공개 범위)</small></td><td>다음 계정이 <b>민감 정보 동의를 물려받는</b> 문제 → 로그아웃 때 초기 상태로 되돌리고 테스트로 고정</td></tr>
+        <tr><td>로그아웃 후 이전 계정의 값이 남음<br><small>(약관 동의 · 공개 범위)</small></td><td>다음 계정이 <b>민감 정보 동의를 물려받는</b> 문제 → 로그아웃 때 초기 상태로 되돌리도록 수정</td></tr>
       </table>
     </div>
     <div class="card">
       <h3 class="ttl">한계와 다음 단계</h3>
       <ul class="road">
-        <li><b>보안 규칙 자동 테스트</b> — 에뮬레이터로 "허용 · 거부"를 고정</li>
         <li><b>규칙 세분화</b> — 수정 가능한 필드를 더 좁히기</li>
-        <li>친구 삭제 · 신고 기능</li>
       </ul>
       <p class="how">DB · 백엔드는 <b>처음부터 작은 단위로 다시 구현</b>해 보며 공부하고 있어요 — 인증 → 저장 → 보안 규칙 → 서버 함수 → 계정 삭제 순서로요.</p>
     </div>
@@ -482,7 +546,7 @@ activityFeed                     <em>친구 활동 한 줄</em></pre>
       <a href="privacy/">개인정보 처리방침</a>
     </div>
   </div>
-  <p class="foot">※ iOS는 2026년 10월 16일 App Store에 출시했고, Android는 Google Play 비공개 테스트를 진행 중이에요(일반 공개 전). 수치는 2026년 10월 기준이에요.</p>
+  <p class="foot">※ iOS는 2026년 10월 16일 App Store에 출시했고, Android는 Google Play 출시 심사를 진행 중이에요(2026년 10월 기준).</p>
 </section>
 
 <script>
