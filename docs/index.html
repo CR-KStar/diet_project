@@ -140,6 +140,7 @@
     .rel small { font-size: 12.5px; color: var(--muted); }
 
     .cards6 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 16px; }
+    .cards6 .cs:last-child:nth-child(5) { grid-column: span 2; }
     .cs { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 16px 18px; box-shadow: var(--shadow); }
     .cs h3 { margin: 0 0 6px; font-size: 15.5px; line-height: 1.35; }
     .cs h3 em { font-style: normal; color: var(--g); font-weight: 900; margin-right: 6px; }
@@ -189,7 +190,7 @@
     }
     @media screen and (max-width: 640px) {
       .page { padding: 18px 14px 28px; }
-      .tiles { grid-template-columns: 1fr 1fr; } .cards6, .flows3 { grid-template-columns: 1fr; }
+      .tiles { grid-template-columns: 1fr 1fr; } .cards6, .flows3 { grid-template-columns: 1fr; } .cards6 .cs:last-child:nth-child(5) { grid-column: auto; }
       .layer { grid-template-columns: 1fr; gap: 2px; }
       .phones5 { grid-template-columns: repeat(5, 46%); overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; }
       .phones5 .ph { scroll-snap-align: start; }
@@ -359,26 +360,25 @@
   </div>
 
   <div class="cards6">
-    <article class="cs"><h3><em>01</em>스토어 제출과 심사 대응</h3>
-      <ul><li>iOS 서명 · TestFlight · App Privacy, Play 데이터 보안 · 개인 계정 <b>비공개 테스트</b>(테스터 12명 · 14일)</li>
-      <li>반려 <b>2건</b>(건강 정보 출처 1.4.1, Apple 로그인 2.1)을 원인 분석 후 수정, 재제출해 <b>승인·출시</b></li></ul></article>
-    <article class="cs"><h3><em>02</em>Firestore 모델링과 보안 규칙</h3>
-      <ul><li>내 기록은 <b>users/{uid} 하위</b>, 함께 쓰는 데이터는 최상위로 분리</li>
-      <li>컬렉션별 규칙(예: 친구 요청은 보낸 사람만 생성 · 받은 사람만 수락), 날짜를 <b>정렬 가능한 키</b>로 저장</li>
-      <li>한도 대응: 삭제 300개씩, <code>whereIn</code> 30개씩</li></ul></article>
-    <article class="cs"><h3><em>03</em>서버리스 AI 파이프라인</h3>
-      <ul><li>사진을 <b>서버 함수</b>로 보내 Claude가 음식 · 칼로리 · 영양소를 <b>정해진 JSON</b>으로 반환</li>
-      <li>API 키는 서버 Secret에만 보관, 한국어 이름 지시를 프롬프트와 스키마 양쪽에 반영</li>
-      <li>외부 전송 전 <b>사용자 동의</b> 팝업</li></ul></article>
-    <article class="cs"><h3><em>04</em>계정 수명주기와 데이터 삭제</h3>
-      <ul><li>Apple 로그인 <b>nonce(SHA-256)</b>, 삭제 순서: 재인증 → 토큰 철회 → 데이터 삭제 → 계정 삭제</li>
-      <li>빠뜨린 소셜 데이터를 찾아 저장소 · <b>보안 규칙</b> · 처방침 문구를 함께 수정</li></ul></article>
-    <article class="cs"><h3><em>05</em>Repository 추상화와 구조 분리</h3>
-      <ul><li>저장소 인터페이스에 <b>Firestore · 메모리</b> 두 구현 → 서버 없이 웹 데모 · 테스트</li>
-      <li>3,400줄 상태 클래스를 영역별 <b>ViewModel</b>로 분리 완료</li></ul></article>
-    <article class="cs"><h3><em>06</em>사용자 경험의 세부 완성도</h3>
+    <article class="cs"><h3><em>01</em>Firestore 데이터 구조와 보안 규칙</h3>
+      <ul><li>내 기록은 <b>users/{uid} 아래</b>에 두고, "로그인한 본인만 읽고 쓰기"로 막았어요.</li>
+      <li>친구·챌린지처럼 여럿이 보는 데이터는 <b>최상위 컬렉션</b>으로 빼고 규칙을 따로 줬어요. 친구 요청은 보낸 사람만 만들고 받은 사람만 수락해요.</li>
+      <li>날짜는 <b>"2026-10-30" 같은 문자열</b>로 저장해서, 날짜순 정렬과 기간 조회가 그대로 돼요.</li></ul></article>
+    <article class="cs"><h3><em>02</em>AI 식단 분석 (Cloud Functions)</h3>
+      <ul><li>앱은 Claude API를 직접 부르지 않고 <b>Cloud Functions를 거쳐요</b>. API 키는 서버 Secret에만 있어요.</li>
+      <li><b>로그인한 사용자만</b> 부를 수 있고, 사진 크기를 확인한 뒤 <b>하루 30회</b>까지만 처리해요.</li>
+      <li>응답은 <b>정해진 JSON 형식</b>(이름·칼로리·영양소·확신도)으로 받고, 확신이 낮으면 "확인 필요"로 표시해요.</li></ul></article>
+    <article class="cs"><h3><em>03</em>계정 삭제와 데이터 정리</h3>
+      <ul><li>계정을 지울 땐 <b>다시 로그인 확인 → Apple 토큰 철회 → 데이터 삭제 → 계정 삭제</b> 순서로 해요.</li>
+      <li>내 기록뿐 아니라 <b>친구·챌린지·활동 피드</b>처럼 다른 사람과 이어진 데이터도 지워요. 보안 규칙도 "본인 것은 지울 수 있게" 고쳤어요.</li>
+      <li>Firestore는 한 번에 지울 수 있는 개수가 정해져 있어서 <b>300개씩 나눠서</b> 지워요.</li></ul></article>
+    <article class="cs"><h3><em>04</em>Repository로 저장소 분리</h3>
+      <ul><li>화면은 저장소의 <b>인터페이스</b>만 알고, 실제 저장은 <b>Firestore 구현</b>과 <b>메모리 구현</b> 두 가지가 맡아요.</li>
+      <li>덕분에 서버 없이도 앱이 돌아가서 <b>로그인 없는 웹 체험판</b>과 자동 테스트에 메모리 구현을 그대로 써요.</li>
+      <li>한 곳에 몰려 있던 3,400줄짜리 상태 클래스를 <b>영역별 ViewModel 21개</b>로 나눴어요.</li></ul></article>
+    <article class="cs"><h3><em>05</em>사용자 경험의 세부 완성도</h3>
       <ul><li>기록 여부에 따라 바뀌는 <b>동적 앱 아이콘</b>(iOS 대체 아이콘 · Android activity-alias)</li>
-      <li>글자 크기 배율 · 디자인 토큰 · 화면 오버플로 점검, 로그인 없는 <b>웹 체험판</b></li></ul></article>
+      <li>글자 크기 배율 · 디자인 토큰 · 화면 오버플로 점검</li></ul></article>
   </div>
 
   <div class="p2bot" style="grid-template-columns:1fr">
